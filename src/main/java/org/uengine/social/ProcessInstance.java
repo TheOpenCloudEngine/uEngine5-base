@@ -1,5 +1,6 @@
 package org.uengine.social;
 
+import org.metaworks.multitenancy.persistence.BeforeSave;
 import org.uengine.persistence.processinstance.ProcessInstanceDAO;
 import org.uengine.util.dao.AbstractGenericDAO;
 
@@ -9,13 +10,14 @@ import javax.ejb.EJBLocalObject;
 import javax.ejb.RemoveException;
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by uengine on 2017. 6. 19..
  */
 @Entity
 @Table(name = "BPM_PROCINST")
-public class ProcessInstance implements ProcessInstanceDAO {
+public class ProcessInstance implements ProcessInstanceDAO, BeforeSave {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -81,6 +83,23 @@ public class ProcessInstance implements ProcessInstanceDAO {
 
     String initComCd;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
+    List<WorkList> workLists;
+        public List<WorkList> getWorkLists() {
+            return workLists;
+        }
+        public void setWorkLists(List<WorkList> workLists) {
+            this.workLists = workLists;
+        }
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
+    List<RoleMapping> roleMappings;
+        public List<RoleMapping> getRoleMappings() {
+            return roleMappings;
+        }
+        public void setRoleMappings(List<RoleMapping> roleMappings) {
+            this.roleMappings = roleMappings;
+        }
 
     @Override
     public Long getInstId() {
@@ -635,5 +654,20 @@ public class ProcessInstance implements ProcessInstanceDAO {
     @Override
     public void releaseResource() throws Exception {
 
+    }
+
+    @Override
+    public void beforeSave() {
+        if(getWorkLists()!=null && getWorkLists().size() > 0){
+            for(WorkList workList : getWorkLists()){
+                workList.setProcessInstance(this);
+            }
+        }
+
+        if(getRoleMappings()!=null && getRoleMappings().size() > 0){
+            for(RoleMapping roleMapping : getRoleMappings()){
+                roleMapping.setProcessInstance(this);
+            }
+        }
     }
 }

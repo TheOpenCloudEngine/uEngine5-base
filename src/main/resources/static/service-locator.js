@@ -43,7 +43,7 @@ Vue.component('service-locator', {
                 var data = JSON.parse(xhr.responseText);
                 context.success(data);
             }
-            xhr.send(context.payload ? JSON.stringify(context.payload) : null);
+            xhr.send(context.data ? JSON.stringify(context.data) : null);
         }
     }
 });
