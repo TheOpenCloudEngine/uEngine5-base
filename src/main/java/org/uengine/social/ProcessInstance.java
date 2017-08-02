@@ -84,11 +84,11 @@ public class ProcessInstance implements ProcessInstanceDAO, BeforeSave {
     String initComCd;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
-    List<WorkList> workLists;
-        public List<WorkList> getWorkLists() {
+    List<Worklist> workLists;
+        public List<Worklist> getWorkLists() {
             return workLists;
         }
-        public void setWorkLists(List<WorkList> workLists) {
+        public void setWorkLists(List<Worklist> workLists) {
             this.workLists = workLists;
         }
 
@@ -658,11 +658,11 @@ public class ProcessInstance implements ProcessInstanceDAO, BeforeSave {
 
     @Override
     public void beforeSave() {
-        if(getWorkLists()!=null && getWorkLists().size() > 0){
-            for(WorkList workList : getWorkLists()){
-                workList.setProcessInstance(this);
-            }
-        }
+//        if(getWorkLists()!=null && getWorkLists().size() > 0){
+//            for(Worklist workList : getWorkLists()){
+//                workList.setProcessInstance(this);
+//            }
+//        }
 
         if(getRoleMappings()!=null && getRoleMappings().size() > 0){
             for(RoleMapping roleMapping : getRoleMappings()){

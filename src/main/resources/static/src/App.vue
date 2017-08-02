@@ -77,6 +77,8 @@
                 <span>{{item.name}}</span>
                 <p>{{item.lastCmnt}}</p>
                 <p>{{item.lastCmnt2}}</p>
+
+                <instance-view :instance-id="item.instId"></instance-view>
               </div>
 
               <md-button class="md-icon-button md-list-action">
