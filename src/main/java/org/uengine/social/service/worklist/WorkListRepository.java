@@ -14,5 +14,7 @@ import java.util.List;
 public interface WorkListRepository extends PersistentRepository<WorkList, Long> {
 
     public List<WorkList> findByInstId(@Param("instId") Long instId);
+
+
 }
 
