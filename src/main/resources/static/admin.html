@@ -44,7 +44,7 @@
         <md-tab id="customers" md-label="Customers">
 
             <object-grid ref="grid"
-                     java="org.uengine.social.ProcessInstance"
+                     java="org.uengine.social.service.instance.ProcessInstance"
                      :filter-key="searchQuery"
                      :column-changer="columnChanger"
                      :online = "true"
@@ -57,7 +57,7 @@
         </md-tab>
         <md-tab id="ssp-customer" md-label="Selfservice - Class management">
             <ssp-class
-                java="org.uengine.social.ProcessInstance"
+                java="org.uengine.social.service.instance.ProcessInstance"
                 service-locator="backend">
             </ssp-class>
         </md-tab>

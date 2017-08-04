@@ -2,24 +2,23 @@
   <v-app>
 
 
-    <iam-login iam-server="http://iam.uengine.io:8080" ref="login" :listener="this" v-if="!loggedIn" id="jyjang@uengine.org" password="test"></iam-login>
+    <iam-login iam-server="http://iam.uengine.io:8080" ref="login" :listener="this" v-if="!loggedIn"
+               id="jyjang@uengine.org" password="test"></iam-login>
 
     <service-locator host="http://localhost:8080" ref="backend" path="instances"></service-locator>
 
     <div v-if="loggedIn">
 
 
-
-
       <!-- Left Navigator -->
       <v-navigation-drawer
-              class="grey lighten-4 pb-0"
-              absolute
-              height="100%"
-              light
-              persistent
-              clipped
-              v-model="drawer"
+        class="grey lighten-4 pb-0"
+        absolute
+        height="100%"
+        light
+        persistent
+        clipped
+        v-model="drawer"
       >
         <v-list dense>
           <template>
@@ -92,80 +91,80 @@
       </main>
 
 
-
-
     </div>
 
   </v-app>
 </template>
 <script>
-    export default {
+  export default {
 
-        props: {
-            loggedIn: Boolean
-        },
+    props: {
+      loggedIn: Boolean
+    },
 
-        data () {
+    data () {
 
-          return {
-            feed: [],
-            title: '',
-            clipped: false,
-            drawer: true,
-            fixed: true,
-            url1: 'http://www.metaworks4.io',
-            url2: 'https://www.github.com/theopencloudengine'
+      return {
+        feed: [],
+        title: '',
+        clipped: false,
+        drawer: true,
+        fixed: true,
+        url1: 'http://www.metaworks4.io',
+        url2: 'https://www.github.com/theopencloudengine'
+      }
+
+    },
+    methods: {
+
+      onLoggedIn: function () {
+        this.loggedIn = true;
+
+        this.search("findAllICanSee");
+
+      },
+
+      search: function (filter) {
+        var me = this;
+
+        this.$refs['backend'].invoke({
+          path: "instances/search/" + filter,
+          query: {"sort": "moddate,desc"},
+          success: function (data) {
+            me.feed = data._embedded.instances;
           }
+        });
 
-        },
-        methods: {
+      },
 
-            onLoggedIn: function(){
-                this.loggedIn = true;
+      send: function () {
 
-                this.search("findAllICanSee");
+        this.$refs['backend'].invoke({
+          method: "POST",
+          data: {
+            name: this.title,
+            lastCmnt: this.title,
 
-            },
+            dummyRoleMappings: [{
+              roleName: 'initiator',
+              endpoint: 'jyjang'
+            }],
+            dummyWorkLists: [{
+              type: 'comment',
+              title: '덧글',
+              content: '덧글내용',
+              endpoint: 'jyjang'
+            }]
+          }
+        });
 
-            search: function(filter){
-              var me = this;
-
-              this.$refs['backend'].invoke({
-                path: "instances/search/" + filter,
-                query: {"sort": "moddate,desc"},
-                success: function(data){
-                  me.feed = data._embedded.instances;
-                }
-              });
-
-            },
-
-            send: function(){
-
-                this.$refs['backend'].invoke({
-                    method: "POST",
-                    data: {
-                        name: this.title,
-                        lastCmnt: this.title,
-
-                        roleMappings: [{
-                            name: 'initiator',
-                            endpoint: 'jyjang'
-                        }],
-                        workLists: [{
-
-                        }]
-
-                    }
-                });
-
-            },
-            setTitle: function (name) {
-                $('.toolbar__title').text(name);
-            }
-        }
-
+      },
+      setTitle: function (name) {
+        $('.toolbar__title').text(name);
+      }
     }
+
+  }
 </script>
 
 <style lang="stylus">
