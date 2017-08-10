@@ -19,7 +19,9 @@ public class GlobalRepositoryRestConfigurer extends RepositoryRestConfigurerAdap
         config.getCorsRegistry()
                 .addMapping("/**")
                 .allowedOrigins("*")
+                .maxAge(3600)
                 .allowedMethods("POST", "GET", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("access_token", "Content-Type");
+                .allowedHeaders("access_token", "Content-Type", "x-requested-with", "origin", "accept",
+                        "authorization", "Location");
     }
 }

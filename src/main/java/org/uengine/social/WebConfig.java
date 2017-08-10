@@ -26,6 +26,7 @@ import org.uengine.modeling.resource.LocalFileStorage;
 import org.uengine.modeling.resource.ResourceManager;
 import org.uengine.modeling.resource.Storage;
 import org.uengine.persistence.couchbase.CouchbaseStorage;
+import org.uengine.social.common.security.SecurityEvaluationContextExtension;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -41,12 +42,12 @@ public class WebConfig extends Metaworks4WebConfig {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8082", "http://localhost:8081", "*")
+                .allowedOrigins("*")
+                .maxAge(3600)
                 .allowedMethods("POST", "GET", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("access_token", "Content-Type");
-
+                .allowedHeaders("access_token", "Content-Type", "x-requested-with", "origin", "accept",
+                        "authorization", "Location");
     }
 
     @Bean
@@ -54,6 +55,21 @@ public class WebConfig extends Metaworks4WebConfig {
         ResourceManager resourceManager = new CachedResourceManager();
         resourceManager.setStorage(storage());
         return resourceManager;
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        final Properties pool = new Properties();
+        pool.put("driverClassName", "com.mysql.jdbc.Driver");
+        pool.put("url", "jdbc:mysql://localhost:3306/uengine?useUnicode=true&characterEncoding=UTF8&useOldAliasMetadataBehavior=true");
+        pool.put("username", "root");
+        pool.put("password", "");
+        pool.put("minIdle", 1);
+        try {
+            return new org.apache.tomcat.jdbc.pool.DataSourceFactory().createDataSource(pool);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Bean
@@ -85,22 +101,6 @@ public class WebConfig extends Metaworks4WebConfig {
         return metadataService;
     }
 
-//    @Bean
-//    public DataSource dataSource() {
-//        //In classpath from spring-boot-starter-web
-//        final Properties pool = new Properties();
-//        pool.put("driverClassName", "com.mysql.jdbc.Driver");
-//        pool.put("url", "jdbc:mysql://localhost:3306/uengine?useUnicode=true&characterEncoding=UTF8&useOldAliasMetadataBehavior=true");
-//        pool.put("username", "root");
-//        pool.put("password", "");
-//        pool.put("minIdle", 1);
-//        try {
-//            return new org.apache.tomcat.jdbc.pool.DataSourceFactory().createDataSource(pool);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
     @Bean
     @Primary
     public JpaProperties jpaProperties() {
@@ -122,23 +122,6 @@ public class WebConfig extends Metaworks4WebConfig {
     @Scope("prototype")
     public ProcessInstance processInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
        return new JPAProcessInstance(procDefinition, instanceId, options);
-    }
-
-
-}
-
-
-class SecurityEvaluationContextExtension extends EvaluationContextExtensionSupport {
-
-    @Override
-    public String getExtensionId() {
-        return "security";
-    }
-
-    @Override
-    public SecurityExpressionRoot getRootObject() {
-
-        return new SecurityExpressionRoot();
     }
 }
 
