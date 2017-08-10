@@ -127,9 +127,10 @@ public class DefinitionService {
     // ----------------- execution services -------------------- //
 
     @RequestMapping(value = "/definition/{defPath}/instance", method = RequestMethod.POST)
-    public String runDefinition(@PathVariable("defPath") String definitionPath, @RequestBody Object arguments) throws Exception {
+    public String runDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
 
-        Object definition = getDefinition(definitionPath);
+        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
+        Object definition = resourceManager.getObject(resource);
 
         if(definition instanceof ProcessDefinition){
             ProcessDefinition processDefinition = (ProcessDefinition) definition;

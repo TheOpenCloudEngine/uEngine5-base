@@ -10,6 +10,7 @@ import org.uengine.kernel.ProcessDefinition;
 import org.uengine.social.ProcessInstanceEntity;
 import org.uengine.social.ProcessInstanceRepository;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 
 /**
@@ -35,9 +36,14 @@ public class JPAProcessInstance extends DefaultProcessInstance {
 
         setProcessInstanceEntity(new ProcessInstanceEntity());
         getProcessInstanceEntity().setName(instanceId);
+    }
 
+    @PostConstruct
+    public void init(){
         processInstanceRepository.save(getProcessInstanceEntity());
     }
+
+
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void beforeCommit(){
