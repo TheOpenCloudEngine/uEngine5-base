@@ -1,7 +1,9 @@
-package org.uengine.social;
+package org.uengine.social.service.instance;
 
 import org.metaworks.multitenancy.persistence.BeforeSave;
 import org.uengine.persistence.processinstance.ProcessInstanceDAO;
+import org.uengine.social.service.rolemapping.RoleMappingEntity;
+import org.uengine.social.service.worklist.WorklistEntity;
 import org.uengine.util.dao.AbstractGenericDAO;
 
 import javax.ejb.EJBException;
@@ -9,9 +11,16 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.RemoveException;
 import javax.persistence.*;
-import java.util.ArrayList;
+import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.util.Date;
 import java.util.List;
+
+class DummyWorkList extends WorklistEntity {
+}
+
+class DummyRoleMapping extends RoleMappingEntity {
+}
 
 /**
  * Created by uengine on 2017. 6. 19..
@@ -19,6 +28,28 @@ import java.util.List;
 @Entity
 @Table(name = "BPM_PROCINST")
 public class ProcessInstanceEntity implements ProcessInstanceDAO, BeforeSave {
+
+    @Transient
+    private List<DummyWorkList> dummyWorkLists;
+
+    public List<DummyWorkList> getDummyWorkLists() {
+        return dummyWorkLists;
+    }
+
+    public void setDummyWorkLists(List<DummyWorkList> dummyWorkLists) {
+        this.dummyWorkLists = dummyWorkLists;
+    }
+
+    @Transient
+    private List<DummyRoleMapping> dummyRoleMappings;
+
+    public List<DummyRoleMapping> getDummyRoleMappings() {
+        return dummyRoleMappings;
+    }
+
+    public void setDummyRoleMappings(List<DummyRoleMapping> dummyRoleMappings) {
+        this.dummyRoleMappings = dummyRoleMappings;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -86,21 +117,25 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO, BeforeSave {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
     List<WorklistEntity> workLists;
-        public List<WorklistEntity> getWorkLists() {
-            return workLists;
-        }
-        public void setWorkLists(List<WorklistEntity> workLists) {
-            this.workLists = workLists;
-        }
+
+    public List<WorklistEntity> getWorkLists() {
+        return workLists;
+    }
+
+    public void setWorkLists(List<WorklistEntity> workLists) {
+        this.workLists = workLists;
+    }
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
     List<RoleMappingEntity> roleMappings;
-        public List<RoleMappingEntity> getRoleMappings() {
-            return roleMappings;
-        }
-        public void setRoleMappings(List<RoleMappingEntity> roleMappings) {
-            this.roleMappings = roleMappings;
-        }
+
+    public List<RoleMappingEntity> getRoleMappings() {
+        return roleMappings;
+    }
+
+    public void setRoleMappings(List<RoleMappingEntity> roleMappings) {
+        this.roleMappings = roleMappings;
+    }
 
     @Override
     public Long getInstId() {
@@ -659,18 +694,6 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO, BeforeSave {
 
     @Override
     public void beforeSave() {
-        WorklistEntity wl = new WorklistEntity();
-            wl.setTitle(getName());
-            wl.setEndpoint("jyjang");
-            wl.setProcessInstance(this);
-        setWorkLists(new ArrayList<WorklistEntity>());
-        getWorkLists().add(wl);
-
-        if(getRoleMappings()!=null && getRoleMappings().size() > 0){
-            for(RoleMappingEntity roleMapping : getRoleMappings()){
-                roleMapping.setProcessInstance(this);
-            }
-        }
 
     }
 }

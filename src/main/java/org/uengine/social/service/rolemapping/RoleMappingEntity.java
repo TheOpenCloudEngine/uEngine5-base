@@ -1,34 +1,54 @@
 package org.uengine.social.service.rolemapping;
 
-import org.uengine.social.service.instance.ProcessInstance;
+import org.uengine.social.service.instance.ProcessInstanceEntity;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 /**
  * Created by uengine on 2017. 8. 1..
  */
 @Entity
 @Table(name = "BPM_ROLEMAPPING")
-public class RoleMapping implements Serializable {
+public class RoleMappingEntity {//implements RoleMappingDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long roleMappingId;
+    Long roleMappingId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instId")
-    private ProcessInstance processInstance;
+//    @ManyToOne(targetEntity = ProcessInstanceEntity.class)
+//    Long instId;
+//
+//    @ManyToOne(targetEntity = ProcessInstanceEntity.class)
+//    Long rootInstId;
 
-    private String roleName;
-    private String value;
-    private String endpoint;
-    private String resName;
-    private String groupId;
-    private Number assignType;
-    private String assignParam1;
-    private String dispatchParam1;
-    private Number dispatchOption;
+    @ManyToOne
+    @JoinColumn(name="instId")
+    ProcessInstanceEntity processInstance;
+    public ProcessInstanceEntity getProcessInstance() {
+        return processInstance;
+    }
+    public void setProcessInstance(ProcessInstanceEntity processInstance) {
+        this.processInstance = processInstance;
+    }
+
+    String roleName;
+
+    String value;
+
+    String endpoint;
+
+    String resName;
+
+    String groupId;
+
+    Number assignType;
+
+    String assignParam1;
+
+    String dispatchParam1;
+
+    Number dispatchOption;
+
 
     public Long getRoleMappingId() {
         return roleMappingId;
@@ -36,14 +56,6 @@ public class RoleMapping implements Serializable {
 
     public void setRoleMappingId(Long roleMappingId) {
         this.roleMappingId = roleMappingId;
-    }
-
-    public ProcessInstance getProcessInstance() {
-        return processInstance;
-    }
-
-    public void setProcessInstance(ProcessInstance processInstance) {
-        this.processInstance = processInstance;
     }
 
     public String getRoleName() {

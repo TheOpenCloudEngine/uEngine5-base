@@ -1,4 +1,4 @@
-package org.uengine.social;
+package org.uengine.social.service.definition;
 
 import org.directwebremoting.impl.DefaultContainer;
 import org.omg.spec.bpmn._20100524.model.TDefinitions;

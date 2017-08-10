@@ -1,9 +1,8 @@
 package org.uengine.social.service.worklist;
 
-import org.uengine.social.service.instance.ProcessInstance;
+import org.uengine.social.service.instance.ProcessInstanceEntity;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,59 +10,65 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "BPM_WORKLIST")
-public class WorkList implements Serializable {
+public class WorklistEntity {//implements WorkListDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long taskId;
+    Long taskId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "instId")
-    private ProcessInstance processInstance;
 
-//    private Long instId;
-//    @PrimaryKeyJoinColumn
-//    public Long getInstId() {
-//        return instId;
-//    }
-//
-//    public void setInstId(Long instId) {
-//        this.instId = instId;
-//    }
+    Long instId;
+    @PrimaryKeyJoinColumn
+        public Long getInstId() {
+            return instId;
+        }
+        public void setInstId(Long instId) {
+            this.instId = instId;
+        }
 
-    private String title;
-    private String description;
-    private String endpoint;
-    private String roleName;
-    private String refRoleName;
-    private String resName;
-    private String defId;
-    private String defName;
-    private String trcTag;
-    private String tool;
-    private String parameter;
-    private Number priority;
-    private Date startDate;
-    private Date endDate;
-    private Date saveDate;
-    private Date dueDate;
-    private String status;
-    private int dispatchOption;
-    private String dispatchParam1;
-    private String prevUserName;
-    private Number rootInstId;
-    private Date readDate;
-    private String type;
-    private String actType;
-    private String absTrcTag;
-    private Boolean delegated;
-    private Boolean urget;
-    private String execScope;
-    private String ext1;
-    private String ext2;
-    private String ext3;
-    private String ext4;
-    private String ext5;
+    @ManyToOne
+    @PrimaryKeyJoinColumn(name="instId")
+    ProcessInstanceEntity processInstance;
+        public ProcessInstanceEntity getProcessInstance() {
+            return processInstance;
+        }
+        public void setProcessInstance(ProcessInstanceEntity processInstance) {
+            this.processInstance = processInstance;
+        }
+
+
+    String title;
+    String description;
+    String endpoint;
+    String roleName;
+    String refRoleName;
+    String resName;
+    String defId;
+    String defName;
+    String trcTag;
+    String tool;
+    String parameter;
+    Number priority;
+    Date startDate;
+    Date endDate;
+    Date saveDate;
+    Date dueDate;
+    String status;
+    int dispatchOption;
+    String dispatchParam1;
+    String prevUserName;
+    Number rootInstId;
+    Date readDate;
+    String actType;
+    String absTrcTag;
+    Boolean delegated;
+    Boolean urget;
+    String execScope;
+    String ext1;
+    String ext2;
+    String ext3;
+    String ext4;
+    String ext5;
 
     public Long getTaskId() {
         return taskId;
@@ -71,14 +76,6 @@ public class WorkList implements Serializable {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
-    }
-
-    public ProcessInstance getProcessInstance() {
-        return processInstance;
-    }
-
-    public void setProcessInstance(ProcessInstance processInstance) {
-        this.processInstance = processInstance;
     }
 
     public String getTitle() {
@@ -128,6 +125,8 @@ public class WorkList implements Serializable {
     public void setResName(String resName) {
         this.resName = resName;
     }
+
+
 
     public String getDefId() {
         return defId;
@@ -257,14 +256,6 @@ public class WorkList implements Serializable {
         this.readDate = readDate;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getActType() {
         return actType;
     }
@@ -344,4 +335,6 @@ public class WorkList implements Serializable {
     public void setExt5(String ext5) {
         this.ext5 = ext5;
     }
+
+
 }

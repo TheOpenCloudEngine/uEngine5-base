@@ -1,4 +1,4 @@
-package org.uengine.social;
+package org.uengine.social.service.instance;
 
 import org.metaworks.multitenancy.persistence.MultitenantRepository;
 import org.springframework.data.jpa.repository.Query;

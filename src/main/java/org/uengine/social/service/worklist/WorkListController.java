@@ -26,7 +26,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  */
 @BasePathAwareController
 @RequestMapping(value = "/worklist/search")
-public class WorkListController implements ResourceProcessor<RepositorySearchesResource>, ResourceAssembler<WorkList, Resource<WorkList>> {
+public class WorkListController implements ResourceProcessor<RepositorySearchesResource>, ResourceAssembler<WorklistEntity, Resource<WorklistEntity>> {
 
     @Autowired
     private WorkListRepository repository;
@@ -38,8 +38,8 @@ public class WorkListController implements ResourceProcessor<RepositorySearchesR
     @ResponseBody
     public ResponseEntity<?> findByInstId(@RequestParam(value = "instId", defaultValue = "") Long instId, Pageable pageable) {
         try {
-            List<WorkList> lists = repository.findByInstId(instId);
-            Resources<WorkList> resources = new Resources<>(lists);
+            List<WorklistEntity> lists = repository.findByInstId(instId);
+            Resources<WorklistEntity> resources = new Resources<>(lists);
 
             resources.add(linkTo(methodOn(WorkListController.class).findByInstId(instId, pageable)).withSelfRel());
             return new ResponseEntity<>(resources, HttpStatus.OK);
@@ -51,16 +51,16 @@ public class WorkListController implements ResourceProcessor<RepositorySearchesR
     @Override
     public RepositorySearchesResource process(RepositorySearchesResource resource) {
 
-        LinkBuilder lb = entityLinks.linkFor(WorkList.class, "instId");
+        LinkBuilder lb = entityLinks.linkFor(WorklistEntity.class, "instId");
         resource.add(new Link(lb.toString() + "/search/findbysome{?instId}", "findbysome"));
         return resource;
     }
 
 
     @Override
-    public Resource<WorkList> toResource(WorkList workList) {
-        Resource<WorkList> resource = new Resource<>(workList);
-        Resources<WorkList> resources = new Resources<>(new ArrayList<>());
+    public Resource<WorklistEntity> toResource(WorklistEntity workList) {
+        Resource<WorklistEntity> resource = new Resource<>(workList);
+        Resources<WorklistEntity> resources = new Resources<>(new ArrayList<>());
         return resource;
     }
 }
