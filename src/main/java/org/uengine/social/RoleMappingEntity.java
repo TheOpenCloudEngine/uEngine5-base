@@ -7,25 +7,25 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "BPM_ROLEMAPPING")
-public class RoleMapping {//implements RoleMappingDAO {
+public class RoleMappingEntity {//implements RoleMappingDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long roleMappingId;
 
-//    @ManyToOne(targetEntity = ProcessInstance.class)
+//    @ManyToOne(targetEntity = ProcessInstanceEntity.class)
 //    Long instId;
 //
-//    @ManyToOne(targetEntity = ProcessInstance.class)
+//    @ManyToOne(targetEntity = ProcessInstanceEntity.class)
 //    Long rootInstId;
 
     @ManyToOne
     @JoinColumn(name="instId")
-    ProcessInstance processInstance;
-    public ProcessInstance getProcessInstance() {
+    ProcessInstanceEntity processInstance;
+    public ProcessInstanceEntity getProcessInstance() {
         return processInstance;
     }
-    public void setProcessInstance(ProcessInstance processInstance) {
+    public void setProcessInstance(ProcessInstanceEntity processInstance) {
         this.processInstance = processInstance;
     }
 

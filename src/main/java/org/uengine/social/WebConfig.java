@@ -10,10 +10,7 @@ import org.metaworks.springboot.configuration.Metaworks4WebConfig;
 import org.metaworks.multitenancy.persistence.MultitenantRepositoryImpl;
 import org.metaworks.rest.MetaworksRestService;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
@@ -21,6 +18,9 @@ import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.uengine.five.JPAProcessInstance;
+import org.uengine.kernel.ProcessDefinition;
+import org.uengine.kernel.ProcessInstance;
 import org.uengine.modeling.resource.CachedResourceManager;
 import org.uengine.modeling.resource.LocalFileStorage;
 import org.uengine.modeling.resource.ResourceManager;
@@ -118,6 +118,13 @@ public class WebConfig extends Metaworks4WebConfig {
     }
 
 
+    @Bean
+    @Scope("prototype")
+    public ProcessInstance processInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
+       return new JPAProcessInstance(procDefinition, instanceId, options);
+    }
+
+
 }
 
 
@@ -131,7 +138,7 @@ class SecurityEvaluationContextExtension extends EvaluationContextExtensionSuppo
     @Override
     public SecurityExpressionRoot getRootObject() {
 
-        return new SecurityExpressionRoot("jyjang") {};
+        return new SecurityExpressionRoot();
     }
 }
 

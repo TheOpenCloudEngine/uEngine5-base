@@ -5,16 +5,10 @@ package org.uengine.social;
  */
 public class SecurityExpressionRoot {
 
-    String loggedUserId;
-        public String getLoggedUserId() {
-            return loggedUserId;
-        }
+    public String getLoggedUserId() {
 
-        public void setLoggedUserId(String loggedUserId) {
-            this.loggedUserId = loggedUserId;
-        }
-
-    public SecurityExpressionRoot(String loggedUserId) {
-        this.loggedUserId = loggedUserId;
+        //스프링 시큐리티에 서 얻어와서 리턴
+        return "장진영";
     }
+
 }

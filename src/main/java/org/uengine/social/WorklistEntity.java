@@ -1,10 +1,5 @@
 package org.uengine.social;
 
-import org.eclipse.persistence.annotations.ReadOnly;
-import org.uengine.persistence.dao.WorkListDAO;
-import org.uengine.persistence.processinstance.ProcessInstanceDAO;
-import org.uengine.util.dao.AbstractGenericDAO;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -13,7 +8,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "BPM_WORKLIST")
-public class Worklist {//implements WorkListDAO {
+public class WorklistEntity {//implements WorkListDAO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,11 +26,11 @@ public class Worklist {//implements WorkListDAO {
 
     @ManyToOne
     @PrimaryKeyJoinColumn(name="instId")
-    ProcessInstance processInstance;
-        public ProcessInstance getProcessInstance() {
+    ProcessInstanceEntity processInstance;
+        public ProcessInstanceEntity getProcessInstance() {
             return processInstance;
         }
-        public void setProcessInstance(ProcessInstance processInstance) {
+        public void setProcessInstance(ProcessInstanceEntity processInstance) {
             this.processInstance = processInstance;
         }
 

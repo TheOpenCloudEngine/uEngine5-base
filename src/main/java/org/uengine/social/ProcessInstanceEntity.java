@@ -9,6 +9,7 @@ import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.RemoveException;
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "BPM_PROCINST")
-public class ProcessInstance implements ProcessInstanceDAO, BeforeSave {
+public class ProcessInstanceEntity implements ProcessInstanceDAO, BeforeSave {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -84,20 +85,20 @@ public class ProcessInstance implements ProcessInstanceDAO, BeforeSave {
     String initComCd;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
-    List<Worklist> workLists;
-        public List<Worklist> getWorkLists() {
+    List<WorklistEntity> workLists;
+        public List<WorklistEntity> getWorkLists() {
             return workLists;
         }
-        public void setWorkLists(List<Worklist> workLists) {
+        public void setWorkLists(List<WorklistEntity> workLists) {
             this.workLists = workLists;
         }
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
-    List<RoleMapping> roleMappings;
-        public List<RoleMapping> getRoleMappings() {
+    List<RoleMappingEntity> roleMappings;
+        public List<RoleMappingEntity> getRoleMappings() {
             return roleMappings;
         }
-        public void setRoleMappings(List<RoleMapping> roleMappings) {
+        public void setRoleMappings(List<RoleMappingEntity> roleMappings) {
             this.roleMappings = roleMappings;
         }
 
@@ -658,16 +659,18 @@ public class ProcessInstance implements ProcessInstanceDAO, BeforeSave {
 
     @Override
     public void beforeSave() {
-//        if(getWorkLists()!=null && getWorkLists().size() > 0){
-//            for(Worklist workList : getWorkLists()){
-//                workList.setProcessInstance(this);
-//            }
-//        }
+        WorklistEntity wl = new WorklistEntity();
+            wl.setTitle(getName());
+            wl.setEndpoint("jyjang");
+            wl.setProcessInstance(this);
+        setWorkLists(new ArrayList<WorklistEntity>());
+        getWorkLists().add(wl);
 
         if(getRoleMappings()!=null && getRoleMappings().size() > 0){
-            for(RoleMapping roleMapping : getRoleMappings()){
+            for(RoleMappingEntity roleMapping : getRoleMappings()){
                 roleMapping.setProcessInstance(this);
             }
         }
+
     }
 }
