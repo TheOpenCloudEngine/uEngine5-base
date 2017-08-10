@@ -18,18 +18,18 @@ public class WorkList implements Serializable {
     private Long taskId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @PrimaryKeyJoinColumn(name = "instId")
+    @JoinColumn(name = "instId")
     private ProcessInstance processInstance;
 
-    private Long instId;
-    @PrimaryKeyJoinColumn
-    public Long getInstId() {
-        return instId;
-    }
-
-    public void setInstId(Long instId) {
-        this.instId = instId;
-    }
+//    private Long instId;
+//    @PrimaryKeyJoinColumn
+//    public Long getInstId() {
+//        return instId;
+//    }
+//
+//    public void setInstId(Long instId) {
+//        this.instId = instId;
+//    }
 
     private String title;
     private String description;
