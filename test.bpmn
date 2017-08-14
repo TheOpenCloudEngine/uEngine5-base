@@ -14,10 +14,10 @@
     <startEvent id="StartEvent_1" name="피자먹고싶어">
       <outgoing>SequenceFlow_1</outgoing>
     </startEvent>
-    <task id="Task_1" name="피자선택">
+    <userTask id="Task_1" name="피자선택">
       <incoming>SequenceFlow_1</incoming>
       <outgoing>SequenceFlow_0nh5g7a</outgoing>
-    </task>
+    </userTask>
     <eventBasedGateway id="ExclusiveGateway_1w7uff2">
       <incoming>SequenceFlow_19l04ix</incoming>
       <incoming>SequenceFlow_1bte6ki</incoming>

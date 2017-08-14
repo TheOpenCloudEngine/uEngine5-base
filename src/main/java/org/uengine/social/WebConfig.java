@@ -19,6 +19,7 @@ import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.uengine.five.JPAProcessInstance;
+import org.uengine.five.JPAWorkList;
 import org.uengine.kernel.ProcessDefinition;
 import org.uengine.kernel.ProcessInstance;
 import org.uengine.modeling.resource.CachedResourceManager;
@@ -27,6 +28,7 @@ import org.uengine.modeling.resource.ResourceManager;
 import org.uengine.modeling.resource.Storage;
 import org.uengine.persistence.couchbase.CouchbaseStorage;
 import org.uengine.social.common.security.SecurityEvaluationContextExtension;
+import org.uengine.webservices.worklist.WorkList;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -122,6 +124,11 @@ public class WebConfig extends Metaworks4WebConfig {
     @Scope("prototype")
     public ProcessInstance processInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
        return new JPAProcessInstance(procDefinition, instanceId, options);
+    }
+
+    @Bean
+    public WorkList workList(){
+        return new JPAWorkList();
     }
 }
 

@@ -9,6 +9,7 @@ import org.uengine.kernel.DefaultProcessInstance;
 import org.uengine.kernel.ProcessDefinition;
 import org.uengine.social.service.instance.ProcessInstanceEntity;
 import org.uengine.social.service.instance.ProcessInstanceRepository;
+import org.uengine.webservices.worklist.WorkList;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     @PostConstruct
     public void init(){
         processInstanceRepository.save(getProcessInstanceEntity());
+        setInstanceId(String.valueOf(getProcessInstanceEntity().getInstId()));
     }
 
 
@@ -52,5 +54,11 @@ public class JPAProcessInstance extends DefaultProcessInstance {
 
     }
 
+    @Override
+    public WorkList getWorkList() {
+        return jpaWorkList;
+    }
 
+    @Autowired
+    JPAWorkList jpaWorkList;
 }

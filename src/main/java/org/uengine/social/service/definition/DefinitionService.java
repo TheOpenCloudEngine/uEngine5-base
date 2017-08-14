@@ -134,6 +134,12 @@ public class DefinitionService {
 
         if(definition instanceof ProcessDefinition){
             ProcessDefinition processDefinition = (ProcessDefinition) definition;
+            { //TODO: will be moved to afterDeserialize of ProcessDefinition
+                processDefinition.setId(resource.getPath());
+                if(processDefinition.getName()==null)
+                    processDefinition.setName(resource.getPath());
+            }
+
 
             //org.uengine.kernel.ProcessInstance instance = processDefinition.createInstance();
 
