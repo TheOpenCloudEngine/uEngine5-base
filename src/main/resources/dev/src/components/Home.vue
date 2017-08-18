@@ -1,5 +1,5 @@
 <template>
-  <v-app dark toolbar fixed-footer>
+  <v-app light toolbar fixed-footer>
     <v-navigation-drawer
       persistent
       v-model="drawer"
@@ -57,7 +57,9 @@
 </template>
 <script>
   export default {
-
+    props: {
+      iam: Object
+    },
     data() {
       return {
         drawer: null,
@@ -69,77 +71,34 @@
       }
     },
     mounted() {
-
+      this.updateActive();
     },
     watch: {
       '$route'(to, from) {
-        console.log('update!');
-        // 경로 변경에 반응하여...
+        this.updateActive();
       }
     },
     methods: {
+      updateActive: function () {
+        var me = this;
+        var routers = me.$route.matched;
+        $.each(me.items, function (i, item) {
+          var isActive = false;
+          $.each(routers, function (r, router) {
+            if (router.name == item.routerName) {
+              isActive = true;
+            }
+          });
+          item.isActive = isActive;
+        })
+      },
       move(routerName) {
-        console.log(this.items);
         this.$router.push(routerName)
       }
     }
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
-  .content-wrap {
-    position: absolute;
-    /*overflow: hidden;*/
-
-    .scroll-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      padding-right: 16px;
-    }
-  }
-
-  .content-wrap.left {
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    width: 300px;
-  }
-
-  .content-wrap.center {
-    top: 0px;
-    bottom: 0px;
-    left: 300px;
-    right: 0px;
-  }
-
-  .content-wrap.top {
-    top: 0px;
-    height: 130px;
-    left: 0px;
-    width: 100%;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .content-wrap.bottom {
-    top: 130px;
-    bottom: 0px;
-    left: 0px;
-    width: 100%;
-  }
-
-  .container.fluid {
-    position: absolute;
-
-  }
-
-  .full-toggle {
-    width: 100%;
-
-    .btn {
-      width: 25%;
-    }
-  }
+<style scoped lang="scss" rel="stylesheet/scss">
 
 </style>

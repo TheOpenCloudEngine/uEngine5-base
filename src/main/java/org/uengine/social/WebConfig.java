@@ -2,10 +2,8 @@ package org.uengine.social;
 
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.metaworks.multitenancy.ClassManager;
-import org.metaworks.multitenancy.CouchbaseMetadataService;
 import org.metaworks.multitenancy.DefaultMetadataService;
 import org.metaworks.multitenancy.MetadataService;
-import org.metaworks.multitenancy.tenantawarefilter.TenantAwareFilter;
 import org.metaworks.springboot.configuration.Metaworks4WebConfig;
 import org.metaworks.multitenancy.persistence.MultitenantRepositoryImpl;
 import org.metaworks.rest.MetaworksRestService;
@@ -13,9 +11,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
-import org.springframework.data.repository.query.spi.EvaluationContextExtensionSupport;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.ResourceProcessor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.uengine.five.JPAProcessInstance;
@@ -41,16 +36,6 @@ import java.util.Properties;
 @ComponentScan(basePackageClasses = {MetaworksRestService.class, WebConfig.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
 @EnableJpaRepositories(repositoryBaseClass = MultitenantRepositoryImpl.class)
 public class WebConfig extends Metaworks4WebConfig {
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .maxAge(3600)
-                .allowedMethods("POST", "GET", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("access_token", "Content-Type", "x-requested-with", "origin", "accept",
-                        "authorization", "Location");
-    }
 
     @Bean
     public ResourceManager resourceManager() {

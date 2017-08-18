@@ -1,28 +1,32 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import IAMLogin from '@/components/IAMLogin'
+import Login from '@/components/Login'
 import ServiceLocator from '@/components/ServiceLocator'
 import Designer from '@/components/Designer'
 import Home from '@/components/Home'
 import Sns from '@/components/Sns'
-import HeaderNav from '@/components/HeaderNav'
 
-import RouterGuard from './RouterGuard'
+let iam = new IAM('http://localhost:8080/iam');
+let RouterGuard = require("./RouterGuard.js")(iam);
 
-Vue.component('service-locator', ServiceLocator);
-Vue.component('iam-login', IAMLogin);
-Vue.component('header-nav', HeaderNav);
 
+// https://github.com/waynecz/vue-img-inputer --Document
+import VueImgInputer from 'vue-img-inputer'
+Vue.component('vue-img-inputer', VueImgInputer)
+
+// Vue.component('service-locator', ServiceLocator);
 
 Vue.use(Router);
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
       redirect: '/sns',
       name: 'home',
       component: Home,
+      props: { iam: iam },
       children: [
         {
           path: 'sns',
@@ -39,9 +43,10 @@ export default new Router({
       ]
     },
     {
-      path: '/login',
+      path: '/auth/:command',
       name: 'login',
-      component: IAMLogin,
+      component: Login,
+      props: { iam: iam },
       beforeEnter: RouterGuard.requireGuest
     }
   ]

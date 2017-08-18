@@ -1,21 +1,43 @@
-var exports = module.exports = {
+module.exports = function (iam) {
+  let module = {};
 
-  requireGuest (to, from, next) {
+  module.iam = iam;
+
+  module.requireGuest = function (to, from, next) {
     // will stop the routing if isAuthenticated
-    next(!exports.isAuthenticated())
-  },
+    module.isAuthenticated(function (result) {
+      next(!result);
+    })
+  };
 
-  requireUser (to, from, next) {
+  module.requireUser = function (to, from, next) {
     //isAuthenticated ? continue route
     //if not ? will login and come back
-    next(exports.isAuthenticated() ? true : {
-        path: '/login',
-        query: {
-          redirect: to.fullPath
-        }
+    module.isAuthenticated(function (result) {
+      if (result) {
+        next(result);
+      } else {
+        next({
+          path: '/auth/login',
+          query: {
+            redirect: to.fullPath
+          }
+        })
+      }
+    });
+  };
+  module.isAuthenticated = function (callback) {
+    if (!localStorage['access_token']) {
+      callback(false);
+    }
+    module.iam.validateToken(localStorage['access_token'])
+      .done(function (info) {
+        localStorage['user'] = info.context.user;
+        callback(true);
       })
-  },
-  isAuthenticated (){
-    return true;
-  }
+      .fail(function () {
+        callback(false);
+      });
+  };
+  return module;
 };
