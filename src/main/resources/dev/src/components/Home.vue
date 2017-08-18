@@ -44,7 +44,9 @@
     <v-toolbar fixed>
       <v-toolbar-side-icon @click.native.stop="drawer = !drawer">
       </v-toolbar-side-icon>
-      <v-toolbar-title>Vuetify</v-toolbar-title>
+      <v-toolbar-title>Process Codi</v-toolbar-title>
+
+      <v-btn v-on:click="logout" flat>로그 아웃</v-btn>
     </v-toolbar>
 
     <main>
@@ -79,6 +81,17 @@
       }
     },
     methods: {
+      logout: function () {
+        var me = this;
+        this.iam.logout();
+
+        //Additional access_token storage
+        localStorage.removeItem('access_token');
+
+        this.$router.push({
+          path: '/auth/login'
+        })
+      },
       updateActive: function () {
         var me = this;
         var routers = me.$route.matched;
