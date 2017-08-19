@@ -12,7 +12,7 @@
             ></v-text-field>
           </v-flex>
           <v-flex>
-            <v-btn fab dark small class="indigo">
+            <v-btn fab light small class="indigo">
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-flex>
@@ -128,59 +128,5 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-  .content-wrap {
-    position: absolute;
-    /*overflow: hidden;*/
-
-    .scroll-inner {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      padding-right: 16px;
-    }
-  }
-
-  .content-wrap.left {
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    width: 300px;
-  }
-
-  .content-wrap.center {
-    top: 0px;
-    bottom: 0px;
-    left: 300px;
-    right: 0px;
-  }
-
-  .content-wrap.top {
-    top: 0px;
-    height: 130px;
-    left: 0px;
-    width: 100%;
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .content-wrap.bottom {
-    top: 130px;
-    bottom: 0px;
-    left: 0px;
-    width: 100%;
-  }
-
-  .container.fluid {
-    position: absolute;
-
-  }
-
-  .full-toggle {
-    width: 100%;
-
-    .btn {
-      width: 25%;
-    }
-  }
 
 </style>

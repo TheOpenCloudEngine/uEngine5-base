@@ -1,5 +1,6 @@
 package org.uengine.social;
 
+import org.metaworks.springboot.configuration.Metaworks4BaseApplication;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,7 +17,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @SpringBootApplication
-public class Application extends JpaBaseConfiguration {
+public class Application extends Metaworks4BaseApplication {
 
     /**
      * @param dataSource

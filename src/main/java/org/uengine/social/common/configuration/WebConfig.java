@@ -34,16 +34,6 @@ import java.util.Map;
 @EnableJpaRepositories(repositoryBaseClass = MultitenantRepositoryImpl.class)
 public class WebConfig extends Metaworks4WebConfig {
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .maxAge(3600)
-                .allowedMethods("POST", "GET", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("access_token", "Content-Type", "x-requested-with", "origin", "accept",
-                        "authorization", "Location");
-    }
-
     @Bean
     public ResourceManager resourceManager() {
         ResourceManager resourceManager = new CachedResourceManager();
