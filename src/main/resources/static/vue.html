@@ -1,0 +1,64 @@
+<script src="https://unpkg.com/vue"></script>
+
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/vue-material@0.7.1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-material@0.7.1/dist/vue-material.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<script>
+
+    Vue.use(VueMaterial)
+
+</script>
+
+
+<div id="app">
+
+    <md-avatar class="md-avatar-icon">
+        <md-icon>home</md-icon>
+    </md-avatar>
+
+
+    {{ message }}
+    <br>
+    like {{like}}
+
+
+    <md-speed-dial md-mode="scale" class="md-fab-bottom-right">
+        <md-button class="md-fab" md-fab-trigger>
+            <md-icon md-icon-morph>close</md-icon>
+            <md-icon>share</md-icon>
+        </md-button>
+
+        <md-button class="md-fab md-mini md-clean">
+            <md-icon>email</md-icon>
+        </md-button>
+
+        <md-button class="md-fab md-mini md-clean">
+            <md-icon>content_copy</md-icon>
+        </md-button>
+    </md-speed-dial>
+
+</div>
+
+
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello, Vue!',
+            like: 0
+        }
+    })
+
+    setInterval(
+
+      function(){
+        app.like++;
+      },
+
+      1000
+    );
+</script>

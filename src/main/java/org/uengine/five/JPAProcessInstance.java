@@ -7,8 +7,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.uengine.kernel.DefaultProcessInstance;
 import org.uengine.kernel.ProcessDefinition;
-import org.uengine.social.service.instance.ProcessInstanceEntity;
-import org.uengine.social.service.instance.ProcessInstanceRepository;
+import org.uengine.social.entity.ProcessInstanceEntity;
+import org.uengine.social.repository.ProcessInstanceRepository;
 import org.uengine.webservices.worklist.WorkList;
 
 import javax.annotation.PostConstruct;

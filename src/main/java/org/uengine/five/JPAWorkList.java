@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.uengine.kernel.KeyedParameter;
 import org.uengine.kernel.Role;
 import org.uengine.processmanager.TransactionContext;
-import org.uengine.social.service.worklist.WorkListRepository;
-import org.uengine.social.service.worklist.WorklistEntity;
+import org.uengine.social.repository.WorklistRepository;
+import org.uengine.social.entity.WorklistEntity;
 import org.uengine.util.UEngineUtil;
 import org.uengine.webservices.worklist.DefaultWorkList;
 import org.uengine.webservices.worklist.WorkList;
@@ -42,7 +42,7 @@ public class JPAWorkList implements WorkList {
     }
 
     @Autowired
-    WorkListRepository workListRepository;
+    WorklistRepository workListRepository;
 
     protected String addWorkItemImpl(String reservedTaskId, String userId, Map parameterMap, boolean isReservation, TransactionContext tc) throws RemoteException {
 
