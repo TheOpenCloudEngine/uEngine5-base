@@ -30,7 +30,6 @@ import java.util.Map;
 @EnableWebMvc
 @Configuration
 @ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, ProcessInstanceRepository.class, MetaworksRestService.class, WebConfig.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
-@EnableJpaRepositories(repositoryBaseClass = ProcessInstanceRepository.class)
 public class WebConfig extends Metaworks4WebConfig {
 
     @Bean
@@ -82,17 +81,6 @@ public class WebConfig extends Metaworks4WebConfig {
         metadataService.setResourceManager(resourceManager());
 
         return metadataService;
-    }
-
-    @Bean
-    @Primary
-    public JpaProperties jpaProperties() {
-
-        JpaProperties propertiesMap = new JpaProperties();
-        propertiesMap.getProperties().put(PersistenceUnitProperties.DDL_GENERATION, PersistenceUnitProperties.CREATE_OR_EXTEND);
-        propertiesMap.getProperties().put("eclipselink.logging.level", "FINE");
-
-        return propertiesMap;
     }
 
     @Bean
