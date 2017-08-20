@@ -1,6 +1,5 @@
 package org.uengine.social.entity;
 
-import org.uengine.social.entity.ProcessInstanceEntity;
 
 import javax.persistence.*;
 import java.util.Date;

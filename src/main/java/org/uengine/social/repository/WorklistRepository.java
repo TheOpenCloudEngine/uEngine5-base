@@ -19,6 +19,6 @@ public interface WorklistRepository extends MultitenantRepository<WorklistEntity
 //            nativeQuery = true)
 //    public List<WorklistEntity> findByInstId(@Param("instId") Long instId);
 
-    public List<WorklistEntity> findByInstId(@Param("instId") Long instId);
+ //   public List<WorklistEntity> findByInstId(@Param("instId") Long instId);
 }
 

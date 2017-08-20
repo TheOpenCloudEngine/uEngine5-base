@@ -31,7 +31,7 @@ import java.util.Map;
 @EnableWebMvc
 @Configuration
 @ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, ProcessInstanceRepository.class, MetaworksRestService.class, WebConfig.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
-@EnableJpaRepositories(repositoryBaseClass = MultitenantRepositoryImpl.class)
+@EnableJpaRepositories(repositoryBaseClass = ProcessInstanceRepository.class)
 public class WebConfig extends Metaworks4WebConfig {
 
     @Bean

@@ -41,7 +41,7 @@ public class JPAWorkList implements WorkList {
         return addWorkItemImpl(reservedTaskId, userId, parameterMap, false, tc);
     }
 
-    @Autowired
+   // @Autowired
     WorklistRepository workListRepository;
 
     protected String addWorkItemImpl(String reservedTaskId, String userId, Map parameterMap, boolean isReservation, TransactionContext tc) throws RemoteException {
