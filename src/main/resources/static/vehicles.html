@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material@0.7.1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@0.7.1/dist/vue-material.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+</head>
+<body>
+
+<script>
+
+    Vue.use(VueMaterial)
+
+</script>
+
+
+<script src="http://rawgit.com/TheOpenCloudEngine/metaworks4/master/src/main/resources/static/object-grid.js"></script>
+<script src="http://rawgit.com/TheOpenCloudEngine/metaworks4/master/src/main/resources/static/object-form.js"></script>
+
+
+<div id="app" @keydown.c="customize">
+
+    <section>
+        <object-grid ref="grid"
+                :java="java"
+                :filter-key="searchQuery"
+                :column-changer="columnChanger"
+                :online = "true"
+                :data = "[]"
+                :options="{pagination: true, toolbar: true}"
+        >
+        </object-grid>
+    </section>
+
+    <md-button class="md-fab md-fab-bottom-right" id="fab" @click.native="$refs['dialog'].open()">
+        <md-icon>add</md-icon>
+    </md-button>
+
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog">
+        <md-dialog-title>차량 등록</md-dialog-title>
+
+        <md-dialog-content>
+            <object-form ref="object-form"
+                    :java="java"
+                    :data = "data"
+                    :event-listeners = "['grid']"
+            >
+            </object-form>
+        </md-dialog-content>
+
+        <md-dialog-actions>
+            <md-button class="md-primary" @click.native="$refs['object-form'].submit_(); $refs['dialog'].close()">저장</md-button>
+            <md-button class="md-primary" @click.native="$refs['dialog'].close()">닫기</md-button>
+        </md-dialog-actions>
+    </md-dialog>
+</div>
+
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            searchQuery: '',
+            java: "com.autoinsurance.Vehicle",
+            data:
+                { },
+        },
+
+
+    })
+
+
+</script>
+
+
+
+
+
+
+</body>
+</html>
