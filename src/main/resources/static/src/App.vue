@@ -79,7 +79,7 @@
         <v-container fluid>
           <router-view></router-view>
 
-          <form novalidate @submit.stop.prevent="submit">
+          <form novalidate @submit.stop.prevent="submit" v-if="false">
             <md-input-container>
               <label>새로운 주제</label>
               <md-input v-model="title"></md-input>
