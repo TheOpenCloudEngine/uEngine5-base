@@ -1,4 +1,4 @@
-package org.uengine.social.common.configuration;
+package org.uengine.social;
 
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.metaworks.multitenancy.ClassManager;
@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.uengine.five.JPAProcessInstance;
 import org.uengine.five.JPAWorkList;

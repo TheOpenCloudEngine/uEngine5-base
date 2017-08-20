@@ -42,6 +42,8 @@
       </div>
     </div>
 
+    <service-locator host="http://localhost:8080" ref="backend" path="instances"></service-locator>
+
     <div class="content-wrap center">
       This is Designer
     </div>
@@ -122,6 +124,15 @@
     mounted() {
       $('.scroll-inner').slimScroll({
         height: '100%'
+      });
+
+
+      this.$refs['backend'].invoke({
+        path: "instances/search/findAllICanSee",
+        query: {"sort": "moddate,desc"},
+        success: function(data){
+          console.log(data);
+        }
       });
     }
   }
