@@ -86,7 +86,7 @@ public class DefinitionService {
         return objectMapper;
     }
 
-    @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.GET)
+    @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Object getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
