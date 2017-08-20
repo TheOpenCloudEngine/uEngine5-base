@@ -6,6 +6,8 @@ import InstanceView from '@/components/InstanceView'
 import ObjectForm from '@/components/ObjectForm'
 import ObjectGrid from '@/components/ObjectGrid'
 import ClassEditor from '@/components/ClassEditor'
+import ProcessDesigner from '@/components/ProcessDesigner'
+import PropertyPanelStartEvent from '@/components/PropertyPanelStartEvent'
 
 Vue.component('service-locator', ServiceLocator);
 Vue.component('iam-login', IAMLogin);
@@ -13,6 +15,10 @@ Vue.component('instance-view', InstanceView);
 Vue.component('object-grid', ObjectGrid);
 Vue.component('object-form', ObjectForm);
 Vue.component('class-editor', ClassEditor);
+Vue.component('process-designer', ProcessDesigner);
+Vue.component('org-uengine-kernel-bpmn-startevent', PropertyPanelStartEvent);
+Vue.component('org-uengine-kernel-defaultactivity', PropertyPanelStartEvent);
+Vue.component('org-uengine-kernel-humanactivity', PropertyPanelStartEvent);
 
 Vue.use(Router)
 
@@ -22,6 +28,12 @@ export default new Router({
       path: '/class-editor',
       name: 'ClassEditor',
       component: ClassEditor
+    },
+    {
+      path: '/process-designer',
+      name: 'ProcessDesigner',
+      component: ProcessDesigner,
+      props: { serviceLocator: 'backend', definitionName: 'test2'}
     },
   ]
 })
