@@ -14,7 +14,7 @@ let RouterGuard = require("./RouterGuard.js")(iam);
 import VueImgInputer from 'vue-img-inputer'
 Vue.component('vue-img-inputer', VueImgInputer)
 
-// Vue.component('service-locator', ServiceLocator);
+Vue.component('service-locator', ServiceLocator);
 
 Vue.use(Router);
 

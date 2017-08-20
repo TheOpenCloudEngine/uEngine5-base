@@ -34,7 +34,7 @@
         },
 
         created: function(){
-            loadWorklist();
+            this.loadWorklist();
         },
 
         data: {
@@ -68,7 +68,7 @@
               }
             });
 
-            loadWorkList();
+            this.loadWorkList();
           }
 
 
