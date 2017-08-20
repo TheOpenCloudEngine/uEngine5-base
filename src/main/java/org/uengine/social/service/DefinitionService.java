@@ -1,6 +1,10 @@
 package org.uengine.social.service;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import org.directwebremoting.impl.DefaultContainer;
 import org.omg.spec.bpmn._20100524.model.TDefinitions;
 import org.omg.spec.bpmn._20100524.model.TExtensionElements;
@@ -20,6 +24,7 @@ import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Marshaller;
+import javax.xml.namespace.QName;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,37 +70,65 @@ public class DefinitionService {
         return resourcesList;  //TODO: Need to be changed to HATEOAS _self link instead
     }
 
-    @RequestMapping(value = "/definition/{defPath}", method = RequestMethod.GET)
+    private ObjectMapper createObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        objectMapper.setVisibilityChecker(objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
+                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
+                .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
+                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
+
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL); //ignore null
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT); //ignore zero and false when it is int or boolean
+
+        objectMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, "_type");
+        return objectMapper;
+    }
+
+    @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.GET)
     public Object getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
         Object object = resourceManager.getObject(resource);
 
-        TDefinitions tDefinitions = (TDefinitions) BPMNUtil.exportAdapt(object);
+        ObjectMapper objectMapper = createObjectMapper();
+        DefinitionWrapper definitionWrapper = new DefinitionWrapper((Serializable) object);
+        String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
 
-        for(JAXBElement element : tDefinitions.getRootElement()) {
-            if (element.getValue() instanceof TProcess) {
-                TProcess bpmnProcess = (TProcess) element.getValue();
+        ///// Later we will use BPMN exporter: after 2017. 9.
+//        TDefinitions tDefinitions = (TDefinitions) BPMNUtil.exportAdapt(object);
+//
+//        for(JAXBElement element : tDefinitions.getRootElement()) {
+//            if (element.getValue() instanceof TProcess) {
+//                TProcess bpmnProcess = (TProcess) element.getValue();
+//
+//                TExtensionElements tExtensionElements = new TExtensionElements();
+//
+//                org.uengine.bpmn.Field field = new org.uengine.bpmn.Field();
+//                field.setName("object");
+//                field.setStringValue("{a:'a'}");
+//
+//                tExtensionElements.getAny().add(field);
+//                bpmnProcess.setExtensionElements(tExtensionElements);
+//            }
+//        }
+//
+//        org.omg.spec.bpmn._20100524.model.ObjectFactory objectFactory = new org.omg.spec.bpmn._20100524.model.ObjectFactory();
+//
+//        JAXBElement<TDefinitions> element = objectFactory.createDefinitions(tDefinitions);
+//        JAXBContext jaxbContext = JAXBContext.newInstance(TDefinitions.class, org.uengine.bpmn.Field.class);
+//
+//        Marshaller marshaller = jaxbContext.createMarshaller();
+//        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+//
+//        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+//        marshaller.marshal(element, bao);
+//        String bpmn = new String(bao.toByteArray(), "UTF-8");
+//
+//        //return bpmn;
 
-                TExtensionElements tExtensionElements = new TExtensionElements();
-                tExtensionElements.getAny().add("test string");
-                bpmnProcess.setExtensionElements(tExtensionElements);
-            }
-        }
-
-        org.omg.spec.bpmn._20100524.model.ObjectFactory objectFactory = new org.omg.spec.bpmn._20100524.model.ObjectFactory();
-
-        JAXBElement<TDefinitions> element = objectFactory.createDefinitions(tDefinitions);
-        JAXBContext jaxbContext = JAXBContext.newInstance(TDefinitions.class);
-
-        Marshaller marshaller = jaxbContext.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        marshaller.marshal(element, bao);
-        String bpmn = new String(bao.toByteArray(), "UTF-8");
-
-        return bpmn;
+        return uEngineProcessJSON;
     }
 
     /**
@@ -104,7 +137,7 @@ public class DefinitionService {
      * @param definition
      * @throws Exception
      */
-    @RequestMapping(value = "/definition/{defPath}", method = RequestMethod.POST)
+    @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.POST)
     public void putDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String definition) throws Exception {
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
@@ -124,6 +157,13 @@ public class DefinitionService {
             ClassDefinition classDefinition = mapper.readValue(definition, ClassDefinition.class);
 
             resourceManager.save(resource, classDefinition);
+        }else if(definitionPath.endsWith(".json")){
+
+            ObjectMapper objectMapper = createObjectMapper();
+            DefinitionWrapper definitionWrapper = objectMapper.readValue(definition, DefinitionWrapper.class);
+
+            resourceManager.save(resource, definitionWrapper.getDefinition());
+
         }else
             throw new Exception("unknown resource type: " + definitionPath);
     }

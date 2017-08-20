@@ -9,7 +9,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -90,7 +90,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin.external.google:android-json:0.0.20131108.vaadin1" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:4.3.8.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-test:4.3.8.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.uengine.metaworks:metaworks4:1.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="metaworks4" />
     <orderEntry type="library" name="Maven: org.eclipse.persistence:org.eclipse.persistence.jpa:2.6.4" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.persistence:javax.persistence:2.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.persistence:org.eclipse.persistence.asm:2.6.4" level="project" />
@@ -115,18 +115,16 @@
     <orderEntry type="library" name="Maven: com.couchbase.client:core-io:1.3.7" level="project" />
     <orderEntry type="library" name="Maven: io.reactivex:rxjava:1.1.8" level="project" />
     <orderEntry type="library" name="Maven: io.fastjson:boon:0.33" level="project" />
-    <orderEntry type="library" name="Maven: org.uengine:uengine-uml:4.1.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.uengine:uengine-resource-manager:4.1.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.uengine:uengine-commons:4.1.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="uengine-uml" />
+    <orderEntry type="module" module-name="uengine-resource-manager" />
+    <orderEntry type="module" module-name="uengine-commons" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
     <orderEntry type="library" name="Maven: org.uengine.cloud.garuda:garuda-api:0.0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:1.4" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.6" level="project" />
-    <orderEntry type="library" name="Maven: org.uengine:uengine-modeling:4.1.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="uengine-modeling" />
     <orderEntry type="library" name="Maven: net.java.dev.jets3t:jets3t:0.9.3" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.12" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.12" level="project" />
@@ -137,8 +135,8 @@
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.51" level="project" />
     <orderEntry type="library" name="Maven: com.jamesmurty.utils:java-xmlbuilder:1.0" level="project" />
     <orderEntry type="library" name="Maven: net.iharder:base64:2.3.8" level="project" />
-    <orderEntry type="library" name="Maven: org.uengine:uengine-persistence-couchbase:4.1.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.uengine:uengine-core:4.1.0-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="uengine-bpmn-modeler" />
+    <orderEntry type="module" module-name="uengine-core" />
     <orderEntry type="library" name="Maven: janino:janino:2.5.10" level="project" />
     <orderEntry type="library" name="Maven: bsf:bsf:2.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.mozilla:rhino:1.7.6" level="project" />
@@ -168,12 +166,18 @@
     <orderEntry type="library" name="Maven: org.glassfish.jersey.core:jersey-server:2.25.1" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.core:jersey-client:2.25.1" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish.jersey.media:jersey-media-jaxb:2.25.1" level="project" />
-    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.41" level="project" />
+    <orderEntry type="library" name="Maven: mysql:mysql-connector-java:5.1.34" level="project" />
     <orderEntry type="library" name="Maven: org.quartz-scheduler:quartz:2.2.1" level="project" />
     <orderEntry type="library" name="Maven: c3p0:c3p0:0.9.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.quartz-scheduler:quartz-jobs:2.2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context-support:4.3.8.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.6" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.3" level="project" />
+    <orderEntry type="module" module-name="uengine-persistence-couchbase" />
+    <orderEntry type="module" module-name="bpmn-model" />
+    <orderEntry type="library" name="Maven: net.sourceforge:mpxj:4.5.0-rc1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.poi:poi:3.7" level="project" />
     <orderEntry type="library" name="Maven: com.h2database:h2:1.4.194" level="project" />
   </component>
 </module>
