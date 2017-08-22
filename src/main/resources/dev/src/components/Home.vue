@@ -33,7 +33,7 @@
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title v-on:click="move(item.routerName)" :class="{ 'blue--text': item.isActive }">{{ item.title
+            <v-list-tile-title v-on:click="move(item.routerPath)" :class="{ 'blue--text': item.isActive }">{{ item.title
               }}
             </v-list-tile-title>
           </v-list-tile-content>
@@ -66,8 +66,8 @@
       return {
         drawer: null,
         items: [
-          {title: 'Sns', icon: 'question_answer', routerName: 'sns'},
-          {title: 'Designer', icon: 'question_answer', routerName: 'designer'}
+          {title: 'Sns', icon: 'question_answer', routerPath: '/sns'},
+          {title: 'Designer', icon: 'question_answer', routerPath: '/definition'}
         ],
         mini: false
       }
@@ -98,15 +98,15 @@
         $.each(me.items, function (i, item) {
           var isActive = false;
           $.each(routers, function (r, router) {
-            if (router.name == item.routerName) {
+            if (router.name == item.routerPath) {
               isActive = true;
             }
           });
           item.isActive = isActive;
         })
       },
-      move(routerName) {
-        this.$router.push(routerName)
+      move(routerPath) {
+        this.$router.push(routerPath)
       }
     }
   }

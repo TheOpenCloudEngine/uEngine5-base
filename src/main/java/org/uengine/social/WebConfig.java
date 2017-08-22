@@ -30,6 +30,7 @@ import java.util.Map;
 @EnableWebMvc
 @Configuration
 @ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, ProcessInstanceRepository.class, MetaworksRestService.class, WebConfig.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
+@EnableJpaRepositories(repositoryBaseClass = MultitenantRepositoryImpl.class)
 public class WebConfig extends Metaworks4WebConfig {
 
     @Bean
@@ -84,6 +85,17 @@ public class WebConfig extends Metaworks4WebConfig {
     }
 
     @Bean
+    @Primary
+    public JpaProperties jpaProperties() {
+
+        JpaProperties propertiesMap = new JpaProperties();
+        propertiesMap.getProperties().put(PersistenceUnitProperties.DDL_GENERATION, PersistenceUnitProperties.CREATE_OR_EXTEND);
+        propertiesMap.getProperties().put("eclipselink.logging.level", "FINE");
+
+        return propertiesMap;
+    }
+
+    @Bean
     EvaluationContextExtension securityExtension() {
         return new SecurityEvaluationContextExtension();
     }
@@ -92,7 +104,7 @@ public class WebConfig extends Metaworks4WebConfig {
     @Bean
     @Scope("prototype")
     public ProcessInstance processInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
-       return new JPAProcessInstance(procDefinition, instanceId, options);
+        return new JPAProcessInstance(procDefinition, instanceId, options);
     }
 
     @Bean

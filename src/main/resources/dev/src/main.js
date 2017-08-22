@@ -8,7 +8,7 @@ import App from './App'
 import router from './router'
 
 
-Vue.use(Vuetify)
+Vue.use(Vuetify);
 
 Vue.config.productionTip = false
 
@@ -18,4 +18,4 @@ new Vue({
   router,
   template: '<App/>',
   components: {App}
-})
+});

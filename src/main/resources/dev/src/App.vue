@@ -2,6 +2,9 @@
   <div>
     <router-view></router-view>
 
+    <!--서비스 로케이터 리스트-->
+    <service-locator host="http://localhost:8080" path="/" resource-name="codi"></service-locator>
+
     <!--글로벌 알림 컴포넌트-->
     <v-snackbar ref="snackbar"
                 :timeout="snackbar.timeout"
