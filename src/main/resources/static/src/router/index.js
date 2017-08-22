@@ -6,6 +6,7 @@ import InstanceView from '@/components/InstanceView'
 import ObjectForm from '@/components/ObjectForm'
 import ObjectGrid from '@/components/ObjectGrid'
 import ClassEditor from '@/components/ClassEditor'
+import ClassSelector from '@/components/ClassSelector'
 import ProcessDesigner from '@/components/ProcessDesigner'
 import PropertyPanelStartEvent from '@/components/PropertyPanelStartEvent'
 
@@ -15,6 +16,7 @@ Vue.component('instance-view', InstanceView);
 Vue.component('object-grid', ObjectGrid);
 Vue.component('object-form', ObjectForm);
 Vue.component('class-editor', ClassEditor);
+Vue.component('class-selector', ClassSelector);
 Vue.component('process-designer', ProcessDesigner);
 Vue.component('org-uengine-kernel-bpmn-startevent', PropertyPanelStartEvent);
 Vue.component('org-uengine-kernel-defaultactivity', PropertyPanelStartEvent);

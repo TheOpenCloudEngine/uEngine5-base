@@ -1,19 +1,11 @@
 package org.uengine.social.service;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONWrappedObject;
-import org.directwebremoting.impl.DefaultContainer;
-import org.omg.spec.bpmn._20100524.model.TDefinitions;
-import org.omg.spec.bpmn._20100524.model.TExtensionElements;
-import org.omg.spec.bpmn._20100524.model.TProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
-import org.uengine.five.JPAProcessInstance;
-import org.uengine.kernel.AbstractProcessInstance;
 import org.uengine.kernel.ProcessDefinition;
 import org.uengine.modeling.resource.*;
 import org.uengine.processpublisher.BPMNUtil;
@@ -21,10 +13,6 @@ import org.uengine.uml.model.ClassDefinition;
 import org.uengine.util.UEngineUtil;
 
 import javax.annotation.PostConstruct;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -161,6 +149,8 @@ public class DefinitionService {
 
             ObjectMapper objectMapper = createObjectMapper();
             DefinitionWrapper definitionWrapper = objectMapper.readValue(definition, DefinitionWrapper.class);
+
+            if(definitionWrapper.getDefinition()==null) throw new Exception("Definition is corrupt.");
 
             resourceManager.save(resource, definitionWrapper.getDefinition());
 

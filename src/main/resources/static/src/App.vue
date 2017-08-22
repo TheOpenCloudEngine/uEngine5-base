@@ -44,7 +44,7 @@
                   </v-list-tile-title>
                 </v-list-tile-content>
               </v-list-tile>
-              <v-list-tile to="#/class-editor" style="text-decoration:none">
+              <v-list-tile to="#/process-designer" style="text-decoration:none">
                 <v-list-tile-action>
                   <v-icon>work</v-icon>
                 </v-list-tile-action>
