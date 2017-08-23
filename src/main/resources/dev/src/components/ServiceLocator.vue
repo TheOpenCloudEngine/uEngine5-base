@@ -12,12 +12,6 @@
       path: String
     },
 
-    data() {
-      return {
-
-      }
-    },
-
     methods: {
 
       getServiceHost: function () {
@@ -45,7 +39,7 @@
         var xhr = new XMLHttpRequest()
 
 
-        xhr.open(context.method ? context.method : 'GET', this.getServiceHost() + "/" + path + queryString);
+        xhr.open(context.method ? context.method : 'GET', (path.indexOf("http")!=0 ? this.getServiceHost() + "/" : "")  + path + queryString);
         xhr.setRequestHeader("access_token", localStorage['access_token']);
         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 

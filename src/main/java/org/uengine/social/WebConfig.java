@@ -19,7 +19,6 @@ import org.uengine.modeling.resource.CachedResourceManager;
 import org.uengine.modeling.resource.LocalFileStorage;
 import org.uengine.modeling.resource.ResourceManager;
 import org.uengine.modeling.resource.Storage;
-import org.uengine.social.common.security.SecurityEvaluationContextExtension;
 import org.uengine.social.entity.ProcessInstanceEntity;
 import org.uengine.social.repository.ProcessInstanceRepository;
 import org.uengine.webservices.worklist.WorkList;
@@ -29,8 +28,8 @@ import java.util.Map;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, ProcessInstanceRepository.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
-@EnableJpaRepositories(repositoryBaseClass = MultitenantRepositoryImpl.class, basePackageClasses = ProcessInstanceRepository.class)
+@ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
+@EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
 public class WebConfig extends Metaworks4WebConfig {
 
     @Bean
@@ -84,10 +83,6 @@ public class WebConfig extends Metaworks4WebConfig {
         return metadataService;
     }
 
-    @Bean
-    EvaluationContextExtension securityExtension() {
-        return new SecurityEvaluationContextExtension();
-    }
 
 
     @Bean

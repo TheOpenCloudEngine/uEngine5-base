@@ -57,6 +57,7 @@ public class JPAProcessInstance extends DefaultProcessInstance {
             setNewInstance(true);
             setProcessInstanceEntity(new ProcessInstanceEntity());
             getProcessInstanceEntity().setName(instanceId);
+            getProcessInstanceEntity().setDefId(procDefinition.getId());
         }
     }
 

@@ -5,6 +5,7 @@ import ServiceLocator from '@/components/ServiceLocator'
 import Designer from '@/components/Designer'
 import Home from '@/components/Home'
 import Sns from '@/components/Sns'
+import WorkItemHandler from '@/components/WorkItemHandler'
 
 let iam = new IAM('http://localhost:8080/iam');
 let RouterGuard = require("./RouterGuard.js")(iam);
@@ -15,6 +16,8 @@ import VueImgInputer from 'vue-img-inputer'
 Vue.component('vue-img-inputer', VueImgInputer)
 
 Vue.component('service-locator', ServiceLocator);
+Vue.component('work-item', WorkItemHandler);
+
 
 Vue.use(Router);
 

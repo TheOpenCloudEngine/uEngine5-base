@@ -58,22 +58,22 @@ public class WorkItemService {
     }
 
     @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.POST)
-    public void putWorkItem(@PathVariable("taskId") String definitionPath, @RequestBody WorkItem workItem) throws Exception {
-        Long taskId = workItem.getWorklist().getTaskId();
+    public void putWorkItem(@PathVariable("taskId") String taskId, @RequestBody WorkItem workItem) throws Exception {
+        WorklistEntity worklistEntity = worklistRepository.findOne(new Long(taskId));
 
-        Long instId = workItem.getWorklist().getInstId();
+        Long instId = worklistEntity.getInstId();
 
-        ProcessDefinition definition = (ProcessDefinition) definitionService.getDefinitionLocal(workItem.getWorklist().getDefId());
+       // ProcessDefinition definition = (ProcessDefinition) definitionService.getDefinitionLocal(workItem.getWorklist().getDefId());
         org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
                 org.uengine.kernel.ProcessInstance.class,
                 new Object[]{
-                        definition,
+                        null,
                         instId.toString(),
                         null
                 }
         );
 
-        HumanActivity humanActivity = ((HumanActivity)instance.getProcessDefinition().getActivity(workItem.getWorklist().getTrcTag()));
+        HumanActivity humanActivity = ((HumanActivity)instance.getProcessDefinition().getActivity(worklistEntity.getTrcTag()));
 
         if(!instance.isRunning(humanActivity.getTracingTag()) && !humanActivity.isNotificationWorkitem()){
             throw new UEngineException("Illegal completion for workitem [" + humanActivity + ":"+ humanActivity.getStatus(instance) +"]: Already closed or illegal status.");
