@@ -1,13 +1,12 @@
 package org.uengine.social;
 
-import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.metaworks.multitenancy.ClassManager;
 import org.metaworks.multitenancy.DefaultMetadataService;
 import org.metaworks.multitenancy.MetadataService;
+import org.metaworks.multitenancy.tenantawarefilter.TenantAwareFilter;
 import org.metaworks.springboot.configuration.Metaworks4WebConfig;
 import org.metaworks.multitenancy.persistence.MultitenantRepositoryImpl;
 import org.metaworks.rest.MetaworksRestService;
-import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
@@ -25,11 +24,13 @@ import org.uengine.social.entity.ProcessInstanceEntity;
 import org.uengine.social.repository.ProcessInstanceRepository;
 import org.uengine.webservices.worklist.WorkList;
 
+import javax.servlet.Filter;
 import java.util.Map;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, ProcessInstanceRepository.class, MetaworksRestService.class, WebConfig.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
+@ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, ProcessInstanceRepository.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
+@EnableJpaRepositories(repositoryBaseClass = MultitenantRepositoryImpl.class, basePackageClasses = ProcessInstanceRepository.class)
 public class WebConfig extends Metaworks4WebConfig {
 
     @Bean
@@ -98,6 +99,11 @@ public class WebConfig extends Metaworks4WebConfig {
     @Bean
     public WorkList workList(){
         return new JPAWorkList();
+    }
+
+    @Bean
+    public Filter webFilter(){
+        return new TenantAwareFilter();
     }
 }
 

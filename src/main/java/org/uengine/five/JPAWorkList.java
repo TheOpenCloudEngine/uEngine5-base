@@ -41,8 +41,8 @@ public class JPAWorkList implements WorkList {
         return addWorkItemImpl(reservedTaskId, userId, parameterMap, false, tc);
     }
 
-   // @Autowired
-    WorklistRepository workListRepository;
+    @Autowired
+    WorklistRepository worklistRepository;
 
     protected String addWorkItemImpl(String reservedTaskId, String userId, Map parameterMap, boolean isReservation, TransactionContext tc) throws RemoteException {
 
@@ -96,11 +96,11 @@ public class JPAWorkList implements WorkList {
             Long taskId;
             if(reservedTaskId!=null){
                 taskId = new Long(reservedTaskId);
-                wl = workListRepository.findOne(taskId);
+                wl = worklistRepository.findOne(taskId);
             }
             else{
                 wl = new WorklistEntity();
-                workListRepository.save(wl);
+                worklistRepository.save(wl);
 
                 taskId = wl.getTaskId();
             }
@@ -176,7 +176,7 @@ public class JPAWorkList implements WorkList {
             wl.setStatus(defaultStatus);
             //
 
-            workListRepository.save(wl);
+            worklistRepository.save(wl);
 
             return ""+taskId;
 
@@ -193,7 +193,7 @@ public class JPAWorkList implements WorkList {
 
         try{
 
-            WorklistEntity wl = workListRepository.findOne(new Long(taskID));
+            WorklistEntity wl = worklistRepository.findOne(new Long(taskID));
 
             wl.setStatus(DefaultWorkList.WORKITEM_STATUS_CANCELLED);
             for(int i=0; i<options.length; i++){
@@ -203,7 +203,7 @@ public class JPAWorkList implements WorkList {
                 }
             }
 
-            workListRepository.save(wl);
+            worklistRepository.save(wl);
 
         }catch(Exception e){
             throw new RemoteException("ExtWorkList", e);
@@ -216,11 +216,11 @@ public class JPAWorkList implements WorkList {
         try{
             Calendar now = Calendar.getInstance();
 
-            WorklistEntity wl = workListRepository.findOne(new Long(taskID));
+            WorklistEntity wl = worklistRepository.findOne(new Long(taskID));
             wl.setStatus(DefaultWorkList.WORKITEM_STATUS_COMPLETED);
             wl.setEndDate(new Timestamp(now.getTimeInMillis()));
 
-            workListRepository.save(wl);
+            worklistRepository.save(wl);
 
         }catch(Exception e){
             throw new RemoteException("ExtWorkList", e);
@@ -236,7 +236,7 @@ public class JPAWorkList implements WorkList {
 
         try{
 
-            WorklistEntity wlDAO = workListRepository.findOne(new Long(taskId));
+            WorklistEntity wlDAO = worklistRepository.findOne(new Long(taskId));
 
             if(userId!=null)
                 wlDAO.setEndpoint(userId);
@@ -264,7 +264,7 @@ public class JPAWorkList implements WorkList {
                 }
             }
 
-            workListRepository.save(wlDAO);
+            worklistRepository.save(wlDAO);
 
         }catch(Exception e){
             throw new RemoteException("ExtWorkList", e);
