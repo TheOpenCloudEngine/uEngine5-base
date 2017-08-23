@@ -3,9 +3,9 @@ import Router from 'vue-router'
 import Login from '@/components/Login'
 import ServiceLocator from '@/components/ServiceLocator'
 import Designer from '@/components/Designer'
-import Graph from '@/components/Graph'
 import Home from '@/components/Home'
 import Sns from '@/components/Sns'
+import WorkItemHandler from '@/components/WorkItemHandler'
 
 /**
  * Iam && Vue Router
@@ -35,7 +35,9 @@ Vue.use(VueResource);
  * ServiceLocator
  */
 Vue.component('service-locator', ServiceLocator);
+Vue.component('work-item', WorkItemHandler);
 Vue.http.interceptors.push(function (request, next) {
+
 
   console.log(request);
   // modify headers

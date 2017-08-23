@@ -13,7 +13,7 @@ import java.util.List;
 @RepositoryRestResource(collectionResourceRel = "instances", path = "instances")
 public interface ProcessInstanceRepository extends MultitenantRepository<ProcessInstanceEntity, Long> {
 
-    @Query("select pi from ProcessInstanceEntity pi where exists (select 1 from RoleMappingEntity rm where rm.endpoint = ?#{loggedUserId})")
+    @Query("select pi from ProcessInstanceEntity pi where exists (select 1 from WorklistEntity wl where wl.endpoint = ?#{loggedUserId})")
     List<ProcessInstanceEntity> findAllICanSee();
 
 }

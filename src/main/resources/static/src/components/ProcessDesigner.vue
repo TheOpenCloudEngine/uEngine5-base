@@ -9,6 +9,7 @@
 
       <md-button v-on:click.native="load">열기</md-button>
       <md-button v-on:click.native="save">저장</md-button>
+      <md-button v-on:click.native="initiate">시작</md-button>
       <md-button class="md-primary md-raised" id="custom" @click.native="this.$refs['processVariablePanel'].open()">프로세스 변수</md-button>
 
 
@@ -22,12 +23,8 @@
     </form>
 
     <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data="processVariables" :full-fledged="true">
-
     </object-grid>
-
-
   </div>
-
 
 </template>
 
@@ -86,11 +83,23 @@
         });
 
       },
+      initiate: function(){
+        console.log(this.definition);
 
-        showProperties(activity){
-            this.propertyType = activity._type.toLowerCase().split('.').join('-');
-            this.properties = activity;
-        }
+
+        this.$root.$children[0].$refs[this.serviceLocator].invoke({
+          path: "definition/" + this.definitionName + ".json" + "/instance",
+          method: 'POST',
+          data: {
+          }
+        });
+
+      },
+
+      showProperties(activity){
+          this.propertyType = activity._type.toLowerCase().split('.').join('-');
+          this.properties = activity;
+      }
     }
   }
 </script>
