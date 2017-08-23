@@ -2,19 +2,28 @@
 
   <div v-if="workItem">
 
-    <v-card>
-      <v-card-title primary-title>
-        <div>
-          <h3 class="headline mb-0">{{workItem.activity.name}}</h3>
-          <div>{{workItem.activity.description ? workItem.activity.description.text : ""}}</div>
-        </div>
-      </v-card-title>
-      <v-card-actions>
-        <v-btn flat class="orange--text" @click.native="complete">완료</v-btn>
-        <v-btn flat class="orange--text">저장</v-btn>
-        <v-btn flat class="orange--text">건너뛰기</v-btn>
-      </v-card-actions>
-    </v-card>
+    <v-layout row>
+      <v-flex xs12 sm6 offset-sm3>
+        <v-card>
+          <v-toolbar class="cyan" dark>
+            <v-toolbar-title>{{workItem.activity.name}}</v-toolbar-title>
+          </v-toolbar>
+
+
+          <v-card-title primary-title>
+            <div>
+              <h3 class="headline mb-0">{{workItem.activity.name}}</h3>
+              <div>{{workItem.activity.description ? workItem.activity.description.text : ""}}</div>
+            </div>
+          </v-card-title>
+          <v-card-actions>
+            <v-btn flat class="orange--text" @click.native="complete">완료</v-btn>
+            <v-btn flat class="orange--text">저장</v-btn>
+            <v-btn flat class="orange--text">건너뛰기</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-flex>
+    </v-layout>
 
   </div>
 
@@ -72,6 +81,7 @@
           success: function(value){
             me.workItem = null;
 
+            window.location = "/Sns"
             //TODO : shows some message
           }
         });

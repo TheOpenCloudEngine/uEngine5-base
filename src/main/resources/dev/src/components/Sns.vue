@@ -83,6 +83,10 @@
             path: "definition/test2.json/instance",
             method: 'POST',
             data: {
+            },
+            success: function () {
+              window.location = "/Sns"
+
             }
           });
 
