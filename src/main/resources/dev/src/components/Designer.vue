@@ -38,6 +38,7 @@
 
       this.$root.codi('definitions').get()
         .then(function (response) {
+            console.log(response);
           var cards = [];
           $.each(response.data, function (i, name) {
             name = name.replace('/', '');

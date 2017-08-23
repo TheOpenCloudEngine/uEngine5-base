@@ -78,23 +78,23 @@
 
     methods: {
 
-        initiateProcess: function(){
-          this.$refs["backend"].invoke({
-            path: "definition/test2.json/instance",
-            method: 'POST',
-            data: {
-            },
-            success: function () {
-              window.location = "/Sns"
+      initiateProcess: function(){
+        this.$refs["backend"].invoke({
+          path: "definition/test2.json/instance",
+          method: 'POST',
+          data: {
+          },
+          success: function () {
+            window.location = "/Sns"
 
-            }
-          });
+          }
+        });
 
-        },
+      },
 
-        selectWorkItem: function(taskId){
-            this.selectedTaskId = taskId;
-        }
+      selectWorkItem: function(taskId){
+        this.selectedTaskId = taskId;
+      }
 
     },
 
@@ -106,7 +106,7 @@
       var serviceLocator = this.$refs['backend'];
       var me = this;
       serviceLocator.invoke({
-          path: 'worklist/search/findToDo',
+        path: 'worklist/search/findToDo',
         success: function(data){
           me.items = data._embedded.worklist;
         }
