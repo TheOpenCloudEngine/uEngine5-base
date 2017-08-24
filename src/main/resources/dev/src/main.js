@@ -10,7 +10,7 @@ import router from './router'
 
 
 Vue.use(Vuetify);
-Vue.use(VueMaterial)
+Vue.use(VueMaterial);
 
 Vue.config.productionTip = false
 

@@ -3,6 +3,8 @@
     <div class="canvas" :id="id">
 
     </div>
+    <div :id="sliderId">
+    </div>
 
     <v-card class="grey lighten-4 tools">
       <v-card-text>
@@ -40,7 +42,7 @@
 
 
     <v-layout row wrap>
-      <v-flex xs7>
+      <v-flex xs6>
 
       </v-flex>
       <v-flex xs3>
@@ -51,10 +53,28 @@
           single-line
         ></v-text-field>
       </v-flex>
-      <v-flex xs2>
+      <v-flex xs3>
         <v-btn fab dark class="cyan" v-on:click="save">
           <v-icon dark>edit</v-icon>
         </v-btn>
+        <v-dialog v-model="dialog" fullscreen transition="dialog-bottom-transition" :overlay=false>
+          <v-btn primary dark slot="activator">Variable</v-btn>
+          <v-card>
+            <v-toolbar dark class="primary">
+              <v-btn icon @click.native="dialog = false" dark>
+                <v-icon>close</v-icon>
+              </v-btn>
+              <v-toolbar-title>Process Variable</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn dark flat @click.native="dialog = false">Save</v-btn>
+              </v-toolbar-items>
+            </v-toolbar>
+            <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
+                         :full-fledged="true">
+            </object-grid>
+          </v-card>
+        </v-dialog>
       </v-flex>
     </v-layout>
 
@@ -68,13 +88,17 @@
         <span class="icons fa fa-minus-square-o"></span>
       </v-card-text>
     </v-card>
+
   </div>
 </template>
 <script>
   export default {
     data () {
       return {
+        processVariables: [],
+        dialog: false,
         id: null,
+        sliderId: null,
         canvas: null,
         dragItems: [
           {
@@ -147,7 +171,213 @@
             '_width': '400',
             '_height': '200'
           }
-        ]
+        ],
+        shapeIdMappings: {
+          /**
+           * Start Event
+           */
+          startEvent: {
+            java: 'org.uengine.kernel.bpmn.StartEvent',
+            shapeId: 'OG.shape.bpmn.E_Start'
+          },
+          messageStartEvent: {
+            java: 'org.uengine.kernel.bpmn.StartEvent',
+            shapeId: 'OG.shape.bpmn.E_Start_Message'
+          },
+          timerStartEvent: {
+            java: 'org.uengine.kernel.bpmn.StartEvent',
+            shapeId: 'OG.shape.bpmn.E_Start_Timer'
+          },
+          conditionalStartEvent: {
+            java: 'org.uengine.kernel.bpmn.StartEvent',
+            shapeId: 'OG.shape.bpmn.E_Start_Rule'
+          },
+          signalStartEvent: {
+            java: 'org.uengine.kernel.bpmn.StartEvent',
+            shapeId: 'OG.shape.bpmn.E_Start_Signal'
+          },
+
+          /**
+           * Intermediate Event
+           */
+          intermediateThrowEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate'
+          },
+          messageIntermediateCatchEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Message'
+          },
+          messageIntermediateThrowEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Message_Throw'
+          },
+          timerIntermediateCatchEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Timer'
+          },
+          escalationIntermediateThrowEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Escalation'
+          },
+          conditionalIntermediateThrowEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Multiple'
+          },
+          linkIntermediateCatchEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Link'
+          },
+          linkIntermediateThrowEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Link_Throw'
+          },
+          compensationIntermediateThrowEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Compensation'
+          },
+          signalIntermediateCatchEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Signal'
+          },
+          signalIntermediateThrowEvent: {
+            java: 'org.uengine.kernel.bpmn.Event',
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Signal_Throw'
+          },
+
+          /**
+           * End Event
+           */
+          endEvent: {
+            java: 'org.uengine.kernel.bpmn.EndEvent',
+            shapeId: 'OG.shape.bpmn.E_End'
+          },
+          escalationEndEvent: {
+            java: 'org.uengine.kernel.bpmn.EndEvent',
+            shapeId: 'OG.shape.bpmn.E_End_Escalation'
+          },
+          errorEndEvent: {
+            java: 'org.uengine.kernel.bpmn.EndEvent',
+            shapeId: 'OG.shape.bpmn.E_End_Error'
+          },
+          compensationEndEvent: {
+            java: 'org.uengine.kernel.bpmn.EndEvent',
+            shapeId: 'OG.shape.bpmn.E_End_Compensation'
+          },
+          signalEndEvent: {
+            java: 'org.uengine.kernel.bpmn.EndEvent',
+            shapeId: 'OG.shape.bpmn.E_End_Signal'
+          },
+          terminateEndEvent: {
+            java: 'org.uengine.kernel.bpmn.EndEvent',
+            shapeId: 'OG.shape.bpmn.E_End_Terminate'
+          },
+
+          /**
+           * Gateway
+           */
+          gateway: {
+            java: 'org.uengine.kernel.bpmn.Gateway',
+            shapeId: 'OG.shape.bpmn.G_Gateway'
+          },
+          parallelGateway: {
+            java: 'org.uengine.kernel.bpmn.ParallelGateway',
+            shapeId: 'OG.shape.bpmn.G_Parallel'
+          },
+          exclusiveGateway: {
+            java: 'org.uengine.kernel.bpmn.ExclusiveGateway',
+            shapeId: 'OG.shape.bpmn.G_Exclusive'
+          },
+          inclusiveGateway: {
+            java: 'org.uengine.kernel.bpmn.InclusiveGateway',
+            shapeId: 'OG.shape.bpmn.G_Inclusive'
+          },
+          complexGateway: {
+            java: 'org.uengine.kernel.bpmn.Gateway',
+            shapeId: 'OG.shape.bpmn.G_Complex'
+          },
+          eventBasedGateway: {
+            java: 'org.uengine.kernel.bpmn.Gateway',
+            shapeId: 'OG.shape.bpmn.G_Event'
+          },
+          /**
+           * Task
+           */
+          task: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_Task'
+          },
+          sendTask: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_SendTask'
+          },
+          receiveTask: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_ReceiveTask'
+          },
+          userTask: {
+            java: 'org.uengine.kernel.HumanActivity',
+            shapeId: 'OG.shape.bpmn.A_HumanTask'
+          },
+          manualTask: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_ManualTask'
+          },
+          businessTask: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_BusinessTask'
+          },
+          serviceTask: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_ServiceTask'
+          },
+          scriptTask: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_ScriptTask'
+          },
+          callActivity: {
+            java: 'org.uengine.kernel.DefaultActivity',
+            shapeId: 'OG.shape.bpmn.A_CallActivity'
+          },
+          /**
+           * Sub Process
+           */
+          subProcess: {
+            java: 'org.uengine.kernel.bpmn.SubProcess',
+            shapeId: 'OG.shape.bpmn.A_Subprocess'
+          },
+          transaction: {
+            java: 'org.uengine.kernel.bpmn.SubProcess',
+            shapeId: 'OG.shape.bpmn.A_Transaction'
+          },
+          eventSubProcess: {
+            java: 'org.uengine.kernel.bpmn.SubProcess',
+            shapeId: 'OG.shape.bpmn.A_SubProcess_Event'
+          },
+          /**
+           * Data
+           */
+          dataObject: {
+            java: 'org.uengine.kernel.bpmn.DataStore',
+            shapeId: 'OG.shape.bpmn.D_Data'
+          },
+          dataStore: {
+            java: 'org.uengine.kernel.bpmn.DataStore',
+            shapeId: 'OG.shape.bpmn.D_Store'
+          },
+          /**
+           * Pool
+           */
+          pool: {
+            shapeId: 'OG.shape.VerticalPoolShape'
+          },
+          /**
+           * Role
+           */
+          role: {
+            shapeId: 'OG.shape.HorizontalLaneShape'
+          }
+        }
       }
     },
     mounted() {
@@ -165,18 +395,32 @@
         if (!me.canvas) {
           return;
         }
-        var adaptor = new TypedJsonAdaptor(me.canvas);
+        var adaptor = new TypedJsonAdaptor(me.canvas, this.shapeIdMappings);
         var exportJson = adaptor.exportJson();
-        console.log(exportJson);
+
+        //processVariables 주입
+        var processVariables = this.processVariables;
+        if (processVariables && processVariables.length) {
+          var copy = JSON.parse(JSON.stringify(processVariables));
+          $.each(copy, function (i, variable) {
+            if (variable.displayName) {
+              variable.displayName = {
+                text: variable.displayName
+              }
+            }
+          });
+          exportJson.definition.processVariableDescriptors = copy;
+        }
+
         this.$root.codi('definition{/id}').save({id: this.id + '.json'}, exportJson)
           .then(function (response) {
             console.log(response);
           });
-
       },
       getDefinition: function () {
         var me = this;
         this.id = this.$route.params.id;
+        this.sliderId = this.id + '-slider';
 
         //신규 생성
         if (this.id == 'new-process-definition') {
@@ -188,20 +432,35 @@
           this.$root.codi('definition{/id}').get({id: this.id + '.json'})
             .then(function (response) {
               me.render(response.data);
+
+              //processVariables displayName 전환.
+              var processVariables = response.data.definition.processVariableDescriptors;
+              if (processVariables && processVariables.length) {
+                var copy = JSON.parse(JSON.stringify(processVariables));
+                $.each(copy, function (i, variable) {
+                  if (variable.displayName) {
+                    variable.displayName = variable.displayName.text;
+                  }
+                });
+                me.processVariables = copy;
+              }
             })
         }
       },
       render: function (data) {
+        var me = this;
         //canvas = new OG.Canvas('canvas', [1000, 800], 'transparent');
         var canvas = new OG.Canvas(this.id, [1000, 800], '#f7f7f7', 'url(/static/image/grid.gif)');
         canvas._CONFIG.DEFAULT_STYLE.EDGE["edge-type"] = "plain";
         canvas._CONFIG.GUIDE_CONTROL_LINE_NUM = 1;
         canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
-        canvas._CONFIG.WHEEL_SCALABLE = true;
-        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
+//        canvas._CONFIG.WHEEL_SCALABLE = true;
+//        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
         canvas._CONFIG.AUTOMATIC_GUIDANCE = false;
         canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
         canvas._CONFIG.POOL_DROP_EVENT = true;
+        canvas._CONFIG.WHEEL_SCALABLE = false;
+        canvas._CONFIG.DRAG_PAGE_MOVABLE = false;
 
         canvas.initConfig({
           selectable: true,
@@ -228,9 +487,21 @@
         var adaptor;
         var json;
         if (data) {
-          adaptor = new TypedJsonAdaptor(canvas);
+          adaptor = new TypedJsonAdaptor(canvas, this.shapeIdMappings);
           adaptor.importJson(data);
         }
+
+//        canvas.addSlider({
+//          slider: $("#" + me.sliderId),
+//          width: 200,
+//          height: 300,
+//          appendTo: "body",
+//          position: {
+//            my: "left top",
+//            at: "left top",
+//            of: $('#' + me.id)
+//          }
+//        });
 
         //버튼 이벤트 등록
         this.bindEvents();
@@ -291,8 +562,11 @@
       position: absolute;
       width: 100%;
       height: 100%;
+      top:0px;
+      left:0px;
       background: #f7f7f7;
-      overflow: scroll;
+      overflow-x: scroll;
+      overflow-y: scroll;
     }
 
     .tools {

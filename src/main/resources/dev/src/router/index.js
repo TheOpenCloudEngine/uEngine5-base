@@ -7,6 +7,10 @@ import Graph from '@/components/Graph'
 import Home from '@/components/Home'
 import Sns from '@/components/Sns'
 import WorkItemHandler from '@/components/WorkItemHandler'
+import ObjectForm from '@/components/ObjectForm'
+import ObjectGrid from '@/components/ObjectGrid'
+import ClassEditor from '@/components/ClassEditor'
+import ClassSelector from '@/components/ClassSelector'
 
 /**
  * Iam && Vue Router
@@ -38,15 +42,21 @@ Vue.use(VueResource);
 Vue.component('service-locator', ServiceLocator);
 Vue.component('work-item', WorkItemHandler);
 Vue.http.interceptors.push(function (request, next) {
-
-
-  console.log(request);
   // modify headers
   request.headers['access_token'] = localStorage['access_token'];
 
   // continue to next interceptor
   next();
 });
+
+
+/**
+ * Others
+ */
+Vue.component('object-grid', ObjectGrid);
+Vue.component('object-form', ObjectForm);
+Vue.component('class-editor', ClassEditor);
+Vue.component('class-selector', ClassSelector);
 
 export default new Router({
   mode: 'history',

@@ -99,6 +99,7 @@
       showProperties(activity){
           this.propertyType = activity._type.toLowerCase().split('.').join('-');
           this.properties = activity;
+        console.log(this.propertyType, this.properties);
       }
     }
   }

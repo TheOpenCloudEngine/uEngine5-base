@@ -9,14 +9,6 @@
       @close="onClose"
       ref="dialog5">
     </md-dialog-confirm>
-    <md-dialog-alert
-      md-content="한개 선택 후, 수정해주시기 바랍니다."
-      md-ok-text="확인"
-      @open="onOpen"
-      @close="onClose"
-      ref="dialog3">
-    </md-dialog-alert>
-
     <md-table-card>
       <md-toolbar v-if="options_.toolbar">
         <h1 class="md-title">{{metadata.displayName}}</h1>
@@ -34,12 +26,9 @@
           <md-icon>delete</md-icon>
         </md-button>
 
-        <!-- @click.native="$refs['dialog'].open()"-->
-        <!--
-        <md-button class="md-icon-button" @click.native="duplicationCheck()">
-            <md-icon>update</md-icon>
+        <md-button class="md-icon-button" @click.native="$refs['dialog'].open()">
+          <md-icon>update</md-icon>
         </md-button>
-        -->
 
         <md-button class="md-icon-button">
           <md-icon>more_vert</md-icon>
@@ -57,8 +46,7 @@
         </md-table-header>
 
         <md-table-body>
-          <md-table-row v-for="(entry, rowIndex) in filteredData" :key="rowIndex" :md-item="entry" md-selection
-                        v-on:dblclick.native="doubleClickEvent(entry)">
+          <md-table-row v-for="(entry, rowIndex) in rowData" :key="rowIndex" :md-item="entry" md-selection>
             <md-table-cell v-for="key in columns">
               <span v-if="!options_.editable">{{ showValue(key, entry) }}</span>
 
@@ -82,26 +70,37 @@
         @pagination="onPagination"></md-table-pagination>
     </md-table-card>
 
-    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog">
-      <md-dialog-title>제품 마스터 생성</md-dialog-title>
 
-      <md-dialog-content>
-        <object-form ref="object-form"
-                     :java="java"
-                     :data="checked"
-                     :event-listeners="['grid']"
-        >
-        </object-form>
-      </md-dialog-content>
+    <div v-if="fullFledged">
+      <md-button class="md-primary" @click.native="$refs['dialog'].open()">추가</md-button>
 
-      <md-dialog-actions>
-        <md-button class="md-primary" @click.native="$refs['object-form'].update_(); $refs['dialog'].close()">수정
-        </md-button>
-        <md-button class="md-primary" @click.native="$refs['dialog'].close()">닫기</md-button>
-      </md-dialog-actions>
-    </md-dialog>
+      <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog">
+        <md-dialog-title>New</md-dialog-title>
+
+        <md-dialog-content>
+          <object-form ref="object-form"
+                       :java="java"
+                       :data="{}"
+                       :event-listeners="['grid']"
+          >
+          </object-form>
+        </md-dialog-content>
+
+        <md-dialog-actions>
+          <md-button class="md-primary" @click.native="addObject($refs['object-form'].data); $refs['dialog'].close()">
+            저장
+          </md-button>
+          <md-button class="md-primary" @click.native="$refs['dialog'].close()">닫기</md-button>
+        </md-dialog-actions>
+      </md-dialog>
+
+    </div>
+
+
   </div>
 </template>
+
+
 <script>
 
   export default {
@@ -114,26 +113,27 @@
       fullFledged: Boolean,
       online: Boolean,
       options: Object,
-      checked: Array
+      serviceLocator: Object
     },
 
+
     data: function () {
-      return this.initGrid();
+      let initGrid = this.initGrid();
+      initGrid.rowData = this.data;
+      if(!initGrid.rowData){
+        initGrid.rowData = [];
+      }
+      return initGrid;
     },
 
     watch: {
       java: function () {
         var initProps = this.initGrid();
-
         this.columns = initProps.columns;
         this.metadata = initProps.metadata;
-
       },
-      options: function (val) {
-        var initProps = this.initGrid();
-
-        this.columns = initProps.columns;
-        this.metadata = initProps.metadata;
+      data: function(){
+          this.rowData = this.data;
       }
     },
 
@@ -143,20 +143,14 @@
         contentHtml: '해당 데이터를 삭제 하시겠습니까?',
         cancel: 'No',
         ok: 'Yes',
-      },
-        this.alert = {
-          content: '중복 체크는 수정 할 수가 없습니다.',
-          ok: 'Cool!'
-        }
-
+      };
       this.loadData();
-
     },
     computed: {
       filteredData: function () {
-        var data = this.rowData
 
-        return data
+        //var data = this.rowData
+        return this.rowData
       }
     },
     filters: {
@@ -165,8 +159,6 @@
       }
     },
     methods: {
-
-
       initGrid: function () {
 
         var xhr = new XMLHttpRequest();
@@ -174,15 +166,15 @@
         var self = this;
         var metadata;
         var thisOptions = this.options;
-
-
-        xhr.open('GET', "http://localhost:8080/classdefinition?className=" + this.java, false);
+        if (!thisOptions) {
+          thisOptions = {};
+        }
+        xhr.open('GET', this.getServiceHost() + "/classdefinition?className=" + this.java, false);
         xhr.setRequestHeader("access_token", localStorage['access_token']);
         xhr.onload = function () {
           metadata = JSON.parse(xhr.responseText)
 
           columns = metadata.fieldDescriptors;
-          self.options = {};
 
           for (var i = 0; i < columns.length; i++) {
             var fd = columns[i];
@@ -194,9 +186,9 @@
                 fd.optionMap[key] = fd.values[keyIdx];
               }
 
-              self.options[fd.name] = fd.optionMap;
+              thisOptions[fd.name] = fd.optionMap;
             } else {
-              self.options[fd.name] = {};
+              thisOptions[fd.name] = {};
             }
 
 
@@ -213,27 +205,25 @@
               fd.component = "object-grid"
               fd.elemClassName = fd.className.substring(2, fd.className.length - 1);
 
-              self.options[fd.name]['editable'] = true;
+              thisOptions[fd.name]['editable'] = true;
 
             } else if (fd.collectionClass) {
               fd.component = "object-grid"
               fd.elemClassName = fd.collectionClass;
 
-              self.options[fd.name]['editable'] = true;
+              thisOptions[fd.name]['editable'] = true;
 
             }
           }
-
-
           if (self.columnChanger) {
             self.columnChanger(columns);
           }
-        }
+        };
         xhr.send();
 
 
         return {
-          rowData: this.data,
+          //rowData: this.data,
           columns: columns,
           metadata: metadata,
           options_: (thisOptions ? thisOptions : {}),
@@ -259,6 +249,21 @@
         this.loadData();
       },
 
+      getServiceHost: function () {
+        if (this.serviceLocator) {
+          if (this.serviceLocator.host) {
+            return this.serviceLocator.host;
+          } else if (this.$root.$refs[this.serviceLocator]) {
+            return this.$root.$refs[this.serviceLocator].host;
+          } else {
+            return this.serviceLocator;
+          }
+
+        } else {
+          return "http://127.0.0.1:8080"
+        }
+      },
+
       loadData: function () {
         if (this.online) {
           var page = this.pagination.page;
@@ -270,15 +275,54 @@
           var self = this
 
 
-          xhr.open('GET', "http://localhost:8080/" + path + "?page=" + (page - 1) + "&size=" + size + (this.sort ? "&sort=" + this.sort.name + "," + this.sort.type : ""), false);
+          xhr.open('GET', this.getServiceHost() + "/" + path + "?page=" + (page - 1) + "&size=" + size + (this.sort ? "&sort=" + this.sort.name + "," + this.sort.type : ""), false);
           xhr.setRequestHeader("access_token", localStorage['access_token']);
           xhr.onload = function () {
             var jsonData = JSON.parse(xhr.responseText);
             self.rowData = jsonData._embedded[path];
+
+            for (var i in self.rowData) {
+
+              var row = self.rowData[i];
+
+              //load tenant properties as well
+              if (row && row._links && row._links.tenantProperties) {
+                var tenantPropertiesURI = row._links.tenantProperties.href;
+
+                var xhr_ = new XMLHttpRequest()
+                xhr_.open('GET', tenantPropertiesURI, true);
+                xhr_.setRequestHeader("access_token", localStorage['access_token']);
+                xhr_.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhr_.onload = function () {
+                  if (xhr_.responseText && xhr_.responseText.trim().length > 0) {
+
+                    var jsonData = JSON.parse(xhr_.responseText);
+
+                    if (jsonData.json) { //TODO: couchbase specific
+                      jsonData = jsonData.json;
+                    }
+
+                    if (jsonData && self.metadata) {
+                      for (var j in self.metadata.fieldDescriptors) {
+                        var fd = self.metadata.fieldDescriptors[j];
+
+                        if (fd.attributes && fd.attributes.extended) {
+                          Vue.set(row, fd.name, jsonData[fd.name]);
+                        }
+
+                      }
+
+                    }
+                  }
+                }
+                xhr_.send(); //TODO: must be reduced for only the tenant properties
+
+              }
+
+            }
           }
           xhr.send();
         }
-
       },
 
       sortBy: function (key) {
@@ -287,7 +331,9 @@
       },
 
       addRow: function (aRow) {
+        if (!this.rowData) this.rowData = [];
         this.rowData.push(aRow);
+        this.$emit('update:data', this.rowData);
       },
 
       showValue: function (key, entry) {
@@ -304,28 +350,23 @@
       },
       addObject: function (aRow) {
         if (!this.rowData) this.rowData = [];
-
         this.rowData.push(aRow);
-
-        this.data = this.rowData;
-
+        this.$emit('update:data', this.rowData);
       },
-      submit_for_delete: function (key, num) {
+      submit_for_delete: function (uri, num) {
         var path = 'product';
         var xhr = new XMLHttpRequest()
         var self = this
-        xhr.open('DELETE', "http://localhost:8080/" + path + "/" + key, false);
+        //var uri = this.getServiceHost() + "/" + path + "/"+key
+        xhr.open('DELETE', uri, false);
         xhr.setRequestHeader("access_token", localStorage['access_token']);
         xhr.onload = function () {
           console.log(xhr);
-
-        }
+        };
         xhr.send();
-
       },
 
       openDialog: function (ref) {
-        alert(ref);
         this.$refs[ref].open();
       },
       closeDialog: function (ref) {
@@ -336,50 +377,33 @@
       },
       onClose: function (type) {
 
-        if (type == 'ok') {
+        if (type == 'ok' && this.online) {
           this.deleteSubmit();
+        } else {
+          this.deleteSelectedRows();
         }
         console.log('Closed', type);
       },
 
       onSelect: function (selected) {
-
         this.selected = selected;
-
       },
-
 
       deleteSubmit: function () {
         for (var i in this.selected) {
-          var primaryKey = (this.selected[i][this.metadata.keyFieldDescriptor.name]);
-          this.submit_for_delete(primaryKey);
-
+          //var primaryKey = (this.selected[i][this.metadata.keyFieldDescriptor.name]);
+          this.submit_for_delete(this.selected[i]._links.self.href);
         }
-
         this.loadData();
-
       },
-      /*
-       duplicationCheck: function() {
-       var checkedNum = window.document.getElementsByClassName("md-checked").length;
-       var obj = this.selected;
-       var obj2 = "";
-       if(checkedNum == 1){
-       for(key in obj){
-       obj2 = obj[key]
 
-       }
-       this.checked = obj2;
-       this.$refs['dialog'].open();
-       }else{
-       this.$refs['dialog3'].open();
-       }
-       },*/
-      doubleClickEvent: function (object) {
-        var obj = object;
-        delete obj['_links'];
-        this.checked = obj;
-        this.$refs['dialog'].open();
+      deleteSelectedRows: function () {
+        var count = 0;
+        for (var i in this.selected) {
+          this.rowData.splice(i - count, 1);
+          count++;
+        }
+        this.loadData();
       }
     }
   }
