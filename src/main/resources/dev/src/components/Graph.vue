@@ -1,6 +1,7 @@
 <template>
   <div class="canvas-panel">
-    <div class="canvas" :id="id">
+    <div class="canvas">
+      <div style="width:2000px;height: 2000px" :id="id"></div>
     </div>
     <div :id="sliderId">
     </div>
@@ -424,8 +425,16 @@
       }
     },
     mounted() {
-      this.getDefinition();
+      var me = this;
+      me.getDefinition();
 
+      function fixSize() {
+        if (me.canvas) {
+          me.canvas.setCanvasSize([2000, 2000]);
+        }
+      }
+
+      //setInterval(fixSize, 500)
     },
     watch: {
       '$route'(to, from) {
@@ -438,7 +447,6 @@
         if (!me.canvas) {
           return;
         }
-        console.log(me.canvas.toJSON());
         var adaptor = new TypedJsonAdaptor(me.canvas, this.shapeIdMappings);
         var exportJson = adaptor.exportJson();
 
@@ -457,9 +465,14 @@
         }
 
         this.$root.codi('definition{/id}').save({id: this.id + '.json'}, exportJson)
-          .then(function (response) {
-            console.log(response);
-          });
+          .then(
+            function (response) {
+              me.$root.$children[0].success('저장되었습니다.');
+            },
+            function (response) {
+              me.$root.$children[0].error('저장할 수 없습니다.');
+            }
+          );
       },
       findShapeIdMappings: function (shapeId) {
         var map = undefined;
@@ -520,13 +533,13 @@
           resizable: true,
           connectable: true,
           selfConnectable: true,
-          connectCloneable: true,
+          connectCloneable: false,
           connectRequired: true,
-          labelEditable: true,
+          labelEditable: false,
           groupDropable: true,
           collapsible: true,
           enableHotKey: true,
-          enableContextMenu: true,
+          enableContextMenu: false,
           useSlider: false,
           stickGuide: true,
           checkBridgeEdge: true,

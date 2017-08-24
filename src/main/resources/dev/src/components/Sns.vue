@@ -80,13 +80,13 @@
         this.selectedTaskId = taskId;
       },
       load: function () {
-        console.log(123123);
         var serviceLocator = this.$refs['backend'];
         var me = this;
         serviceLocator.invoke({
           path: 'worklist/search/findToDo',
           success: function (data) {
             me.items = data._embedded.worklist;
+            console.log(me.items);
           }
         });
       }
