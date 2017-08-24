@@ -83,12 +83,12 @@ TypedJsonAdaptor.prototype = {
       }
     };
 
-    //childActivities, roles ,sequenceFlows  를 제외한 데이터는 캔버스 'properties' 데이터로 등록.
+    //childActivities, roles ,sequenceFlows, opengraph  를 제외한 데이터는 캔버스 'properties' 데이터로 등록.
     var canvasData = {
       properties: {}
     };
     for (var key in data) {
-      if (key != 'childActivities' && key != 'roles' && key != 'sequenceFlows') {
+      if (key != 'childActivities' && key != 'roles' && key != 'sequenceFlows' && key != 'opengraph') {
         canvasData.properties[key] = data[key];
       }
     }
@@ -236,19 +236,20 @@ TypedJsonAdaptor.prototype = {
     }
 
     var me = this;
+    delete json.opengraph['@data'];
     me.canvas.loadJSON(json);
 
     var definition = data.definition;
-    //childActivities, roles ,sequenceFlows  를 제외한 데이터는 캔버스 'properties' 데이터로 등록.
+    //childActivities, roles ,sequenceFlows, opengraph  를 제외한 데이터는 캔버스 'properties' 데이터로 등록.
     var canvasData = {
       properties: {}
     };
     for (var key in data) {
-      if (key != 'childActivities' && key != 'roles' && key != 'sequenceFlows') {
+      if (key != 'childActivities' && key != 'roles' && key != 'sequenceFlows' && key != 'opengraph') {
         canvasData.properties[key] = data[key];
       }
     }
-    me.canvas.getRootGroup().data = canvasData;
+    //me.canvas.getRootGroup().data = canvasData;
 
     let elements = me.canvas.getRenderer().getAllNotEdges();
     var findByLaneName = function (name) {

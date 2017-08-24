@@ -438,6 +438,7 @@
         if (!me.canvas) {
           return;
         }
+        console.log(me.canvas.toJSON());
         var adaptor = new TypedJsonAdaptor(me.canvas, this.shapeIdMappings);
         var exportJson = adaptor.exportJson();
 
