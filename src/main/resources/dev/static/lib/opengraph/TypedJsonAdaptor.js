@@ -5,36 +5,32 @@
  *
  * @author <a href="mailto:sppark@uengine.org">Seungpil Park</a>
  */
-var TypedJsonAdaptor = function () {
+var TypedJsonAdaptor = function (canvas) {
   this.json = null;
+  this.canvas = canvas;
 
-  this.types = {
+  this.shapeIdJavaMappings = {
     /**
      * Start Event
      */
     startEvent: {
       java: 'org.uengine.kernel.bpmn.StartEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.StartEventView',
       shapeId: 'OG.shape.bpmn.E_Start'
     },
     messageStartEvent: {
       java: 'org.uengine.kernel.bpmn.StartEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.StartEventView',
       shapeId: 'OG.shape.bpmn.E_Start_Message'
     },
     timerStartEvent: {
       java: 'org.uengine.kernel.bpmn.StartEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.StartEventView',
       shapeId: 'OG.shape.bpmn.E_Start_Timer'
     },
     conditionalStartEvent: {
       java: 'org.uengine.kernel.bpmn.StartEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.StartEventView',
       shapeId: 'OG.shape.bpmn.E_Start_Rule'
     },
     signalStartEvent: {
       java: 'org.uengine.kernel.bpmn.StartEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.StartEventView',
       shapeId: 'OG.shape.bpmn.E_Start_Signal'
     },
 
@@ -43,53 +39,47 @@ var TypedJsonAdaptor = function () {
      */
     intermediateThrowEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
       shapeId: 'OG.shape.bpmn.E_Intermediate'
     },
     messageIntermediateCatchEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
       shapeId: 'OG.shape.bpmn.E_Intermediate_Message'
     },
     messageIntermediateThrowEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
       shapeId: 'OG.shape.bpmn.E_Intermediate_Message_Throw'
     },
     timerIntermediateCatchEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
-      shapeId: 'OG.shape.bpmn.E_Intermediate'
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Timer'
     },
     escalationIntermediateThrowEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
-      shapeId: 'OG.shape.bpmn.E_Intermediate'
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Escalation'
+    },
+    conditionalIntermediateThrowEvent: {
+      java: 'org.uengine.kernel.bpmn.Event',
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Multiple'
     },
     linkIntermediateCatchEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
-      shapeId: 'OG.shape.bpmn.E_Intermediate'
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Link'
     },
     linkIntermediateThrowEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
-      shapeId: 'OG.shape.bpmn.E_Intermediate'
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Link_Throw'
     },
     compensationIntermediateThrowEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
-      shapeId: 'OG.shape.bpmn.E_Intermediate'
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Compensation'
     },
     signalIntermediateCatchEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
-      shapeId: 'OG.shape.bpmn.E_Intermediate'
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Signal'
     },
     signalIntermediateThrowEvent: {
       java: 'org.uengine.kernel.bpmn.Event',
-      javaView: 'org.uengine.kernel.bpmn.view.EventView',
-      shapeId: 'OG.shape.bpmn.E_Intermediate'
+      shapeId: 'OG.shape.bpmn.E_Intermediate_Signal_Throw'
     },
 
     /**
@@ -97,33 +87,27 @@ var TypedJsonAdaptor = function () {
      */
     endEvent: {
       java: 'org.uengine.kernel.bpmn.EndEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.EndEventView',
       shapeId: 'OG.shape.bpmn.E_End'
     },
     escalationEndEvent: {
       java: 'org.uengine.kernel.bpmn.EndEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.EndEventView',
-      shapeId: 'OG.shape.bpmn.E_End'
+      shapeId: 'OG.shape.bpmn.E_End_Escalation'
     },
     errorEndEvent: {
       java: 'org.uengine.kernel.bpmn.EndEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.EndEventView',
-      shapeId: 'OG.shape.bpmn.E_End'
+      shapeId: 'OG.shape.bpmn.E_End_Error'
     },
     compensationEndEvent: {
       java: 'org.uengine.kernel.bpmn.EndEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.EndEventView',
-      shapeId: 'OG.shape.bpmn.E_End'
+      shapeId: 'OG.shape.bpmn.E_End_Compensation'
     },
     signalEndEvent: {
       java: 'org.uengine.kernel.bpmn.EndEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.EndEventView',
-      shapeId: 'OG.shape.bpmn.E_End'
+      shapeId: 'OG.shape.bpmn.E_End_Signal'
     },
     terminateEndEvent: {
       java: 'org.uengine.kernel.bpmn.EndEvent',
-      javaView: 'org.uengine.kernel.bpmn.view.EndEventView',
-      shapeId: 'OG.shape.bpmn.E_End'
+      shapeId: 'OG.shape.bpmn.E_End_Terminate'
     },
 
     /**
@@ -131,123 +115,118 @@ var TypedJsonAdaptor = function () {
      */
     gateway: {
       java: 'org.uengine.kernel.bpmn.Gateway',
-      javaView: 'org.uengine.kernel.bpmn.view.GatewayView',
       shapeId: 'OG.shape.bpmn.G_Gateway'
     },
     parallelGateway: {
       java: 'org.uengine.kernel.bpmn.ParallelGateway',
-      javaView: 'org.uengine.kernel.bpmn.view.ParallelGatewayView',
-      shapeId: 'OG.shape.bpmn.G_Gateway'
+      shapeId: 'OG.shape.bpmn.G_Parallel'
     },
     exclusiveGateway: {
       java: 'org.uengine.kernel.bpmn.ExclusiveGateway',
-      javaView: 'org.uengine.kernel.bpmn.view.GatewayView',
-      shapeId: 'OG.shape.bpmn.G_Gateway'
+      shapeId: 'OG.shape.bpmn.G_Exclusive'
     },
     inclusiveGateway: {
       java: 'org.uengine.kernel.bpmn.InclusiveGateway',
-      javaView: 'org.uengine.kernel.bpmn.view.InclusiveGatewayView',
-      shapeId: 'OG.shape.bpmn.G_Gateway'
+      shapeId: 'OG.shape.bpmn.G_Inclusive'
     },
     complexGateway: {
       java: 'org.uengine.kernel.bpmn.Gateway',
-      javaView: 'org.uengine.kernel.bpmn.view.GatewayView',
-      shapeId: 'OG.shape.bpmn.G_Gateway'
+      shapeId: 'OG.shape.bpmn.G_Complex'
     },
     eventBasedGateway: {
       java: 'org.uengine.kernel.bpmn.Gateway',
-      javaView: 'org.uengine.kernel.bpmn.view.GatewayView',
-      shapeId: 'OG.shape.bpmn.G_Gateway'
+      shapeId: 'OG.shape.bpmn.G_Event'
     },
     /**
      * Task
      */
     task: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
+      java: 'org.uengine.kernel.DefaultActivity',
       shapeId: 'OG.shape.bpmn.A_Task'
     },
     sendTask: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
-      shapeId: 'OG.shape.bpmn.A_Task'
+      java: 'org.uengine.kernel.DefaultActivity',
+      shapeId: 'OG.shape.bpmn.A_SendTask'
     },
     receiveTask: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
-      shapeId: 'OG.shape.bpmn.A_Task'
+      java: 'org.uengine.kernel.DefaultActivity',
+      shapeId: 'OG.shape.bpmn.A_ReceiveTask'
     },
     userTask: {
-      java: 'org.uengine.kernel.bpmn.HumanActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.HumanActivityView',
+      java: 'org.uengine.kernel.HumanActivity',
       shapeId: 'OG.shape.bpmn.A_HumanTask'
     },
     manualTask: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
-      shapeId: 'OG.shape.bpmn.A_Task'
+      java: 'org.uengine.kernel.DefaultActivity',
+      shapeId: 'OG.shape.bpmn.A_ManualTask'
     },
     businessTask: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
-      shapeId: 'OG.shape.bpmn.A_Task'
+      java: 'org.uengine.kernel.DefaultActivity',
+      shapeId: 'OG.shape.bpmn.A_BusinessTask'
     },
     serviceTask: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
-      shapeId: 'OG.shape.bpmn.A_Task'
+      java: 'org.uengine.kernel.DefaultActivity',
+      shapeId: 'OG.shape.bpmn.A_ServiceTask'
     },
     scriptTask: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
-      shapeId: 'OG.shape.bpmn.A_Task'
+      java: 'org.uengine.kernel.DefaultActivity',
+      shapeId: 'OG.shape.bpmn.A_ScriptTask'
     },
     callActivity: {
-      java: 'org.uengine.kernel.bpmn.DefaultActivity',
-      javaView: 'org.uengine.kernel.bpmn.view.DefaultActivityView',
-      shapeId: 'OG.shape.bpmn.A_Task'
+      java: 'org.uengine.kernel.DefaultActivity',
+      shapeId: 'OG.shape.bpmn.A_CallActivity'
     },
     /**
      * Sub Process
      */
     subProcess: {
       java: 'org.uengine.kernel.bpmn.SubProcess',
-      javaView: 'org.uengine.kernel.bpmn.view.SubProcessView',
       shapeId: 'OG.shape.bpmn.A_Subprocess'
     },
     transaction: {
       java: 'org.uengine.kernel.bpmn.SubProcess',
-      javaView: 'org.uengine.kernel.bpmn.view.SubProcessView',
-      shapeId: 'OG.shape.bpmn.A_Subprocess'
+      shapeId: 'OG.shape.bpmn.A_Transaction'
     },
     eventSubProcess: {
       java: 'org.uengine.kernel.bpmn.SubProcess',
-      javaView: 'org.uengine.kernel.bpmn.view.SubProcessView',
-      shapeId: 'OG.shape.bpmn.A_Subprocess'
+      shapeId: 'OG.shape.bpmn.A_SubProcess_Event'
     },
     /**
      * Data
      */
     dataObject: {
       java: 'org.uengine.kernel.bpmn.DataStore',
-      javaView: 'org.uengine.kernel.bpmn.view.DataStoreActivityView',
       shapeId: 'OG.shape.bpmn.D_Data'
     },
     dataStore: {
       java: 'org.uengine.kernel.bpmn.DataStore',
-      javaView: 'org.uengine.kernel.bpmn.view.DataStoreActivityView',
       shapeId: 'OG.shape.bpmn.D_Store'
+    },
+    /**
+     * Pool
+     */
+    pool: {
+      shapeId: 'OG.shape.VerticalPoolShape'
     },
     /**
      * Role
      */
     role: {
-      javaView: 'org.uengine.kernel.view.RoleView',
       shapeId: 'OG.shape.HorizontalLaneShape'
     }
   }
 };
 TypedJsonAdaptor.prototype = {
+  getJavaClassByShapeId: function (shapeId) {
+    var javaClass = undefined;
+    let shapeIdJavaMappings = this.shapeIdJavaMappings;
+    for (var key in shapeIdJavaMappings) {
+      if (shapeIdJavaMappings[key].shapeId == shapeId) {
+        javaClass = shapeIdJavaMappings[key].java;
+      }
+    }
+    return javaClass;
+  },
 
   getPrevEdgeIds: function (sequenceFlows, id) {
     var ids = [];
@@ -285,8 +264,7 @@ TypedJsonAdaptor.prototype = {
     });
     return ids;
   },
-
-  importData: function (data) {
+  importFromElementView: function (data) {
     var me = this;
     var definition = data.definition;
     var canvasViewPort = definition['canvasViewPort'];
@@ -322,7 +300,6 @@ TypedJsonAdaptor.prototype = {
     json.opengraph['@data'] = escape(OG.JSON.encode(canvasData));
 
     var makeChild = function (items, childType) {
-      console.log(items);
       $.each(items, function (i, item) {
           let view;
           if (childType == 'shape') {
@@ -452,303 +429,155 @@ TypedJsonAdaptor.prototype = {
     makeChild(sequenceFlows, 'sequence');
     //childShape(rootGroup, true);
     return json;
-
   },
-  exportData: function (json) {
-    var canvasWidth, canvasHeight, rootGroup, canvasScale,
-      minX = Number.MAX_VALUE, minY = Number.MAX_VALUE, maxX = Number.MIN_VALUE, maxY = Number.MIN_VALUE,
-      i, cell, shape, id, parent, shapeType, shapeId, x, y, width, height, style, geom, from, to,
-      fromEdge, toEdge, label, fromLabel, toLabel, angle, value, data, dataExt, element, loopType, taskType, swimlane, textList;
 
-    canvasWidth = json.opengraph['@width'];
-    canvasHeight = json.opengraph['@height'];
-    canvasScale = json.opengraph['@scale'];
-    data = {
+  importJson: function (data) {
+    var json = data.definition.opengraph;
+    //예전 방식일 경우
+    if (!json) {
+      json = this.importFromElementView(data);
+    }else{
+      json = JSON.parse(json);
+    }
+
+    var me = this;
+    me.canvas.loadJSON(json);
+
+    var definition = data.definition;
+    //childActivities, roles ,sequenceFlows  를 제외한 데이터는 캔버스 'properties' 데이터로 등록.
+    var canvasData = {
+      properties: {}
+    };
+    for (var key in data) {
+      if (key != 'childActivities' && key != 'roles' && key != 'sequenceFlows') {
+        canvasData.properties[key] = data[key];
+      }
+    }
+    me.canvas.getRootGroup().data = canvasData;
+
+    let elements = me.canvas.getRenderer().getAllNotEdges();
+    var findByLaneName = function (name) {
+      var lane = undefined;
+      $.each(elements, function (c, element) {
+        if (me.canvas.getRenderer().isLane(element)) {
+          if (element.shape.data.properties.name == name) {
+            lane = element;
+          }
+        }
+      });
+      return lane;
+    };
+
+    var makeChild = function (items, childType) {
+      $.each(items, function (i, item) {
+          var id, element;
+          if (childType == 'shape') {
+            id = item.tracingTag;
+          }
+          else if (childType == 'role') {
+            var laneElement = findByLaneName(item.name);
+            if (laneElement) {
+              id = laneElement.id;
+            }
+          }
+          else if (childType == 'sequence') {
+            id = item['sourceRef'] + '-' + item['targetRef'];
+          }
+
+          element = me.canvas.getElementById(id);
+          if (!element) {
+            return;
+          }
+
+          //elementView , relationView 를 제외한 값을 'properties' 데이터로.
+          var shapeData = {
+            properties: {}
+          };
+          if (childType == 'shape' || childType == 'role') {
+            for (var prop in item) {
+              if (prop != 'elementView') {
+                shapeData.properties[prop] = item[prop];
+              }
+            }
+          }
+          else {
+            for (var prop in item) {
+              if (prop != 'relationView') {
+                shapeData.properties[prop] = item[prop];
+              }
+            }
+          }
+
+          //기존 오픈그래프 엘리먼트의 데이터가 틀려졌다면 도형 업데이트
+          var needToRedraw = false, oldVal, newVal;
+          if (!element.shape.data) {
+            needToRedraw = true;
+          } else {
+            oldVal = JSON.stringify(element.shape.data);
+            newVal = JSON.stringify(shapeData);
+            if (oldVal != newVal) {
+              needToRedraw = true;
+            }
+          }
+          if (needToRedraw) {
+            element.shape.data = shapeData;
+            me.canvas.getRenderer().redrawShape(element);
+          }
+        }
+      );
+    };
+
+    var roles = definition['roles'];
+    var childActivities = definition['childActivities'][1];
+    var sequenceFlows = definition['sequenceFlows'];
+    makeChild(roles, 'role');
+    makeChild(childActivities, 'shape');
+    makeChild(sequenceFlows, 'sequence');
+  },
+  exportJson: function () {
+    var me = this;
+    var opengraph = me.canvas.toJSON();
+    var data = {
       definition: {
         _type: 'org.uengine.kernel.ProcessDefinition',
-        canvasViewPort: {
-          _type: 'java.util.LinkedHashMap',
-          canvasWidth: canvasWidth,
-          canvasHeight: canvasHeight,
-          scale: canvasScale
-        },
         childActivities: [
           'java.util.ArrayList',
           []
         ],
         roles: [],
-        sequenceFlows: []
+        sequenceFlows: [],
+        opengraph: JSON.stringify(opengraph)
       }
     };
-
-    //데피니션 데이터 원복
-    var canvasData = json.opengraph['@data'];
-    if (canvasData) {
-      canvasData = OG.JSON.decode(unescape(canvasData));
-      for (var key in canvasData.properties) {
-        data.definition[key] = canvasData[key];
+    let allShapes = me.canvas.getAllShapes();
+    $.each(allShapes, function (i, element) {
+      var object = {}, properties, relatedElements;
+      if (element.shape instanceof OG.HorizontalLaneShape) {
+        properties = element.shape.data.properties;
+        object = properties;
+        data.definition.roles.push(object);
       }
-    }
-    cell = json.opengraph.cell;
-    var totalCount = cell.length;
-    var cellCount = 0;
 
-    for (var i = 0, leni = cell.length; i < leni; i++) {
-      id = cell[i]['@id'];
-      parent = cell[i]['@parent'];
-      swimlane = cell[i]['@swimlane'];
-      shapeType = cell[i]['@shapeType'];
-      shapeId = cell[i]['@shapeId'];
-      x = parseInt(cell[i]['@x'], 10);
-      y = parseInt(cell[i]['@y'], 10);
-      width = parseInt(cell[i]['@width'], 10);
-      height = parseInt(cell[i]['@height'], 10);
-      style = unescape(cell[i]['@style']);
-      geom = unescape(cell[i]['@geom']);
+      else if (element.shape instanceof OG.EdgeShape) {
+        relatedElements = me.canvas.getRelatedElementsFromEdge(element);
+        if (relatedElements.from) {
+          object.sourceRef = relatedElements.from.id
+          object.targetRef = relatedElements.to.id
+        }
+        data.definition.sequenceFlows.push(object);
+      }
 
-      from = cell[i]['@from'];
-      to = cell[i]['@to'];
-      fromEdge = cell[i]['@fromEdge'];
-      toEdge = cell[i]['@toEdge'];
-      label = cell[i]['@label'];
-      fromLabel = cell[i]['@fromLabel'];
-      toLabel = cell[i]['@toLabel'];
-      angle = cell[i]['@angle'];
-      value = cell[i]['@value'];
-      data = cell[i]['@data'];
-      textList = cell[i]['@textList'];
-      dataExt = cell[i]['@dataExt'];
-      loopType = cell[i]['@loopType'];
-      taskType = cell[i]['@taskType'];
+      else {
+        var shapeId = element.shape.SHAPE_ID;
+        let javaClass = me.getJavaClassByShapeId(shapeId);
+        properties = element.shape.data.properties;
+        object = properties;
+        object['_type'] = javaClass;
+        data.definition.childActivities[1].push(object);
+      }
+    });
 
-      label = label ? unescape(label) : label;
-
-      var object = {};
-      //
-      //
-      // if (view.parent) {
-      //   cell['@parent'] = view.parent;
-      // }
-      // cell['@shapeType'] = tempShape.TYPE;
-      // cell['@shapeId'] = view.shapeId;
-      // cell['@x'] = view.x;
-      // cell['@y'] = view.y;
-      // cell['@width'] = view.width;
-      // cell['@height'] = view.height;
-      //
-      // if (childType == 'shape' || childType == 'role') {
-      //   cell['@id'] = view.id;
-      //
-      //   var prevShapeIds = me.getPrevShapeIds(sequenceFlows, view.id);
-      //   var nextShapeIds = me.getNextShapeIds(sequenceFlows, view.id);
-      //   if (prevShapeIds.length > 0) {
-      //     cell['@from'] = prevShapeIds.toString();
-      //   }
-      //   if (nextShapeIds.length > 0) {
-      //     cell['@to'] = nextShapeIds.toString();
-      //   }
-      //
-      //   var prevEdgeIds = me.getPrevEdgeIds(sequenceFlows, view.id);
-      //   var nextEdgeIds = me.getNextEdgeIds(sequenceFlows, view.id);
-      //   if (prevEdgeIds.length > 0) {
-      //     cell['@fromEdge'] = prevEdgeIds.toString();
-      //   }
-      //   if (nextEdgeIds.length > 0) {
-      //     cell['@toEdge'] = nextEdgeIds.toString();
-      //   }
-      // }
-      // else if (childType == 'sequence') {
-      //   cell['@id'] = item['sourceRef'] + '-' + item['targetRef'];
-      //
-      //   if (view.from) {
-      //     cell['@from'] = view.from;
-      //   }
-      //   if (view.to) {
-      //     cell['@to'] = view.to;
-      //   }
-      // }
-      //
-      // if (view.label) {
-      //   cell['@label'] = view.label;
-      // }
-      // if (view.fromLabel) {
-      //   cell['@fromLabel'] = view.fromLabel;
-      // }
-      // if (view.toLabel) {
-      //   cell['@toLabel'] = view.toLabel;
-      // }
-      // if (view.angle && view.angle !== 0) {
-      //   cell['@angle'] = view.angle;
-      // }
-      // if (view.value) {
-      //   cell['@value'] = view.value;
-      // }
-      // if (view.style) {
-      //   cell['@style'] = view.style;
-      // }
-      // if (view.geom) {
-      //   cell['@geom'] = view.geom;
-      // }
-      //
-      // if (view.LoopType) {
-      //   cell['@loopType'] = view.LoopType;
-      // }
-      // if (view.TaskType) {
-      //   cell['@taskType'] = view.TaskType;
-      // }
-      // if (view.exceptionType) {
-      //   cell['@exceptionType'] = view.exceptionType;
-      // }
-      //
-      // cell['@childs'] = [];
-      //
-      // //elementView , relationView 를 제외한 값을 'properties' 데이터로.
-      // var shapeData = {
-      //   properties: {}
-      // };
-      // if (childType == 'shape' || childType == 'role') {
-      //   for (var prop in item) {
-      //     if (prop != 'elementView') {
-      //       shapeData.properties[prop] = item[prop];
-      //     }
-      //   }
-      //   cell['@data'] = escape(OG.JSON.encode(shapeData));
-      // }
-      // else {
-      //   for (var prop in item) {
-      //     if (prop != 'relationView') {
-      //       shapeData.properties[prop] = item[prop];
-      //     }
-      //   }
-      //   cell['@data'] = escape(OG.JSON.encode(shapeData));
-      // }
-      //
-      //
-      // //
-      // // minX = (minX > (x - width / 2)) ? (x - width / 2) : minX;
-      // // minY = (minY > (y - height / 2)) ? (y - height / 2) : minY;
-      // // maxX = (maxX < (x + width / 2)) ? (x + width / 2) : maxX;
-      // // maxY = (maxY < (y + height / 2)) ? (y + height / 2) : maxY;
-      //
-      // switch (shapeType) {
-      //   case OG.Constants.SHAPE_TYPE.GEOM:
-      //   case OG.Constants.SHAPE_TYPE.GROUP:
-      //     shape = eval('new ' + shapeId + '()');
-      //     if (label) {
-      //       shape.label = label;
-      //     }
-      //     if (data) {
-      //       shape.data = OG.JSON.decode(unescape(data));
-      //     }
-      //     if (textList) {
-      //       shape.textList = OG.JSON.decode(unescape(textList));
-      //     }
-      //     element = this.drawShape([x, y], shape, [width, height], OG.JSON.decode(style), id, parent);
-      //     if (element.shape instanceof OG.shape.bpmn.A_Task) {
-      //       element.shape.LoopType = loopType;
-      //       element.shape.TaskType = taskType;
-      //     }
-      //     break;
-      //   case OG.Constants.SHAPE_TYPE.EDGE:
-      //     var list = JSON.parse('[' + value + ']');
-      //     var fromto = JSON.stringify(list[0]) + ',' + JSON.stringify(list[list.length - 1]);
-      //     shape = eval('new ' + shapeId + '(' + fromto + ')');
-      //     if (label) {
-      //       shape.label = label;
-      //     }
-      //     if (data) {
-      //       shape.data = OG.JSON.decode(unescape(data));
-      //     }
-      //     if (textList) {
-      //       shape.textList = OG.JSON.decode(unescape(textList));
-      //     }
-      //     if (fromLabel) {
-      //       shape.fromLabel = unescape(fromLabel);
-      //     }
-      //     if (toLabel) {
-      //       shape.toLabel = unescape(toLabel);
-      //     }
-      //     if (geom) {
-      //       geom = OG.JSON.decode(geom);
-      //       if (geom.type === OG.Constants.GEOM_NAME[OG.Constants.GEOM_TYPE.POLYLINE]) {
-      //         geom = new OG.geometry.PolyLine(geom.vertices);
-      //         shape.geom = geom;
-      //       } else if (geom.type === OG.Constants.GEOM_NAME[OG.Constants.GEOM_TYPE.CURVE]) {
-      //         geom = new OG.geometry.Curve(geom.controlPoints);
-      //         shape.geom = geom;
-      //       }
-      //     }
-      //     element = this.drawShape(null, shape, null, OG.JSON.decode(style), id, parent);
-      //     break;
-      //   case OG.Constants.SHAPE_TYPE.HTML:
-      //     shape = eval('new ' + shapeId + '()');
-      //     if (value) {
-      //       shape.html = unescape(value);
-      //     }
-      //     if (label) {
-      //       shape.label = label;
-      //     }
-      //     if (data) {
-      //       shape.data = OG.JSON.decode(unescape(data));
-      //     }
-      //     if (textList) {
-      //       shape.textList = OG.JSON.decode(unescape(textList));
-      //     }
-      //     element = this.drawShape([x, y], shape, [width, height, angle], OG.JSON.decode(style), id, parent);
-      //     break;
-      //   case OG.Constants.SHAPE_TYPE.IMAGE:
-      //     shape = eval('new ' + shapeId + '(\'' + value + '\')');
-      //     if (label) {
-      //       shape.label = label;
-      //     }
-      //     if (data) {
-      //       shape.data = OG.JSON.decode(unescape(data));
-      //     }
-      //     if (textList) {
-      //       shape.textList = OG.JSON.decode(unescape(textList));
-      //     }
-      //     element = this.drawShape([x, y], shape, [width, height, angle], OG.JSON.decode(style), id, parent);
-      //     break;
-      //   case OG.Constants.SHAPE_TYPE.TEXT:
-      //     shape = eval('new ' + shapeId + '()');
-      //     if (value) {
-      //       shape.text = unescape(value);
-      //     }
-      //     if (data) {
-      //       shape.data = OG.JSON.decode(unescape(data));
-      //     }
-      //     if (textList) {
-      //       shape.textList = OG.JSON.decode(unescape(textList));
-      //     }
-      //     element = this.drawShape([x, y], shape, [width, height, angle], OG.JSON.decode(style), id, parent);
-      //     break;
-      // }
-      //
-      // if (from) {
-      //   $(element).attr('_from', from);
-      // }
-      // if (to) {
-      //   $(element).attr('_to', to);
-      // }
-      // if (fromEdge) {
-      //   $(element).attr('_fromedge', fromEdge);
-      // }
-      // if (toEdge) {
-      //   $(element).attr('_toedge', toEdge);
-      // }
-      //
-      // if (data) {
-      //   element.data = OG.JSON.decode(unescape(data));
-      // }
-      // if (dataExt) {
-      //   element.dataExt = OG.JSON.decode(unescape(dataExt));
-      // }
-      //
-      // cellCount++;
-      // $(renderer._PAPER.canvas).trigger('loading', [Math.round((cellCount / totalCount) * 100)]);
-    }
-
-    return this.json;
+    return data;
   }
 }
 ;

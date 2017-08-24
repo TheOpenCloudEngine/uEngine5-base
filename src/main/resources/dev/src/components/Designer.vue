@@ -21,6 +21,18 @@
         </v-card-actions>
       </v-card>
     </v-flex>
+
+    <v-btn
+      absolute
+      dark
+      fab
+      top
+      right
+      class="pink mt-100"
+      v-on:click="newProcess"
+    >
+      <v-icon class="margin-top:100px">add</v-icon>
+    </v-btn>
   </v-layout>
 </template>
 <script>
@@ -38,7 +50,7 @@
 
       this.$root.codi('definitions').get()
         .then(function (response) {
-            console.log(response);
+          console.log(response);
           var cards = [];
           $.each(response.data, function (i, name) {
             name = name.replace('/', '');
@@ -52,9 +64,14 @@
         })
     },
     methods: {
+      newProcess: function () {
+        this.$router.push({
+          path: 'definition/new-process-definition'
+        })
+      },
       move: function (name) {
         this.$router.push({
-          path: 'definition/' + name.replace('.json','')
+          path: 'definition/' + name.replace('.json', '')
         })
       }
     }
@@ -62,5 +79,7 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-
+  .mt-100 {
+    margin-top: 50px;
+  }
 </style>

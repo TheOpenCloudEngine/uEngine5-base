@@ -11613,7 +11613,7 @@ OG.shape.HorizontalPoolShape.prototype.createSubShape = function () {
     var loopShape;
     switch (this.LoopType) {
         case 'Standard' :
-            loopShape = new OG.ImageShape('resources/images/symbol/loop_standard.png');
+            loopShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'loop_standard.png');
             break;
         case 'MIParallel' :
             loopShape = new OG.MIParallel();
@@ -12007,7 +12007,7 @@ OG.shape.bpmn.A_Task.prototype.createSubShape = function () {
     var loopShape;
     switch (this.LoopType) {
         case 'Standard' :
-            loopShape = new OG.ImageShape('resources/images/symbol/loop_standard.png');
+            loopShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'loop_standard.png');
             break;
         case 'MIParallel' :
             loopShape = new OG.MIParallel();
@@ -12030,31 +12030,31 @@ OG.shape.bpmn.A_Task.prototype.createSubShape = function () {
     var taskTypeShape;
     switch (this.TaskType) {
         case "User":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/User.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + "User.png");
             break;
         case "Send":
-            taskTypeShape = new OG.ImageShape('resources/images/symbol/Send.png');
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'Send.png');
             break;
         case "Receive":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/Receive.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'Receive.png');
             break;
         case "Manual":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/Manual.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'Manual.png');
             break;
         case "Service":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/Service.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'Service.png');
             break;
         case "BusinessRule":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/BusinessRule.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'BusinessRule.png');
             break;
         case "Script":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/Script.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'Script.png');
             break;
         case "Mapper":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/Mapper.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'Mapper.png');
             break;
         case "WebService":
-            taskTypeShape = new OG.ImageShape("resources/images/symbol/WebService.png");
+            taskTypeShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'WebService.png');
             break;
     }
     if (taskTypeShape) {
@@ -12071,10 +12071,10 @@ OG.shape.bpmn.A_Task.prototype.createSubShape = function () {
     var statusShape, statusAnimation;
     switch (this.status) {
         case "Completed":
-            statusShape = new OG.ImageShape("resources/images/symbol/complete.png");
+            statusShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'complete.png');
             break;
         case "Running":
-            statusShape = new OG.ImageShape('resources/images/symbol/running.png');
+            statusShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'running.png');
             statusAnimation = new OG.RectangleShape();
             break;
     }
@@ -12471,7 +12471,7 @@ OG.shape.bpmn.E_End.prototype.createSubShape = function () {
 
     if (this.inclusion) {
         this.sub.push({
-            shape: new OG.ImageShape('resources/images/symbol/complete.png'),
+            shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'complete.png'),
             width: '20px',
             height: '20px',
             right: '0px',
@@ -12576,7 +12576,7 @@ OG.shape.bpmn.E_Start.prototype.createSubShape = function () {
 
 	if (this.inclusion) {
 		this.sub.push({
-			shape: new OG.ImageShape('resources/images/symbol/complete.png'),
+			shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'complete.png'),
 			width: '20px',
 			height: '20px',
 			right: '0px',
@@ -12877,10 +12877,10 @@ OG.shape.bpmn.A_Subprocess.prototype.createSubShape = function () {
     var statusShape, statusAnimation;
     switch (this.status) {
         case "Completed":
-            statusShape = new OG.ImageShape("resources/images/symbol/complete.png");
+            statusShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + "complete.png");
             break;
         case "Running":
-            statusShape = new OG.ImageShape('resources/images/symbol/running.png');
+            statusShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'running.png');
             statusAnimation = new OG.RectangleShape();
             break;
     }
@@ -12936,7 +12936,7 @@ OG.shape.bpmn.A_Subprocess.prototype.createSubShape = function () {
 
     if (this.inclusion) {
         this.sub.push({
-            shape: new OG.ImageShape('resources/images/symbol/complete.png'),
+            shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'complete.png'),
             width: '20px',
             height: '20px',
             right: '0px',
@@ -12947,7 +12947,7 @@ OG.shape.bpmn.A_Subprocess.prototype.createSubShape = function () {
 
     if (this.HaveButton) {
         this.sub.push({
-            shape: new OG.ImageShape('resources/images/symbol/subprocess.png'),
+            shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'subprocess.png'),
             width: '20px',
             height: '20px',
             align: 'center',
@@ -15450,7 +15450,7 @@ OG.shape.bpmn.Value_Chain.prototype.createSubShape = function () {
 
     if (this.inclusion) {
         this.sub.push({
-            shape: new OG.ImageShape('resources/images/symbol/complete.png'),
+            shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'complete.png'),
             width: '20px',
             height: '20px',
             right: '0px',
@@ -15461,7 +15461,7 @@ OG.shape.bpmn.Value_Chain.prototype.createSubShape = function () {
 
     if (this.HaveButton) {
         this.sub.push({
-            shape: new OG.ImageShape('resources/images/symbol/subprocess.png'),
+            shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'subprocess.png'),
             width: '20px',
             height: '20px',
             align: 'center',
@@ -15543,7 +15543,7 @@ OG.shape.bpmn.Value_Chain.prototype.createSubShape = function () {
 
     if (this.inclusion) {
         this.sub.push({
-            shape: new OG.ImageShape('resources/images/symbol/complete.png'),
+            shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'complete.png'),
             width: '20px',
             height: '20px',
             right: '0px',
@@ -15554,7 +15554,7 @@ OG.shape.bpmn.Value_Chain.prototype.createSubShape = function () {
 
     if (this.HaveButton) {
         this.sub.push({
-            shape: new OG.ImageShape('resources/images/symbol/subprocess.png'),
+            shape: new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'subprocess.png'),
             width: '20px',
             height: '20px',
             align: 'center',
@@ -21989,11 +21989,14 @@ OG.renderer.RaphaelRenderer.prototype._drawLabel = function (position, text, siz
  * @return {Element} Group DOM Element with geometry
  * @override
  */
-OG.renderer.RaphaelRenderer.prototype.drawShape = function (position, shape, size, style, id, preventEvent) {
+OG.renderer.RaphaelRenderer.prototype.drawShape = function (position, shape, size, style, id, preventEvent, preventDropEvent) {
     var width = size ? size[0] : 100,
         height = size ? size[1] : 100,
         groupNode, geometry, text, image, html, xml,
         me = this;
+
+    //현재 캔버스 등록
+    shape.currentCanvas = this._CANVAS;
 
     if (shape instanceof OG.shape.GeomShape) {
         geometry = shape.createShape();
@@ -22136,14 +22139,17 @@ OG.renderer.RaphaelRenderer.prototype.drawShape = function (position, shape, siz
     //     me.putInnerShapeToPool(groupNode);
     // }
 
-    //shape 에 현재 캔버스,엘리먼트 등록
+    //shape 에 현재 엘리먼트 등록
     shape.currentElement = groupNode;
-    shape.currentCanvas = this._CANVAS;
 
     // drawShape event fire
     if (!preventEvent) {
         shape.onDrawShape();
         $(this._PAPER.canvas).trigger('drawShape', [groupNode]);
+    }
+
+    if (me._CONFIG.POOL_DROP_EVENT && !id && !preventDropEvent && me.isTopGroup(groupNode) && (me.isLane(groupNode) || me.isPool(groupNode))) {
+        me.setDropablePool(groupNode);
     }
 
     return groupNode;
@@ -23858,7 +23864,7 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
         if (!_isDeletable) {
             return;
         }
-        _trash = me._PAPER.image(me._CONFIG.IMAGE_TRASH, 0, 0, _ctrlSize, _ctrlSize);
+        _trash = me._PAPER.image(me._CONFIG.IMAGE_BASE + 'trash.png', 0, 0, _ctrlSize, _ctrlSize);
         _trash.attr(me._CONFIG.DEFAULT_STYLE.GUIDE_LINE_AREA);
         group.appendChild(_trash);
         me._add(_trash, rElement.id + OG.Constants.GUIDE_SUFFIX.TRASH);
@@ -24032,7 +24038,7 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
     }
 
     function _drawLaneQuarter(divideCount) {
-        _qUpper = me._PAPER.image("resources/images/symbol/quarter-upper.png", 0, 0, _ctrlSize, _ctrlSize);
+        _qUpper = me._PAPER.image(me._CONFIG.IMAGE_BASE + "quarter-upper.png", 0, 0, _ctrlSize, _ctrlSize);
         _qUpper.attr(me._CONFIG.DEFAULT_STYLE.GUIDE_LINE_AREA);
         group.appendChild(_qUpper);
         me._add(_qUpper, rElement.id + OG.Constants.GUIDE_SUFFIX.QUARTER_UPPER);
@@ -24041,7 +24047,7 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
             me.divideLane(element, OG.Constants.GUIDE_SUFFIX.QUARTER_UPPER);
         });
 
-        _qBisector = me._PAPER.image("resources/images/symbol/quarter-bisector.png", 0, 0, _ctrlSize, _ctrlSize);
+        _qBisector = me._PAPER.image(me._CONFIG.IMAGE_BASE + "quarter-bisector.png", 0, 0, _ctrlSize, _ctrlSize);
         _qBisector.attr(me._CONFIG.DEFAULT_STYLE.GUIDE_LINE_AREA);
         group.appendChild(_qBisector);
         me._add(_qBisector, rElement.id + OG.Constants.GUIDE_SUFFIX.QUARTER_BISECTOR);
@@ -24050,7 +24056,7 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
             me.divideLane(element, OG.Constants.GUIDE_SUFFIX.QUARTER_BISECTOR);
         });
 
-        _qThirds = me._PAPER.image("resources/images/symbol/quarter-thirds.png", 0, 0, _ctrlSize, _ctrlSize);
+        _qThirds = me._PAPER.image(me._CONFIG.IMAGE_BASE + "quarter-thirds.png", 0, 0, _ctrlSize, _ctrlSize);
         _qThirds.attr(me._CONFIG.DEFAULT_STYLE.GUIDE_LINE_AREA);
         group.appendChild(_qThirds);
         me._add(_qThirds, rElement.id + OG.Constants.GUIDE_SUFFIX.QUARTER_THIRDS);
@@ -24059,7 +24065,7 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
             me.divideLane(element, OG.Constants.GUIDE_SUFFIX.QUARTER_THIRDS);
         });
 
-        _qLow = me._PAPER.image("resources/images/symbol/quarter-low.png", 0, 0, _ctrlSize, _ctrlSize);
+        _qLow = me._PAPER.image(me._CONFIG.IMAGE_BASE + "quarter-low.png", 0, 0, _ctrlSize, _ctrlSize);
         _qLow.attr(me._CONFIG.DEFAULT_STYLE.GUIDE_LINE_AREA);
         group.appendChild(_qLow);
         me._add(_qLow, rElement.id + OG.Constants.GUIDE_SUFFIX.QUARTER_LOW);
@@ -26905,7 +26911,7 @@ OG.renderer.RaphaelRenderer.prototype.divideLane = function (element, quarterOrd
                 if (i === quarterLength - 1) {
                     _height = _height + (targetArea.getHeight() % quarterLength);
                 }
-                var newLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], new OG.HorizontalLaneShape(), [_width, _height], null, null, element.id, true);
+                var newLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], new OG.HorizontalLaneShape(), [_width, _height], null, null, element.id, true, true);
                 divedLanes.push(newLane);
             }
 
@@ -26917,7 +26923,7 @@ OG.renderer.RaphaelRenderer.prototype.divideLane = function (element, quarterOrd
                 if (i === quarterLength - 1) {
                     _width = _width + (targetArea.getWidth() % quarterLength);
                 }
-                var newLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], new OG.VerticalLaneShape(), [_width, _height], null, null, element.id, true);
+                var newLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], new OG.VerticalLaneShape(), [_width, _height], null, null, element.id, true, true);
                 divedLanes.push(newLane);
             }
             me.fitLaneOrder(element);
@@ -26949,7 +26955,7 @@ OG.renderer.RaphaelRenderer.prototype.divideLane = function (element, quarterOrd
                 var x = targetUpperLeft.x;
                 var y = targetUpperLeft.y;
                 var shape = me.isHorizontalLane(element) ? new OG.HorizontalLaneShape() : new OG.VerticalLaneShape();
-                standardLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], shape, [_width, _height], null, null, element.id, true);
+                standardLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], shape, [_width, _height], null, null, element.id, true, true);
                 divedLanes.push(standardLane);
             }
 
@@ -27051,7 +27057,7 @@ OG.renderer.RaphaelRenderer.prototype.divideLane = function (element, quarterOrd
                     }
                 }
             });
-            var newLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], shape, [_width, _height], null, null, parent.id, true);
+            var newLane = me._CANVAS.drawShape([x + (_width / 2), y + (_height / 2)], shape, [_width, _height], null, null, parent.id, true, true);
             divedLanes.push(newLane);
             $.each(lanesToMove, function (index, laneToMove) {
                 me.move(laneToMove, moveOffset);
@@ -32248,6 +32254,8 @@ OG.handler.EventHandler.prototype = {
 
         $(me._RENDERER.getRootElement()).find("[_selected=true]").each(function (index, item) {
             shape = eval('new ' + value + '()');
+
+            shape.currentCanvas = me._RENDERER._CANVAS
             if (label) {
                 shape.label = label;
             } else {
@@ -34720,6 +34728,10 @@ OG.graph.Canvas = function (container, containerSize, backgroundColor, backgroun
     this._CONFIG = {
 
         /**
+         * 풀, 래인 도형의 드랍시 자동 위치 조정 기능
+         */
+        POOL_DROP_EVENT: false,
+        /**
          * 도형, 스팟 이동시 이웃한 도형에 대해 자동보정이 이루어지는 여부.
          */
         AUTOMATIC_GUIDANCE: true,
@@ -35090,6 +35102,11 @@ OG.graph.Canvas = function (container, containerSize, backgroundColor, backgroun
         CANVAS_BACKGROUND: "#f9f9f9",
 
         /**
+         * 이미지 베이스 패스
+         */
+        IMAGE_BASE: 'resources/images/symbol/',
+
+        /**
          * 이미지 url 정보
          */
         IMAGE_USER: "http://processcodi.com/images/opengraph/User.png",
@@ -35101,7 +35118,6 @@ OG.graph.Canvas = function (container, containerSize, backgroundColor, backgroun
         IMAGE_SCRIPT: "http://processcodi.com/images/opengraph/Script.png",
         IMAGE_MAPPER: "http://processcodi.com/images/opengraph/mapper.png",
         IMAGE_WEB: "http://processcodi.com/images/opengraph/w_services.png",
-        IMAGE_TRASH: 'resources/images/symbol/trash.png',
 
         /**
          * Edge 선 자동마춤 각도 최소값
@@ -36124,11 +36140,12 @@ OG.graph.Canvas.prototype = {
      * @param {String} id Element ID 지정 (Optional)
      * @param {String} parentId 부모 Element ID 지정 (Optional)
      * @param {Boolean} preventEvent  이벤트 생성 방지
+     * @param {Boolean} preventDropEvent  드랍 이벤트 방지
      * @return {Element} Group DOM Element with geometry
      */
-    drawShape: function (position, shape, size, style, id, parentId, preventEvent) {
+    drawShape: function (position, shape, size, style, id, parentId, preventEvent, preventDropEvent) {
 
-        var element = this._RENDERER.drawShape(position, shape, size, style, id, preventEvent);
+        var element = this._RENDERER.drawShape(position, shape, size, style, id, preventEvent, preventDropEvent);
 
         if (position && (shape.TYPE === OG.Constants.SHAPE_TYPE.EDGE)) {
             element = this._RENDERER.move(element, position);
