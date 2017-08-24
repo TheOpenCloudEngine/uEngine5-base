@@ -79,6 +79,7 @@
         this.$root.codi('definition{/id}/instance').save({id: name}, {})
           .then(
             function (response) {
+              var instanceId = response.data;
               me.$root.$children[0].success('프로세스가 시작되었습니다.');
               me.$router.push({
                 path: '/sns'

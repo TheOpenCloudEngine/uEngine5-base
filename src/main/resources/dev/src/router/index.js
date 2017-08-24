@@ -12,6 +12,7 @@ import ObjectGrid from '@/components/ObjectGrid'
 import ClassEditor from '@/components/ClassEditor'
 import ClassSelector from '@/components/ClassSelector'
 import AvatarUploader from '@/components/AvatarUploader'
+import InstanceList from '@/components/InstanceList'
 
 /**
  * Iam && Vue Router
@@ -87,6 +88,19 @@ export default new Router({
           name: 'graph',
           component: Graph,
           beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'instance',
+          name: 'instance',
+          component: InstanceList,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'instance/:id',
+          name: 'instanceMonitor',
+          component: Graph,
+          beforeEnter: RouterGuard.requireUser,
+          props: {monitor: true}
         }
       ]
     },

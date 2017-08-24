@@ -1,12 +1,12 @@
 <template>
   <div class="canvas-panel">
     <div class="canvas">
-      <div style="width:2000px;height: 2000px" :id="id"></div>
+      <div class="canvas-space" style="width:2000px;height: 2000px" :id="id"></div>
     </div>
     <div :id="sliderId">
     </div>
 
-    <v-card class="grey lighten-4 tools">
+    <v-card v-if="!monitor" class="grey lighten-4 tools">
       <v-card-text>
         <span class="icons bpmn-icon-hand-tool"></span>
         <span class="icons bpmn-icon-lasso-tool"></span>
@@ -26,14 +26,21 @@
       </v-card-text>
     </v-card>
 
-    <v-card class="grey lighten-4 import">
+    <v-card v-if="!monitor" class="grey lighten-4 import">
       <v-card-text>
         <span class="icons fa fa-folder-open"></span>
         <span class="icons fa fa-cloud-upload"></span>
       </v-card-text>
     </v-card>
 
-    <v-card class="grey lighten-4 export">
+    <v-card v-if="!monitor" class="grey lighten-4 export">
+      <v-card-text>
+        <span class="icons fa fa-download"></span>
+        <span class="icons fa fa-picture-o"></span>
+      </v-card-text>
+    </v-card>
+
+    <v-card v-if="shapeMenu" class="grey lighten-4 shapeMenu">
       <v-card-text>
         <span class="icons fa fa-download"></span>
         <span class="icons fa fa-picture-o"></span>
@@ -53,7 +60,7 @@
           single-line
         ></v-text-field>
       </v-flex>
-      <v-flex xs3>
+      <v-flex xs3 v-if="!monitor">
         <v-btn fab dark class="cyan" v-on:click="save">
           <v-icon dark>edit</v-icon>
         </v-btn>
@@ -93,8 +100,16 @@
 </template>
 <script>
   export default {
+    props: {
+      monitor: Boolean
+    },
     data () {
       return {
+        mode: 'editor',
+        shapeMenuContents: null,
+        shapeMenuHeaders: null,
+        shapeMenuTarget: null,
+        shapeMenu: false,
         processVariables: [],
         dialog: false,
         id: null,
@@ -426,22 +441,64 @@
     },
     mounted() {
       var me = this;
-      me.getDefinition();
-
-      function fixSize() {
-        if (me.canvas) {
-          me.canvas.setCanvasSize([2000, 2000]);
-        }
-      }
-
-      //setInterval(fixSize, 500)
+      me.setMode();
     },
     watch: {
       '$route'(to, from) {
-        this.getDefinition();
+        this.setMode();
       }
     },
     methods: {
+      setMode: function () {
+        var me = this;
+        if (me.monitor) {
+          me.getInstance();
+        } else {
+          me.getDefinition();
+        }
+      },
+      getInstance: function () {
+        var me = this;
+        this.id = this.$route.params.id;
+        this.sliderId = this.id + '-slider';
+
+        var defId;
+        me.$root.codi('instances{/id}').get({id: this.id})
+          .then(function (response) {
+            let split = response.data.defId.split('/');
+            defId = split[split.length - 1];
+          })
+          .then(function () {
+            me.$root.codi('definition{/id}').get({id: defId})
+              .then(function (response) {
+                me.render(response.data);
+                me.getStatus();
+              })
+          })
+      },
+      getStatus: function () {
+        var me = this;
+        me.$root.codi('instance{/id}/variables').get({id: me.id})
+          .then(function (response) {
+            var statusData = response.data;
+            for (var key in response.data) {
+              if (key.indexOf(':_status:prop') != -1) {
+                var elementId = key.replace(':_status:prop', '');
+                var status = response.data[key];
+                me.updateElementStatus(elementId, status);
+              }
+            }
+          })
+      },
+      updateElementStatus: function (elementId, status) {
+        var me = this;
+        let element = me.canvas.getElementById(elementId);
+        if (element) {
+          element.shape.status = status;
+          me.canvas.getRenderer().redrawShape(element);
+        }
+      },
+
       save: function () {
         var me = this;
         if (!me.canvas) {
@@ -575,7 +632,7 @@
         //this.$el
         var me = this;
         var el = me.$el;
-        var canvasEl = $(el).find('.canvas');
+        var canvasEl = $(el).find('.canvas-space');
 
         //console.log($(el).find('.draggable'));
         $(el).find('.draggable').draggable({
@@ -609,11 +666,17 @@
               element = me.canvas.drawShape([dropX, dropY],
                 shape, [parseInt(shapeInfo._width, 10), parseInt(shapeInfo._height, 10)]);
               canvasEl.removeData('DRAG_SHAPE');
-
-
             }
           }
         });
+
+
+        $(me.canvas.getRootElement()).bind('changeMenu', function (event, shapeElement) {
+          console.log(shapeElement);
+        });
+        $(canvasEl).click(function () {
+          console.log(123123);
+        })
       }
     }
   }

@@ -69,7 +69,8 @@
         drawer: null,
         items: [
           {title: 'Sns', icon: 'question_answer', routerPath: '/sns'},
-          {title: 'Designer', icon: 'question_answer', routerPath: '/definition'}
+          {title: 'Designer', icon: 'question_answer', routerPath: '/definition'},
+          {title: 'Instances', icon: 'question_answer', routerPath: '/instance'}
         ],
         mini: false
       }
