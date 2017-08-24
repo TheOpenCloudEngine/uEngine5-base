@@ -1,7 +1,6 @@
 <template>
   <div class="canvas-panel">
     <div class="canvas" :id="id">
-
     </div>
     <div :id="sliderId">
     </div>
@@ -178,23 +177,28 @@
            */
           startEvent: {
             java: 'org.uengine.kernel.bpmn.StartEvent',
-            shapeId: 'OG.shape.bpmn.E_Start'
+            shapeId: 'OG.shape.bpmn.E_Start',
+            properties: {}
           },
           messageStartEvent: {
             java: 'org.uengine.kernel.bpmn.StartEvent',
-            shapeId: 'OG.shape.bpmn.E_Start_Message'
+            shapeId: 'OG.shape.bpmn.E_Start_Message',
+            properties: {}
           },
           timerStartEvent: {
             java: 'org.uengine.kernel.bpmn.StartEvent',
-            shapeId: 'OG.shape.bpmn.E_Start_Timer'
+            shapeId: 'OG.shape.bpmn.E_Start_Timer',
+            properties: {}
           },
           conditionalStartEvent: {
             java: 'org.uengine.kernel.bpmn.StartEvent',
-            shapeId: 'OG.shape.bpmn.E_Start_Rule'
+            shapeId: 'OG.shape.bpmn.E_Start_Rule',
+            properties: {}
           },
           signalStartEvent: {
             java: 'org.uengine.kernel.bpmn.StartEvent',
-            shapeId: 'OG.shape.bpmn.E_Start_Signal'
+            shapeId: 'OG.shape.bpmn.E_Start_Signal',
+            properties: {}
           },
 
           /**
@@ -202,47 +206,58 @@
            */
           intermediateThrowEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate'
+            shapeId: 'OG.shape.bpmn.E_Intermediate',
+            properties: {}
           },
           messageIntermediateCatchEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Message'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Message',
+            properties: {}
           },
           messageIntermediateThrowEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Message_Throw'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Message_Throw',
+            properties: {}
           },
           timerIntermediateCatchEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Timer'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Timer',
+            properties: {}
           },
           escalationIntermediateThrowEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Escalation'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Escalation',
+            properties: {}
           },
           conditionalIntermediateThrowEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Multiple'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Multiple',
+            properties: {}
           },
           linkIntermediateCatchEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Link'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Link',
+            properties: {}
           },
           linkIntermediateThrowEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Link_Throw'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Link_Throw',
+            properties: {}
           },
           compensationIntermediateThrowEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Compensation'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Compensation',
+            properties: {}
           },
           signalIntermediateCatchEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Signal'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Signal',
+            properties: {}
           },
           signalIntermediateThrowEvent: {
             java: 'org.uengine.kernel.bpmn.Event',
-            shapeId: 'OG.shape.bpmn.E_Intermediate_Signal_Throw'
+            shapeId: 'OG.shape.bpmn.E_Intermediate_Signal_Throw',
+            properties: {}
           },
 
           /**
@@ -250,27 +265,33 @@
            */
           endEvent: {
             java: 'org.uengine.kernel.bpmn.EndEvent',
-            shapeId: 'OG.shape.bpmn.E_End'
+            shapeId: 'OG.shape.bpmn.E_End',
+            properties: {}
           },
           escalationEndEvent: {
             java: 'org.uengine.kernel.bpmn.EndEvent',
-            shapeId: 'OG.shape.bpmn.E_End_Escalation'
+            shapeId: 'OG.shape.bpmn.E_End_Escalation',
+            properties: {}
           },
           errorEndEvent: {
             java: 'org.uengine.kernel.bpmn.EndEvent',
-            shapeId: 'OG.shape.bpmn.E_End_Error'
+            shapeId: 'OG.shape.bpmn.E_End_Error',
+            properties: {}
           },
           compensationEndEvent: {
             java: 'org.uengine.kernel.bpmn.EndEvent',
-            shapeId: 'OG.shape.bpmn.E_End_Compensation'
+            shapeId: 'OG.shape.bpmn.E_End_Compensation',
+            properties: {}
           },
           signalEndEvent: {
             java: 'org.uengine.kernel.bpmn.EndEvent',
-            shapeId: 'OG.shape.bpmn.E_End_Signal'
+            shapeId: 'OG.shape.bpmn.E_End_Signal',
+            properties: {}
           },
           terminateEndEvent: {
             java: 'org.uengine.kernel.bpmn.EndEvent',
-            shapeId: 'OG.shape.bpmn.E_End_Terminate'
+            shapeId: 'OG.shape.bpmn.E_End_Terminate',
+            properties: {}
           },
 
           /**
@@ -278,104 +299,126 @@
            */
           gateway: {
             java: 'org.uengine.kernel.bpmn.Gateway',
-            shapeId: 'OG.shape.bpmn.G_Gateway'
+            shapeId: 'OG.shape.bpmn.G_Gateway',
+            properties: {}
           },
           parallelGateway: {
             java: 'org.uengine.kernel.bpmn.ParallelGateway',
-            shapeId: 'OG.shape.bpmn.G_Parallel'
+            shapeId: 'OG.shape.bpmn.G_Parallel',
+            properties: {}
           },
           exclusiveGateway: {
             java: 'org.uengine.kernel.bpmn.ExclusiveGateway',
-            shapeId: 'OG.shape.bpmn.G_Exclusive'
+            shapeId: 'OG.shape.bpmn.G_Exclusive',
+            properties: {}
           },
           inclusiveGateway: {
             java: 'org.uengine.kernel.bpmn.InclusiveGateway',
-            shapeId: 'OG.shape.bpmn.G_Inclusive'
+            shapeId: 'OG.shape.bpmn.G_Inclusive',
+            properties: {}
           },
           complexGateway: {
             java: 'org.uengine.kernel.bpmn.Gateway',
-            shapeId: 'OG.shape.bpmn.G_Complex'
+            shapeId: 'OG.shape.bpmn.G_Complex',
+            properties: {}
           },
           eventBasedGateway: {
             java: 'org.uengine.kernel.bpmn.Gateway',
-            shapeId: 'OG.shape.bpmn.G_Event'
+            shapeId: 'OG.shape.bpmn.G_Event',
+            properties: {}
           },
           /**
            * Task
            */
           task: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_Task'
+            shapeId: 'OG.shape.bpmn.A_Task',
+            properties: {}
           },
           sendTask: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_SendTask'
+            shapeId: 'OG.shape.bpmn.A_SendTask',
+            properties: {}
           },
           receiveTask: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_ReceiveTask'
+            shapeId: 'OG.shape.bpmn.A_ReceiveTask',
+            properties: {}
           },
           userTask: {
             java: 'org.uengine.kernel.HumanActivity',
-            shapeId: 'OG.shape.bpmn.A_HumanTask'
+            shapeId: 'OG.shape.bpmn.A_HumanTask',
+            properties: {}
           },
           manualTask: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_ManualTask'
+            shapeId: 'OG.shape.bpmn.A_ManualTask',
+            properties: {}
           },
           businessTask: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_BusinessTask'
+            shapeId: 'OG.shape.bpmn.A_BusinessTask',
+            properties: {}
           },
           serviceTask: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_ServiceTask'
+            shapeId: 'OG.shape.bpmn.A_ServiceTask',
+            properties: {}
           },
           scriptTask: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_ScriptTask'
+            shapeId: 'OG.shape.bpmn.A_ScriptTask',
+            properties: {}
           },
           callActivity: {
             java: 'org.uengine.kernel.DefaultActivity',
-            shapeId: 'OG.shape.bpmn.A_CallActivity'
+            shapeId: 'OG.shape.bpmn.A_CallActivity',
+            properties: {}
           },
           /**
            * Sub Process
            */
           subProcess: {
             java: 'org.uengine.kernel.bpmn.SubProcess',
-            shapeId: 'OG.shape.bpmn.A_Subprocess'
+            shapeId: 'OG.shape.bpmn.A_Subprocess',
+            properties: {}
           },
           transaction: {
             java: 'org.uengine.kernel.bpmn.SubProcess',
-            shapeId: 'OG.shape.bpmn.A_Transaction'
+            shapeId: 'OG.shape.bpmn.A_Transaction',
+            properties: {}
           },
           eventSubProcess: {
             java: 'org.uengine.kernel.bpmn.SubProcess',
-            shapeId: 'OG.shape.bpmn.A_SubProcess_Event'
+            shapeId: 'OG.shape.bpmn.A_SubProcess_Event',
+            properties: {}
           },
           /**
            * Data
            */
           dataObject: {
             java: 'org.uengine.kernel.bpmn.DataStore',
-            shapeId: 'OG.shape.bpmn.D_Data'
+            shapeId: 'OG.shape.bpmn.D_Data',
+            properties: {}
           },
           dataStore: {
             java: 'org.uengine.kernel.bpmn.DataStore',
-            shapeId: 'OG.shape.bpmn.D_Store'
+            shapeId: 'OG.shape.bpmn.D_Store',
+            properties: {}
           },
           /**
            * Pool
            */
           pool: {
-            shapeId: 'OG.shape.VerticalPoolShape'
+            shapeId: 'OG.shape.VerticalPoolShape',
+            properties: {}
           },
           /**
            * Role
            */
           role: {
-            shapeId: 'OG.shape.HorizontalLaneShape'
+            shapeId: 'OG.shape.HorizontalLaneShape',
+            properties: {}
           }
         }
       }
@@ -417,6 +460,15 @@
             console.log(response);
           });
       },
+      findShapeIdMappings: function (shapeId) {
+        var map = undefined;
+        for (var key in this.shapeIdMappings) {
+          if (this.shapeIdMappings[key].shapeId == shapeId) {
+            map = this.shapeIdMappings[key];
+          }
+        }
+        return map;
+      },
       getDefinition: function () {
         var me = this;
         this.id = this.$route.params.id;
@@ -454,13 +506,11 @@
         canvas._CONFIG.DEFAULT_STYLE.EDGE["edge-type"] = "plain";
         canvas._CONFIG.GUIDE_CONTROL_LINE_NUM = 1;
         canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
-//        canvas._CONFIG.WHEEL_SCALABLE = true;
-//        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
+        canvas._CONFIG.WHEEL_SCALABLE = true;
+        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
         canvas._CONFIG.AUTOMATIC_GUIDANCE = false;
         canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
         canvas._CONFIG.POOL_DROP_EVENT = true;
-        canvas._CONFIG.WHEEL_SCALABLE = false;
-        canvas._CONFIG.DRAG_PAGE_MOVABLE = false;
 
         canvas.initConfig({
           selectable: true,
@@ -491,17 +541,17 @@
           adaptor.importJson(data);
         }
 
-//        canvas.addSlider({
-//          slider: $("#" + me.sliderId),
-//          width: 200,
-//          height: 300,
-//          appendTo: "body",
-//          position: {
-//            my: "left top",
-//            at: "left top",
-//            of: $('#' + me.id)
-//          }
-//        });
+        canvas.addSlider({
+          slider: $("#" + me.sliderId),
+          width: 200,
+          height: 300,
+          appendTo: ".canvas-panel",
+          position: {
+            my: "left top",
+            at: "left top",
+            of: $('#' + me.id)
+          }
+        });
 
         //버튼 이벤트 등록
         this.bindEvents();
@@ -516,7 +566,6 @@
         //console.log($(el).find('.draggable'));
         $(el).find('.draggable').draggable({
           start: function () {
-            console.log(123);
             canvasEl.data('DRAG_SHAPE', {
               '_shape_type': $(this).attr('_shape_type'),
               '_shape_id': $(this).attr('_shape_id'),
@@ -534,6 +583,11 @@
             var shapeInfo = canvasEl.data('DRAG_SHAPE'), shape, element;
             if (shapeInfo) {
               shape = eval('new ' + shapeInfo._shape_id + '()');
+              var mappings = me.findShapeIdMappings(shapeInfo._shape_id);
+              shape.data = {
+                properties: JSON.parse(JSON.stringify(mappings.properties))
+              };
+
               var dropX = event.pageX - canvasEl.offset().left + canvasEl[0].scrollLeft;
               var dropY = event.pageY - canvasEl.offset().top + canvasEl[0].scrollTop;
               dropX = dropX / me.canvas._CONFIG.SCALE;
@@ -541,6 +595,8 @@
               element = me.canvas.drawShape([dropX, dropY],
                 shape, [parseInt(shapeInfo._width, 10), parseInt(shapeInfo._height, 10)]);
               canvasEl.removeData('DRAG_SHAPE');
+
+
             }
           }
         });
@@ -562,8 +618,8 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      top:0px;
-      left:0px;
+      top: 0px;
+      left: 0px;
       background: #f7f7f7;
       overflow-x: scroll;
       overflow-y: scroll;

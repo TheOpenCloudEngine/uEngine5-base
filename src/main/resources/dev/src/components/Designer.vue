@@ -16,8 +16,8 @@
           </div>
         </v-card-title>
         <v-card-actions>
-          <v-btn flat class="orange--text">Share</v-btn>
-          <v-btn v-on:click="move(card.name)" flat class="orange--text">Explore</v-btn>
+          <v-btn v-on:click="initiateProcess(card.name)" flat class="orange--text">Activate</v-btn>
+          <v-btn v-on:click="move(card.name)" flat class="orange--text">Edit</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -73,7 +73,22 @@
         this.$router.push({
           path: 'definition/' + name.replace('.json', '')
         })
-      }
+      },
+      initiateProcess: function (name) {
+        var me = this;
+        this.$root.codi('definition{/id}/instance').save({id: name}, {})
+          .then(
+            function (response) {
+              me.$root.$children[0].success('프로세스가 시작되었습니다.');
+              me.$router.push({
+                path: '/sns'
+              })
+            },
+            function (response) {
+              me.$root.$children[0].error('프로세스를 시작할 수 없습니다.');
+            }
+          );
+      },
     }
   }
 </script>

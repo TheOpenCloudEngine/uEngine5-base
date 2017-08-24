@@ -30,7 +30,6 @@
 </template>
 
 
-
 <script>
   export default {
     props: {
@@ -38,34 +37,32 @@
     },
 
     watch: {
-      taskId: function(val){
-          this.load();
+      taskId: function (val) {
+        this.load();
       }
     },
 
-    data: function(){
-
-        return {
-            workItem: null,
-        };
-
+    data: function () {
+      return {
+        workItem: null,
+      };
     },
 
     methods: {
-      load: function(){
+      load: function () {
         var me = this;
 
         var serviceLocator = this.$parent.$refs["backend"]; //TODO hardcoded
 
         serviceLocator.invoke({
           path: this.taskId.replace("worklist", "work-item"),
-          success: function(value){
-              me.workItem = value;
+          success: function (value) {
+            me.workItem = value;
           }
         });
 
       },
-      complete: function() {
+      complete: function () {
         var serviceLocator = this.$parent.$refs["backend"]; //TODO hardcoded
 
         var me = this;
@@ -75,14 +72,14 @@
           method: 'POST',
           data: {
             worklist: {
-                status: 'COMPLETED'
+              status: 'COMPLETED'
             }
           },
-          success: function(value){
+          success: function (value) {
             me.workItem = null;
 
-            window.location = "/Sns"
-            //TODO : shows some message
+            me.$root.$children[0].success('작업을 완료했습니다.');
+            me.$emit('update:reload', true);
           }
         });
 

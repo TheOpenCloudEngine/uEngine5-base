@@ -47,6 +47,8 @@
       <v-toolbar-title>Process Codi</v-toolbar-title>
 
       <v-btn v-on:click="logout" flat>로그 아웃</v-btn>
+      <avatar-uploader :iam="iam"></avatar-uploader>
+
     </v-toolbar>
 
     <main>
@@ -107,6 +109,9 @@
       },
       move(routerPath) {
         this.$router.push(routerPath)
+      },
+      profile: function(){
+
       }
     }
   }

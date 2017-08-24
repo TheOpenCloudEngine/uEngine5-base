@@ -64,8 +64,12 @@
 
         xhr.onload = function () {
 
-          var data = JSON.parse(xhr.responseText);
-          context.success(data);
+          try{
+            var data = JSON.parse(xhr.responseText);
+            context.success(data);
+          }catch (e){
+            context.success(xhr.responseText);
+          }
         }
         xhr.send(context.data ? JSON.stringify(context.data) : null);
       }

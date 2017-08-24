@@ -11,6 +11,7 @@ import ObjectForm from '@/components/ObjectForm'
 import ObjectGrid from '@/components/ObjectGrid'
 import ClassEditor from '@/components/ClassEditor'
 import ClassSelector from '@/components/ClassSelector'
+import AvatarUploader from '@/components/AvatarUploader'
 
 /**
  * Iam && Vue Router
@@ -57,6 +58,7 @@ Vue.component('object-grid', ObjectGrid);
 Vue.component('object-form', ObjectForm);
 Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
+Vue.component('avatar-uploader', AvatarUploader);
 
 export default new Router({
   mode: 'history',

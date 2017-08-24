@@ -15,7 +15,7 @@
             ></v-text-field>
           </v-flex>
           <v-flex>
-            <v-btn fab light small class="indigo" @click.native="initiateProcess">
+            <v-btn fab light small class="indigo">
               <v-icon dark>add</v-icon>
             </v-btn>
           </v-flex>
@@ -31,7 +31,7 @@
             <template v-for="(item, index) in items">
               <v-list-tile @click.native="selectWorkItem(item._links.self.href)">
                 <v-list-tile-avatar>
-                  <img :src="item.endpoint"/>
+                  <img :src="'http://localhost:8080/iam/rest/v1/avatar?userName=' + item.endpoint"/>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                   <v-list-tile-title v-html="item.title"></v-list-tile-title>
@@ -46,7 +46,7 @@
     </div>
 
     <div class="content-wrap center">
-      <work-item :task-id="selectedTaskId"></work-item>
+      <work-item :task-id="selectedTaskId" :reload.sync="reload"></work-item>
     </div>
   </div>
 </template>
@@ -54,8 +54,8 @@
   export default {
 
     data () {
-
       return {
+        reload: false,
         drawer: null,
         items: [
           {title: 'Home', icon: 'dashboard'},
@@ -71,47 +71,38 @@
         text: 1,
 
         items: [],
-
         selectedTaskId: null
       }
     },
 
     methods: {
-
-      initiateProcess: function(){
-        this.$refs["backend"].invoke({
-          path: "definition/test2.json/instance",
-          method: 'POST',
-          data: {
-          },
-          success: function () {
-            window.location = "/Sns"
-
+      selectWorkItem: function (taskId) {
+        this.selectedTaskId = taskId;
+      },
+      load: function () {
+        console.log(123123);
+        var serviceLocator = this.$refs['backend'];
+        var me = this;
+        serviceLocator.invoke({
+          path: 'worklist/search/findToDo',
+          success: function (data) {
+            me.items = data._embedded.worklist;
           }
         });
-
-      },
-
-      selectWorkItem: function(taskId){
-        this.selectedTaskId = taskId;
       }
-
+    },
+    watch: {
+      reload: function () {
+        this.load();
+        this.reload = false;
+      }
     },
 
     mounted() {
       $('.scroll-inner').slimScroll({
         height: '100%'
       });
-
-      var serviceLocator = this.$refs['backend'];
-      var me = this;
-      serviceLocator.invoke({
-        path: 'worklist/search/findToDo',
-        success: function(data){
-          me.items = data._embedded.worklist;
-        }
-      });
-
+      this.load();
     }
   }
 </script>
