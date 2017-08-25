@@ -1,7 +1,7 @@
 <template>
   <div>
 
-    <service-locator ref="backend" host="http://localhost:8080"></service-locator>
+    <service-locator ref="backend" :host="location.protocol + '//' + location.hostname + ':8080'"></service-locator>
 
     <div class="content-wrap left">
       <div class="content-wrap top">
@@ -31,7 +31,7 @@
             <template v-for="(item, index) in items">
               <v-list-tile @click.native="selectWorkItem(item._links.self.href)">
                 <v-list-tile-avatar>
-                  <img :src="'http://localhost:8080/iam/rest/v1/avatar?userName=' + item.endpoint"/>
+                  <img :src="location.protocol + '//' + location.hostname + ':8080/iam/rest/v1/avatar?userName=' + item.endpoint"/>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
                   <v-list-tile-title v-html="item.title"></v-list-tile-title>
@@ -55,6 +55,7 @@
 
     data () {
       return {
+        location: window.location,
         reload: false,
         drawer: null,
         items: [

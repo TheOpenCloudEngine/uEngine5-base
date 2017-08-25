@@ -3,7 +3,8 @@
     <router-view></router-view>
 
     <!--서비스 로케이터 리스트-->
-    <service-locator host="http://localhost:8080" path="/" resource-name="codi"></service-locator>
+    <service-locator :host="location.protocol + '//' + location.hostname + ':8080'" path="/"
+                     resource-name="codi"></service-locator>
 
     <!--글로벌 알림 컴포넌트-->
     <v-snackbar ref="snackbar"
@@ -28,6 +29,7 @@
   export default {
     data () {
       return {
+        location: window.location,
         snackbar: {
           top: true,
           right: true,
@@ -53,12 +55,12 @@
         this.snackbar.text = msg;
         this.snackbar.trigger = true;
       },
-      warning: function(msg){
+      warning: function (msg) {
         this.snackbar.context = 'warning';
         this.snackbar.text = msg;
         this.snackbar.trigger = true;
       },
-      success: function(msg){
+      success: function (msg) {
         this.snackbar.context = 'success';
         this.snackbar.text = msg;
         this.snackbar.trigger = true;

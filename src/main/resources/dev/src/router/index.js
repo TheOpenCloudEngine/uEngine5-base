@@ -18,7 +18,7 @@ import InstanceList from '@/components/InstanceList'
  * Iam && Vue Router
  * @type {IAM}
  */
-let iam = new IAM('http://localhost:8080/iam');
+let iam = new IAM(location.protocol + '//' + location.hostname + ':8080/iam');
 let RouterGuard = require("./RouterGuard.js")(iam);
 Vue.use(Router);
 
