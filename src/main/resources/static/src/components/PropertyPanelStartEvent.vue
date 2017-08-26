@@ -20,6 +20,11 @@
         </md-option>
       </md-select>
     </md-input-container>
+
+    <md-button class="md-raised md-primary" v-on:click.native="move(-10,0)"><i class="material-icons">keyboard_arrow_left</i></md-button>
+    <md-button class="md-raised md-primary" v-on:click.native="move(10,0)"><i class="material-icons">keyboard_arrow_right</i></md-button>
+    <md-button class="md-raised md-primary" v-on:click.native="move(0,-10)"><i class="material-icons">keyboard_arrow_up</i></md-button>
+    <md-button class="md-raised md-primary" v-on:click.native="move(0,10)"><i class="material-icons">keyboard_arrow_down</i></md-button>
   </form>
 
 </template>
@@ -98,7 +103,15 @@
 
             this.data.parameters = parameters;
 
-        }
+        },
+
+      move: function(x, y){
+
+        this.data.elementView.x += x;
+        this.data.elementView.y += y;
+
+      }
+
 
     }
   }

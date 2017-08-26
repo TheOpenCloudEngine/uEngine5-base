@@ -9,6 +9,7 @@ import ClassEditor from '@/components/ClassEditor'
 import ClassSelector from '@/components/ClassSelector'
 import ProcessDesigner from '@/components/ProcessDesigner'
 import WorkItemHandler from '@/components/WorkItemHandler'
+import SVGActivity from '@/components/SVGActivity'
 import PropertyPanelStartEvent from '@/components/PropertyPanelStartEvent'
 
 Vue.component('service-locator', ServiceLocator);
@@ -20,6 +21,7 @@ Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
 Vue.component('process-designer', ProcessDesigner);
 Vue.component('process-designer', WorkItemHandler);
+Vue.component('svg-activity', SVGActivity);
 Vue.component('org-uengine-kernel-bpmn-startevent', PropertyPanelStartEvent);
 Vue.component('org-uengine-kernel-defaultactivity', PropertyPanelStartEvent);
 Vue.component('org-uengine-kernel-humanactivity', PropertyPanelStartEvent);
