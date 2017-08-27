@@ -33,7 +33,7 @@
               <div style="overflow: scroll; width:500" v-if="definition && definition.childActivities[1]">
                 <svg height="1448" version="1.1" width="1704" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="overflow: hidden; position: relative; background-color: rgb(247, 247, 247); user-select: none; background-image: url(&quot;/static/image/grid.gif&quot;);" id="OG_5264">
 
-                  <svg-activity v-for="child in definition.childActivities[1]" :activity="child" :x="child.x" :y="child.y" v-on:click.native="showProperties(child)"></svg-activity>
+                  <component :is="getSVGComponentName(child)" v-for="child in definition.childActivities[1]" :activity="child" :x="child.x" :y="child.y" v-on:click.native="showProperties(child)"></component>
                 </svg>
               </div>
             </md-layout>
@@ -159,10 +159,28 @@
 
       },
 
+      getSVGComponentName(activity){
+        var typeName = activity._type.toLowerCase().split('.').join('-');
+
+        return "svg-" + typeName;
+      },
+
       showProperties(activity){
+          var tracingTag = activity.tracingTag;
+
+          this.definition.childActivities[1].forEach(function(act){
+              if(act.tracingTag == tracingTag) {
+                activity = act;
+
+                console.log('found: ' + act)
+
+                return false;
+              }
+          });
+
           this.propertyType = activity._type.toLowerCase().split('.').join('-');
           this.properties = activity;
-        console.log(this.propertyType, this.properties);
+          console.log(this.propertyType, this.properties);
       },
 
       addActivity(){
@@ -190,7 +208,9 @@
           this.historyIndex -= 1
           this.undoing = true;
           this.undoed = true;
-          this.definition = this.history[this.historyIndex]
+          this.definition = this.history[this.historyIndex];
+
+          this.showProperties(this.properties);
         }
       },
       redo: function() {
@@ -199,6 +219,8 @@
           this.undoing = true;
           this.undoed = true;
           this.definition = this.history[this.historyIndex]
+
+          this.showProperties(this.properties);
         }
       }
     }
