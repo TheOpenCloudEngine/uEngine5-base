@@ -7,10 +7,14 @@ import org.metaworks.multitenancy.tenantawarefilter.TenantAwareFilter;
 import org.metaworks.springboot.configuration.Metaworks4WebConfig;
 import org.metaworks.multitenancy.persistence.MultitenantRepositoryImpl;
 import org.metaworks.rest.MetaworksRestService;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.uengine.five.JPAProcessInstance;
 import org.uengine.five.JPAWorkList;
 import org.uengine.kernel.ProcessDefinition;
@@ -31,6 +35,19 @@ import java.util.Map;
 @ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
 @EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
 public class WebConfig extends Metaworks4WebConfig {
+
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.setOrder(10);
+//        registry.addResourceHandler("/**").addResourceLocations("classpath:/dev/dist/");
+//        super.addResourceHandlers(registry);
+//    }
+//
+//    @Override
+//    public void addViewControllers(ViewControllerRegistry registry) {
+//        registry.addViewController("/").setViewName("forward:/index.html");
+//        super.addViewControllers(registry);
+//    }
 
     @Bean
     public ResourceManager resourceManager() {
@@ -84,7 +101,6 @@ public class WebConfig extends Metaworks4WebConfig {
     }
 
 
-
     @Bean
     @Scope("prototype")
     public ProcessInstance processInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
@@ -92,12 +108,12 @@ public class WebConfig extends Metaworks4WebConfig {
     }
 
     @Bean
-    public WorkList workList(){
+    public WorkList workList() {
         return new JPAWorkList();
     }
 
     @Bean
-    public Filter webFilter(){
+    public Filter webFilter() {
         return new TenantAwareFilter();
     }
 }
