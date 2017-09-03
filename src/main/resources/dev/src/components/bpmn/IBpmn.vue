@@ -438,6 +438,7 @@
           me.parent = null;
         }
         me.id = me.element.id;
+
         if (me.element.shape.TYPE === OG.Constants.SHAPE_TYPE.EDGE) {
           if ($(me.element).attr('_from')) {
             me.from = $(me.element).attr('_from');
@@ -453,6 +454,18 @@
 
         me.style = null;
         me.geom = null;
+
+        //view 에 shapeId 등록
+        if (me.activity || me.role) {
+          me.setView('shapeId', me.shapeId);
+          me.setView('_type', 'org.uengine.kernel.view.DefaultActivityView');
+        }
+
+        //java class 등록 && 트래이싱 태그 동기화
+        if (me.activity) {
+          me.activity._type = me.className;
+          me.activity.tracingTag = me.id;
+        }
       },
       bindEvents: function (element) {
         var me = this;

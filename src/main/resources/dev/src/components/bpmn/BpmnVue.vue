@@ -140,6 +140,7 @@
         });
 
         this.canvas = canvas;
+        this.$emit('canvasReady', canvas);
       },
       removeComponentByElement: function (id) {
         var me = this;

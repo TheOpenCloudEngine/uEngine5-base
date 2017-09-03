@@ -1,10 +1,11 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div class="canvas-panel">
 
-    <bpmn-vue v-if="definition" class="full-canvas"
+    <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :activities="definition.childActivities[1]"
               :roles="definition.roles"
               :relations="definition.sequenceFlows"
+              v-on:canvasReady="bindEvents"
     >
       <template slot="role" scope="props">
         <bpmn-role :role="props.item" :canvas="props.canvas"></bpmn-role>
@@ -139,70 +140,60 @@
         dragItems: [
           {
             'icon': 'bpmn-icon-start-event-none',
-            '_shape_type': 'GEOM',
             '_shape_id': 'OG.shape.bpmn.E_Start',
             '_width': '30',
             '_height': '30'
           },
           {
             'icon': 'bpmn-icon-intermediate-event-none',
-            '_shape_type': 'GEOM',
             '_shape_id': 'OG.shape.bpmn.E_Intermediate',
             '_width': '30',
             '_height': '30'
           },
           {
             'icon': 'bpmn-icon-end-event-none',
-            '_shape_type': 'GEOM',
             '_shape_id': 'OG.shape.bpmn.E_End',
             '_width': '30',
             '_height': '30'
           },
           {
             'icon': 'bpmn-icon-gateway-xor',
-            '_shape_type': 'GEOM',
             '_shape_id': 'OG.shape.bpmn.G_Exclusive',
             '_width': '40',
             '_height': '40'
           },
           {
             'icon': 'bpmn-icon-task',
-            '_shape_type': 'GEOM',
             '_shape_id': 'OG.shape.bpmn.A_Task',
             '_width': '100',
             '_height': '100'
           },
           {
             'icon': 'bpmn-icon-subprocess-expanded',
-            '_shape_type': 'GROUP',
             '_shape_id': 'OG.shape.bpmn.A_Subprocess',
             '_width': '200',
             '_height': '150'
           },
           {
             'icon': 'bpmn-icon-data-object',
-            '_shape_type': 'GEOM',
             '_shape_id': 'OG.shape.bpmn.D_Data',
             '_width': '50',
             '_height': '50'
           },
           {
             'icon': 'bpmn-icon-data-store',
-            '_shape_type': 'GEOM',
             '_shape_id': 'OG.shape.bpmn.D_Store',
             '_width': '50',
             '_height': '50'
           },
           {
             'icon': 'bpmn-icon-lane',
-            '_shape_type': 'GROUP',
             '_shape_id': 'OG.shape.VerticalPoolShape',
             '_width': '300',
             '_height': '300'
           },
           {
             'icon': 'bpmn-icon-participant',
-            '_shape_type': 'GROUP',
             '_shape_id': 'OG.shape.HorizontalLaneShape',
             '_width': '400',
             '_height': '200'
@@ -246,6 +237,108 @@
       },
     },
     methods: {
+      createNewTracingTag: function () {
+        var me = this, maxTracingTag = 0,
+          isInt = function (value) {
+            return !isNaN(value) &&
+              parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
+          }
+        //히스토리에 있는 데이터도 참조하여, 충돌되는 트레이싱 태그가 없도록 한다. (가장 큰 트레이싱 태그 +1)
+        if (me.history && me.history.length) {
+          $.each(me.history, function (i, definition) {
+            $.each(definition.childActivities[1], function (c, activity) {
+              if (isInt(activity.tracingTag) && activity.tracingTag > maxTracingTag) {
+                maxTracingTag = activity.tracingTag;
+              }
+            })
+          })
+        }
+        return maxTracingTag + 1;
+      }
+      ,
+      bindEvents: function (canvas) {
+        //this.$el
+        var me = this;
+        var el = me.$el;
+        var canvasEl = $(el).find('.full-canvas'); //me.$refs['bpmn-vue'].$el; //$(el).find('.full-canvas');
+
+        //아이콘 드래그 드랍 이벤트 등록
+        $(el).find('.draggable').draggable({
+          start: function () {
+            canvasEl.data('DRAG_SHAPE', {
+              '_shape_id': $(this).attr('_shape_id'),
+              '_width': $(this).attr('_width'),
+              '_height': $(this).attr('_height')
+            });
+          },
+          helper: 'clone',
+          appendTo: canvasEl
+        });
+
+        //var canvasEl = $(el).find(".canvas");
+        canvasEl.droppable({
+          drop: function (event, ui) {
+            var shapeInfo = canvasEl.data('DRAG_SHAPE'), shape, element;
+            if (shapeInfo) {
+              var dropX = event.pageX - canvasEl.offset().left + canvasEl[0].scrollLeft;
+              var dropY = event.pageY - canvasEl.offset().top + canvasEl[0].scrollTop;
+              dropX = dropX / canvas._CONFIG.SCALE;
+              dropY = dropY / canvas._CONFIG.SCALE;
+
+              var component = me.getSVGComponentByShapeId(shapeInfo._shape_id);
+              var className = component.computed.className();
+              var additionalData = {};
+              //롤 추가인 경우
+              if (shapeInfo._shape_id == 'OG.shape.HorizontalLaneShape') {
+                additionalData = {
+                  'name': '',
+                  'displayName': {},
+                  'elementView': {
+                    '_type': 'org.uengine.modeling.ElementView',
+                    'id': null, //오픈그래프 자동 생성
+                    'shapeId': shapeInfo._shape_id,
+                    'x': dropX,
+                    'y': dropY,
+                    'width': parseInt(shapeInfo._width, 10),
+                    'height': parseInt(shapeInfo._height, 10),
+                    'label': ''
+                  }
+                }
+                if (me.definition) {
+                  me.definition.roles.push(JSON.parse(JSON.stringify(additionalData)));
+                }
+              }
+              //액티비티 추가인 경우
+              else {
+                var newTracingTag = me.createNewTracingTag();
+                console.log('newTracingTag', newTracingTag);
+                additionalData = {
+                  '_type': className,
+                  'name': {
+                    'text': ''
+                  },
+                  'tracingTag': newTracingTag,
+                  'elementView': {
+                    '_type': 'org.uengine.kernel.view.DefaultActivityView',
+                    'id': newTracingTag,
+                    'shapeId': shapeInfo._shape_id,
+                    'x': dropX,
+                    'y': dropY,
+                    'width': parseInt(shapeInfo._width, 10),
+                    'height': parseInt(shapeInfo._height, 10),
+                    'label': ''
+                  }
+                }
+                if (me.definition) {
+                  me.definition.childActivities[1].push(JSON.parse(JSON.stringify(additionalData)));
+                }
+              }
+            }
+            canvasEl.removeData('DRAG_SHAPE');
+          }
+        });
+      }
+      ,
       undo: function () {
         if (this.canUndo) {
           this.historyIndex -= 1
@@ -255,7 +348,8 @@
           console.log(this.history.length, this.definition);
           //this.showProperties(this.properties);
         }
-      },
+      }
+      ,
       redo: function () {
         if (this.canRedo) {
           this.historyIndex += 1
@@ -265,11 +359,13 @@
           console.log(this.history.length, this.definition);
           //this.showProperties(this.properties);
         }
-      },
+      }
+      ,
       updateTest: function () {
         //this.definition.childActivities[1][0].elementView.x = 100;
         this.definition.childActivities[1].splice(1, 1);
-      },
+      }
+      ,
       setMode: function () {
         var me = this;
         if (me.monitor) {
@@ -277,21 +373,40 @@
         } else {
           me.getDefinition();
         }
-      },
-      getSVGComponentName(activity){
+      }
+      ,
+      getSVGComponentName(activity)
+      {
         var componentName;
         if (activity) {
-          var className = activity._type;
+          var shapeId = activity.elementView.shapeId;
           $.each(window.bpmnComponents, function (i, component) {
-            if (component.computed.className) {
-              if (component.computed.className() == className) {
+            if (component.computed.shapeId) {
+              if (component.computed.shapeId() == shapeId) {
                 componentName = component.name;
               }
             }
           });
           return componentName;
         }
-      },
+      }
+      ,
+      getSVGComponentByShapeId(shapeId)
+      {
+        var componentByShapeId;
+        if (shapeId) {
+          $.each(window.bpmnComponents, function (i, component) {
+            if (component.computed.shapeId) {
+              if (component.computed.shapeId() == shapeId) {
+                componentByShapeId = component;
+              }
+            }
+          });
+          return componentByShapeId;
+        }
+      }
+      ,
+
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
@@ -309,7 +424,8 @@
                 //me.getStatus();
               })
           })
-      },
+      }
+      ,
       getStatus: function () {
         var me = this;
         me.$root.codi('instance{/id}/variables').get({id: me.id})
@@ -323,7 +439,8 @@
               }
             }
           })
-      },
+      }
+      ,
       updateElementStatus: function (elementId, status) {
 //        var me = this;
 //        let element = me.canvas.getElementById(elementId);
@@ -331,7 +448,8 @@
 //          element.shape.status = status;
 //          me.canvas.getRenderer().redrawShape(element);
 //        }
-      },
+      }
+      ,
       getDefinition: function () {
         var me = this;
         me.id = this.$route.params.id;
@@ -366,7 +484,8 @@
               }
             })
         }
-      },
+      }
+      ,
       save: function () {
         var me = this;
         //processVariables 주입
@@ -383,7 +502,9 @@
           me.definition.processVariableDescriptors = copy;
         }
 
-        this.$root.codi('definition{/id}').save({id: me.id + '.json'}, {definition: me.definition})
+        var data = {definition: me.definition};
+        console.log(JSON.stringify(data));
+        this.$root.codi('definition{/id}').save({id: me.id + '.json'}, data)
           .then(
             function (response) {
               me.$root.$children[0].success('저장되었습니다.');
@@ -392,7 +513,8 @@
               me.$root.$children[0].error('저장할 수 없습니다.');
             }
           );
-      },
+      }
+      ,
     }
   }
 </script>
