@@ -66,47 +66,62 @@
         var removed;
         //내부적으로 삭제된 경우
         me.canvas.onRemoveShape(function (event, element) {
-          //릴레이션 삭제
+          console.log('removeShape by user action', element.id);
           if ($(element).attr('_shape_id') == 'OG.shape.EdgeShape') {
-            var toRemove = -1;
             $.each(me.relations, function (i, relation) {
               if (relation && relation.sourceRef + '-' + relation.targetRef + '' == element.id) {
-                toRemove = i;
-                removed = relation;
+                me.relations[i] = null;
               }
             });
-            if (toRemove > -1) {
-              me.relations.splice(toRemove, 1);
-            }
           }
           //롤 삭제
           else if ($(element).attr('_shape_id') == 'OG.shape.HorizontalLaneShape') {
-            var toRemove = -1;
             $.each(me.roles, function (i, role) {
               if (role && role.elementView && role.elementView.id == element.id) {
-                toRemove = i;
-                removed = role;
+                me.roles[i] = null;
               }
             });
-            if (toRemove > -1) {
-              me.roles.splice(toRemove, 1);
-            }
           }
           //액티비티 삭제
           else {
-            var toRemove = -1;
             $.each(me.activities, function (i, activity) {
               if (activity && activity.elementView && activity.elementView.id == element.id) {
-                toRemove = i;
-                removed = activity;
+                me.activities[i] = null;
               }
             });
-            if (toRemove > -1) {
-              me.activities.splice(toRemove, 1);
+          }
+        });
+
+        me.canvas.onAddHistory(function () {
+          console.log('onAddHistory');
+          $.each(me.$children, function (i, children) {
+            children.updateVue();
+          })
+        });
+
+        me.canvas.onConnectShape(function (event, edgeElement, fromElement, toElement) {
+          console.log('onConnectShape');
+          var from = $(edgeElement).attr('_from');
+          var to = $(edgeElement).attr('_to');
+          var value = edgeElement.shape.geom.vertices.toString();
+          var id = fromElement.id + '-' + toElement.id;
+          var relation = {
+            sourceRef: fromElement.id,
+            targetRef: toElement.id,
+            relationView: {
+              from: from,
+              to: to,
+              value: value
             }
           }
-          console.log('remove element', element.id, removed);
-        });
+          me.relations.push(relation);
+          //Next Flow: onAddHistory > updateVue > definition update
+
+          //Remove Native Edge (Random Id Shape)
+          setTimeout(function () {
+            me.canvas.removeShape(edgeElement, true);
+          }, 10)
+        })
       },
       render: function () {
         var me = this;

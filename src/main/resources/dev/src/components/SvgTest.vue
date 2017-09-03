@@ -227,7 +227,7 @@
       },
       updateTest: function () {
         //this.definition.childActivities[1][0].elementView.x = 100;
-        //this.definition.childActivities[1].splice(5,1);
+        this.definition.childActivities[1].splice(1, 1);
       },
       setMode: function () {
         var me = this;
@@ -239,15 +239,17 @@
       },
       getSVGComponentName(activity){
         var componentName;
-        var className = activity._type;
-        $.each(window.bpmnComponents, function (i, component) {
-          if (component.computed.className) {
-            if (component.computed.className() == className) {
-              componentName = component.name;
+        if (activity) {
+          var className = activity._type;
+          $.each(window.bpmnComponents, function (i, component) {
+            if (component.computed.className) {
+              if (component.computed.className() == className) {
+                componentName = component.name;
+              }
             }
-          }
-        });
-        return componentName;
+          });
+          return componentName;
+        }
       },
       getInstance: function () {
 //        var me = this;

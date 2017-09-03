@@ -70,7 +70,8 @@
 
     this.geom = new OG.geometry.GeometryCollection(geomCollection);
     this.geom.style = new OG.geometry.Style({
-      'label-position': 'bottom'
+      'label-position': 'bottom',
+      'stroke-width': '1'
     });
 
     return this.geom;

@@ -26657,7 +26657,7 @@ OG.renderer.RaphaelRenderer.prototype.initHistory = function () {
  * @override
  */
 OG.renderer.RaphaelRenderer.prototype.addHistory = function () {
-
+    $(this._PAPER.canvas).trigger('addHistory');
     if (this._CONFIG.AUTO_HISTORY && !this._CONFIG.FAST_LOADING) {
         var me = this;
         var history = me._CONFIG.HISTORY;
@@ -37746,6 +37746,17 @@ OG.graph.Canvas.prototype = {
         });
     }
     ,
+
+    /**
+     * History Update 되었을때의 이벤트 리스너
+     *
+     * @param {Function} callbackFunc 콜백함수(event)
+     */
+    onAddHistory: function (callbackFunc) {
+        $(this.getRootElement()).bind('addHistory', function (event) {
+            callbackFunc(event);
+        });
+    },
 
     /**
      * Undo 되었을때의 이벤트 리스너
