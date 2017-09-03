@@ -67,29 +67,7 @@
         //내부적으로 삭제된 경우
         me.canvas.onRemoveShape(function (event, element) {
           console.log('removeShape by user action', element.id);
-          if ($(element).attr('_shape_id') == 'OG.shape.EdgeShape') {
-            $.each(me.relations, function (i, relation) {
-              if (relation && relation.sourceRef + '-' + relation.targetRef + '' == element.id) {
-                me.relations[i] = null;
-              }
-            });
-          }
-          //롤 삭제
-          else if ($(element).attr('_shape_id') == 'OG.shape.HorizontalLaneShape') {
-            $.each(me.roles, function (i, role) {
-              if (role && role.elementView && role.elementView.id == element.id) {
-                me.roles[i] = null;
-              }
-            });
-          }
-          //액티비티 삭제
-          else {
-            $.each(me.activities, function (i, activity) {
-              if (activity && activity.elementView && activity.elementView.id == element.id) {
-                me.activities[i] = null;
-              }
-            });
-          }
+          me.removeComponentByElement(element.id);
         });
 
         me.canvas.onAddHistory(function () {
@@ -105,6 +83,10 @@
           var to = $(edgeElement).attr('_to');
           var value = edgeElement.shape.geom.vertices.toString();
           var id = fromElement.id + '-' + toElement.id;
+
+          //기존의 id 를 쓰고있는 relation 컴포넌트를 찾아서, null 처리할 수 있도록 한다.
+          me.removeComponentByElement(id);
+
           var relation = {
             sourceRef: fromElement.id,
             targetRef: toElement.id,
@@ -158,6 +140,27 @@
         });
 
         this.canvas = canvas;
+      },
+      removeComponentByElement: function (id) {
+        var me = this;
+        //릴레이션 삭제
+        $.each(me.relations, function (i, relation) {
+          if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
+            me.relations[i] = null;
+          }
+        });
+        //롤 삭제
+        $.each(me.roles, function (i, role) {
+          if (role && role.elementView && role.elementView.id == id) {
+            me.roles[i] = null;
+          }
+        });
+        //액티비티 삭제
+        $.each(me.activities, function (i, activity) {
+          if (activity && activity.elementView && activity.elementView.id == id) {
+            me.activities[i] = null;
+          }
+        });
       },
       /**
        * 무작위 랜덤 아이디 생성
