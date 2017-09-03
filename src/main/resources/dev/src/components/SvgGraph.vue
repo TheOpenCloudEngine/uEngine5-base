@@ -78,6 +78,43 @@
       </v-card-text>
     </v-card>
 
+    <v-layout row wrap>
+      <v-flex xs6>
+
+      </v-flex>
+      <v-flex xs3>
+        <v-text-field
+          v-model="id"
+          name="input-1-3"
+          label="MyProcess"
+          single-line
+        ></v-text-field>
+      </v-flex>
+      <v-flex xs3 v-if="!monitor">
+        <v-btn fab dark class="cyan" v-on:click="save">
+          <v-icon dark>edit</v-icon>
+        </v-btn>
+        <v-dialog v-model="dialog" fullscreen transition="dialog-bottom-transition" :overlay=false>
+          <v-btn primary dark slot="activator">Variable</v-btn>
+          <v-card>
+            <v-toolbar dark class="primary">
+              <v-btn icon @click.native="dialog = false" dark>
+                <v-icon>close</v-icon>
+              </v-btn>
+              <v-toolbar-title>Process Variable</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-toolbar-items>
+                <v-btn dark flat @click.native="dialog = false">Save</v-btn>
+              </v-toolbar-items>
+            </v-toolbar>
+            <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
+                         :full-fledged="true">
+            </object-grid>
+          </v-card>
+        </v-dialog>
+      </v-flex>
+    </v-layout>
+
   </div>
 </template>
 <script>
@@ -87,12 +124,15 @@
     },
     data () {
       return {
+        id: null,
         history: [],
         historyIndex: 0,
         undoing: false,
         undoed: false,
         definition: null,
         definitionName: null,
+        processVariables: [],
+        dialog: false,
         items: [],
         mode: 'editor',
         shapeMenu: false,
@@ -253,37 +293,36 @@
         }
       },
       getInstance: function () {
-//        var me = this;
-//        this.id = this.$route.params.id;
-//        this.sliderId = this.id + '-slider';
-//
-//        var defId;
-//        me.$root.codi('instances{/id}').get({id: this.id})
-//          .then(function (response) {
-//            let split = response.data.defId.split('/');
-//            defId = split[split.length - 1];
-//          })
-//          .then(function () {
-//            me.$root.codi('definition{/id}').get({id: defId})
-//              .then(function (response) {
-//                me.render(response.data);
-//                me.getStatus();
-//              })
-//          })
+        var me = this;
+        me.id = this.$route.params.id;
+
+        var defId;
+        me.$root.codi('instances{/id}').get({id: me.id})
+          .then(function (response) {
+            let split = response.data.defId.split('/');
+            defId = split[split.length - 1];
+          })
+          .then(function () {
+            me.$root.codi('definition{/id}').get({id: defId})
+              .then(function (response) {
+                me.definition = response.data.definition;
+                //me.getStatus();
+              })
+          })
       },
       getStatus: function () {
-//        var me = this;
-//        me.$root.codi('instance{/id}/variables').get({id: me.id})
-//          .then(function (response) {
-//            var statusData = response.data;
-//            for (var key in response.data) {
-//              if (key.indexOf(':_status:prop') != -1) {
-//                var elementId = key.replace(':_status:prop', '');
-//                var status = response.data[key];
-//                me.updateElementStatus(elementId, status);
-//              }
-//            }
-//          })
+        var me = this;
+        me.$root.codi('instance{/id}/variables').get({id: me.id})
+          .then(function (response) {
+            var statusData = response.data;
+            for (var key in response.data) {
+              if (key.indexOf(':_status:prop') != -1) {
+                var elementId = key.replace(':_status:prop', '');
+                var status = response.data[key];
+                me.updateElementStatus(elementId, status);
+              }
+            }
+          })
       },
       updateElementStatus: function (elementId, status) {
 //        var me = this;
@@ -295,12 +334,65 @@
       },
       getDefinition: function () {
         var me = this;
-        var id = this.$route.params.id;
-        this.$root.codi('definition{/id}').get({id: id + '.json'})
-          .then(function (response) {
-            me.definition = response.data.definition;
-          })
-      }
+        me.id = this.$route.params.id;
+        //신규 생성
+        if (me.id == 'new-process-definition') {
+          me.definition = {
+            _type: 'org.uengine.kernel.ProcessDefinition',
+            name: {},
+            childActivities: [
+              'java.util.ArrayList',
+              []
+            ],
+            'roles': [],
+            'sequenceFlows': []
+          }
+        }
+        else {
+          this.$root.codi('definition{/id}').get({id: me.id + '.json'})
+            .then(function (response) {
+              me.definition = response.data.definition;
+
+              //processVariables displayName 전환.
+              var processVariables = response.data.definition.processVariableDescriptors;
+              if (processVariables && processVariables.length) {
+                var copy = JSON.parse(JSON.stringify(processVariables));
+                $.each(copy, function (i, variable) {
+                  if (variable.displayName) {
+                    variable.displayName = variable.displayName.text;
+                  }
+                });
+                me.processVariables = copy;
+              }
+            })
+        }
+      },
+      save: function () {
+        var me = this;
+        //processVariables 주입
+        var processVariables = me.processVariables;
+        if (processVariables && processVariables.length) {
+          var copy = JSON.parse(JSON.stringify(processVariables));
+          $.each(copy, function (i, variable) {
+            if (variable.displayName) {
+              variable.displayName = {
+                text: variable.displayName
+              }
+            }
+          });
+          me.definition.processVariableDescriptors = copy;
+        }
+
+        this.$root.codi('definition{/id}').save({id: me.id + '.json'}, {definition: me.definition})
+          .then(
+            function (response) {
+              me.$root.$children[0].success('저장되었습니다.');
+            },
+            function (response) {
+              me.$root.$children[0].error('저장할 수 없습니다.');
+            }
+          );
+      },
     }
   }
 </script>

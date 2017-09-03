@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import Login from '@/components/Login'
 import ServiceLocator from '@/components/ServiceLocator'
 import Designer from '@/components/Designer'
-import Graph from '@/components/Graph'
 import Home from '@/components/Home'
 import Sns from '@/components/Sns'
 import WorkItemHandler from '@/components/WorkItemHandler'
@@ -13,7 +12,7 @@ import ClassEditor from '@/components/ClassEditor'
 import ClassSelector from '@/components/ClassSelector'
 import AvatarUploader from '@/components/AvatarUploader'
 import InstanceList from '@/components/InstanceList'
-import SvgTest from '@/components/SvgTest'
+import SvgGraph from '@/components/SvgGraph'
 
 
 /**
@@ -62,7 +61,7 @@ Vue.component('object-form', ObjectForm);
 Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
 Vue.component('avatar-uploader', AvatarUploader);
-Vue.component('svg-test', SvgTest);
+Vue.component('svg-graph', SvgGraph);
 
 
 /**
@@ -73,51 +72,6 @@ for (var key in BpmnComponents) {
   Vue.component(BpmnComponents[key].name, BpmnComponents[key]);
 }
 window.bpmnComponents = BpmnComponents;
-//console.log(BpmnComponents.BpmnVue.computed.className());
-
-
-/**
- * 시작 이벤트
- */
-// import StartEvent from '@/components/opengraph/bpmn/StartEvent'
-// import MessageStartEvent from '@/components/opengraph/bpmn/MessageStartEvent'
-// import TimerStartEvent from '@/components/opengraph/bpmn/TimerStartEvent'
-// import ConditionalStartEvent from '@/components/opengraph/ConditionalStartEvent'
-// import SignalStartEvent from '@/components/opengraph/bpmn/SignalStartEvent'
-//
-// Vue.component('org-uengine-kernel-bpmn-startevent', StartEvent);
-// Vue.component('org-uengine-kernel-bpmn-messagestartevent', MessageStartEvent);
-// Vue.component('org-uengine-kernel-bpmn-timerstartevent', TimerStartEvent);
-// Vue.component('org-uengine-kernel-bpmn-conditionalstartevent', ConditionalStartEvent);
-// Vue.component('org-uengine-kernel-bpmn-signalstartevent', SignalStartEvent);
-//
-// //컴포넌트 안에 프로퍼티 패널도 포함시키기.
-//
-// import IntermediateThrowEvent from '@/components/opengraph/bpmn/IntermediateThrowEvent'
-// import MessageIntermediateCatchEvent from '@/components/opengraph/bpmn/MessageIntermediateCatchEvent'
-// import MessageIntermediateThrowEvent from '@/components/opengraph/bpmn/MessageIntermediateThrowEvent'
-// import TimerIntermediateCatchEvent from '@/components/opengraph/bpmn/TimerIntermediateCatchEvent'
-// import EscalationIntermediateThrowEvent from '@/components/opengraph/bpmn/EscalationIntermediateThrowEvent'
-// import ConditionalIntermediateThrowEvent from '@/components/opengraph/bpmn/ConditionalIntermediateThrowEvent'
-// import LinkIntermediateCatchEvent from '@/components/opengraph/bpmn/LinkIntermediateCatchEvent'
-// import LinkIntermediateThrowEvent from '@/components/opengraph/bpmn/LinkIntermediateThrowEvent'
-// import CompensationIntermediateThrowEvent from '@/components/opengraph/bpmn/CompensationIntermediateThrowEvent'
-// import SignalIntermediateCatchEvent from '@/components/opengraph/bpmn/SignalIntermediateCatchEvent'
-// import SignalIntermediateThrowEvent from '@/components/opengraph/bpmn/SignalIntermediateThrowEvent'
-
-
-// Vue.component('svg-org-uengine-kernel-humanactivity', SVGActivity);
-// Vue.component('svg-org-uengine-kernel-defaultactivity', SVGActivity);
-// Vue.component('svg-org-uengine-kernel-bpmn-startevent', SVGEvent);
-// Vue.component('svg-org-uengine-kernel-bpmn-endevent', SVGEvent);
-// Vue.component('svg-org-uengine-kernel-bpmn-gateway', SVGGateway);
-// Vue.component('svg-org-uengine-kernel-bpmn-parallelgateway', SVGGateway);
-// Vue.component('org-uengine-kernel-bpmn-startevent', PropertyPanelStartEvent);
-// Vue.component('org-uengine-kernel-defaultactivity', PropertyPanelStartEvent);
-// Vue.component('org-uengine-kernel-humanactivity', PropertyPanelStartEvent);
-window.componentsList = [];
-
-console.log(window.componentsList);
 
 export default new Router({
   mode: 'history',
@@ -144,7 +98,7 @@ export default new Router({
         {
           path: 'definition/:id',
           name: 'graph',
-          component: SvgTest,
+          component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
         },
         {
@@ -156,15 +110,9 @@ export default new Router({
         {
           path: 'instance/:id',
           name: 'instanceMonitor',
-          component: Graph,
+          component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
           props: {monitor: true}
-        },
-        {
-          path: 'svg',
-          name: 'svg',
-          component: SvgTest,
-          beforeEnter: RouterGuard.requireUser
         }
       ]
     },

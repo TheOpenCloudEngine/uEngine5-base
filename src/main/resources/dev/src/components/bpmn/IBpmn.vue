@@ -98,6 +98,22 @@
           this.setView('value', val);
         }
       },
+      style: {
+        get: function () {
+          return this.getView('style');
+        },
+        set: function (val) {
+          this.setView('style', val);
+        }
+      },
+      geom: {
+        get: function () {
+          return this.getView('geom');
+        },
+        set: function (val) {
+          this.setView('geom', val);
+        }
+      },
     },
     data: function () {
       return {
@@ -377,45 +393,28 @@
         // 마운트 되었을 때,
         if (isNew) {
           let element = me.canvas.getElementById(me.id);
-          // 새로 생성하는 경우
-          if (!element) {
-            draw();
-          }
-          // 기존 도형이 있는경우.
-          else {
-            draw(element);
-          }
+          draw(element);
         }
         // 컴포넌트에 의한 값 변경시,
         else {
           let element = me.canvas.getElementById(me.id);
-          // 캔버스에 아이디에 해당하는 도형이 없는 경우
-          if (!element) {
-            //도형의 아이디가 변경된 경우
 
-            //TODO 아래 순서를 프로퍼티 패널에서 트레이싱 태그 변경시 적용토록 한다.
-            //프로퍼티 패널 아이디 변경
-            //릴레이션 source, target 변경. from,to 를 source,target 아이디로 변경
-            //릴레이션 아이디가 틀리게 옴.
-            //선연결이 사라짐.
-            //새로 선연결을 함.
-
-            if (me.element && me.element.id && me.element.id != me.id) {
-              var existElement = me.canvas.getElementById(me.element.id);
-              if (existElement) {
-                me.canvas.removeShape(existElement, true);
-              }
-              draw();
-            }
-            //새로 생성해야 하는 경우
-            else {
-              draw();
+          //도형의 아이디가 변경된 경우
+          //TODO 아래 순서를 프로퍼티 패널에서 트레이싱 태그 변경시 적용토록 한다.
+          //me.element 는 이전에 등록된 element
+          //해당 경우는 트레이신 태그를 가진 activity 에서만 통용된다.
+          //프로퍼티 패널 아이디 변경
+          //릴레이션 source, target 변경. from,to 를 source,target 아이디로 변경
+          //릴레이션 아이디가 틀리게 옴.
+          //선연결이 사라짐.
+          //새로 선연결을 함.
+          if (me.id && me.element && me.element.id && me.element.id != me.id) {
+            var existElement = me.canvas.getElementById(me.element.id);
+            if (existElement) {
+              me.canvas.removeShape(existElement, true);
             }
           }
-          //기존 도형이 있는 경우
-          else {
-            draw(element);
-          }
+          draw(element);
         }
       },
       updateVue: function () {
@@ -451,6 +450,9 @@
         if (me.element.shape.geom.vertices) {
           me.value = me.element.shape.geom.vertices.toString();
         }
+
+        me.style = null;
+        me.geom = null;
       },
       bindEvents: function (element) {
         var me = this;
