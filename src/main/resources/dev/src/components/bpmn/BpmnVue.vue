@@ -93,7 +93,7 @@
         });
 
         me.canvas.onAddHistory(function () {
-          console.log('onAddHistory');
+          console.log('onAddHistory!!');
           $.each(me.$children, function (i, children) {
             children.updateVue();
           })

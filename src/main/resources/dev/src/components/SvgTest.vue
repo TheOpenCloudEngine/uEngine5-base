@@ -212,7 +212,7 @@
           this.undoing = true;
           this.undoed = true;
           this.definition = this.history[this.historyIndex];
-          console.log(this.history.length, this.definition)
+          console.log(this.history.length, this.definition);
           //this.showProperties(this.properties);
         }
       },
@@ -222,6 +222,7 @@
           this.undoing = true;
           this.undoed = true;
           this.definition = this.history[this.historyIndex]
+          console.log(this.history.length, this.definition);
           //this.showProperties(this.properties);
         }
       },

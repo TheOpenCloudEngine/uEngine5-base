@@ -114,7 +114,9 @@
             if (newVal) {
               this.updateShape();
             } else {
-              this.destroyShape();
+              if (this.destroyShape) {
+                this.destroyShape();
+              }
             }
           }
           this.preventWatch = false;
@@ -128,7 +130,9 @@
             if (newVal) {
               this.updateShape();
             } else {
-              this.destroyShape();
+              if (this.destroyShape) {
+                this.destroyShape();
+              }
             }
           }
           this.preventWatch = false;
@@ -142,7 +146,9 @@
             if (newVal) {
               this.updateShape();
             } else {
-              this.destroyShape();
+              if (this.destroyShape) {
+                this.destroyShape();
+              }
             }
           }
           this.preventWatch = false;
@@ -156,8 +162,7 @@
     },
     //상위 컴포넌트에 의해 삭제된 경우.
     beforeDestroy: function () {
-      console.log('beforeDestroy!!', this.id);
-      //컴포넌트가 이미 파괴되었을 경우 메소드 등록이 안되있을 수 있기 때문에 재검색 필요.
+      console.log('beforeDestroy!!', this.label);
       var me = this;
       if (me.id && me.canvas) {
         let existElement = me.canvas.getElementById(me.id);
@@ -165,6 +170,8 @@
           me.canvas.removeShape(existElement, true);
         }
       }
+      //불특정한 상황의 컴포넌트 삭제시에는 watch 를 받아들이도록 한다.
+      this.preventWatch = false;
     },
     destroyShape: function () {
       //발생
@@ -204,6 +211,7 @@
       },
       drawShape: function (element) {
         var me = this;
+        console.log('drawShape!!', me.label);
         var needToRedraw = false;
         //기존 도형이 있을 경우
         if (element) {
@@ -245,7 +253,7 @@
         }
 
         if (needToRedraw) {
-          console.log('needToRedraw', me.id);
+          console.log('needToRedraw', me.label);
           var shape = eval('new ' + me.shapeId + '(me.label)');
           me.element = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], null, me.id, me.parent, true, true);
 
@@ -310,14 +318,42 @@
         }
 
         if (needToRedraw) {
-          console.log('needToRedraw', me.id);
+          console.log('needToRedraw', me.label);
           var list = JSON.parse('[' + me.value + ']');
           var geom = new OG.geometry.PolyLine(list);
           geom.type = 'PolyLine';
+          var edgeShape = new OG.EdgeShape(list[0], list[list.length - 1], me.label);
+          edgeShape.geom = geom;
 
-          me.element = this.canvas.connectWithTerminalId(
-            me.from, me.to, null,
-            me.label, me.id, me.shapeId, geom);
+          var addAttrValues = function (element, name, value) {
+            var attrValue = $(element).attr(name),
+              array = attrValue ? attrValue.split(",") : [],
+              newArray = [];
+            $.each(array, function (idx, item) {
+              if (item !== value) {
+                newArray.push(item);
+              }
+            });
+            newArray.push(value);
+
+            $(element).attr(name, newArray.toString());
+            return element;
+          };
+
+          var fromShape = me.canvas.getElementById(me.relation.sourceRef);
+          var toShape = me.canvas.getElementById(me.relation.targetRef);
+
+          me.element = me.canvas.drawShape(null, edgeShape, null, null, me.id, null, true);
+          // 연결 노드 정보 설정
+          if (me.from) {
+            $(me.element).attr("_from", me.from);
+            addAttrValues(fromShape, "_toedge", me.id);
+          }
+          if (me.to) {
+            $(me.element).attr("_to", me.to);
+            addAttrValues(toShape, "_fromedge", me.id);
+          }
+
         } else {
           me.element = element;
         }
@@ -356,8 +392,19 @@
           // 캔버스에 아이디에 해당하는 도형이 없는 경우
           if (!element) {
             //도형의 아이디가 변경된 경우
+
+            //TODO 아래 순서를 프로퍼티 패널에서 트레이싱 태그 변경시 적용토록 한다.
+            //프로퍼티 패널 아이디 변경
+            //릴레이션 source, target 변경. from,to 를 source,target 아이디로 변경
+            //릴레이션 아이디가 틀리게 옴.
+            //선연결이 사라짐.
+            //새로 선연결을 함.
+
             if (me.element && me.element.id && me.element.id != me.id) {
-              me.canvas.removeShape(me.element, true);
+              var existElement = me.canvas.getElementById(me.element.id);
+              if (existElement) {
+                me.canvas.removeShape(existElement, true);
+              }
               draw();
             }
             //새로 생성해야 하는 경우
