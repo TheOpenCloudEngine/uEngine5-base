@@ -244,6 +244,29 @@
             me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
           }, 10);
         });
+
+        //Lane 이 분기되었을 경우.
+        //Lane 분기는 생성되었을 시 아이디를 그대로 씀으로 삭제처리하지 않는다.
+        me.canvas.onDivideLane(function (event, dividedLane) {
+          var boundary = dividedLane.shape.geom.getBoundary();
+          var component = me.getSVGComponentByShapeId(dividedLane.shape.SHAPE_ID);
+          var additionalRole = {
+            'name': '',
+            'displayName': {},
+            'elementView': {
+              '_type': 'org.uengine.kernel.view.DefaultActivityView',
+              'id': dividedLane.id,
+              'parent': me.canvas.getParent(dividedLane).id,
+              'shapeId': dividedLane.shape.SHAPE_ID,
+              'x': boundary.getCentroid().x,
+              'y': boundary.getCentroid().y,
+              'width': boundary.getWidth(),
+              'height': boundary.getHeight(),
+              'label': ''
+            }
+          }
+          me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
+        });
       },
       render: function () {
         var me = this;
@@ -285,21 +308,21 @@
       removeComponentByElement: function (id) {
         var me = this;
         //릴레이션 삭제
-        $.each(me.relations, function (i, relation) {
+        $.each(me.filteredDefinition.sequenceFlows, function (i, relation) {
           if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
-            me.relations[i] = null;
+            me.filteredDefinition.sequenceFlows[i] = null;
           }
         });
         //롤 삭제
-        $.each(me.roles, function (i, role) {
+        $.each(me.filteredDefinition.roles, function (i, role) {
           if (role && role.elementView && role.elementView.id == id) {
-            me.roles[i] = null;
+            me.filteredDefinition.roles[i] = null;
           }
         });
         //액티비티 삭제
-        $.each(me.activities, function (i, activity) {
+        $.each(me.filteredDefinition.childActivities[1], function (i, activity) {
           if (activity && activity.elementView && activity.elementView.id == id) {
-            me.activities[i] = null;
+            me.filteredDefinition.childActivities[1][i] = null;
           }
         });
       },

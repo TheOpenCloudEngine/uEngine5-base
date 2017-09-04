@@ -248,7 +248,7 @@
                   'name': '',
                   'displayName': {},
                   'elementView': {
-                    '_type': 'org.uengine.modeling.ElementView',
+                    '_type': 'org.uengine.kernel.view.DefaultActivityView',
                     'id': null, //오픈그래프 자동 생성
                     'shapeId': shapeInfo._shape_id,
                     'x': dropX,

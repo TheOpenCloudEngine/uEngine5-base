@@ -227,7 +227,7 @@
       },
       drawShape: function (element) {
         var me = this;
-        console.log('drawShape!!', me.label);
+        console.log('drawShape!!', me.label, '!!');
         var needToRedraw = false;
         //기존 도형이 있을 경우
         if (element) {
@@ -268,11 +268,7 @@
           needToRedraw = true;
         }
 
-        if (needToRedraw) {
-          console.log('needToRedraw', me.label);
-          var shape = eval('new ' + me.shapeId + '(me.label)');
-          me.element = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], null, me.id, me.parent, true, true);
-
+        var setGroup = function () {
           //그룹위에 그려졌을 경우 그룹처리
           var frontGroup = me.canvas.getRenderer().getFrontForBoundary(me.canvas.getRenderer().getBoundary(me.element));
 
@@ -299,7 +295,13 @@
             return;
           }
           frontGroup.appendChild(me.element);
+        };
 
+        if (needToRedraw) {
+          console.log('needToRedraw', me.label);
+          var shape = eval('new ' + me.shapeId + '(me.label)');
+          me.element = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], null, me.id, me.parent, true, true);
+          setGroup();
         } else {
           me.element = element;
         }
