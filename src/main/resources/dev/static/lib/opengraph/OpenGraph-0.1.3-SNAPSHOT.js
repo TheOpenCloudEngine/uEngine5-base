@@ -29369,7 +29369,7 @@ OG.handler.EventHandler.prototype = {
                     });
                 });
 
-                if(guide.rect && guide.rect.length){
+                if (guide.rect && guide.rect.length) {
                     $.each(guide.rect, function (i, rect) {
                         $(rect.node).bind({
                             click: function (event) {
@@ -30593,9 +30593,8 @@ OG.handler.EventHandler.prototype = {
                 if (isConnectable) {
                     newShape.setData(JSON.parse(JSON.stringify(target.shape.getData())));
                     var rectShape = renderer._CANVAS.drawShape([eventOffset.x, eventOffset.y], newShape, [width, height], style);
-                    $(renderer._PAPER.canvas).trigger('duplicated', [target, rectShape]);
-
-                    renderer._CANVAS.connect(target, rectShape, null, null, null, null);
+                    var edge = renderer._CANVAS.connect(target, rectShape, null, null, null, null, true);
+                    $(renderer._PAPER.canvas).trigger('duplicated', [edge, target, rectShape]);
                 }
             } else {
                 var eventOffset = me._getOffset(event);
@@ -30617,8 +30616,8 @@ OG.handler.EventHandler.prototype = {
                 }
                 if (isConnectable) {
                     var rectShape = renderer._CANVAS.drawShape([eventOffset.x, eventOffset.y], newShape, [width, height], style);
-                    $(renderer._PAPER.canvas).trigger('duplicated', [target, rectShape]);
-                    renderer._CANVAS.connect(target, rectShape, null, null, null, null);
+                    var edge = renderer._CANVAS.connect(target, rectShape, null, null, null, null, true);
+                    $(renderer._PAPER.canvas).trigger('duplicated', [edge, target, rectShape]);
                 }
             }
         }
@@ -38000,11 +37999,11 @@ OG.graph.Canvas.prototype = {
 
     /**
      *
-     * @param {Function} callbackFunc 콜백함수(event, sourceElement, targetElement)
+     * @param {Function} callbackFunc 콜백함수(event, edgeElement, sourceElement, targetElement)
      */
     onDuplicated: function (callbackFunc) {
-        $(this.getRootElement()).bind('duplicated', function (event, sourceElement, targetElement) {
-            callbackFunc(event, sourceElement, targetElement);
+        $(this.getRootElement()).bind('duplicated', function (event, edgeElement, sourceElement, targetElement) {
+            callbackFunc(event, edgeElement, sourceElement, targetElement);
         });
     },
 

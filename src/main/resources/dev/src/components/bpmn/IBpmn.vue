@@ -173,7 +173,7 @@
       },
     },
     mounted: function () {
-      console.log('Mounted!!');
+      console.log('Mounted!!', this);
       this.updateShape(true);
     },
     //상위 컴포넌트에 의해 삭제된 경우.
@@ -334,7 +334,7 @@
         }
 
         if (needToRedraw) {
-          console.log('needToRedraw', me.label);
+          console.log('needToRedraw', me.label, me.id);
           var list = JSON.parse('[' + me.value + ']');
           var geom = new OG.geometry.PolyLine(list);
           geom.type = 'PolyLine';

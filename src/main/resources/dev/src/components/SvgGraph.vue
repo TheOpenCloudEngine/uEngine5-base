@@ -6,6 +6,7 @@
               :roles="definition.roles"
               :relations="definition.sequenceFlows"
               v-on:canvasReady="bindEvents"
+              v-on:duplicated="onDuplicated"
     >
       <template slot="role" scope="props">
         <bpmn-role :role="props.item" :canvas="props.canvas"></bpmn-role>
@@ -253,7 +254,7 @@
             })
           })
         }
-        return maxTracingTag + 1;
+        return maxTracingTag + 1 + '';
       }
       ,
       bindEvents: function (canvas) {
@@ -337,6 +338,63 @@
             canvasEl.removeData('DRAG_SHAPE');
           }
         });
+      },
+      onDuplicated: function (edgeElement, sourceElement, targetElement) {
+        var me = this;
+        var boundary = targetElement.shape.geom.getBoundary();
+        var component = me.getSVGComponentByShapeId(targetElement.shape.SHAPE_ID);
+        var className = component.computed.className();
+        var newTracingTag = me.createNewTracingTag();
+        console.log('newTracingTag', newTracingTag);
+        var additionalActivity = {
+          '_type': className,
+          'name': {
+            'text': ''
+          },
+          'tracingTag': newTracingTag,
+          'elementView': {
+            '_type': 'org.uengine.kernel.view.DefaultActivityView',
+            'id': newTracingTag,
+            'shapeId': targetElement.shape.SHAPE_ID,
+            'x': boundary.getCentroid().x,
+            'y': boundary.getCentroid().y,
+            'width': boundary.getWidth(),
+            'height': boundary.getHeight(),
+            'label': ''
+          }
+        }
+
+        var from = $(edgeElement).attr('_from');
+        var to = $(edgeElement).attr('_to').replace(targetElement.id, newTracingTag);
+        var value = edgeElement.shape.geom.vertices.toString();
+        var id = sourceElement.id + '-' + newTracingTag;
+
+        var additionalRelation = {
+          sourceRef: sourceElement.id,
+          targetRef: newTracingTag,
+          relationView: {
+            from: from,
+            to: to,
+            value: value
+          }
+        }
+        console.log(additionalRelation);
+        //Next Flow: onAddHistory > updateVue > definition update
+
+        //Remove Native Edge And Shape (Random Id Shape)
+        setTimeout(function () {
+          //edgeElement will remove together
+          me.$refs['bpmn-vue'].canvas.removeShape(targetElement, true);
+        }, 10)
+
+        if (me.definition) {
+          me.definition.childActivities[1].push(JSON.parse(JSON.stringify(additionalActivity)));
+
+          //TODO why first sequenceFlow is Mounted without timeout?
+          setTimeout(function () {
+            me.definition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
+          }, 10);
+        }
       }
       ,
       undo: function () {

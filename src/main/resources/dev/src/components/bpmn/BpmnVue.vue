@@ -104,6 +104,11 @@
             me.canvas.removeShape(edgeElement, true);
           }, 10)
         })
+
+
+        me.canvas.onDuplicated(function (event, edgeElement, sourceElement, targetElement) {
+          me.$emit('duplicated', edgeElement, sourceElement, targetElement);
+        });
       },
       render: function () {
         var me = this;
