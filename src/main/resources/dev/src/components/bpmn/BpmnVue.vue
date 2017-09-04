@@ -1,17 +1,17 @@
 <template>
   <div>
     <slot v-if="canvas" name="role"
-          v-for="item in roles"
+          v-for="item in filteredDefinition.roles"
           :canvas="canvas"
           :item="item">
     </slot>
     <slot v-if="canvas" name="activity"
-          v-for="item in activities"
+          v-for="item in filteredDefinition.childActivities[1]"
           :canvas="canvas"
           :item="item">
     </slot>
     <slot v-if="canvas" name="relation"
-          v-for="item in relations"
+          v-for="item in filteredDefinition.sequenceFlows"
           :canvas="canvas"
           :item="item">
     </slot>
@@ -26,24 +26,57 @@
   export default {
     name: 'bpmn-vue',
     props: {
-      activities: Array,
-      roles: Array,
-      relations: Array
+      definition: Object
     },
 
     data: function () {
       let id = this.uuid();
       let sliderId = id + '-slider';
       return {
+        filteredDefinition: this.definition,
+        history: [],
+        historyIndex: 0,
+        undoing: false,
+        undoed: false,
         id: id,
         sliderId: sliderId,
         canvas: null
       };
     },
 
-    watch: {},
+    watch: {
+      definition(val){
+        this.filteredDefinition = val;
+      },
+      filteredDefinition: {
+        handler: function (after, before) {
+          console.log('definition update');
+          if (!this.undoing) {
 
-    computed: {},
+            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
+              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+              this.undoed = false;
+            }
+
+            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
+            this.historyIndex = this.history.length;
+          } else {
+            this.undoing = false;
+          }
+          this.$emit('update:definition', this.filteredDefinition)
+        },
+        deep: true
+      },
+    },
+
+    computed: {
+      canUndo: function () {
+        return this.historyIndex > 0
+      },
+      canRedo: function () {
+        return this.history.length - 1 - this.historyIndex > 0
+      }
+    },
 
     mounted: function () {
       this.render();
@@ -51,6 +84,57 @@
     },
 
     methods: {
+      getSVGComponentByShapeId(shapeId)
+      {
+        var componentByShapeId;
+        if (shapeId) {
+          $.each(window.bpmnComponents, function (i, component) {
+            if (component.computed.shapeId) {
+              if (component.computed.shapeId() == shapeId) {
+                componentByShapeId = component;
+              }
+            }
+          });
+          return componentByShapeId;
+        }
+      },
+      undo: function () {
+        if (this.canUndo) {
+          this.historyIndex -= 1
+          this.undoing = true;
+          this.undoed = true;
+          this.filteredDefinition = this.history[this.historyIndex];
+          console.log(this.history.length, this.historyIndex, this.filteredDefinition);
+        }
+      },
+      redo: function () {
+        if (this.canRedo) {
+          this.historyIndex += 1
+          this.undoing = true;
+          this.undoed = true;
+          this.filteredDefinition = this.history[this.historyIndex]
+          console.log(this.history.length, this.historyIndex, this.filteredDefinition);
+        }
+      }
+      ,
+      createNewTracingTag: function () {
+        var me = this, maxTracingTag = 0,
+          isInt = function (value) {
+            return !isNaN(value) &&
+              parseInt(Number(value)) == value && !isNaN(parseInt(value, 10));
+          }
+        //히스토리에 있는 데이터도 참조하여, 충돌되는 트레이싱 태그가 없도록 한다. (가장 큰 트레이싱 태그 +1)
+        if (me.history && me.history.length) {
+          $.each(me.history, function (i, definition) {
+            $.each(definition.childActivities[1], function (c, activity) {
+              if (isInt(activity.tracingTag) && activity.tracingTag > maxTracingTag) {
+                maxTracingTag = activity.tracingTag;
+              }
+            })
+          })
+        }
+        return maxTracingTag + 1 + '';
+      },
       findComponentById: function (id) {
         var me = this;
         var selected = null;
@@ -97,7 +181,7 @@
             }
           }
           me.relations.push(relation);
-          //Next Flow: onAddHistory > updateVue > definition update
+          //Next Flow: onAddHistory > updateVue > filteredDefinition update
 
           //Remove Native Edge (Random Id Shape)
           setTimeout(function () {
@@ -107,7 +191,58 @@
 
 
         me.canvas.onDuplicated(function (event, edgeElement, sourceElement, targetElement) {
-          me.$emit('duplicated', edgeElement, sourceElement, targetElement);
+          var boundary = targetElement.shape.geom.getBoundary();
+          var component = me.getSVGComponentByShapeId(targetElement.shape.SHAPE_ID);
+          var className = component.computed.className();
+          var newTracingTag = me.createNewTracingTag();
+          console.log('newTracingTag', newTracingTag);
+          var additionalActivity = {
+            '_type': className,
+            'name': {
+              'text': ''
+            },
+            'tracingTag': newTracingTag,
+            'elementView': {
+              '_type': 'org.uengine.kernel.view.DefaultActivityView',
+              'id': newTracingTag,
+              'shapeId': targetElement.shape.SHAPE_ID,
+              'x': boundary.getCentroid().x,
+              'y': boundary.getCentroid().y,
+              'width': boundary.getWidth(),
+              'height': boundary.getHeight(),
+              'label': ''
+            }
+          }
+
+          var from = $(edgeElement).attr('_from');
+          var to = $(edgeElement).attr('_to').replace(targetElement.id, newTracingTag);
+          var value = edgeElement.shape.geom.vertices.toString();
+          var id = sourceElement.id + '-' + newTracingTag;
+
+          var additionalRelation = {
+            sourceRef: sourceElement.id,
+            targetRef: newTracingTag,
+            relationView: {
+              from: from,
+              to: to,
+              value: value
+            }
+          }
+          console.log(additionalRelation);
+          //Next Flow: onAddHistory > updateVue > filteredDefinition update
+
+          //Remove Native Edge And Shape (Random Id Shape)
+          setTimeout(function () {
+            //edgeElement will remove together
+            me.canvas.removeShape(targetElement, true);
+          }, 10)
+
+          me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalActivity)));
+
+          //TODO why first sequenceFlow is Mounted without timeout?
+          setTimeout(function () {
+            me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
+          }, 10);
         });
       },
       render: function () {
