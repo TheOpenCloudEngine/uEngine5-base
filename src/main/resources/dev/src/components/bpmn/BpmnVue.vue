@@ -34,7 +34,7 @@
       let sliderId = id + '-slider';
       return {
         filteredDefinition: this.definition,
-        history: [],
+        history: [JSON.parse(JSON.stringify(this.definition))],
         historyIndex: 0,
         undoing: false,
         undoed: false,
@@ -127,7 +127,7 @@
         if (me.history && me.history.length) {
           $.each(me.history, function (i, definition) {
             $.each(definition.childActivities[1], function (c, activity) {
-              if (isInt(activity.tracingTag) && activity.tracingTag > maxTracingTag) {
+              if (activity && isInt(activity.tracingTag) && activity.tracingTag > maxTracingTag) {
                 maxTracingTag = activity.tracingTag;
               }
             })

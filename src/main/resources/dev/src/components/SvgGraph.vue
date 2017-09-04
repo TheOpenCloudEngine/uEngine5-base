@@ -418,8 +418,28 @@
           me.definition.processVariableDescriptors = copy;
         }
 
-        var data = {definition: me.definition};
-        console.log(JSON.stringify(data));
+        //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
+        var definitionToSave = JSON.parse(JSON.stringify(me.definition));
+        definitionToSave.childActivities[1] = [];
+        definitionToSave.roles = [];
+        definitionToSave.sequenceFlows = [];
+        $.each(me.definition.childActivities[1], function (i, activity) {
+          if (activity) {
+            definitionToSave.childActivities[1].push(activity);
+          }
+        })
+        $.each(me.definition.roles, function (i, role) {
+          if (role) {
+            definitionToSave.roles.push(role);
+          }
+        })
+        $.each(me.definition.sequenceFlows, function (i, sequenceFlow) {
+          if (sequenceFlow) {
+            definitionToSave.sequenceFlows.push(sequenceFlow);
+          }
+        })
+
+        var data = {definition: definitionToSave};
         this.$root.codi('definition{/id}').save({id: me.id + '.json'}, data)
           .then(
             function (response) {
