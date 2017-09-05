@@ -11,6 +11,14 @@
       relation: Object,
       canvas: Object
     },
+    data: function () {
+      return {
+        elementId: null,
+        formStyle: [],
+        shape: null,
+        preventWatch: false
+      }
+    },
     computed: {
       className(){
         return ''
@@ -106,8 +114,9 @@
         get: function () {
           try {
             var style = JSON.parse(this.getView('style'));
-            if ($.isEmptyObject(style) && this.element) {
-              return this.element.shape.geom.style.map;
+            if ($.isEmptyObject(style) && this.id) {
+              var element = this.canvas.getElementById(this.id);
+              return element.shape.geom.style.map;
             } else {
               return JSON.parse(this.getView('style'))
             }
@@ -131,14 +140,6 @@
           this.setView('geom', val);
         }
       },
-    },
-    data: function () {
-      return {
-        formStyle: [],
-        element: null,
-        shape: null,
-        preventWatch: false
-      }
     },
     watch: {
       formStyle: {
@@ -201,7 +202,7 @@
       },
     },
     mounted: function () {
-      this.updateShape(true);
+      this.updateShape();
     },
     //상위 컴포넌트에 의해 삭제된 경우.
     beforeDestroy: function () {
@@ -220,8 +221,8 @@
       //activity , role,  relation 이 null 로 들어왔을 때. => watch
       //컴포넌트의 element 가 있다면 캔버스에서 element 를 삭제한다.
       var me = this;
-      if (me.element) {
-        let existElement = me.canvas.getElementById(me.element.id);
+      if (me.id) {
+        let existElement = me.canvas.getElementById(me.id);
         if (existElement) {
           me.canvas.removeShape(existElement, true);
         }
@@ -251,9 +252,39 @@
           view[property] = val;
         }
       },
+      setGroup: function (element) {
+        var me = this;
+        //그룹위에 그려졌을 경우 그룹처리
+        var frontGroup = me.canvas.getRenderer().getFrontForBoundary(me.canvas.getRenderer().getBoundary(element));
+
+        if (!frontGroup) {
+          return;
+        }
+        //draw 대상이 Edge 이면 리턴.
+        if (me.canvas.getRenderer().isEdge(element)) {
+          return;
+        }
+        //draw 대상이 Lane 인 경우 리턴.
+        if (me.canvas.getRenderer().isLane(element)) {
+          return;
+        }
+        //그룹이 Lane 인 경우 RootLane 으로 변경
+        if (me.canvas.getRenderer().isLane(frontGroup)) {
+          frontGroup = me.canvas.getRenderer().getRootLane(frontGroup);
+        }
+        if (!me.canvas.getRenderer()._CONFIG.GROUP_DROPABLE || !frontGroup.shape.GROUP_DROPABLE) {
+          return;
+        }
+        //자신일 경우 반응하지 않는다.
+        if (frontGroup.id === element.id) {
+          return;
+        }
+        frontGroup.appendChild(element);
+      },
       drawShape: function (element) {
         var me = this;
         var needToRedraw = false;
+
         //기존 도형이 있을 경우
         if (element) {
           //범위 요소에 따른 비교
@@ -297,63 +328,47 @@
           needToRedraw = true;
         }
 
-        var setGroup = function () {
-          //그룹위에 그려졌을 경우 그룹처리
-          var frontGroup = me.canvas.getRenderer().getFrontForBoundary(me.canvas.getRenderer().getBoundary(me.element));
-
-          if (!frontGroup) {
-            return;
-          }
-          //draw 대상이 Edge 이면 리턴.
-          if (me.canvas.getRenderer().isEdge(me.element)) {
-            return;
-          }
-          //draw 대상이 Lane 인 경우 리턴.
-          if (me.canvas.getRenderer().isLane(me.element)) {
-            return;
-          }
-          //그룹이 Lane 인 경우 RootLane 으로 변경
-          if (me.canvas.getRenderer().isLane(frontGroup)) {
-            frontGroup = me.canvas.getRenderer().getRootLane(frontGroup);
-          }
-          if (!me.canvas.getRenderer()._CONFIG.GROUP_DROPABLE || !frontGroup.shape.GROUP_DROPABLE) {
-            return;
-          }
-          //자신일 경우 반응하지 않는다.
-          if (frontGroup.id === me.element.id) {
-            return;
-          }
-          frontGroup.appendChild(me.element);
-        };
-
+        var createdElement;
+        //신규로 생성하거나 기존 도형을 변경해야 하는 경우.
         if (needToRedraw) {
           console.log('needToRedraw', me.id);
           var shape = eval('new ' + me.shapeId + '(me.label)');
-          me.element = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], me.style, me.id, me.parent, true, true);
-          setGroup();
+
+          //기존 도형은 삭제한다.
+          try {
+            me.canvas.removeShape(me.id, true);
+          } catch (e) {
+
+          }
+          createdElement = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], me.style, me.id, me.parent, true, true);
+          me.elementId = createdElement.id;
+          me.setGroup(createdElement);
         } else {
-          me.element = element;
+          createdElement = element;
+          me.elementId = createdElement.id;
         }
-        this.bindEvents(me.element);
+        this.bindEvents(createdElement);
 
         //formStyle 등록.
         var formStyle = [];
-        for (var key in this.style) {
+        var createdStyle = createdElement.shape.geom.style.map;
+        for (var key in createdStyle) {
           formStyle.push({
             key: key,
-            value: this.style[key]
+            value: createdStyle[key]
           });
         }
         //formStyle 업데이트로 인해 컴포넌트 리로딩 방지.
-        this.preventWatch = true;
-        this.formStyle = formStyle;
+        me.preventWatch = true;
+        me.formStyle = formStyle;
       },
       drawEdge: function (element) {
         var me = this;
         var needToRedraw = false;
+
         //기존 도형이 있을 경우
         if (element) {
-          //범위 요소에 따른 비교
+          //변곡점과 라벨에 따른 비교
           if (element.shape.geom.vertices.toString() != me.value ||
             element.shape.label != me.label) {
             needToRedraw = true;
@@ -376,7 +391,12 @@
           needToRedraw = true;
         }
 
+
+        var createdElement;
+
+        //신규로 생성하거나 기존 도형을 변경해야 하는 경우.
         if (needToRedraw) {
+          console.log('needToRedraw', me.id);
           var list = JSON.parse('[' + me.value + ']');
           var geom = new OG.geometry.PolyLine(list);
           geom.type = 'PolyLine';
@@ -401,89 +421,89 @@
           var fromShape = me.canvas.getElementById(me.relation.sourceRef);
           var toShape = me.canvas.getElementById(me.relation.targetRef);
 
-          me.element = me.canvas.drawShape(null, edgeShape, null, null, me.id, null, true);
+          //기존 도형은 삭제한다.
+          try {
+            me.canvas.removeShape(me.id, true);
+          } catch (e) {
+
+          }
+          createdElement = me.canvas.drawShape(null, edgeShape, null, null, me.id, null, true);
+          me.elementId = createdElement.id;
           // 연결 노드 정보 설정
           if (me.from) {
-            $(me.element).attr("_from", me.from);
+            $(createdElement).attr("_from", me.from);
             addAttrValues(fromShape, "_toedge", me.id);
           }
           if (me.to) {
-            $(me.element).attr("_to", me.to);
+            $(createdElement).attr("_to", me.to);
             addAttrValues(toShape, "_fromedge", me.id);
           }
 
         } else {
-          me.element = element;
+          createdElement = element;
+          me.elementId = createdElement.id;
         }
-        this.bindEvents(me.element);
+        this.bindEvents(createdElement);
       },
-      updateShape: function (isNew) {
+      updateShape: function () {
         var me = this;
         //릴레이션인 경우 아이디 지정.
         if (me.relation) {
           me.id = me.relation.sourceRef + '-' + me.relation.targetRef;
         }
 
-        var draw = function (element) {
-          if (me.activity || me.role) {
-            me.drawShape(element);
-          } else if (me.relation) {
-            me.drawEdge(element);
+        //신규 아이디와 기존 아이디가 틀릴 경우, 기존 아이디의 도형은 삭제한다.
+        //이 경우는 상위 컴포넌트에서 아이디가 변경될 경우 해당됨.
+        if (me.id && me.elementId && me.elementId != me.id) {
+          var existElement = me.canvas.getElementById(me.elementId);
+          if (existElement) {
+            me.canvas.removeShape(existElement, true);
           }
         }
 
-        // 마운트 되었을 때,
-        if (isNew) {
-          let element = me.canvas.getElementById(me.id);
-          draw(element);
-        }
-        // 컴포넌트에 의한 값 변경시,
-        else {
-          let element = me.canvas.getElementById(me.id);
-          if (me.id && me.element && me.element.id && me.element.id != me.id) {
-            var existElement = me.canvas.getElementById(me.element.id);
-            if (existElement) {
-              me.canvas.removeShape(existElement, true);
-            }
-          }
-          draw(element);
+        let element = me.canvas.getElementById(me.id);
+        if (me.activity || me.role) {
+          me.drawShape(element);
+        } else if (me.relation) {
+          me.drawEdge(element);
         }
       },
       updateVue: function () {
         this.preventWatch = true;
         var me = this;
-        let boundary = me.canvas.getBoundary(me.element);
-        if (!me.element || !me.element.id || !boundary) {
+        var element = me.canvas.getElementById(me.id);
+        let boundary = me.canvas.getBoundary(element);
+        if (!element || !boundary) {
           return;
         }
         me.width = boundary.getWidth();
         me.height = boundary.getHeight();
         me.x = boundary.getCentroid().x;
         me.y = boundary.getCentroid().y;
-        me.label = me.element.shape.label;
+        me.label = element.shape.label;
 
-        var parent = me.canvas.getRenderer().getParent(me.element);
+        var parent = me.canvas.getRenderer().getParent(element);
         if (parent) {
           me.parent = parent.id;
         } else {
           me.parent = null;
         }
-        me.id = me.element.id;
+        me.id = element.id;
 
-        if (me.element.shape.TYPE === OG.Constants.SHAPE_TYPE.EDGE) {
-          if ($(me.element).attr('_from')) {
-            me.from = $(me.element).attr('_from');
+        if (element.shape.TYPE === OG.Constants.SHAPE_TYPE.EDGE) {
+          if ($(element).attr('_from')) {
+            me.from = $(element).attr('_from');
           }
-          if ($(me.element).attr('_to')) {
-            me.to = $(me.element).attr('_to');
+          if ($(element).attr('_to')) {
+            me.to = $(element).attr('_to');
           }
         }
 
-        if (me.element.shape.geom.vertices) {
-          me.value = me.element.shape.geom.vertices.toString();
+        if (element.shape.geom.vertices) {
+          me.value = element.shape.geom.vertices.toString();
         }
 
-        me.style = me.element.shape.geom.style.map;
+        me.style = element.shape.geom.style.map;
         me.geom = null;
 
         //view 에 shapeId 등록
