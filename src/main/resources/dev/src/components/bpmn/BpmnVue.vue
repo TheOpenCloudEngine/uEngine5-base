@@ -84,8 +84,57 @@
     },
 
     methods: {
-      getSVGComponentByShapeId(shapeId)
-      {
+      /**
+       * @param {Object} shapeInfo (shapeId,x,y,width,height,label)
+       **/
+      addComponenet: function (shapeInfo) {
+        var me = this;
+        var component = me.getSVGComponentByShapeId(shapeInfo.shapeId);
+        var className = component.computed.className();
+        var additionalData = {};
+        //롤 추가인 경우
+        if (shapeInfo.shapeId == 'OG.shape.HorizontalLaneShape') {
+          additionalData = {
+            'name': '',
+            'displayName': {},
+            'elementView': {
+              '_type': 'org.uengine.kernel.view.DefaultActivityView',
+              'id': null, //오픈그래프 자동 생성
+              'shapeId': shapeInfo.shapeId,
+              'x': shapeInfo.x,
+              'y': shapeInfo.y,
+              'width': shapeInfo.width,
+              'height': shapeInfo.height,
+              'label': shapeInfo.label
+            }
+          }
+          me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalData)));
+        }
+        //액티비티 추가인 경우
+        else {
+          var newTracingTag = me.createNewTracingTag();
+          console.log('newTracingTag', newTracingTag);
+          additionalData = {
+            '_type': className,
+            'name': {
+              'text': ''
+            },
+            'tracingTag': newTracingTag,
+            'elementView': {
+              '_type': 'org.uengine.kernel.view.DefaultActivityView',
+              'id': newTracingTag,
+              'shapeId': shapeInfo.shapeId,
+              'x': shapeInfo.x,
+              'y': shapeInfo.y,
+              'width': shapeInfo.width,
+              'height': shapeInfo.height,
+              'label': shapeInfo.label
+            }
+          }
+          me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalData)));
+        }
+      },
+      getSVGComponentByShapeId(shapeId){
         var componentByShapeId;
         if (shapeId) {
           $.each(window.bpmnComponents, function (i, component) {
@@ -180,7 +229,7 @@
               value: value
             }
           }
-          me.relations.push(relation);
+          me.filteredDefinition.sequenceFlows.push(relation);
           //Next Flow: onAddHistory > updateVue > filteredDefinition update
 
           //Remove Native Edge (Random Id Shape)
@@ -228,7 +277,6 @@
               value: value
             }
           }
-          console.log(additionalRelation);
           //Next Flow: onAddHistory > updateVue > filteredDefinition update
 
           //Remove Native Edge And Shape (Random Id Shape)

@@ -124,10 +124,6 @@
     data () {
       return {
         id: null,
-//        history: [],
-//        historyIndex: 0,
-//        undoing: false,
-//        undoed: false,
         definition: null,
         definitionName: null,
         processVariables: [],
@@ -239,54 +235,15 @@
               dropX = dropX / canvas._CONFIG.SCALE;
               dropY = dropY / canvas._CONFIG.SCALE;
 
-              var component = me.$refs['bpmn-vue'].getSVGComponentByShapeId(shapeInfo._shape_id);
-              var className = component.computed.className();
-              var additionalData = {};
-              //롤 추가인 경우
-              if (shapeInfo._shape_id == 'OG.shape.HorizontalLaneShape') {
-                additionalData = {
-                  'name': '',
-                  'displayName': {},
-                  'elementView': {
-                    '_type': 'org.uengine.kernel.view.DefaultActivityView',
-                    'id': null, //오픈그래프 자동 생성
-                    'shapeId': shapeInfo._shape_id,
-                    'x': dropX,
-                    'y': dropY,
-                    'width': parseInt(shapeInfo._width, 10),
-                    'height': parseInt(shapeInfo._height, 10),
-                    'label': ''
-                  }
-                }
-                if (me.definition) {
-                  me.definition.roles.push(JSON.parse(JSON.stringify(additionalData)));
-                }
+              shapeInfo = {
+                shapeId: shapeInfo._shape_id,
+                x: dropX,
+                y: dropY,
+                width: parseInt(shapeInfo._width, 10),
+                height: parseInt(shapeInfo._height, 10),
+                label: ''
               }
-              //액티비티 추가인 경우
-              else {
-                var newTracingTag = me.$refs['bpmn-vue'].createNewTracingTag();
-                console.log('newTracingTag', newTracingTag);
-                additionalData = {
-                  '_type': className,
-                  'name': {
-                    'text': ''
-                  },
-                  'tracingTag': newTracingTag,
-                  'elementView': {
-                    '_type': 'org.uengine.kernel.view.DefaultActivityView',
-                    'id': newTracingTag,
-                    'shapeId': shapeInfo._shape_id,
-                    'x': dropX,
-                    'y': dropY,
-                    'width': parseInt(shapeInfo._width, 10),
-                    'height': parseInt(shapeInfo._height, 10),
-                    'label': ''
-                  }
-                }
-                if (me.definition) {
-                  me.definition.childActivities[1].push(JSON.parse(JSON.stringify(additionalData)));
-                }
-              }
+              me.$refs['bpmn-vue'].addComponenet(shapeInfo);
             }
             canvasEl.removeData('DRAG_SHAPE');
           }
