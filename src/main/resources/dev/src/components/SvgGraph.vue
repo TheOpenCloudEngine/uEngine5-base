@@ -3,8 +3,7 @@
 
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :definition="definition"
-              v-on:canvasReady="bindEvents"
-    >
+              v-on:canvasReady="bindEvents">
       <template slot="role" scope="props">
         <bpmn-role :role="props.item" :canvas="props.canvas"></bpmn-role>
       </template>
@@ -427,7 +426,7 @@
       height: 100%;
       top: 0px;
       left: 0px;
-      overflow: scroll;
+      overflow: hidden;
     }
 
     .tools {

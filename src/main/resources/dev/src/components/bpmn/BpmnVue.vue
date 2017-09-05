@@ -15,8 +15,10 @@
           :canvas="canvas"
           :item="item">
     </slot>
-    <div class="canvas-container" :id="id">
+    <div class="canvas-wrapper">
+      <div class="canvas-container" :id="id">
 
+      </div>
     </div>
     <div :id="sliderId"></div>
   </div>
@@ -32,7 +34,25 @@
     data: function () {
       let id = this.uuid();
       let sliderId = id + '-slider';
+      var filteredDefinition = this.definition;
+      if (!filteredDefinition.sequenceFlows) {
+        filteredDefinition.sequenceFlows = [];
+      }
+      if (!filteredDefinition.roles) {
+        filteredDefinition.roles = [];
+      }
+      if (!filteredDefinition.childActivities) {
+        filteredDefinition.childActivities = [
+          'java.util.ArrayList',
+          []
+        ]
+      }
+      if (!filteredDefinition.childActivities[1]) {
+        filteredDefinition.childActivities[1] = [];
+      }
       return {
+          drawer: true,
+        text: 'sdfsdf',
         filteredDefinition: this.definition,
         history: [JSON.parse(JSON.stringify(this.definition))],
         historyIndex: 0,
@@ -105,7 +125,8 @@
               'y': shapeInfo.y,
               'width': shapeInfo.width,
               'height': shapeInfo.height,
-              'label': shapeInfo.label
+              'label': shapeInfo.label,
+              'style': JSON.stringify({})
             }
           }
           me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalData)));
@@ -128,7 +149,8 @@
               'y': shapeInfo.y,
               'width': shapeInfo.width,
               'height': shapeInfo.height,
-              'label': shapeInfo.label
+              'label': shapeInfo.label,
+              'style': JSON.stringify({})
             }
           }
           me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalData)));
@@ -259,7 +281,8 @@
               'y': boundary.getCentroid().y,
               'width': boundary.getWidth(),
               'height': boundary.getHeight(),
-              'label': ''
+              'label': '',
+              'style': JSON.stringify({})
             }
           }
 
@@ -310,7 +333,8 @@
               'y': boundary.getCentroid().y,
               'width': boundary.getWidth(),
               'height': boundary.getHeight(),
-              'label': ''
+              'label': '',
+              'style': JSON.stringify({})
             }
           }
           me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
@@ -394,6 +418,15 @@
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
+  .canvas-wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    overflow: scroll;
+  }
+
   .canvas-container {
     position: relative;
     width: 2000px;

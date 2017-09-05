@@ -98,12 +98,29 @@
           this.setView('value', val);
         }
       },
+      /**
+       * Vue는 이미 만들어진 인스턴스에 새로운 루트레벨의 반응형 속성을 동적으로 추가하는 것을 허용하지 않는다.
+       * 따라서, Style 은 definition 단계에서 포함되어 오도록 한다.
+       */
       style: {
         get: function () {
-          return this.getView('style');
+          try {
+            var style = JSON.parse(this.getView('style'));
+            if ($.isEmptyObject(style) && this.element) {
+              return this.element.shape.geom.style.map;
+            } else {
+              return JSON.parse(this.getView('style'))
+            }
+          } catch (e) {
+            return {};
+          }
         },
         set: function (val) {
-          this.setView('style', val);
+          try {
+            this.setView('style', JSON.stringify(val));
+          } catch (e) {
+            this.setView('style', JSON.stringify({}));
+          }
         }
       },
       geom: {
@@ -126,7 +143,6 @@
       activity: {
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
-            console.log('activity changed');
             if (newVal) {
               this.updateShape();
             } else {
@@ -142,7 +158,6 @@
       role: {
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
-            console.log('role changed');
             if (newVal) {
               this.updateShape();
             } else {
@@ -158,7 +173,6 @@
       relation: {
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
-            console.log('relation changed');
             if (newVal) {
               this.updateShape();
             } else {
@@ -173,12 +187,10 @@
       },
     },
     mounted: function () {
-      console.log('Mounted!!', this);
       this.updateShape(true);
     },
     //상위 컴포넌트에 의해 삭제된 경우.
     beforeDestroy: function () {
-      console.log('beforeDestroy!!', this.label);
       var me = this;
       if (me.id && me.canvas) {
         let existElement = me.canvas.getElementById(me.id);
@@ -227,11 +239,9 @@
       },
       drawShape: function (element) {
         var me = this;
-        console.log('drawShape!!', me.label, '!!');
         var needToRedraw = false;
         //기존 도형이 있을 경우
         if (element) {
-
           //범위 요소에 따른 비교
           let boundary = me.canvas.getBoundary(element);
           if (boundary.getWidth() != me.width ||
@@ -245,6 +255,11 @@
 
           //shapeId 비교
           if (element.shape.SHAPE_ID != me.shapeId) {
+            needToRedraw = true;
+          }
+
+          //스타일 비교
+          if (JSON.stringify(me.style) != JSON.stringify(element.shape.geom.style.map)) {
             needToRedraw = true;
           }
 
@@ -298,9 +313,9 @@
         };
 
         if (needToRedraw) {
-          console.log('needToRedraw', me.label);
+          console.log('needToRedraw', me.id);
           var shape = eval('new ' + me.shapeId + '(me.label)');
-          me.element = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], null, me.id, me.parent, true, true);
+          me.element = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], me.style, me.id, me.parent, true, true);
           setGroup();
         } else {
           me.element = element;
@@ -336,7 +351,6 @@
         }
 
         if (needToRedraw) {
-          console.log('needToRedraw', me.label, me.id);
           var list = JSON.parse('[' + me.value + ']');
           var geom = new OG.geometry.PolyLine(list);
           geom.type = 'PolyLine';
@@ -420,7 +434,6 @@
         }
       },
       updateVue: function () {
-        console.log('updateVue!!');
         this.preventWatch = true;
         var me = this;
         let boundary = me.canvas.getBoundary(me.element);
@@ -454,7 +467,7 @@
           me.value = me.element.shape.geom.vertices.toString();
         }
 
-        me.style = null;
+        me.style = me.element.shape.geom.style.map;
         me.geom = null;
 
         //view 에 shapeId 등록
@@ -474,6 +487,11 @@
         if (!element) {
           return;
         }
+        $(element).unbind('dblclick');
+        $(element).bind('dblclick', function () {
+          me.drawer = true;
+        });
+
         element.shape.onResize = function (offset) {
 
         };

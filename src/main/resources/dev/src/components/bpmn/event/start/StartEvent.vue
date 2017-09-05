@@ -1,5 +1,93 @@
 <template>
-
+  <v-navigation-drawer class="property-panel"
+                       temporary
+                       v-model="drawer"
+                       right
+                       light
+                       overflow
+                       absolute
+  >
+    <v-tabs light v-model="active"
+            :scrollable="false"
+            centered>
+      <v-tabs-bar class="cyan">
+        <v-tabs-item
+          ripple
+          :href="'#tab1' + id">
+          Properties
+        </v-tabs-item>
+        <v-tabs-item
+          ripple
+          :href="'#tab2' + id">
+          Visual
+        </v-tabs-item>
+        <v-tabs-slider class="primary"></v-tabs-slider>
+      </v-tabs-bar>
+      <v-tabs-items>
+        <v-tabs-content
+          :id="'tab1' + id">
+          <v-layout row wrap class="pa-3">
+            <v-flex xs12>
+              <v-text-field
+                label="Title"
+                counter
+                max="50"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12>
+              <v-text-field
+                label="Description"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12>
+              <v-text-field
+                label="More descriptive text"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+        </v-tabs-content>
+        <v-tabs-content :id="'tab2' + id">
+          <v-layout row wrap class="pa-3">
+            <v-flex xs6>
+              <v-text-field
+                type="number"
+                label="x"
+                v-model="x"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs6>
+              <v-text-field
+                type="number"
+                label="y"
+                v-model="y"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs6>
+              <v-text-field
+                type="number"
+                label="width"
+                v-model="width"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs6>
+              <v-text-field
+                type="number"
+                label="height"
+                v-model="height"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 v-for="(value, key) in style">
+              <v-text-field
+                type="text"
+                :label="key"
+                v-model="style[key]"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+        </v-tabs-content>
+      </v-tabs-items>
+    </v-tabs>
+  </v-navigation-drawer>
 </template>
 
 <script>
@@ -20,7 +108,11 @@
       }
     },
     data: function () {
-      return {}
+      return {
+        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+        active: null,
+        drawer: false
+      }
     },
     watch: {},
     mounted: function () {
@@ -138,5 +230,9 @@
 
 <style scoped lang="scss" rel="stylesheet/scss">
 
+  /*네비게이션 패널 넓이*/
+  aside.navigation-drawer.navigation-drawer--absolute.navigation-drawer--is-booted.navigation-drawer--open {
+    width: 400px;
+  }
 </style>
 
