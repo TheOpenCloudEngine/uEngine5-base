@@ -134,12 +134,26 @@
     },
     data: function () {
       return {
+        formStyle: [],
         element: null,
         shape: null,
         preventWatch: false
       }
     },
     watch: {
+      formStyle: {
+        handler: function (newVal, oldVal) {
+          if (!this.preventWatch && newVal && newVal.length) {
+            var style = {};
+            $.each(newVal, function (i, item) {
+              style[item.key] = item.value;
+            });
+            this.style = style;
+          }
+          this.preventWatch = false;
+        },
+        deep: true
+      },
       activity: {
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
@@ -153,7 +167,7 @@
           }
           this.preventWatch = false;
         },
-        deep: true,
+        deep: true
       },
       role: {
         handler: function (newVal, oldVal) {
@@ -321,6 +335,18 @@
           me.element = element;
         }
         this.bindEvents(me.element);
+
+        //formStyle 등록.
+        var formStyle = [];
+        for (var key in this.style) {
+          formStyle.push({
+            key: key,
+            value: this.style[key]
+          });
+        }
+        //formStyle 업데이트로 인해 컴포넌트 리로딩 방지.
+        this.preventWatch = true;
+        this.formStyle = formStyle;
       },
       drawEdge: function (element) {
         var me = this;
@@ -414,16 +440,6 @@
         // 컴포넌트에 의한 값 변경시,
         else {
           let element = me.canvas.getElementById(me.id);
-
-          //도형의 아이디가 변경된 경우
-          //TODO 아래 순서를 프로퍼티 패널에서 트레이싱 태그 변경시 적용토록 한다.
-          //me.element 는 이전에 등록된 element
-          //해당 경우는 트레이신 태그를 가진 activity 에서만 통용된다.
-          //프로퍼티 패널 아이디 변경
-          //릴레이션 source, target 변경. from,to 를 source,target 아이디로 변경
-          //릴레이션 아이디가 틀리게 옴.
-          //선연결이 사라짐.
-          //새로 선연결을 함.
           if (me.id && me.element && me.element.id && me.element.id != me.id) {
             var existElement = me.canvas.getElementById(me.element.id);
             if (existElement) {

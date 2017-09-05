@@ -76,11 +76,13 @@
                 v-model="height"
               ></v-text-field>
             </v-flex>
-            <v-flex xs12 v-for="(value, key) in style">
+            <v-flex xs12 v-for="(item, index) in formStyle"
+                    :item="item"
+                    :index="index">
               <v-text-field
                 type="text"
-                :label="key"
-                v-model="style[key]"
+                :label="item.key"
+                v-model="formStyle[index].value"
               ></v-text-field>
             </v-flex>
           </v-layout>
