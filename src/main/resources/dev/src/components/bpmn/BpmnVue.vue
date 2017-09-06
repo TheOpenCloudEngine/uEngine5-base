@@ -85,7 +85,7 @@
             $.each(activities, function (i, activitiy) {
 
               //트레이싱 태그가 변동되었을 경우
-              if (activitiy.tracingTag != activitiy.elementView.id) {
+              if (activitiy && activitiy.tracingTag != activitiy.elementView.id) {
                 var oldId = activitiy.elementView.id;
                 activitiy.elementView.id = activitiy.tracingTag;
 
@@ -103,7 +103,7 @@
                 }
               }
               //Name 이 변동되었을 경우
-              if (activitiy.name && activitiy.name.text != activitiy.elementView.label) {
+              if (activitiy && activitiy.name && activitiy.name.text != activitiy.elementView.label) {
                 activitiy.elementView.label = activitiy.name.text;
               }
             })
@@ -113,13 +113,13 @@
           //1.Here : 휴먼 액티비티 중 oldname 을 가지고 있는 role 을 같이 변경한다.
           if (roles && roles.length) {
             $.each(roles, function (i, role) {
-              if (role.name != role.elementView.label) {
+              if (role && role.name != role.elementView.label) {
                 var oldName = role.elementView.label;
                 role.elementView.label = role.name;
 
                 if (activities && activities.length) {
                   $.each(activities, function (i, activitiy) {
-                    if (activitiy.role && activitiy.role.name == oldName) {
+                    if (activitiy && activitiy.role && activitiy.role.name == oldName) {
                       activitiy.role = JSON.parse(JSON.stringify(role));
                     }
                   })
