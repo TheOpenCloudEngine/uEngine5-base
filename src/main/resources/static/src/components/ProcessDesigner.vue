@@ -84,7 +84,7 @@
           history: [],
           historyIndex: 0,
           undoing: false,
-          undoed: false,
+          undid: false,
         };
 
     },
@@ -96,9 +96,9 @@
           handler: function(after, before){
               if(!this.undoing) {
 
-                  if(this.undoed){ //if undoed just before, clear the history from the current historyIndex
+                  if(this.undid){ //if undid just before, clear the history from the current historyIndex
                       this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
-                      this.undoed = false;
+                      this.undid = false;
                   }
 
                 this.history.push(JSON.parse(JSON.stringify(after))); //heavy
@@ -207,7 +207,7 @@
         if (this.canUndo) {
           this.historyIndex -= 1
           this.undoing = true;
-          this.undoed = true;
+          this.undid = true;
           this.definition = this.history[this.historyIndex];
 
           this.showProperties(this.properties);
@@ -217,7 +217,7 @@
         if (this.canRedo) {
           this.historyIndex += 1
           this.undoing = true;
-          this.undoed = true;
+          this.undid = true;
           this.definition = this.history[this.historyIndex]
 
           this.showProperties(this.properties);
