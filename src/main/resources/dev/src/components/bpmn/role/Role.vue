@@ -1,5 +1,22 @@
 <template>
+  <bpmn-property-panel :parentId="id">
+    <template slot="properties-contents">
+      <v-layout row wrap class="pa-3">
+        <v-flex xs12>
+          <v-text-field
+            label="롤 명"
+            v-model="role.name"
+          ></v-text-field>
+        </v-flex>
+      </v-layout>
+    </template>
+    <template slot="additional-tabs">
 
+    </template>
+    <template slot="additional-tabs-contents">
+
+    </template>
+  </bpmn-property-panel>
 </template>
 
 <script>

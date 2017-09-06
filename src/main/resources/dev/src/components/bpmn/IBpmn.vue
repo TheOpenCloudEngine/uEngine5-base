@@ -12,7 +12,7 @@
       canvas: Object
     },
     created: function () {
-      window.Vue.bpmnLiveComponents[this._uid] = this;
+
     },
     data: function () {
       return {
@@ -576,7 +576,9 @@
           return;
         }
         $(element).unbind('dblclick');
-        $(element).bind('dblclick', function () {
+        $(element).bind('dblclick', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
           window.Vue.bpmnBus.$emit('element-dblclick', me, element);
         });
 

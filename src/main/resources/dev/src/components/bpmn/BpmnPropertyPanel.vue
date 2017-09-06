@@ -36,9 +36,8 @@
               ></v-text-field>
             </v-flex>
           </v-layout>
-          <template slot="properties-contents">
-
-          </template>
+          <slot name="properties-contents">
+          </slot>
         </v-tabs-content>
         <slot name="additional-tabs-contents">
 
@@ -49,28 +48,28 @@
               <v-text-field
                 type="number"
                 label="x"
-                v-model="x"
+                v-model.number="x"
               ></v-text-field>
             </v-flex>
             <v-flex xs6>
               <v-text-field
                 type="number"
                 label="y"
-                v-model="y"
+                v-model.number="y"
               ></v-text-field>
             </v-flex>
             <v-flex xs6>
               <v-text-field
                 type="number"
                 label="width"
-                v-model="width"
+                v-model.number="width"
               ></v-text-field>
             </v-flex>
             <v-flex xs6>
               <v-text-field
                 type="number"
                 label="height"
-                v-model="height"
+                v-model.number="height"
               ></v-text-field>
             </v-flex>
             <v-flex xs12 v-for="(item, index) in style"
@@ -93,7 +92,7 @@
   export default {
     name: 'bpmn-property-panel',
     props: {
-      parentId: Number
+      parentId: String
     },
     computed: {},
     data: function () {
@@ -144,7 +143,8 @@
     created: function () {
       var me = this;
       window.Vue.bpmnBus.$on('element-dblclick', function (component, element) {
-        if (component._uid == me.parentId) {
+        if (component.id == me.parentId) {
+          console.log(component.id, me.parentId);
           me.preventWatch = true;
           let boundary = component.canvas.getBoundary(element);
           if (!element || !boundary) {
