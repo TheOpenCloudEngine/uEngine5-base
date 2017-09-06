@@ -27,6 +27,7 @@
         return ''
       },
       x: {
+        cache: false,
         get: function () {
           return this.getView('x');
         },
@@ -35,6 +36,7 @@
         }
       },
       y: {
+        cache: false,
         get: function () {
           return this.getView('y');
         },
@@ -43,6 +45,7 @@
         }
       },
       width: {
+        cache: false,
         get: function () {
           return this.getView('width');
         },
@@ -51,6 +54,7 @@
         }
       },
       height: {
+        cache: false,
         get: function () {
           return this.getView('height');
         },
@@ -59,6 +63,7 @@
         }
       },
       label: {
+        cache: false,
         get: function () {
           return this.getView('label');
         },
@@ -67,6 +72,7 @@
         }
       },
       parent: {
+        cache: false,
         get: function () {
           return this.getView('parent');
         },
@@ -75,6 +81,7 @@
         }
       },
       id: {
+        cache: false,
         get: function () {
           return this.getView('id');
         },
@@ -83,6 +90,7 @@
         }
       },
       from: {
+        cache: false,
         get: function () {
           return this.getView('from');
         },
@@ -91,6 +99,7 @@
         }
       },
       to: {
+        cache: false,
         get: function () {
           return this.getView('to');
         },
@@ -99,6 +108,7 @@
         }
       },
       value: {
+        cache: false,
         get: function () {
           return this.getView('value');
         },
@@ -111,14 +121,15 @@
        * 따라서, Style 은 definition 단계에서 포함되어 오도록 한다.
        */
       style: {
+        cache: false,
         get: function () {
           try {
-            var style = JSON.parse(this.getView('style'));
+            var style = this.getView('style') ? JSON.parse(this.getView('style')) : {};
             if ($.isEmptyObject(style) && this.id) {
               var element = this.canvas.getElementById(this.id);
               return element.shape.geom.style.map;
             } else {
-              return JSON.parse(this.getView('style'))
+              return style;
             }
           } catch (e) {
             return {};
@@ -133,6 +144,7 @@
         }
       },
       geom: {
+        cache: false,
         get: function () {
           return this.getView('geom');
         },
@@ -273,57 +285,109 @@
         }
         frontGroup.appendChild(element);
       },
+      changeShape: function (element, value) {
+        var me = this, geometry, position, width, height;
+        var label = element.shape.label;
+
+        var shape = eval('new ' + value + '()');
+        shape.currentCanvas = me.canvas;
+        if (label) {
+          shape.label = label;
+        } else {
+          shape.label = undefined;
+        }
+
+        if (shape instanceof OG.EdgeShape) {
+          geometry = shape.createShape();
+          geometry.vertices = element.shape.geom.vertices;
+          shape.geom = geometry;
+        } else {
+          position = [element.shape.geom.boundary.getCentroid().x, element.shape.geom.boundary.getCentroid().y];
+          width = element.shape.geom.boundary.getWidth();
+          height = element.shape.geom.boundary.getHeight();
+          geometry = shape.createShape();
+
+          // 좌상단으로 이동 및 크기 조정
+          geometry.moveCentroid(position);
+          geometry.resizeBox(width, height);
+          shape.geom = geometry;
+        }
+
+        //데이터 복제
+        shape.setData(JSON.parse(JSON.stringify(element.shape.getData())));
+
+        //shape 등록
+        element.shape = shape;
+
+        me._RENDERER.redrawShape(element);
+      },
       drawShape: function (element) {
-        var me = this;
-        var needToRedraw = false;
+        var me = this, createdElement;
+        //여기서부터 이미 존재하는 도형인 경우 삭제하지 말고, 각 경우에 따라 다시 그리는 로직을 수행하도록 한다.
+        //아래 로직을 전체적으로 다시 손보도록 한다.
 
         //기존 도형이 있을 경우
         if (element) {
           //범위 요소에 따른 비교
           let boundary = me.canvas.getBoundary(element);
           if (boundary.getWidth() != me.width ||
-            boundary.getHeight() != me.height ||
-            boundary.getCentroid().x != me.x ||
-            boundary.getCentroid().y != me.y ||
-            element.shape.label != me.label
+            boundary.getHeight() != me.height
           ) {
-            needToRedraw = true;
+            me.canvas.resizeBox(element, [me.width, me.height]);
+            console.log('needToRedraw, resizeBox', me.id);
+          }
+          if (boundary.getCentroid().x != me.x ||
+            boundary.getCentroid().y != me.y
+          ) {
+            me.canvas.moveCentroid(element, [me.x, me.y]);
+            console.log('needToRedraw, moveCentroid', me.id);
           }
 
           //shapeId 비교
           if (element.shape.SHAPE_ID != me.shapeId) {
-            needToRedraw = true;
+            me.changeShape(element, me.shapeId)
+            console.log('needToRedraw, changeShape', me.id);
           }
 
           //스타일 비교
           if (JSON.stringify(me.style) != JSON.stringify(element.shape.geom.style.map)) {
-            needToRedraw = true;
+            me.canvas.setShapeStyle(element, me.style);
+            console.log('needToRedraw, setShapeStyle', me.id);
           }
 
           //부모 비교
           var parent = me.canvas.getRenderer().getParent(element);
-          //기존 도형의 부모가 있을 경우
-          if (parent && parent.id) {
-            if (parent.id != me.parent) {
-              needToRedraw = true;
-            }
+          //canvas.appendChild(element,parent);
+
+          //기존 도형의 부모가 없는데 컴포넌트 부모가 있을 경우
+          var newParent = me.canvas.getElementById(me.parent);
+          if (!parent && newParent) {
+            me.canvas.appendChild(element, newParent);
+            console.log('needToRedraw, appendChild', me.id);
           }
-          //기존 도형의 부모가 없는데 컴포넌트 부모값이 있을 경우
-          else {
-            if (me.parent) {
-              needToRedraw = true;
-            }
+          //기존 도형의 부모가 있고, 컴포넌트 부모와 틀릴 경우 (부모 있음)
+          else if (parent && newParent && parent.id != newParent.id) {
+            me.canvas.appendChild(element, newParent);
+            console.log('needToRedraw, appendChild', me.id);
           }
+          //기존 도형의 부모가 있고, 컴포넌트 부모와 틀릴 경우 (부모 없음)
+          else if (parent && !newParent) {
+            me.canvas.appendChild(element, me.canvas.getRootGroup());
+            console.log('needToRedraw, appendChild', me.id);
+          }
+
+          //라벨 비교
+          if (element.shape.label != me.label) {
+            me.canvas.drawLabel(element, me.label);
+            console.log('needToRedraw, drawLabel', me.id);
+          }
+
+          createdElement = element;
+          me.elementId = createdElement.id;
         }
         //기존 도형이 없을 경우
         else {
-          needToRedraw = true;
-        }
-
-        var createdElement;
-        //신규로 생성하거나 기존 도형을 변경해야 하는 경우.
-        if (needToRedraw) {
-          console.log('needToRedraw', me.id);
+          console.log('drawNewElement', me.id);
           var shape = eval('new ' + me.shapeId + '(me.label)');
 
           //기존 도형은 삭제한다.
@@ -335,10 +399,6 @@
           createdElement = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], me.style, me.id, me.parent, true, true);
           me.elementId = createdElement.id;
           me.setGroup(createdElement);
-
-        } else {
-          createdElement = element;
-          me.elementId = createdElement.id;
         }
         this.bindEvents(createdElement);
       },
@@ -374,7 +434,11 @@
         var createdElement;
         //신규로 생성하거나 기존 도형을 변경해야 하는 경우.
         if (needToRedraw) {
-          console.log('needToRedraw', me.id);
+          if (element) {
+            console.log('needToRedraw', 'Relation', me.id);
+          } else {
+            console.log('drawNewElement', 'Relation', me.id);
+          }
           var list = JSON.parse('[' + me.value + ']');
           var geom = new OG.geometry.PolyLine(list);
           geom.type = 'PolyLine';
@@ -406,7 +470,6 @@
 
           }
           createdElement = me.canvas.drawShape(null, edgeShape, null, null, me.id, null, true);
-          me.elementId = createdElement.id;
           // 연결 노드 정보 설정
           if (me.from) {
             $(createdElement).attr("_from", me.from);
@@ -416,6 +479,7 @@
             $(createdElement).attr("_to", me.to);
             addAttrValues(toShape, "_fromedge", me.id);
           }
+          me.elementId = createdElement.id;
 
         } else {
           createdElement = element;
@@ -433,7 +497,6 @@
         if (me.relation) {
           me.id = me.relation.sourceRef + '-' + me.relation.targetRef;
         }
-
         //신규 아이디와 기존 아이디가 틀릴 경우, 기존 아이디의 도형은 삭제한다.
         //이 경우는 상위 컴포넌트에서 아이디가 변경될 경우 해당됨.
         if (me.id && me.elementId && me.elementId != me.id) {

@@ -1,19 +1,20 @@
 <template>
   <bpmn-property-panel :parentId="_uid">
     <template slot="tabs">
-      <v-tabs-item ripple :href="'#tab1' + _uid">
+      <v-tabs-item ripple :href="'#properties' + _uid">
         Properties
       </v-tabs-item>
     </template>
     <template slot="tabs-contents">
-      <v-tabs-content :id="'tab1' + _uid">
+      <v-tabs-content :id="'properties' + _uid">
         <v-layout row wrap class="pa-3">
           <v-flex xs12>
             <v-text-field
               label="액티비티 ID"
               counter
               max="50"
-              v-model="activity.tracingTag"
+              v-model="tracingTag"
+              :rules="[rules.required, rules.tracingTag]"
             ></v-text-field>
           </v-flex>
           <v-flex xs12>
@@ -46,7 +47,35 @@
       }
     },
     data: function () {
-      return {}
+      var me = this;
+      return {
+        name: this.activity.name.text,
+        tracingTag: this.activity.tracingTag,
+        rules: {
+          required: function (value) {
+            if (!value || value.length < 1) {
+              return 'Required.';
+            } else {
+              return true;
+            }
+          },
+          tracingTag: function (value) {
+            //동일함.
+            if (me.activity.tracingTag == value) {
+              return true;
+            }
+            //이미 있음.
+            else if (me.$parent.checkExistTracingTag(value)) {
+              return 'TracingTag aleardy exist.';
+            }
+            //트레이싱 태그 값이 바뀜.
+            else if (value && value.length > 0) {
+              me.activity.tracingTag = value;
+              return true;
+            }
+          }
+        }
+      }
     },
     watch: {},
     mounted: function () {

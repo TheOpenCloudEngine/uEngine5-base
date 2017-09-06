@@ -51,7 +51,7 @@
         filteredDefinition.childActivities[1] = [];
       }
       return {
-          drawer: true,
+        drawer: true,
         text: 'sdfsdf',
         filteredDefinition: this.definition,
         history: [JSON.parse(JSON.stringify(this.definition))],
@@ -71,6 +71,63 @@
       filteredDefinition: {
         handler: function (after, before) {
           console.log('definition update');
+
+          //액티비티이며, 트레이싱 태그가 변경될 경우 (아이디와 트레이싱 태그값이 틀림)
+          //1.Here: 릴레이션 source, target 변경. from,to 를 source,target 아이디로 변경
+          //2.BpmnComponent: 릴레이션 아이디가 틀리게 옴.
+          //3.BpmnComponent: 선연결이 사라짐.
+          //4.BpmnComponent: 새로 선연결을 함.
+          var me = this;
+          let activities = after.childActivities[1];
+          let roles = after.roles;
+          let sequenceFlows = after.sequenceFlows;
+          if (activities && activities.length) {
+            $.each(activities, function (i, activitiy) {
+
+              //트레이싱 태그가 변동되었을 경우
+              if (activitiy.tracingTag != activitiy.elementView.id) {
+                var oldId = activitiy.elementView.id;
+                activitiy.elementView.id = activitiy.tracingTag;
+
+                if (sequenceFlows && sequenceFlows.length) {
+                  $.each(sequenceFlows, function (i, relation) {
+                    if (relation && relation.sourceRef == oldId) {
+                      relation.sourceRef = activitiy.tracingTag;
+                      relation.relationView.from = me.replaceTerminalId(relation.relationView.from, activitiy.tracingTag);
+                    }
+                    if (relation && relation.targetRef == oldId) {
+                      relation.targetRef = activitiy.tracingTag;
+                      relation.relationView.to = me.replaceTerminalId(relation.relationView.to, activitiy.tracingTag);
+                    }
+                  });
+                }
+              }
+              //Name 이 변동되었을 경우
+              if (activitiy.name && activitiy.name.text != activitiy.elementView.label) {
+                activitiy.elementView.label = activitiy.name.text;
+              }
+            })
+          }
+
+          //롤의 이름이 변경되었을 때
+          //1.Here : 휴먼 액티비티 중 oldname 을 가지고 있는 role 을 같이 변경한다.
+          if (roles && roles.length) {
+            $.each(roles, function (i, role) {
+              if (role.name != role.elementView.label) {
+                var oldName = role.elementView.label;
+                role.elementView.label = role.name;
+
+                if (activities && activities.length) {
+                  $.each(activities, function (i, activitiy) {
+                    if (activitiy.role && activitiy.role.name == oldName) {
+                      activitiy.role = JSON.parse(JSON.stringify(role));
+                    }
+                  })
+                }
+              }
+            })
+          }
+
           if (!this.undoing) {
 
             if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
@@ -206,6 +263,17 @@
         }
         return maxTracingTag + 1 + '';
       },
+      checkExistTracingTag: function (tracingTag) {
+        var me = this, isExist = false;
+        if (me.filteredDefinition) {
+          $.each(me.filteredDefinition.childActivities[1], function (c, activity) {
+            if (activity && activity.tracingTag == tracingTag) {
+              isExist = true;
+            }
+          })
+        }
+        return isExist;
+      },
       findComponentById: function (id) {
         var me = this;
         var selected = null;
@@ -215,6 +283,10 @@
           }
         });
         return selected;
+      },
+      replaceTerminalId: function (terminal, id) {
+        let split = terminal.split('_TERMINAL_');
+        return id + '_TERMINAL_' + split[1];
       },
       bindEvents: function () {
         var me = this;
@@ -288,7 +360,7 @@
           }
 
           var from = $(edgeElement).attr('_from');
-          var to = $(edgeElement).attr('_to').replace(targetElement.id, newTracingTag);
+          var to = me.replaceTerminalId($(edgeElement).attr('_to'), newTracingTag);
           var value = edgeElement.shape.geom.vertices.toString();
           var id = sourceElement.id + '-' + newTracingTag;
 

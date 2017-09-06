@@ -166,7 +166,6 @@
           if (!this.preventWatch) {
             var value = this.toNumber(newVal);
             if (value && value != 0) {
-              console.log('value' , value);
               this.canvas.resizeBox(this.element, [value, this.height]);
               $(this.canvas.getRootElement()).trigger('addHistory');
             }
