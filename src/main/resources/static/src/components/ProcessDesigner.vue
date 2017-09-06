@@ -69,6 +69,135 @@
 
 
 <script>
+<<<<<<< HEAD
+  export default {
+    props: {
+      definition: Object,
+      definitionName: String,
+      serviceLocator: String
+    },
+
+    data: function(){
+
+
+        return {
+          propertyType: null,
+          properties: {
+              name: {}
+          },
+          history: [],
+          historyIndex: 0,
+          undoing: false,
+          undid: false,
+        };
+
+    },
+
+    watch:{
+
+      definition:{
+
+          handler: function(after, before){
+              if(!this.undoing) {
+
+                  if(this.undid){ //if undid just before, clear the history from the current historyIndex
+                      this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+                      this.undid = false;
+                  }
+
+                this.history.push(JSON.parse(JSON.stringify(after))); //heavy
+                this.historyIndex = this.history.length;
+              }else{
+                  this.undoing = false;
+              }
+          },
+        deep: true
+      }
+
+   },
+
+    computed: {
+      canUndo: function() {
+        return this.historyIndex > 0
+      },
+      canRedo: function() {
+        return this.history.length - 1 - this.historyIndex > 0
+      }
+    },
+
+    methods: {
+      load: function(){
+        var me = this;
+
+        this.$root.$children[0].$refs[this.serviceLocator].invoke({
+          path: "definition/" + this.definitionName + ".json",
+          success: function(value){
+            me.definition = value.definition;
+          }
+        });
+
+      },
+      save: function(){
+        console.log(this.definition);
+
+
+        this.$root.$children[0].$refs[this.serviceLocator].invoke({
+          path: "definition/" + this.definitionName + ".json",
+          method: 'POST',
+          data: {
+            definition : this.definition
+          }
+        });
+
+      },
+      initiate: function(){
+        console.log(this.definition);
+
+
+        this.$root.$children[0].$refs[this.serviceLocator].invoke({
+          path: "definition/" + this.definitionName + ".json" + "/instance",
+          method: 'POST',
+          data: {
+          }
+        });
+
+      },
+
+      getSVGComponentName(activity){
+        var typeName = activity._type.toLowerCase().split('.').join('-');
+
+        return "svg-" + typeName;
+      },
+
+      showProperties(activity){
+          var tracingTag = activity.tracingTag;
+
+          this.definition.childActivities[1].forEach(function(act){
+              if(act.tracingTag == tracingTag) {
+                activity = act;
+
+                console.log('found: ' + act)
+
+                return false;
+              }
+          });
+
+          this.propertyType = activity._type.toLowerCase().split('.').join('-');
+          this.properties = activity;
+          console.log(this.propertyType, this.properties);
+      },
+
+      addActivity(){
+          this.definition.childActivities[1].push({
+
+              _type:"org.uengine.kernel.HumanActivity",
+            elementView:{
+                  _type: "org.uengine.kernel.view.HumanActivityView",
+                  x: 100,
+              y: 100,
+              height: 80,
+              width: 100
+=======
     export default {
         props: {
             definition: Object,
@@ -118,6 +247,7 @@
         computed: {
             canUndo: function () {
                 return this.historyIndex > 0
+>>>>>>> 11864becf35db7ebf7f7a4c8c0dbbf81a5ce6c36
             },
             canRedo: function () {
                 return this.history.length - 1 - this.historyIndex > 0
@@ -148,6 +278,26 @@
                     }
                 });
 
+<<<<<<< HEAD
+      undo: function() {
+        if (this.canUndo) {
+          this.historyIndex -= 1
+          this.undoing = true;
+          this.undid = true;
+          this.definition = this.history[this.historyIndex];
+
+          this.showProperties(this.properties);
+        }
+      },
+      redo: function() {
+        if (this.canRedo) {
+          this.historyIndex += 1
+          this.undoing = true;
+          this.undid = true;
+          this.definition = this.history[this.historyIndex]
+
+          this.showProperties(this.properties);
+=======
             },
             initiate: function () {
                 console.log(this.definition);
@@ -225,6 +375,7 @@
                     this.showProperties(this.properties);
                 }
             }
+>>>>>>> 11864becf35db7ebf7f7a4c8c0dbbf81a5ce6c36
         }
     }
 </script>
