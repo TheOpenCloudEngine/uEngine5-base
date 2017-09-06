@@ -1,6 +1,30 @@
 <template>
   <bpmn-property-panel :parentId="_uid">
-
+    <template slot="tabs">
+      <v-tabs-item ripple :href="'#tab1' + _uid">
+        Properties
+      </v-tabs-item>
+    </template>
+    <template slot="tabs-contents">
+      <v-tabs-content :id="'tab1' + _uid">
+        <v-layout row wrap class="pa-3">
+          <v-flex xs12>
+            <v-text-field
+              label="액티비티 ID"
+              counter
+              max="50"
+              v-model="activity.tracingTag"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-text-field
+              label="액티비티 명"
+              v-model="activity.name.text"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </v-tabs-content>
+    </template>
   </bpmn-property-panel>
 </template>
 

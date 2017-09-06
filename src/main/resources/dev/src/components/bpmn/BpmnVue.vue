@@ -119,7 +119,7 @@
             'displayName': {},
             'elementView': {
               '_type': 'org.uengine.kernel.view.DefaultActivityView',
-              'id': null, //오픈그래프 자동 생성
+              'id': this.uuid(), //오픈그래프 자동 생성
               'shapeId': shapeInfo.shapeId,
               'x': shapeInfo.x,
               'y': shapeInfo.y,

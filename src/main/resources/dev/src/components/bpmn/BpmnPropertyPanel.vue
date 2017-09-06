@@ -11,42 +11,20 @@
             :scrollable="false"
             centered>
       <v-tabs-bar class="cyan">
+        <slot name="tabs">
+        </slot>
         <v-tabs-item
           ripple
-          :href="'#tab1' + _uid">
-          Properties
-        </v-tabs-item>
-        <v-tabs-item
-          ripple
-          :href="'#tab2' + _uid">
+          :href="'#visual' + _uid">
           Visual
         </v-tabs-item>
         <v-tabs-slider class="primary"></v-tabs-slider>
       </v-tabs-bar>
       <v-tabs-items>
-        <v-tabs-content
-          :id="'tab1' + _uid">
-          <v-layout row wrap class="pa-3">
-            <v-flex xs12>
-              <v-text-field
-                label="Title"
-                counter
-                max="50"
-              ></v-text-field>
-            </v-flex>
-            <v-flex xs12>
-              <v-text-field
-                label="Description"
-              ></v-text-field>
-            </v-flex>
-            <v-flex xs12>
-              <v-text-field
-                label="More descriptive text"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-        </v-tabs-content>
-        <v-tabs-content :id="'tab2' + _uid">
+        <slot name="tabs-contents">
+
+        </slot>
+        <v-tabs-content :id="'visual' + _uid">
           <v-layout row wrap class="pa-3">
             <v-flex xs6>
               <v-text-field
@@ -98,16 +76,7 @@
     props: {
       parentId: Number
     },
-    computed: {
-//      drawer: {
-//        get: function () {
-//          return this.opened;
-//        },
-//        set: function (val) {
-//          this.$emit('update:opened', val);
-//        }
-//      }
-    },
+    computed: {},
     data: function () {
       return {
         preventWatch: false,
@@ -184,7 +153,7 @@
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
             var value = this.toNumber(newVal);
-            if (value) {
+            if (value && value != 0) {
               this.canvas.moveCentroid(this.element, [this.x, value]);
               $(this.canvas.getRootElement()).trigger('addHistory');
             }
@@ -196,7 +165,8 @@
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
             var value = this.toNumber(newVal);
-            if (value) {
+            if (value && value != 0) {
+              console.log('value' , value);
               this.canvas.resizeBox(this.element, [value, this.height]);
               $(this.canvas.getRootElement()).trigger('addHistory');
             }
@@ -208,7 +178,7 @@
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
             var value = this.toNumber(newVal);
-            if (value) {
+            if (value && value != 0) {
               this.canvas.resizeBox(this.element, [this.width, value]);
               $(this.canvas.getRootElement()).trigger('addHistory');
             }
