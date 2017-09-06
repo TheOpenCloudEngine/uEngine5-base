@@ -23501,6 +23501,11 @@ OG.renderer.RaphaelRenderer.prototype.connect = function (fromTerminal, toTermin
         addAttrValues(toShape, "_fromedge", edge.id);
     }
 
+    me.trimConnectInnerVertice(edge);
+    me.trimConnectIntersection(edge);
+    me.trimEdge(edge);
+    me.checkBridgeEdge(edge);
+
     if (fromShape && toShape) {
         // connectShape event fire
         if (!preventTrigger) {
@@ -23509,10 +23514,6 @@ OG.renderer.RaphaelRenderer.prototype.connect = function (fromTerminal, toTermin
             $(this._PAPER.canvas).trigger('connectShape', [edge, fromShape, toShape]);
         }
     }
-    me.trimConnectInnerVertice(edge);
-    me.trimConnectIntersection(edge);
-    me.trimEdge(edge);
-    me.checkBridgeEdge(edge);
 
     return edge;
 };
@@ -23574,9 +23575,10 @@ OG.renderer.RaphaelRenderer.prototype.disconnectOneWay = function (element, conn
  * 연결속성정보를 삭제한다. Edge 인 경우는 연결 속성정보만 삭제하고, 일반 Shape 인 경우는 연결된 모든 Edge 를 삭제한다.
  *
  * @param {Element} element
+ * @param {Boolean} preventEvent
  * @override
  */
-OG.renderer.RaphaelRenderer.prototype.disconnect = function (element) {
+OG.renderer.RaphaelRenderer.prototype.disconnect = function (element, preventEvent) {
     var me = this, fromTerminalId, toTerminalId, fromShape, toShape, fromEdgeId, toEdgeId, fromEdge, toEdge,
         removeAttrValue = function (element, name, value) {
             var attrValue = $(element).attr(name),
@@ -23614,7 +23616,9 @@ OG.renderer.RaphaelRenderer.prototype.disconnect = function (element) {
             if (fromShape && toShape) {
                 fromShape.shape.onDisconnectShape(element, fromShape, toShape);
                 toShape.shape.onDisconnectShape(element, fromShape, toShape);
-                $(this._PAPER.canvas).trigger('disconnectShape', [element, fromShape, toShape]);
+                if (!preventEvent) {
+                    $(this._PAPER.canvas).trigger('disconnectShape', [element, fromShape, toShape]);
+                }
             }
         } else {
             // 일반 Shape 인 경우 연결된 모든 Edge 와 속성 정보를 삭제
@@ -23635,10 +23639,11 @@ OG.renderer.RaphaelRenderer.prototype.disconnect = function (element) {
                     if (fromShape && element) {
                         fromShape.shape.onDisconnectShape(fromEdge, fromShape, element);
                         element.shape.onDisconnectShape(fromEdge, fromShape, element);
-                        $(me._PAPER.canvas).trigger('disconnectShape', [fromEdge, fromShape, element]);
+                        if (!preventEvent) {
+                            $(me._PAPER.canvas).trigger('disconnectShape', [fromEdge, fromShape, element]);
+                        }
                     }
-
-                    me.removeShape(fromEdge);
+                    me.removeShape(fromEdge, preventEvent);
                 });
             }
 
@@ -23656,10 +23661,12 @@ OG.renderer.RaphaelRenderer.prototype.disconnect = function (element) {
                     if (element && toShape) {
                         element.shape.onDisconnectShape(toEdge, element, toShape);
                         toShape.shape.onDisconnectShape(toEdge, element, toShape);
-                        $(me._PAPER.canvas).trigger('disconnectShape', [toEdge, element, toShape]);
+                        if (!preventEvent) {
+                            $(me._PAPER.canvas).trigger('disconnectShape', [toEdge, element, toShape]);
+                        }
                     }
 
-                    me.removeShape(toEdge);
+                    me.removeShape(toEdge, preventEvent);
                 });
             }
         }
@@ -24886,11 +24893,11 @@ OG.renderer.RaphaelRenderer.prototype.removeShape = function (element, preventEv
         if (childNodes[i].tagName == 'svg') {
             childNodes[i].parentNode.removeChild(childNodes[i]);
         } else if ($(childNodes[i]).attr("_type") === OG.Constants.NODE_TYPE.SHAPE) {
-            this.removeShape(childNodes[i]);
+            this.removeShape(childNodes[i], preventEvent);
         }
     }
 
-    this.disconnect(rElement.node);
+    this.disconnect(rElement.node, preventEvent);
     this.removeGuide(rElement.node);
     this.removeCollapseGuide(rElement.node);
 
@@ -26657,7 +26664,7 @@ OG.renderer.RaphaelRenderer.prototype.initHistory = function () {
  * @override
  */
 OG.renderer.RaphaelRenderer.prototype.addHistory = function () {
-
+    $(this._PAPER.canvas).trigger('addHistory');
     if (this._CONFIG.AUTO_HISTORY && !this._CONFIG.FAST_LOADING) {
         var me = this;
         var history = me._CONFIG.HISTORY;
@@ -29362,7 +29369,7 @@ OG.handler.EventHandler.prototype = {
                     });
                 });
 
-                if(guide.rect && guide.rect.length){
+                if (guide.rect && guide.rect.length) {
                     $.each(guide.rect, function (i, rect) {
                         $(rect.node).bind({
                             click: function (event) {
@@ -30586,9 +30593,8 @@ OG.handler.EventHandler.prototype = {
                 if (isConnectable) {
                     newShape.setData(JSON.parse(JSON.stringify(target.shape.getData())));
                     var rectShape = renderer._CANVAS.drawShape([eventOffset.x, eventOffset.y], newShape, [width, height], style);
-                    $(renderer._PAPER.canvas).trigger('duplicated', [target, rectShape]);
-
-                    renderer._CANVAS.connect(target, rectShape, null, null, null, null);
+                    var edge = renderer._CANVAS.connect(target, rectShape, null, null, null, null, true);
+                    $(renderer._PAPER.canvas).trigger('duplicated', [edge, target, rectShape]);
                 }
             } else {
                 var eventOffset = me._getOffset(event);
@@ -30610,8 +30616,8 @@ OG.handler.EventHandler.prototype = {
                 }
                 if (isConnectable) {
                     var rectShape = renderer._CANVAS.drawShape([eventOffset.x, eventOffset.y], newShape, [width, height], style);
-                    $(renderer._PAPER.canvas).trigger('duplicated', [target, rectShape]);
-                    renderer._CANVAS.connect(target, rectShape, null, null, null, null);
+                    var edge = renderer._CANVAS.connect(target, rectShape, null, null, null, null, true);
+                    $(renderer._PAPER.canvas).trigger('duplicated', [edge, target, rectShape]);
                 }
             }
         }
@@ -37748,6 +37754,17 @@ OG.graph.Canvas.prototype = {
     ,
 
     /**
+     * History Update 되었을때의 이벤트 리스너
+     *
+     * @param {Function} callbackFunc 콜백함수(event)
+     */
+    onAddHistory: function (callbackFunc) {
+        $(this.getRootElement()).bind('addHistory', function (event) {
+            callbackFunc(event);
+        });
+    },
+
+    /**
      * Undo 되었을때의 이벤트 리스너
      *
      * @param {Function} callbackFunc 콜백함수(event)
@@ -37982,11 +37999,11 @@ OG.graph.Canvas.prototype = {
 
     /**
      *
-     * @param {Function} callbackFunc 콜백함수(event, sourceElement, targetElement)
+     * @param {Function} callbackFunc 콜백함수(event, edgeElement, sourceElement, targetElement)
      */
     onDuplicated: function (callbackFunc) {
-        $(this.getRootElement()).bind('duplicated', function (event, sourceElement, targetElement) {
-            callbackFunc(event, sourceElement, targetElement);
+        $(this.getRootElement()).bind('duplicated', function (event, edgeElement, sourceElement, targetElement) {
+            callbackFunc(event, edgeElement, sourceElement, targetElement);
         });
     },
 

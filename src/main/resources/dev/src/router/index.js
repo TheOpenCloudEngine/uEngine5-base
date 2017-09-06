@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import Login from '@/components/Login'
 import ServiceLocator from '@/components/ServiceLocator'
 import Designer from '@/components/Designer'
-import Graph from '@/components/Graph'
 import Home from '@/components/Home'
 import Sns from '@/components/Sns'
 import WorkItemHandler from '@/components/WorkItemHandler'
@@ -13,6 +12,8 @@ import ClassEditor from '@/components/ClassEditor'
 import ClassSelector from '@/components/ClassSelector'
 import AvatarUploader from '@/components/AvatarUploader'
 import InstanceList from '@/components/InstanceList'
+import SvgGraph from '@/components/SvgGraph'
+
 
 /**
  * Iam && Vue Router
@@ -42,7 +43,6 @@ Vue.use(VueResource);
  * ServiceLocator
  */
 Vue.component('service-locator', ServiceLocator);
-Vue.component('work-item', WorkItemHandler);
 Vue.http.interceptors.push(function (request, next) {
   // modify headers
   request.headers['access_token'] = localStorage['access_token'];
@@ -55,11 +55,23 @@ Vue.http.interceptors.push(function (request, next) {
 /**
  * Others
  */
+Vue.component('work-item', WorkItemHandler);
 Vue.component('object-grid', ObjectGrid);
 Vue.component('object-form', ObjectForm);
 Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
 Vue.component('avatar-uploader', AvatarUploader);
+Vue.component('svg-graph', SvgGraph);
+
+
+// /**
+//  * Bpmn 컴포넌트
+//  */
+// import BpmnComponents from '@/components/bpmn'
+// for (var key in BpmnComponents) {
+//   Vue.component(BpmnComponents[key].name, BpmnComponents[key]);
+// }
+// window.bpmnComponents = BpmnComponents;
 
 export default new Router({
   mode: 'history',
@@ -86,7 +98,7 @@ export default new Router({
         {
           path: 'definition/:id',
           name: 'graph',
-          component: Graph,
+          component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
         },
         {
@@ -98,7 +110,7 @@ export default new Router({
         {
           path: 'instance/:id',
           name: 'instanceMonitor',
-          component: Graph,
+          component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
           props: {monitor: true}
         }

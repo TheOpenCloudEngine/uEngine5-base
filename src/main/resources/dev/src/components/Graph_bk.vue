@@ -1,9 +1,9 @@
 <template>
   <div class="canvas-panel">
-    <div class="canvas">
-      <div class="canvas-space" style="width:2000px;height: 2000px" :id="id"></div>
+    <div class="canvas" :id="id">
+      <!--<div class="canvas-space" style="width:2000px;height: 2000px" :id="id"></div>-->
     </div>
-    <div :id="sliderId">
+    <div :id="sliderId">canvas-panel
     </div>
 
     <v-card v-if="!monitor" class="grey lighten-4 tools">
@@ -579,9 +579,11 @@
         canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
         canvas._CONFIG.WHEEL_SCALABLE = true;
         canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
-        canvas._CONFIG.AUTOMATIC_GUIDANCE = false;
+        canvas._CONFIG.AUTOMATIC_GUIDANCE = true;
         canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
         canvas._CONFIG.POOL_DROP_EVENT = true;
+        canvas._CONFIG.AUTO_EXTENSIONAL = false;
+        //AUTO_EXTENSIONAL
 
         canvas.initConfig({
           selectable: true,
@@ -624,7 +626,7 @@
           }
         });
 
-        //버튼 이벤트 등록
+        //이벤트 등록
         this.bindEvents();
       },
       bindEvents: function () {
@@ -632,9 +634,9 @@
         //this.$el
         var me = this;
         var el = me.$el;
-        var canvasEl = $(el).find('.canvas-space');
+        var canvasEl = $(el).find('.canvas');
 
-        //console.log($(el).find('.draggable'));
+        //아이콘 드래그 드랍 이벤트 등록
         $(el).find('.draggable').draggable({
           start: function () {
             canvasEl.data('DRAG_SHAPE', {
