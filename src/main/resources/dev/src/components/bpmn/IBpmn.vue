@@ -13,8 +13,8 @@
     },
     data: function () {
       return {
+        propertyUpdated: false,
         elementId: null,
-        formStyle: [],
         shape: null,
         preventWatch: false
       }
@@ -142,19 +142,6 @@
       },
     },
     watch: {
-      formStyle: {
-        handler: function (newVal, oldVal) {
-          if (!this.preventWatch && newVal && newVal.length) {
-            var style = {};
-            $.each(newVal, function (i, item) {
-              style[item.key] = item.value;
-            });
-            this.style = style;
-          }
-          this.preventWatch = false;
-        },
-        deep: true
-      },
       activity: {
         handler: function (newVal, oldVal) {
           if (!this.preventWatch) {
@@ -204,7 +191,11 @@
     mounted: function () {
       this.updateShape();
     },
-    //상위 컴포넌트에 의해 삭제된 경우.
+    /**
+     * Bpmn 컴포넌트 삭제시 발생.
+     * 발생: 히스토리에 의해 데피니션이 완전히 재구성되는 경우, 데피니션의 옵저버가 파괴되면서 Bpmn 컴포넌트 삭제 => 신규생성 과정을 거치게 된다.
+     * 컴포넌트의 아이디에 해당하는 element 가 있다면 삭제한다.
+     **/
     beforeDestroy: function () {
       var me = this;
       if (me.id && me.canvas) {
@@ -216,10 +207,11 @@
       //불특정한 상황의 컴포넌트 삭제시에는 watch 를 받아들이도록 한다.
       this.preventWatch = false;
     },
+    /**
+     * 발생 : watch 에서, activity , role,  relation 이 null 로 들어왔을 때.
+     * 컴포넌트의 element 가 있다면 캔버스에서 element 를 삭제한다.
+     **/
     destroyShape: function () {
-      //발생
-      //activity , role,  relation 이 null 로 들어왔을 때. => watch
-      //컴포넌트의 element 가 있다면 캔버스에서 element 를 삭제한다.
       var me = this;
       if (me.id) {
         let existElement = me.canvas.getElementById(me.id);
@@ -343,24 +335,12 @@
           createdElement = me.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], me.style, me.id, me.parent, true, true);
           me.elementId = createdElement.id;
           me.setGroup(createdElement);
+
         } else {
           createdElement = element;
           me.elementId = createdElement.id;
         }
         this.bindEvents(createdElement);
-
-        //formStyle 등록.
-        var formStyle = [];
-        var createdStyle = createdElement.shape.geom.style.map;
-        for (var key in createdStyle) {
-          formStyle.push({
-            key: key,
-            value: createdStyle[key]
-          });
-        }
-        //formStyle 업데이트로 인해 컴포넌트 리로딩 방지.
-        me.preventWatch = true;
-        me.formStyle = formStyle;
       },
       drawEdge: function (element) {
         var me = this;
@@ -391,9 +371,7 @@
           needToRedraw = true;
         }
 
-
         var createdElement;
-
         //신규로 생성하거나 기존 도형을 변경해야 하는 경우.
         if (needToRedraw) {
           console.log('needToRedraw', me.id);
@@ -445,6 +423,10 @@
         }
         this.bindEvents(createdElement);
       },
+      /**
+       * 컴포넌트의 정보를 바탕으로 도형을 구성한다.
+       * 발생: 컴포넌트 생성시, 컴포넌트 정보 변경시 (상위 => 하위 변경)
+       **/
       updateShape: function () {
         var me = this;
         //릴레이션인 경우 아이디 지정.
@@ -468,6 +450,10 @@
           me.drawEdge(element);
         }
       },
+      /**
+       * 현재 도형의 정보를 Bpmn 컴포넌트 와 동기화시킨다.
+       * 발생: BpmnVue 에서 캔버스 변경 이벤트를 감지했을 경우. (하위 => 상위 변경)
+       */
       updateVue: function () {
         this.preventWatch = true;
         var me = this;
@@ -525,7 +511,7 @@
         }
         $(element).unbind('dblclick');
         $(element).bind('dblclick', function () {
-          me.drawer = true;
+          window.Vue.bpmnBus.$emit('element-dblclick', me, element);
         });
 
         element.shape.onResize = function (offset) {

@@ -2,7 +2,7 @@
   <div class="canvas-panel">
 
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
-              :definition="definition"
+              :definition.sync="definition"
               v-on:canvasReady="bindEvents">
       <template slot="role" scope="props">
         <bpmn-role :role="props.item" :canvas="props.canvas"></bpmn-role>
@@ -269,7 +269,7 @@
         var componentName;
         if (activity) {
           var shapeId = activity.elementView.shapeId;
-          $.each(window.bpmnComponents, function (i, component) {
+          $.each(window.Vue.bpmnComponents, function (i, component) {
             if (component.computed.shapeId) {
               if (component.computed.shapeId() == shapeId) {
                 componentName = component.name;

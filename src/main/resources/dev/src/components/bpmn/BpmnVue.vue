@@ -159,7 +159,7 @@
       getSVGComponentByShapeId(shapeId){
         var componentByShapeId;
         if (shapeId) {
-          $.each(window.bpmnComponents, function (i, component) {
+          $.each(window.Vue.bpmnComponents, function (i, component) {
             if (component.computed.shapeId) {
               if (component.computed.shapeId() == shapeId) {
                 componentByShapeId = component;
@@ -225,6 +225,7 @@
           me.removeComponentByElement(element.id);
         });
 
+        //캔버스의 유저 액션으로 인한 변동사항 발생.
         me.canvas.onAddHistory(function () {
           console.log('onAddHistory!!');
           $.each(me.$children, function (i, children) {

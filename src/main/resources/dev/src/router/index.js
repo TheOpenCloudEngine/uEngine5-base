@@ -64,14 +64,14 @@ Vue.component('avatar-uploader', AvatarUploader);
 Vue.component('svg-graph', SvgGraph);
 
 
-/**
- * Bpmn 컴포넌트
- */
-import BpmnComponents from '@/components/bpmn'
-for (var key in BpmnComponents) {
-  Vue.component(BpmnComponents[key].name, BpmnComponents[key]);
-}
-window.bpmnComponents = BpmnComponents;
+// /**
+//  * Bpmn 컴포넌트
+//  */
+// import BpmnComponents from '@/components/bpmn'
+// for (var key in BpmnComponents) {
+//   Vue.component(BpmnComponents[key].name, BpmnComponents[key]);
+// }
+// window.bpmnComponents = BpmnComponents;
 
 export default new Router({
   mode: 'history',
