@@ -11,6 +11,9 @@
       relation: Object,
       canvas: Object
     },
+    created: function () {
+      window.Vue.bpmnLiveComponents[this._uid] = this;
+    },
     data: function () {
       return {
         propertyUpdated: false,

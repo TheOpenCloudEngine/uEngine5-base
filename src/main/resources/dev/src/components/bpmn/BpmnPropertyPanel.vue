@@ -11,7 +11,10 @@
             :scrollable="false"
             centered>
       <v-tabs-bar class="cyan">
-        <slot name="tabs">
+        <v-tabs-item ripple :href="'#properties' + _uid">
+          Properties
+        </v-tabs-item>
+        <slot name="additional-tabs">
         </slot>
         <v-tabs-item
           ripple
@@ -21,7 +24,23 @@
         <v-tabs-slider class="primary"></v-tabs-slider>
       </v-tabs-bar>
       <v-tabs-items>
-        <slot name="tabs-contents">
+        <v-tabs-content :id="'properties' + _uid">
+          <v-layout v-if="tracingTag" row wrap class="pa-3">
+            <v-flex xs12>
+              <v-text-field
+                label="액티비티 ID"
+                counter
+                max="50"
+                v-model="tracingTag"
+                :rules="[rules.required, rules.tracingTag]"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
+          <template slot="properties-contents">
+
+          </template>
+        </v-tabs-content>
+        <slot name="additional-tabs-contents">
 
         </slot>
         <v-tabs-content :id="'visual' + _uid">
@@ -78,6 +97,7 @@
     },
     computed: {},
     data: function () {
+      var me = this;
       return {
         preventWatch: false,
         element: null,
@@ -93,7 +113,32 @@
         style: [],
         text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         active: null,
-        //drawer: this.opened
+        tracingTag: null,
+        bpmnComponent: null,
+        rules: {
+          required: function (value) {
+            if (!value || value.length < 1) {
+              return 'Required.';
+            } else {
+              return true;
+            }
+          },
+          tracingTag: function (value) {
+            //동일함.
+            if (me.bpmnComponent.activity.tracingTag == value) {
+              return true;
+            }
+            //이미 있음.
+            else if (me.bpmnComponent.$parent.checkExistTracingTag(value)) {
+              return 'TracingTag aleardy exist.';
+            }
+            //트레이싱 태그 값이 바뀜.
+            else if (value && value.length > 0) {
+              me.bpmnComponent.activity.tracingTag = value;
+              return true;
+            }
+          }
+        }
       }
     },
     created: function () {
@@ -133,8 +178,16 @@
             me.canvas = component.canvas;
           }
           me.element = element;
+
+          if (component.activity) {
+            me.tracingTag = component.activity.tracingTag;
+          }
+          me.bpmnComponent = component;
         }
       });
+    },
+    mounted: function () {
+      console.log(window.Vue.bpmnLiveComponents);
     },
     watch: {
       x: {

@@ -383,7 +383,7 @@
 
           me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalActivity)));
 
-          //TODO why first sequenceFlow is Mounted without timeout?
+          //TODO why first sequenceFlow is Mounted if not use timeout?
           setTimeout(function () {
             me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
           }, 10);
