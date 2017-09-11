@@ -66,16 +66,15 @@ Vue.component('svg-graph', SvgGraph);
 import Test from '@/components/Test'
 Vue.component('svg-test', Test);
 
-import CloudTest from '@/components/CloudTest'
-Vue.component('svg-cloud-test', CloudTest);
-// /**
-//  * Bpmn 컴포넌트
-//  */
-// import BpmnComponents from '@/components/bpmn'
-// for (var key in BpmnComponents) {
-//   Vue.component(BpmnComponents[key].name, BpmnComponents[key]);
-// }
-// window.bpmnComponents = BpmnComponents;
+import CloudExample from '../components/example/CloudExample'
+Vue.component('cloud-example', CloudExample);
+
+import ElementListExample from '../components/example/ElementListExample'
+Vue.component('element-list-example', ElementListExample);
+
+import ChartExample from '../components/example/ChartExample'
+Vue.component('chart-example', ChartExample);
+
 
 export default new Router({
   mode: 'history',
@@ -94,9 +93,21 @@ export default new Router({
           beforeEnter: RouterGuard.requireUser,
         },
         {
-          path: 'cloud-test',
-          name: 'cloud-test',
-          component: CloudTest,
+          path: 'example/cloud',
+          name: 'cloudexample',
+          component: CloudExample,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'example/elements',
+          name: 'elementlistexample',
+          component: ElementListExample,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'example/chart',
+          name: 'chartexample',
+          component: ChartExample,
           beforeEnter: RouterGuard.requireUser,
         },
         {
