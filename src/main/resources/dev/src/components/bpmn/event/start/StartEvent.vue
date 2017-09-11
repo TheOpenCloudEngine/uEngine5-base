@@ -36,9 +36,6 @@
     name: 'bpmn-start-event',
     props: {},
     computed: {
-      componentId(){
-        return this._uid
-      },
       className(){
         return 'org.uengine.kernel.bpmn.StartEvent'
       },
