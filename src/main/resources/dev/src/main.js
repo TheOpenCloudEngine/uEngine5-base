@@ -5,6 +5,7 @@ import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import VueMaterial from '../node_modules/vue-material'
 import BpmnVue from './components/bpmn'
+import Opengraph from './components/opengraph'
 
 import App from './App'
 import router from './router'
@@ -13,6 +14,7 @@ import router from './router'
 Vue.use(Vuetify);
 Vue.use(VueMaterial);
 Vue.use(BpmnVue);
+Vue.use(Opengraph);
 
 Vue.config.productionTip = false
 
