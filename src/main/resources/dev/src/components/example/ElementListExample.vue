@@ -31,7 +31,13 @@
         <text-element :id="'BBB'" :x="600" :y="300" :width="200" :height="100" :text="'hello'" :angle="45">
         </text-element>
 
-        <ellipse-element :id="'AAA'" :x="500" :y="100" :width="200" :height="100" :label="'hello'"></ellipse-element>
+        <ellipse-element
+          selectable
+          movable
+          resizable
+          connectable
+          v-on:beforeConnectShape="beforeConnectShape"
+          :id="'AAA'" :x="500" :y="100" :width="200" :height="100" :label="'hello'"></ellipse-element>
 
         <!--문제: 스타일이 오브젝트 형식이기 때문에 무조건 새로운 프로퍼티로 인식이 된다.-->
         <group-element :x="400" :y="500" :width="200" :height="100" :label="'hello'" :_style="{stroke:'black'}">
@@ -102,13 +108,16 @@
         me.shoeSize = 310;
       }
 
-      setInterval(getRandomColor, 200);
+      //setInterval(getRandomColor, 200);
 //      setTimeout(function () {
 //        getRandomColor();
 //      }, 2000);
     },
     watch: {},
     methods: {
+      beforeConnectShape: function(a,b,c){
+          console.log(a,b,c);
+      },
       sayHello: function (cloneComponent) {
         console.log('cloneComponent', cloneComponent);
       }

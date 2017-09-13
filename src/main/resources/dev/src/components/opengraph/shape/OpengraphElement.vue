@@ -297,6 +297,13 @@
     computed: {
       opengraphRole: function () {
         return 'opengraph-element';
+      },
+      _id: function () {
+        if (this.id) {
+          return this.id;
+        } else {
+          return this.immidiateId;
+        }
       }
     }
     ,
@@ -357,8 +364,6 @@
             } else {
               this.updateShape();
             }
-            this.bindElementEvents();
-            this.emitElement();
           }
         }
         ,
@@ -372,13 +377,13 @@
       //오픈그래프 역할일 경우 캔버스에 엘리먼트 등록 삭제.
       if (me.elementRole == 'opengraph-element') {
         if (me.canvasComponent) {
-          me.canvasComponent.removeElement(me.id ? me.id : me.immidiateId);
+          me.canvasComponent.removeElement(me._id);
         }
       }
       //서브 엘리먼트 역할일 경우 서브엘리먼트 등록
       else if (this.elementRole == 'sub-elements') {
         if (this.parentElementComponent) {
-          this.parentElementComponent.removeSubShapes(me.id ? me.id : me.immidiateId);
+          this.parentElementComponent.removeSubShapes(me._id);
         }
       }
       //서브 컨트롤러 역할일 경우 서브컨트롤러 등록
@@ -391,7 +396,6 @@
     ,
     mounted: function () {
       var me = this;
-      //console.log(this.geometrys);
       this.setElementRole();
 
       //오픈그래프 엘리먼트 역할일 경우 렌더링 수행
@@ -402,7 +406,7 @@
       //서브 엘리먼트 역할일 경우 서브엘리먼트 등록
       else if (this.elementRole == 'sub-elements') {
         if (this.parentElementComponent) {
-          this.parentElementComponent.addSubShapes(this, me.id ? me.id : me.immidiateId);
+          this.parentElementComponent.addSubShapes(this, me._id);
         }
       }
       //서브 컨트롤러 역할일 경우 서브컨트롤러 등록
@@ -552,16 +556,15 @@
 
         //상위 컴포넌트가 없고, 캔버스가 있을 때 캔버스에 등록
         if (!me.parentElementComponent && me.canvasComponent) {
-          me.canvasComponent.addElement(this, me.id ? me.id : me.immidiateId);
+          me.canvasComponent.addElement(this, me._id);
         }
       }
       ,
       updateShape: function () {
         //아이디가 업데이트 된 경우
         var me = this;
-        var id = me.id ? me.id : me.immidiateId;
-        if (id != me.element.id) {
-          me.element = me.canvasComponent.canvas.updateId(me.element, id);
+        if (me._id != me.element.id) {
+          me.element = me.canvasComponent.canvas.updateId(me.element, me._id);
         }
         //아이디를 보전하며 다시 그린다.
         this.drawShape();
@@ -569,7 +572,6 @@
       ,
       drawShape: function () {
         var me = this;
-        var id = me.id ? me.id : me.immidiateId;
         var shape = me.generateShape();
         if (!shape) {
           return;
@@ -595,7 +597,7 @@
           switch (shape.TYPE) {
             case OG.Constants.SHAPE_TYPE.GEOM:
             case OG.Constants.SHAPE_TYPE.GROUP:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], style, me._id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.EDGE:
               if (me.vertices && me.vertices.length > 1) {
@@ -634,36 +636,43 @@
               //vertices 가 없고, 연결할 대상이 있다면 connect 로 연결한다. 이때 연결 노드 정보는 자동으로 생성됨.
               if ((!me.vertices || me.vertices.length < 2) && fromElement && toElement) {
                 me.element = me.canvasComponent.canvas.connect(
-                  fromElement, toElement, style, me.label, fromP, toP, true, me.id);
+                  fromElement, toElement, style, me.label, fromP, toP, true, me._id);
+                console.log('me.element', me.element);
               }
               //vertices 가 있고 연결할 대상이 있는 경우
               else if (fromElement && toElement) {
                 me.element = me.canvasComponent.canvas.connect(
-                  fromElement, toElement, style, me.label, fromP, toP, true, me.id, shape);
+                  fromElement, toElement, style, me.label, fromP, toP, true, me._id, shape);
               }
               //그 외 연결할 대상이 없는 경우
               else {
-                me.element = me.canvasComponent.canvas.drawShape(null, shape, null, style, id, null, true);
+                me.element = me.canvasComponent.canvas.drawShape(null, shape, null, style, me._id, null, true);
               }
               //스타일은 복사하여 pops 에 영향을 주지 않도록 한다.
               //console.log('me._style' , me._style);
 
               break;
             case OG.Constants.SHAPE_TYPE.HTML:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, me._id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.IMAGE:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, me._id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.TEXT:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, me._id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.SVG:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, me._id, me.parentId);
               break;
           }
+          this.bindElementEvents();
+          this.emitElement();
         }
       },
+      /**
+       * 도형 프로퍼티를 등록한다.
+       * @param shape
+       */
       bindShapeProperties: function (shape) {
         shape.SELECTABLE = this.selectable;
         shape.MOVABLE = this.movable;
@@ -682,6 +691,11 @@
         shape.COPYABLE = this.copyable;
         shape.AXIS = this.axis;
       },
+      /**
+       * 도형 이벤트 프로퍼티를 등록한다.
+       * TODO 컴포넌트 등록된 도형이 아닌경우, props 로 표현하여 리턴하는 메소드가 필요하다.
+       * @param shape
+       */
       bindShapeEvents: function (shape) {
         var me = this;
         shape.onResize = function (offset) {
@@ -706,38 +720,64 @@
         shape.onDrawShape = function () {
           me.$emit('drawShape', me);
         };
-        shape.onBeforeLabelChange = function () {
-
+        shape.onBeforeLabelChange = function (text, beforeText) {
+          var result;
+          me.$emit('beforeLabelChange', me, text, beforeText, function (emitResult) {
+            result = emitResult;
+          });
+          return result;
         };
         shape.onRedrawShape = function () {
-
+          me.$emit('redrawShape', me);
         };
         shape.onBeforeConnectShape = function (edge, fromShape, toShape) {
-
+          var result;
+          me.$emit('beforeConnectShape',
+            me,
+            me.canvasComponent.getElementById(edge.id) || edge,
+            me.canvasComponent.getElementById(fromShape.id) || fromShape,
+            me.canvasComponent.getElementById(toShape.id) || toShape,
+            function (emitResult) {
+              result = emitResult;
+            });
+          return result;
         };
         shape.onConnectShape = function (edge, fromShape, toShape) {
-
+          me.$emit('connectShape',
+            me,
+            me.canvasComponent.getElementById(edge.id) || edge,
+            me.canvasComponent.getElementById(fromShape.id) || fromShape,
+            me.canvasComponent.getElementById(toShape.id) || toShape
+          )
         };
         shape.onDisconnectShape = function (edge, fromShape, toShape) {
-
+          me.$emit('disconnectShape',
+            me,
+            me.canvasComponent.getElementById(edge.id) || edge,
+            me.canvasComponent.getElementById(fromShape.id) || fromShape,
+            me.canvasComponent.getElementById(toShape.id) || toShape
+          )
         };
         shape.onGroup = function (groupShapeEle) {
-
+          me.$emit('group',
+            me,
+            me.canvasComponent.getElementById(groupShapeEle.id) || groupShapeEle
+          )
         };
         shape.onUnGroup = function () {
-
+          me.$emit('unGroup', me);
         };
         shape.onMoveShape = function (offset) {
-
+          me.$emit('moveShape', me, offset);
         };
         shape.onRotateShape = function (angle) {
-
-        };
-        shape.onDuplicated = function (target, duplicated) {
-
+          me.$emit('rotateShape', me, angle);
         };
         shape.onPasteShape = function (copied, pasted) {
-
+          me.$emit('pasteShape',
+            me.canvasComponent.getElementById(copied.id) || copied,
+            me.canvasComponent.getElementById(pasted.id) || pasted
+          );
         };
         /**
          * 자신에게 도형들이 그룹으로 들어왔을때의 이벤트
@@ -745,7 +785,15 @@
          * @param elements
          */
         shape.onAddToGroup = function (groupElement, elements, eventOffset) {
-
+          var addedComponents = [];
+          for (var i = 0; i < elements.lenght; i++) {
+            addedComponents.push(me.canvasComponent.getElementById(elements[i].id) || elements[i]);
+          }
+          me.$emit('addToGroup',
+            me.canvasComponent.getElementById(groupElement.id) || groupElement,
+            addedComponents,
+            eventOffset
+          );
         };
         /**
          * 자신이 그룹속으로 들어갔을 때의 이벤트
@@ -753,18 +801,38 @@
          * @param element
          */
         shape.onAddedToGroup = function (groupElement, element, eventOffset) {
-
+          me.$emit('addedToGroup',
+            me.canvasComponent.getElementById(groupElement.id) || groupElement,
+            me.canvasComponent.getElementById(element.id) || element,
+            eventOffset
+          );
         };
         shape.onSelectShape = function () {
-
+          me.$emit('selectShape', me);
         };
         shape.onDeSelectShape = function () {
-
+          me.$emit('deSelectShape', me);
         };
       },
+      /**
+       * 클릭, 더블클릭 이벤트를 반영한다.
+       */
       bindElementEvents: function () {
-
+        var me = this;
+        if (me.element && !$(me.element).data('vue-event')) {
+          $(me.element).data('vue-event', true);
+          $(me.element).bind('click', function () {
+            me.$emit('click', me);
+          });
+          $(me.element).bind('dblclick', function () {
+            me.$emit('dblclick', me);
+          });
+        }
       },
+      /**
+       * 서브 컨트롤러의 정보를 얻어와 shpae 의 컨트롤을 반환한다.
+       * @return {Array}
+       */
       generateSubController: function () {
         var me = this;
         var controllers = [];
