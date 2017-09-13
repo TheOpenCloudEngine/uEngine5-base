@@ -8,7 +8,7 @@
           resizable
           connectable
           :angle="30" :id.sync="id" :x.sync="x" :y="y" :width.sync="width" :height.sync="height">
-          <geometry-rect :upper-left="[0,0]" :width="1000" :height="1000" :_style="{stroke: 'red'}"></geometry-rect>
+          <geometry-rect :upper-left="[0,0]" :width="1000" :height="1000" :_style="{stroke: randomColor}"></geometry-rect>
           <geometry-polyline :vertices="[[0,0],[500,200],[1000,0]]" :_style="{stroke: 'blue'}">
           </geometry-polyline>
           <geometry-rect :upper-left="[30,30]" :width="500" :height="200" :_style="{stroke: 'red'}">

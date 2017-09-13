@@ -36,7 +36,7 @@
     methods: {
       createGeometry: function () {
         this.geom = new OG.geometry.Rectangle(this.upperLeft, this.width, this.height);
-        this.geom.style = new OG.geometry.Style(this._style);
+        this.geom.style = new OG.geometry.Style(JSON.parse(JSON.stringify(this._style)));
         return this.geom;
       }
     }

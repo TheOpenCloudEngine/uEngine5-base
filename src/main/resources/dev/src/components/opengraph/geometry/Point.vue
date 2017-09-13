@@ -24,7 +24,7 @@
     methods: {
       createGeometry: function () {
         this.geom = new OG.geometry.Point(this.coordinate);
-        this.geom.style = new OG.geometry.Style(this._style);
+        this.geom.style = new OG.geometry.Style(JSON.parse(JSON.stringify(this._style)));
         return this.geom;
       }
     }

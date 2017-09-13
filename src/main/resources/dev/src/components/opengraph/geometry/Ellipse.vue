@@ -43,7 +43,7 @@
     methods: {
       createGeometry: function () {
         this.geom = new OG.geometry.Ellipse(this.center, this.radiusX, this.radiusY, this.angle);
-        this.geom.style = new OG.geometry.Style(this._style);
+        this.geom.style = new OG.geometry.Style(JSON.parse(JSON.stringify(this._style)));
         return this.geom;
       }
     }

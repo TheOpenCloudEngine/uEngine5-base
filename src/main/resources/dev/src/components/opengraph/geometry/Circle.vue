@@ -31,7 +31,7 @@
     methods: {
       createGeometry: function () {
         this.geom = new OG.geometry.Circle(this.center, this.radius);
-        this.geom.style = new OG.geometry.Style(this._style);
+        this.geom.style = new OG.geometry.Style(JSON.parse(JSON.stringify(this._style)));
         return this.geom;
       }
     }

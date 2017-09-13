@@ -9,15 +9,41 @@
     computed: {},
     data: function () {
       return {
+        props: JSON.parse(JSON.stringify(this._props)),
         id: this.uuid(),
         element: null
       }
     },
     watch: {
       _props: {
-        handler: function () {
+        handler: function (newVal, oldVal) {
+          this.props = JSON.parse(JSON.stringify(newVal))
           this.registToElement();
         },
+        deep: true
+      },
+      props: {
+        handler: function (newVal, oldVal) {
+          var needToWatch = false;
+          for (var key in newVal) {
+            if (typeof newVal[key] == 'object') {
+              if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
+                //console.log('gemetry', key, newVal[key], oldVal[key]);
+                needToWatch = true;
+              }
+            } else {
+              if (newVal[key] != oldVal[key]) {
+                needToWatch = true;
+                //console.log('gemetry', key, newVal[key], oldVal[key]);
+              }
+            }
+          }
+          if (!needToWatch) {
+            return;
+          }
+          this.registToElement();
+        }
+        ,
         deep: true
       }
     },
