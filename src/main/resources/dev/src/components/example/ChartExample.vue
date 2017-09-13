@@ -102,9 +102,7 @@
     },
     watch: {},
     methods: {
-      sayHello: function (cloneComponent) {
-        console.log('cloneComponent', cloneComponent);
-      }
+
     }
   }
 </script>

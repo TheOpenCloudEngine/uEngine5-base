@@ -121,15 +121,188 @@
           return {};
         },
         type: Object
+      },
+      /**
+       * 도형 속성
+       */
+      selectable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 이동 가능여부
+       * @type Boolean
+       */
+      movable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 리사이즈 가능여부
+       * @type Boolean
+       */
+      resizable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 가로방향 리사이즈 가능
+       * @type {boolean}
+       */
+      resizex: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 세로 방향 리사이즈 가능
+       * @type {boolean}
+       */
+      resizey: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+
+      /**
+       * 연결 가능여부
+       * @type Boolean
+       */
+      connectable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+
+      /**
+       * From 연결 가능여부 (From(Shape) => To)
+       * @type Boolean
+       */
+      enableFrom: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * To 연결 가능여부 (From => To(Shape))
+       * @type Boolean
+       */
+      enableTo: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+
+      /**
+       * Self 연결 가능여부
+       * @type Boolean
+       */
+      selfConnectable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 가이드에 자기자신을 복사하는 컨트롤러 여부.
+       * @type Boolean
+       */
+      connectCloneable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 드래그하여 연결시 연결대상 있는 경우에만 Edge 드로잉 처리 여부
+       * @type Boolean
+       */
+      connectRequired: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 드래그하여 연결시 그룹을 건너뛸때 스타일 변경 여부
+       * @type Boolean
+       */
+      connectStyleChange: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 가이드에 삭제 컨트롤러 여부
+       * @type Boolean
+       */
+      deletable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 라벨 수정여부
+       * @type Boolean
+       */
+      labelEditable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 복사 가능 여부
+       * @type {boolean}
+       */
+      copyable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * x,y 축만 이동 가능여부. Y | N | none
+       * @type {null}
+       */
+      copyable: {
+        default: function () {
+          return 'none';
+        },
+        type: String
       }
     },
     computed: {
       opengraphRole: function () {
         return 'opengraph-element';
       }
-    },
+    }
+    ,
     data: function () {
       return {
+        props: JSON.parse(JSON.stringify(this._props)),
         elementRole: null,
         shapdId: 'OG.shape.' + this.uuShapeId(),
         immidiateId: this.uuid(),
@@ -138,26 +311,61 @@
         parentControllerComponent: null,
         element: null,
         shape: null,
-        geometrys: {},
-        subshapes: {},
+        geometrys: {}
+        ,
+        subshapes: {}
+        ,
         subcontrollers: {}
       }
-    },
+    }
+    ,
     watch: {
       _props: {
         handler: function (newVal, oldVal) {
+          this.props = JSON.parse(JSON.stringify(newVal))
+        }
+        ,
+        deep: true
+      },
+      props: {
+        handler: function (newVal, oldVal) {
+          var needToWatch = false;
+          for (var key in newVal) {
+            if (typeof newVal[key] == 'object') {
+              if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
+                console.log(key, newVal[key], oldVal[key]);
+                needToWatch = true;
+              }
+            } else {
+              if (newVal[key] != oldVal[key]) {
+                //리드로우 트리거가 false 일때는 반응하지 않는다.
+                if (key == 'redraw' && newVal[key] == false) {
+                  needToWatch = false;
+                } else {
+                  needToWatch = true;
+                  console.log(key, newVal[key], oldVal[key]);
+                }
+              }
+            }
+          }
+          if (!needToWatch) {
+            return;
+          }
           if (this.elementRole == 'opengraph-element') {
             if (!this.element) {
               this.drawShape();
             } else {
               this.updateShape();
             }
+            this.bindElementEvents();
             this.emitElement();
           }
-        },
+        }
+        ,
         deep: true
       }
-    },
+    }
+    ,
     destroyed: function () {
       var me = this;
 
@@ -179,7 +387,8 @@
           this.parentControllerComponent.removeCloneElement();
         }
       }
-    },
+    }
+    ,
     mounted: function () {
       var me = this;
       //console.log(this.geometrys);
@@ -202,26 +411,33 @@
           this.parentControllerComponent.addCloneElement(this);
         }
       }
-    },
+    }
+    ,
     methods: {
       addGeometry: function (geometryComponenet, id) {
         this.geometrys[id] = geometryComponenet;
-      },
+      }
+      ,
       removeGeometry: function (id) {
         delete this.geometrys[id];
-      },
+      }
+      ,
       addSubShapes: function (subShapeComponenet, id) {
         this.subshapes[id] = subShapeComponenet;
-      },
+      }
+      ,
       removeSubShapes: function (id) {
         delete this.subshapes[id];
-      },
+      }
+      ,
       addSubContollers: function (subControllerComponenet, id) {
         this.subcontrollers[id] = subControllerComponenet;
-      },
+      }
+      ,
       removeSubContollers: function (id) {
         delete this.subcontrollers[id];
-      },
+      }
+      ,
       emitElement: function () {
         var me = this;
         if (!me.element) {
@@ -286,7 +502,8 @@
 //        me.style = element.shape.geom.style.map;
 //        me.geom = null;
 //        me.element.shape
-      },
+      }
+      ,
       setElementRole: function () {
         //console.log(this.$parent);
         var me = this;
@@ -337,7 +554,8 @@
         if (!me.parentElementComponent && me.canvasComponent) {
           me.canvasComponent.addElement(this, me.id ? me.id : me.immidiateId);
         }
-      },
+      }
+      ,
       updateShape: function () {
         //아이디가 업데이트 된 경우
         var me = this;
@@ -347,7 +565,8 @@
         }
         //아이디를 보전하며 다시 그린다.
         this.drawShape();
-      },
+      }
+      ,
       drawShape: function () {
         var me = this;
         var id = me.id ? me.id : me.immidiateId;
@@ -361,12 +580,22 @@
           shape.createController = function () {
             return me.generateSubController();
           };
+
+          //shape 속성 달기
+          me.bindShapeProperties(shape);
+
+          //shape 이벤트 달기
+          me.bindShapeEvents(shape);
+
+          //style 복사하기.
+          var style = JSON.parse(JSON.stringify(me._style));
+
           //shape.TYPE
           //if(OG.Constants.SHAPE_TYPE.TEXT)
           switch (shape.TYPE) {
             case OG.Constants.SHAPE_TYPE.GEOM:
             case OG.Constants.SHAPE_TYPE.GROUP:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], me._style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], style, id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.EDGE:
               if (me.vertices && me.vertices.length > 1) {
@@ -405,33 +634,136 @@
               //vertices 가 없고, 연결할 대상이 있다면 connect 로 연결한다. 이때 연결 노드 정보는 자동으로 생성됨.
               if ((!me.vertices || me.vertices.length < 2) && fromElement && toElement) {
                 me.element = me.canvasComponent.canvas.connect(
-                  fromElement, toElement, me._style, me.label, fromP, toP, true, me.id);
+                  fromElement, toElement, style, me.label, fromP, toP, true, me.id);
               }
               //vertices 가 있고 연결할 대상이 있는 경우
               else if (fromElement && toElement) {
                 me.element = me.canvasComponent.canvas.connect(
-                  fromElement, toElement, me._style, me.label, fromP, toP, true, me.id, shape);
+                  fromElement, toElement, style, me.label, fromP, toP, true, me.id, shape);
               }
               //그 외 연결할 대상이 없는 경우
               else {
-                me.element = me.canvasComponent.canvas.drawShape(null, shape, null, me._style, id, null, true);
+                me.element = me.canvasComponent.canvas.drawShape(null, shape, null, style, id, null, true);
               }
+              //스타일은 복사하여 pops 에 영향을 주지 않도록 한다.
+              //console.log('me._style' , me._style);
 
               break;
             case OG.Constants.SHAPE_TYPE.HTML:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], me._style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.IMAGE:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], me._style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.TEXT:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], me._style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
               break;
             case OG.Constants.SHAPE_TYPE.SVG:
-              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], me._style, id, me.parentId);
+              me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, id, me.parentId);
               break;
           }
         }
+      },
+      bindShapeProperties: function (shape) {
+        shape.SELECTABLE = this.selectable;
+        shape.MOVABLE = this.movable;
+        shape.RESIZABLE = this.resizable;
+        shape.RESIZEX = this.resizex;
+        shape.RESIZEY = this.resizey;
+        shape.CONNECTABLE = this.connectable;
+        shape.ENABLE_FROM = this.enableFrom;
+        shape.ENABLE_TO = this.enableTo;
+        shape.SELF_CONNECTABLE = this.selfConnectable;
+        shape.CONNECT_CLONEABLE = this.connectCloneable;
+        shape.CONNECT_REQUIRED = this.connectRequired;
+        shape.CONNECT_STYLE_CHANGE = this.connectStyleChange;
+        shape.DELETABLE = this.deletable;
+        shape.LABEL_EDITABLE = this.labelEditable;
+        shape.COPYABLE = this.copyable;
+        shape.AXIS = this.axis;
+      },
+      bindShapeEvents: function (shape) {
+        var me = this;
+        shape.onResize = function (offset) {
+          me.$emit('resize', me, offset);
+        };
+        shape.onDrawLabel = function (text) {
+          me.$emit('drawLabel', me, text);
+        };
+        shape.onLabelChanged = function (text, beforeText) {
+          me.$emit('labelChanged', me, text, beforeText);
+        };
+        shape.onBeforeRemoveShape = function () {
+          var result;
+          me.$emit('beforeRemoveShape', me, function (emitResult) {
+            result = emitResult;
+          });
+          return result;
+        };
+        shape.onRemoveShape = function () {
+          me.$emit('removeShape', me);
+        };
+        shape.onDrawShape = function () {
+          me.$emit('drawShape', me);
+        };
+        shape.onBeforeLabelChange = function () {
+
+        };
+        shape.onRedrawShape = function () {
+
+        };
+        shape.onBeforeConnectShape = function (edge, fromShape, toShape) {
+
+        };
+        shape.onConnectShape = function (edge, fromShape, toShape) {
+
+        };
+        shape.onDisconnectShape = function (edge, fromShape, toShape) {
+
+        };
+        shape.onGroup = function (groupShapeEle) {
+
+        };
+        shape.onUnGroup = function () {
+
+        };
+        shape.onMoveShape = function (offset) {
+
+        };
+        shape.onRotateShape = function (angle) {
+
+        };
+        shape.onDuplicated = function (target, duplicated) {
+
+        };
+        shape.onPasteShape = function (copied, pasted) {
+
+        };
+        /**
+         * 자신에게 도형들이 그룹으로 들어왔을때의 이벤트
+         * @param groupElement
+         * @param elements
+         */
+        shape.onAddToGroup = function (groupElement, elements, eventOffset) {
+
+        };
+        /**
+         * 자신이 그룹속으로 들어갔을 때의 이벤트
+         * @param groupElement
+         * @param element
+         */
+        shape.onAddedToGroup = function (groupElement, element, eventOffset) {
+
+        };
+        shape.onSelectShape = function () {
+
+        };
+        shape.onDeSelectShape = function () {
+
+        };
+      },
+      bindElementEvents: function () {
+
       },
       generateSubController: function () {
         var me = this;
@@ -450,7 +782,7 @@
                   shape: controllerComponent.cloneComponent.generateShape(),
                   width: controllerComponent.cloneComponent.width,
                   height: controllerComponent.cloneComponent.height,
-                  style: controllerComponent.cloneComponent.style
+                  style: JSON.parse(JSON.stringify(controllerComponent.cloneComponent._style))
                 }
               })
             } else {
@@ -464,7 +796,8 @@
           }
           return controllers;
         }
-      },
+      }
+      ,
       generateSubShapes: function () {
         var me = this;
         var subShape = [];
@@ -484,12 +817,13 @@
               right: me.subshapes[key].subRight,
               align: me.subshapes[key].subAlign,
               'vertical-align': me.subshapes[key].subVerticalAlign,
-              style: me.subshapes[key].subStyle
+              style: JSON.parse(JSON.stringify(me.subshapes[key].subStyle))
             })
           }
           return subShape;
         }
-      },
+      }
+      ,
       uuid: function () {
         function s4() {
           return Math.floor((1 + Math.random()) * 0x10000)
@@ -499,7 +833,8 @@
 
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
           s4() + '-' + s4() + s4() + s4();
-      },
+      }
+      ,
       uuShapeId: function () {
         function s4() {
           return Math.floor((1 + Math.random()) * 0x10000)
