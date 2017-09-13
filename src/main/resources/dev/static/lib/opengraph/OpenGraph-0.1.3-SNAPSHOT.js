@@ -10978,7 +10978,7 @@ OG.shape.IShape.prototype = {
     onDrawShape: function () {
 
     },
-    onBeforeLabelChange: function () {
+    onBeforeLabelChange: function (text, beforeText) {
 
     },
     onRedrawShape: function () {
@@ -11005,7 +11005,7 @@ OG.shape.IShape.prototype = {
     onRotateShape: function (angle) {
 
     },
-    onDuplicated: function (target, duplicated) {
+    onDuplicated: function (edge, target, rectShape) {
 
     },
     onPasteShape: function (copied, pasted) {
@@ -30703,6 +30703,12 @@ OG.handler.EventHandler.prototype = {
                 if (isConnectable) {
                     var rectShape = renderer._CANVAS.drawShape([eventOffset.x, eventOffset.y], newShape, [width, height], style);
                     var edge = renderer._CANVAS.connect(target, rectShape, null, null, null, null, true);
+                    if (target.shape.onDuplicated) {
+                        target.shape.onDuplicated(edge, target, rectShape);
+                    }
+                    if (rectShape.shape.onDuplicated) {
+                        rectShape.shape.onDuplicated(edge, target, rectShape);
+                    }
                     $(renderer._PAPER.canvas).trigger('duplicated', [edge, target, rectShape]);
                 }
             }

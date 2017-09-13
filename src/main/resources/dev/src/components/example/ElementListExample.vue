@@ -8,7 +8,8 @@
           resizable
           connectable
           :angle="30" :id.sync="id" :x.sync="x" :y="y" :width.sync="width" :height.sync="height">
-          <geometry-rect :upper-left="[0,0]" :width="1000" :height="1000" :_style="{stroke: randomColor}"></geometry-rect>
+          <geometry-rect :upper-left="[0,0]" :width="1000" :height="1000"
+                         :_style="{stroke: randomColor}"></geometry-rect>
           <geometry-polyline :vertices="[[0,0],[500,200],[1000,0]]" :_style="{stroke: 'blue'}">
           </geometry-polyline>
           <geometry-rect :upper-left="[30,30]" :width="500" :height="200" :_style="{stroke: 'red'}">
@@ -19,7 +20,7 @@
             </geometry-element>
           </sub-elements>
 
-          <sub-controller cloneable :image="'task.png'">
+          <sub-controller cloneable :image="'task.png'" v-on:clone="onClone">
             <geometry-element :width="150" :height="150">
               <geometry-rect :upper-left="[0,0]" :width="1000" :height="1000" :_style="{stroke: 'red'}"></geometry-rect>
             </geometry-element>
@@ -115,11 +116,14 @@
     },
     watch: {},
     methods: {
-      beforeConnectShape: function(a,b,c){
-          console.log(a,b,c);
+      onClone: function (a, b, c) {
+        console.log('onClone', a, b, c);
+      },
+      beforeConnectShape: function (a, b, c) {
+        //console.log(a,b,c);
       },
       sayHello: function (cloneComponent) {
-        console.log('cloneComponent', cloneComponent);
+        console.log('sayHello', cloneComponent);
       }
     }
   }

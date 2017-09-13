@@ -773,6 +773,14 @@
         shape.onRotateShape = function (angle) {
           me.$emit('rotateShape', me, angle);
         };
+        shape.onDuplicated = function (edge, target, copy) {
+          //여기서, 서브컨트롤러를 알아내는 법
+          me.$emit('clone',
+            me.canvasComponent.getElementById(edge.id) || edge,
+            me.canvasComponent.getElementById(target.id) || target,
+            me.canvasComponent.getElementById(copy.id) || copy
+          );
+        };
         shape.onPasteShape = function (copied, pasted) {
           me.$emit('pasteShape',
             me.canvasComponent.getElementById(copied.id) || copied,
@@ -844,26 +852,44 @@
             var controllerComponent = me.subcontrollers[key];
             var cloneable = controllerComponent.cloneable;
             if (cloneable) {
-              controllers.push({
-                image: controllerComponent.image,
-                create: {
-                  shape: controllerComponent.cloneComponent.generateShape(),
-                  width: controllerComponent.cloneComponent.width,
-                  height: controllerComponent.cloneComponent.height,
-                  style: JSON.parse(JSON.stringify(controllerComponent.cloneComponent._style))
-                }
-              })
+              me.addCloneableController(controllerComponent, controllers);
             } else {
-              controllers.push({
-                image: controllerComponent.image,
-                action: function (element) {
-                  controllerComponent.$emit('click', me);
-                }
-              })
+              me.addClickController(controllerComponent, controllers);
             }
           }
           return controllers;
         }
+      }
+      ,
+      addClickController: function (controllerComponent, controllers) {
+        var me = this;
+        controllers.push({
+          image: controllerComponent.image,
+          action: function (element) {
+            controllerComponent.$emit('click', me);
+          }
+        })
+      }
+      ,
+      addCloneableController: function (controllerComponent, controllers) {
+        var me = this;
+        //컨트롤러의 clone 이벤트 트리거 등록. (카피된 대상:generateShape 에 이벤트를 등록한다.)
+        var generateShape = controllerComponent.cloneComponent.generateShape();
+        generateShape.onDuplicated = function (edge, target, copy) {
+          controllerComponent.$emit('clone',
+            me.canvasComponent.getElementById(edge.id) || edge,
+            me.canvasComponent.getElementById(target.id) || target,
+            me.canvasComponent.getElementById(copy.id) || copy);
+        };
+        controllers.push({
+          image: controllerComponent.image,
+          create: {
+            shape: generateShape,
+            width: controllerComponent.cloneComponent.width,
+            height: controllerComponent.cloneComponent.height,
+            style: JSON.parse(JSON.stringify(controllerComponent.cloneComponent._style))
+          }
+        })
       }
       ,
       generateSubShapes: function () {
