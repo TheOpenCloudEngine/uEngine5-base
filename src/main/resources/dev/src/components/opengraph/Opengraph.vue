@@ -855,12 +855,12 @@
         });
 
         /**
-         * History Update 되었을때의 이벤트 리스너
+         * History Update 되었을때의 이벤트 리스너 => Vue action 으로 표현.(사용자 action 에 의해 변경됨.)
          *
          * @param {Function} callbackFunc 콜백함수(event)
          */
         me.canvas.onAddHistory(function (event) {
-          me.$emit('addHistory');
+          me.$emit('userAction');
         });
 
         /**
