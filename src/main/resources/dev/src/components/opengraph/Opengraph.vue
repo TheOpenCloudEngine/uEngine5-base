@@ -17,6 +17,73 @@
     name: 'opengraph',
     props: {
       /**
+       * 캔버스 가로 (px)
+       */
+      width: {
+        default: function () {
+          return 2000;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 세로 (px)
+       */
+      height: {
+        default: function () {
+          return 2000;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 스케일(리얼 사이즈 : Scale = 1)
+       */
+      scale: {
+        default: function () {
+          return 1;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 최소 스케일
+       */
+      scaleMin: {
+        default: function () {
+          return 0.1;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 최대 스케일
+       */
+      scaleMax: {
+        default: function () {
+          return 10;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 배경색
+       */
+      backgroundColor: {
+        default: function () {
+          return '#f9f9f9';
+        },
+        type: String
+      },
+      /**
+       * 캔버스 배경이미지
+       */
+      backgroundImage: String,
+      /**
+       * 이미지 베이스 패스
+       */
+      imageBase: {
+        default: function () {
+          return '/static/image/symbol/';
+        },
+        type: String
+      },
+      /**
        * 풀, 래인 도형의 드랍시 자동 위치 조정 기능
        */
       poolDropEvent: {
@@ -235,49 +302,22 @@
         type: Boolean
       },
       /**
-       * 캔버스 스케일(리얼 사이즈 : Scale = 1)
+       * 마우스 우클릭 메뉴 가능여부
        */
-      scale: {
+      enableContextmenu: {
         default: function () {
-          return 1;
+          return true;
         },
-        type: Number
+        type: Boolean
       },
       /**
-       * 캔버스 최소 스케일
+       * 루트 컨텍스트 메뉴 가능여부
        */
-      scaleMin: {
+      enableRootContextmenu: {
         default: function () {
-          return 0.1;
+          return true;
         },
-        type: Number
-      },
-      /**
-       * 캔버스 최대 스케일
-       */
-      scaleMax: {
-        default: function () {
-          return 10;
-        },
-        type: Number
-      },
-      /**
-       * 캔버스 배경색
-       */
-      canvasBackground: {
-        default: function () {
-          return '#f9f9f9';
-        },
-        type: String
-      },
-      /**
-       * 이미지 베이스 패스
-       */
-      imageBase: {
-        default: function () {
-          return 'resources/images/symbol/';
-        },
-        type: String
+        type: Boolean
       },
       /**
        * 도형 디폴트 스타일
@@ -640,7 +680,7 @@
       defaultStyleConnectableHighlight: {
         default: function () {
           return {
-            "stroke-width": 2
+            //"stroke-width": 2
           };
         },
         type: Object
@@ -651,6 +691,7 @@
       let id = this.uuid();
       let sliderId = id + '-slider';
       return {
+        props: JSON.parse(JSON.stringify(this._props)),
         id: id,
         sliderId: sliderId,
         canvas: null,
@@ -658,7 +699,38 @@
       }
     },
 
-    watch: {},
+    watch: {
+      _props: {
+        handler: function (newVal, oldVal) {
+          this.props = JSON.parse(JSON.stringify(newVal))
+        }
+        ,
+        deep: true
+      },
+      props: {
+        handler: function (newVal, oldVal) {
+          var needToWatch = false;
+          for (var key in newVal) {
+            if (typeof newVal[key] == 'object') {
+              if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
+                console.log(key, newVal[key], oldVal[key]);
+                needToWatch = true;
+              }
+            } else {
+              if (newVal[key] != oldVal[key]) {
+                needToWatch = true;
+                console.log(key, newVal[key], oldVal[key]);
+              }
+            }
+          }
+          if (needToWatch && this.canvas) {
+            this.setCanvasConfiguration(this.canvas);
+          }
+        }
+        ,
+        deep: true
+      }
+    },
 
     computed: {
       opengraphRole: function () {
@@ -672,6 +744,99 @@
     },
 
     methods: {
+      setCanvasConfiguration: function (canvas) {
+
+        var me = this;
+
+        //캔버스 스케일, 사이즈, 배경 관련.
+        canvas._CONFIG.CANVAS_BACKGROUND = this.backgroundColor
+        canvas._CONFIG.IMAGE_BASE = this.imageBase;
+        canvas._CONFIG.SCALE_MIN = this.scaleMin;
+        canvas._CONFIG.SCALE_MAX = this.scaleMax;
+        $(canvas.getRootElement()).css({
+          "background-color": me.backgroundColor
+        });
+        if (me.backgroundImage) {
+          $(canvas.getRootElement()).css({"background-image": me.backgroundImage});
+        }
+        canvas.setCanvasSize([me.width, me.height]);
+        canvas.setScale(me.scale);
+
+
+        //TODO
+        //navigator 가 있다면 슬라이더를 추가함.
+        //navigator 가 꺼지면 슬라이더를 없앰.
+
+        //옵션 관련
+        canvas._CONFIG.POOL_DROP_EVENT = this.poolDropEvent;
+        canvas._CONFIG.AUTOMATIC_GUIDANCE = this.automaticGuidance;
+        canvas._CONFIG.SPOT_ON_SELECT = this.spotOnSelect;
+        canvas._CONFIG.AUTO_SLIDER_UPDATE = this.autoSliderUpdate;
+        canvas._CONFIG.AUTO_HISTORY = this.autoHistory;
+        canvas._CONFIG.WHEEL_SCALABLE = this.wheelScalable;
+        canvas._CONFIG.DRAG_PAGE_MOVABLE = this.dragPageMovable;
+        canvas._CONFIG.FOCUS_CANVAS_ONSELECT = this.focusCanvasOnSelect;
+        canvas._CONFIG.CHECK_BRIDGE_EDGE = this.checkBridgeEdge;
+        canvas._CONFIG.STICK_GUIDE = this.stickGuide;
+
+        canvas._CONFIG.SELECTABLE = this.selectable;
+        canvas._CONFIG.DRAG_SELECTABLE = this.dragSelectable;
+        canvas._CONFIG.MOVABLE = this.movable;
+        canvas._CONFIG.RESIZABLE = this.resizable;
+        canvas._CONFIG.CONNECTABLE = this.connectable;
+        canvas._CONFIG.SELF_CONNECTABLE = this.selfConnectable;
+        canvas._CONFIG.CONNECT_CLONEABLE = this.selfCloneable;
+        canvas._CONFIG.CONNECT_STYLE_CHANGE = this.connectStyleChange;
+        canvas._CONFIG.DELETABLE = this.deletable;
+        canvas._CONFIG.LABEL_EDITABLE = this.labelEditable;
+        canvas._CONFIG.GROUP_DROPABLE = this.groupDropable;
+        canvas._CONFIG.DRAG_GRIDABLE = this.dragGridable;
+        canvas._CONFIG.ENABLE_HOTKEY = this.enableHotkey;
+        canvas._CONFIG.ENABLE_CONTEXTMENU = this.enableContextmenu;
+        canvas._CONFIG.ENABLE_ROOT_CONTEXTMENU = this.enableRootContextmenu;
+
+
+        //디폴트 스타일 정의
+        canvas._CONFIG.DEFAULT_STYLE.SHAPE = this.defaultStyleShape;
+        canvas._CONFIG.DEFAULT_STYLE.GEOM = this.defaultStyleGeometry;
+        canvas._CONFIG.DEFAULT_STYLE.TEXT = this.defaultStyleText;
+        canvas._CONFIG.DEFAULT_STYLE.HTML = this.defaultStyleHtml;
+        canvas._CONFIG.DEFAULT_STYLE.IMAGE = this.defaultStyleImage;
+        canvas._CONFIG.DEFAULT_STYLE.SVG = this.defaultStyleSvg;
+        canvas._CONFIG.DEFAULT_STYLE.EDGE = this.defaultStyleEdge;
+        canvas._CONFIG.DEFAULT_STYLE.GROUP = this.defaultStyleGroup;
+
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_BBOX = this.defaultStyleGuideBbox;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_UL = this.defaultStyleGuideUl;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_UR = this.defaultStyleGuideUr;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_LL = this.defaultStyleGuideLl;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_LR = this.defaultStyleGuideLr;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_LC = this.defaultStyleGuideLc;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_UC = this.defaultStyleGuideUc;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_RC = this.defaultStyleGuideRc;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_LWC = this.defaultStyleGuideLwc;
+        canvas._CONFIG.DEFAULT_STYLE.GUIDE_VIRTUAL_EDGE = this.defaultStyleVirtualEdge;
+        canvas._CONFIG.DEFAULT_STYLE.RUBBER_BAND = this.defaultStyleRubberBand;
+        canvas._CONFIG.DEFAULT_STYLE.DROP_OVER_BBOX = this.defaultStyleDropOverBbox;
+        canvas._CONFIG.DEFAULT_STYLE.LABEL = this.defaultStyleLabel;
+        canvas._CONFIG.DEFAULT_STYLE.CONNECT_GUIDE_BBOX = this.defaultStyleConnectGuideBbox;
+        canvas._CONFIG.DEFAULT_STYLE.CONNECT_GUIDE_SPOT_CIRCLE = this.defaultStyleConnectGuideSpotCircle;
+        canvas._CONFIG.DEFAULT_STYLE.CONNECT_GUIDE_SPOT_RECT = JSON.parse(JSON.stringify(this.defaultStyleConnectGuideSpotRect));
+        canvas._CONFIG.DEFAULT_STYLE.CONNECTABLE_HIGHLIGHT = this.defaultStyleConnectableHighlight;
+
+      },
+      getElementById: function (id) {
+        return this.elements[id];
+      },
+      render: function () {
+        var me = this;
+        var canvas = new OG.Canvas(this.id, [this.width, this.height], this.backgroundColor,
+          this.backgroundImage ? 'url(' + this.backgroundImage + ')' : null);
+        this.setCanvasConfiguration(canvas);
+        canvas.initConfig({});
+        this.canvas = canvas;
+        this.$emit('canvasReady', canvas);
+      },
       /**
        * 캔버스의 이벤트 핸들러 emit
        **/
@@ -886,46 +1051,6 @@
             me.getElementById(sourceElement.id) || sourceElement,
             me.getElementById(targetElement.id) || targetElement);
         });
-      },
-      getElementById: function (id) {
-        return this.elements[id];
-      },
-      render: function () {
-        var me = this;
-        //canvas = new OG.Canvas('canvas', [1000, 800], 'transparent');
-        var canvas = new OG.Canvas(this.id, [2000, 2000], '#f7f7f7', 'url(/static/image/grid.gif)');
-        canvas._CONFIG.DEFAULT_STYLE.EDGE["edge-type"] = "plain";
-        canvas._CONFIG.GUIDE_CONTROL_LINE_NUM = 1;
-        canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
-        canvas._CONFIG.WHEEL_SCALABLE = true;
-        canvas._CONFIG.DRAG_PAGE_MOVABLE = false;
-        canvas._CONFIG.AUTOMATIC_GUIDANCE = true;
-        canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
-        canvas._CONFIG.POOL_DROP_EVENT = true;
-        canvas._CONFIG.AUTO_EXTENSIONAL = false;
-
-        canvas.initConfig({
-          selectable: true,
-          dragSelectable: true,
-          movable: true,
-          resizable: true,
-          connectable: true,
-          selfConnectable: true,
-          connectCloneable: false,
-          connectRequired: true,
-          labelEditable: false,
-          groupDropable: true,
-          collapsible: true,
-          enableHotKey: true,
-          enableContextMenu: false,
-          useSlider: false,
-          stickGuide: true,
-          checkBridgeEdge: true,
-          autoHistory: false
-        });
-
-        this.canvas = canvas;
-        this.$emit('canvasReady', canvas);
       },
       addElement: function (elementComponenet, id) {
         this.elements[id] = elementComponenet;
