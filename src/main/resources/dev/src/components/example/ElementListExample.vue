@@ -1,6 +1,8 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div class="canvas-panel">
-    <opengraph>
+    <opengraph
+      focus-canvas-on-select
+    >
       <template>
         <geometry-element
           selectable
@@ -48,8 +50,11 @@
                                  :_style="{stroke:'black'}">
         </horizontal-lane-element>
 
-        <edge-element :vertices="[[100,100],[300,300],[400,400]]" :from="'AAA'" :to="'BBB'"
-                      :label="'hello'"></edge-element>
+        <edge-element
+          selectable
+          connectable
+          :vertices="[[100,100],[300,300],[400,400]]" :from="'AAA'" :to="'BBB'"
+          :label="'hello'"></edge-element>
 
         <!--포토샵이나, http://picsvg.com/ 에서 이미지를 svg 로 엑스포트 한 후, v-bind 를 통해 원하는대로 svg 내부의 어트리뷰트를 꾸미면 됩니다. -->
         <svg-element :x="shoeSize" :y="150" :width="200" :height="200" :label="'hello'" :redraw.sync="redraw">

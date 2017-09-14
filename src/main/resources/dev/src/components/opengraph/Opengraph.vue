@@ -16,7 +16,635 @@
   export default {
     name: 'opengraph',
     props: {
-      //definition: Object
+      /**
+       * 풀, 래인 도형의 드랍시 자동 위치 조정 기능
+       */
+      poolDropEvent: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 도형, 스팟 이동시 이웃한 도형에 대해 자동보정이 이루어지는 여부.
+       */
+      automaticGuidance: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 선연결을 클릭하였을때만 변곡점 변경 가능 여부
+       */
+      spotOnSelect: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 자동 슬라이더 업데이트 여부
+       */
+      autoSliderUpdate: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 자동 히스토리 저장
+       */
+      autoHistory: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 마우스 휠 스케일 변경 여부
+       */
+      wheelScalable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 마우스 드래그 페이지 이동 가능 여부
+       */
+      dragPageMovable: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 도형 선택시 캔버스 포거싱 여부
+       */
+      focusCanvasOnSelect: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 연결된 두 오브젝트의 소속에 따른 연결선 스타일 변화 여부
+       */
+      checkBridgeEdge: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 스틱 가이드 생성 여부
+       */
+      stickGuide: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 네비게이터 사용
+       */
+      navigator: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      /**
+       * 클릭선택 가능여부
+       */
+      selectable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 마우스드래그선택 가능여부
+       */
+      dragSelectable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 이동 가능여부
+       */
+      movable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 리사이즈 가능여부
+       */
+      resizable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 연결 가능여부
+       */
+      connectable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * Self 연결 가능여부
+       */
+      selfConnectable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 가이드에 자기자신을 복사하는 컨트롤러 여부.
+       */
+      selfCloneable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 드래그하여 연결시 그룹을 건너뛸때 스타일 변경 여부
+       */
+      connectStyleChange: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 가이드에 삭제 컨트롤러 여부
+       */
+      deletable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 라벨 수정여부
+       */
+      labelEditable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 그룹핑 가능여부
+       */
+      groupDropable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 이동, 리사이즈 드래그시 MOVE_SNAP_SIZE 적용 여부
+       */
+      dragGridable: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 핫키 가능여부
+       */
+      enableHotkey: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 캔버스 스케일(리얼 사이즈 : Scale = 1)
+       */
+      scale: {
+        default: function () {
+          return 1;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 최소 스케일
+       */
+      scaleMin: {
+        default: function () {
+          return 0.1;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 최대 스케일
+       */
+      scaleMax: {
+        default: function () {
+          return 10;
+        },
+        type: Number
+      },
+      /**
+       * 캔버스 배경색
+       */
+      canvasBackground: {
+        default: function () {
+          return '#f9f9f9';
+        },
+        type: String
+      },
+      /**
+       * 이미지 베이스 패스
+       */
+      imageBase: {
+        default: function () {
+          return 'resources/images/symbol/';
+        },
+        type: String
+      },
+      /**
+       * 도형 디폴트 스타일
+       */
+      defaultStyleShape: {
+        default: function () {
+          return {
+            cursor: "default"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * geometry 도형 디폴트 스타일
+       */
+      defaultStyleGeometry: {
+        default: function () {
+          return {
+            stroke: "black",
+            "fill-r": ".5",
+            "fill-cx": ".5",
+            "fill-cy": ".5",
+            fill: "white",
+            "fill-opacity": 0,
+            "label-position": "center"
+          };
+        },
+        type: Object
+      },
+      /**
+       * Text 도형 디폴트 스타일
+       */
+      defaultStyleText: {
+        default: function () {
+          return {
+            stroke: "none", "text-anchor": "middle"
+          };
+        },
+        type: Object
+      },
+      /**
+       * Html 도형 디폴트 스타일
+       */
+      defaultStyleHtml: {
+        default: function () {
+          return {
+            "label-position": "bottom", "text-anchor": "middle", "vertical-align": "top"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * Image 도형 디폴트 스타일
+       */
+      defaultStyleImage: {
+        default: function () {
+          return {
+            "label-position": "bottom", "text-anchor": "middle", "vertical-align": "top"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * Svg 도형 디폴트 스타일
+       */
+      defaultStyleSvg: {
+        default: function () {
+          return {
+            "label-position": "bottom", "text-anchor": "middle", "vertical-align": "top"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * Edge 도형 디폴트 스타일
+       */
+      defaultStyleEdge: {
+        default: function () {
+          return {
+            stroke: "black",
+            fill: "none",
+            "fill-opacity": 0,
+            "stroke-width": 1.5,
+            "stroke-opacity": 1,
+            "edge-type": "plain",
+            "arrow-start": "none",
+            "arrow-end": "block",
+            "stroke-dasharray": "",
+            "label-position": "center",
+            "stroke-linejoin": "round",
+            cursor: "pointer"
+          };
+        },
+        type: Object
+      },
+      /**
+       * Group 도형 디폴트 스타일
+       */
+      defaultStyleGroup: {
+        default: function () {
+          return {
+            stroke: "black",
+            fill: "none",
+            "fill-opacity": 0,
+            "label-position": "bottom",
+            "text-anchor": "middle",
+            "vertical-align": "top"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 가이드 툴 박스 디폴트 스타일
+       */
+      defaultStyleGuideBbox: {
+        default: function () {
+          return {
+            stroke: "#00FF00",
+            fill: "white",
+            "fill-opacity": 0,
+            "stroke-dasharray": "- ",
+            "shape-rendering": "crispEdges",
+            cursor: "move"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * 가이드 툴 상단 좌측 스타일
+       */
+      defaultStyleGuideUl: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nwse-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * 가이드 툴 상단 우측 스타일
+       */
+      defaultStyleGuideUr: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nesw-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * 가이드 툴 하단 좌측 스타일
+       */
+      defaultStyleGuideLl: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nesw-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      }
+      ,
+      /**
+       * 가이드 툴 하단 우측 스타일
+       */
+      defaultStyleGuideLr: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nesw-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 가이드 툴 좌측 센터 스타일
+       */
+      defaultStyleGuideLc: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nesw-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 가이드 툴 상단 센터 스타일
+       */
+      defaultStyleGuideUc: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nesw-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 가이드 툴 우측 센터 스타일
+       */
+      defaultStyleGuideRc: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nesw-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 가이드 툴 하단 센터 스타일
+       */
+      defaultStyleGuideLwc: {
+        default: function () {
+          return {
+            stroke: "#03689a",
+            fill: "#03689a",
+            "fill-opacity": 0.5,
+            cursor: "nesw-resize",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 도형 클론 가상 연결선 스타일
+       */
+      defaultStyleVirtualEdge: {
+        default: function () {
+          return {
+            stroke: "black",
+            fill: "none",
+            "fill-opacity": 0,
+            "stroke-width": 1,
+            "stroke-opacity": 1,
+            "stroke-dasharray": "- ",
+            "stroke-linejoin": "round",
+            "arrow-start": "none",
+            "arrow-end": "none"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 화면 드래그 선택시 드래그 박스 스타일
+       */
+      defaultStyleRubberBand: {
+        default: function () {
+          return {
+            stroke: "#0000FF",
+            opacity: 0.2,
+            fill: "#0077FF"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 그룹 드랍 가능시 그룹 박스 스타일
+       */
+      defaultStyleDropOverBbox: {
+        default: function () {
+          return {
+            stroke: "#0077FF", fill: "none", opacity: 0.3, "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 라벨 디폴트 스타일
+       */
+      defaultStyleLabel: {
+        default: function () {
+          return {
+            "font-size": 12, "font-color": "black", "fill": "none"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 연결 가능도형의 연결 테두리 스타일
+       */
+      defaultStyleConnectGuideBbox: {
+        default: function () {
+          return {
+            stroke: "#00FF00",
+            fill: "none",
+            "stroke-dasharray": "- ",
+            "shape-rendering": "crispEdges"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 선연결 도형의 원형 Spot 스타일
+       */
+      defaultStyleConnectGuideSpotCircle: {
+        default: function () {
+          return {
+            r: 7,
+            stroke: "#A6A6A6",
+            "stroke-width": 1,
+            fill: "#FFE400",
+            "fill-opacity": 0.5,
+            cursor: "pointer"
+          };
+        },
+        type: Object
+      },
+      /**
+       * 선연결 도형의 사각형 Spot 스타일
+       */
+      defaultStyleConnectGuideSpotRect: {
+        default: function () {
+          return {
+            stroke: "#A6A6A6",
+            "stroke-width": 1,
+            fill: "#FFE400",
+            "fill-opacity": 0.2,
+            cursor: "ns-resize",
+            w: 20,
+            h: 10
+          };
+        },
+        type: Object
+      },
+      /**
+       * 연결가능 표현 하이라이트 스타일
+       */
+      defaultStyleConnectableHighlight: {
+        default: function () {
+          return {
+            "stroke-width": 2
+          };
+        },
+        type: Object
+      }
     },
 
     data: function () {
@@ -270,7 +898,7 @@
         canvas._CONFIG.GUIDE_CONTROL_LINE_NUM = 1;
         canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
         canvas._CONFIG.WHEEL_SCALABLE = true;
-        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
+        canvas._CONFIG.DRAG_PAGE_MOVABLE = false;
         canvas._CONFIG.AUTOMATIC_GUIDANCE = true;
         canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
         canvas._CONFIG.POOL_DROP_EVENT = true;
