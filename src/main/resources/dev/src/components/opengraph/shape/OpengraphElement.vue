@@ -733,7 +733,6 @@
         shape.onBeforeConnectShape = function (edge, fromShape, toShape) {
           var result;
           me.$emit('beforeConnectShape',
-            me,
             me.canvasComponent.getElementById(edge.id) || edge,
             me.canvasComponent.getElementById(fromShape.id) || fromShape,
             me.canvasComponent.getElementById(toShape.id) || toShape,
@@ -744,7 +743,6 @@
         };
         shape.onConnectShape = function (edge, fromShape, toShape) {
           me.$emit('connectShape',
-            me,
             me.canvasComponent.getElementById(edge.id) || edge,
             me.canvasComponent.getElementById(fromShape.id) || fromShape,
             me.canvasComponent.getElementById(toShape.id) || toShape
@@ -752,7 +750,6 @@
         };
         shape.onDisconnectShape = function (edge, fromShape, toShape) {
           me.$emit('disconnectShape',
-            me,
             me.canvasComponent.getElementById(edge.id) || edge,
             me.canvasComponent.getElementById(fromShape.id) || fromShape,
             me.canvasComponent.getElementById(toShape.id) || toShape
@@ -760,7 +757,6 @@
         };
         shape.onGroup = function (groupShapeEle) {
           me.$emit('group',
-            me,
             me.canvasComponent.getElementById(groupShapeEle.id) || groupShapeEle
           )
         };
@@ -772,14 +768,6 @@
         };
         shape.onRotateShape = function (angle) {
           me.$emit('rotateShape', me, angle);
-        };
-        shape.onDuplicated = function (edge, target, copy) {
-          //여기서, 서브컨트롤러를 알아내는 법
-          me.$emit('clone',
-            me.canvasComponent.getElementById(edge.id) || edge,
-            me.canvasComponent.getElementById(target.id) || target,
-            me.canvasComponent.getElementById(copy.id) || copy
-          );
         };
         shape.onPasteShape = function (copied, pasted) {
           me.$emit('pasteShape',
