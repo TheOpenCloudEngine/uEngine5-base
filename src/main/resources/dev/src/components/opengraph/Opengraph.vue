@@ -741,6 +741,7 @@
     mounted: function () {
       this.render();
       this.bindEvents();
+      this.$emit('canvasReady', this);
     },
 
     methods: {

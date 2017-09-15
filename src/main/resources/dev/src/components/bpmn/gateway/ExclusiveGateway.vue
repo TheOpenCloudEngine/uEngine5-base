@@ -1,0 +1,97 @@
+<template>
+  <div>
+    <geometry-element
+      selectable
+      movable
+      resizable
+      connectable
+      deletable
+      :id.sync="activity.tracingTag"
+      :x.sync="activity.elementView.x"
+      :y.sync="activity.elementView.y"
+      :width.sync="activity.elementView.width"
+      :height.sync="activity.elementView.height"
+      :_style.sync="style"
+      :parentId.sync="activity.elementView.parent"
+      :label.sync="activity.name.text"
+      v-on:dblclick="showProperty"
+    >
+      <geometry-polygon :vertices="[[0, 50],[50, 100],[100, 50],[50, 0]]"></geometry-polygon>
+      <geometry-line :from="[30, 30]" :to="[70, 70]" :_style="{'stroke-width': 5}"></geometry-line>
+      <geometry-line :from="[30, 70]" :to="[70, 30]" :_style="{'stroke-width': 5}"></geometry-line>
+
+      <sub-elements>
+        <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
+      </sub-elements>
+      <bpmn-sub-controller :type="type"></bpmn-sub-controller>
+    </geometry-element>
+
+    <bpmn-property-panel
+      :drawer.sync="drawer"
+      :item.sync="activity"
+    >
+      <template slot="properties-contents">
+        <v-layout row wrap class="pa-3">
+          <v-flex xs12>
+            <v-text-field
+              label="액티비티 명"
+              v-model="activity.name.text"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-text-field
+              type="number"
+              label="retryDelay"
+              v-model.number="activity.retryDelay"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </template>
+      <template slot="additional-tabs">
+
+      </template>
+      <template slot="additional-tabs-contents">
+
+      </template>
+    </bpmn-property-panel>
+  </div>
+</template>
+
+<script>
+  import IBpmn from '../IBpmn'
+  export default {
+    mixins: [IBpmn],
+    name: 'bpmn-exclusive-gateway',
+    props: {},
+    computed: {
+      defaultStyle(){
+        return {
+          'label-position': 'bottom'
+        }
+      },
+      type(){
+        return 'Gateway'
+      },
+      className(){
+        return 'org.uengine.kernel.bpmn.ExclusiveGateway'
+      }
+    },
+    data: function () {
+      return {};
+    },
+    watch: {},
+    mounted: function () {
+
+    },
+    methods: {}
+  }
+</script>
+
+
+<style scoped lang="scss" rel="stylesheet/scss">
+
+  /*네비게이션 패널 넓이*/
+  aside.navigation-drawer.navigation-drawer--absolute.navigation-drawer--is-booted.navigation-drawer--open {
+    width: 400px;
+  }
+</style>

@@ -4,7 +4,7 @@
       selectable
       connectable
       deletable
-      :id="relation.sourceRef + relation.targetRef"
+      :id="relation.sourceRef + '-' + relation.targetRef"
       :vertices.sync="vertices"
       :from.sync="relation.sourceRef"
       :to.sync="relation.targetRef"

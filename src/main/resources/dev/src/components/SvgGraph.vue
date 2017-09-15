@@ -4,16 +4,6 @@
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :definition.sync="definition"
               v-on:canvasReady="bindEvents">
-      <!--<template slot="role" scope="props">-->
-        <!--<bpmn-role :role="props.item" :canvas="props.canvas"></bpmn-role>-->
-      <!--</template>-->
-      <!--<template slot="activity" scope="props">-->
-        <!--<component :is="getSVGComponentName(props.item)" :activity="props.item"-->
-                   <!--:canvas="props.canvas"></component>-->
-      <!--</template>-->
-      <!--<template slot="relation" scope="props">-->
-        <!--<bpmn-relation :relation="props.item" :canvas="props.canvas"></bpmn-relation>-->
-      <!--</template>-->
     </bpmn-vue>
 
     <v-card v-if="!monitor" class="grey lighten-4 tools">
@@ -26,11 +16,11 @@
         <hr class="separator">
 
         <span v-for="item in dragItems"
-              class="icons draggable" :class="item.icon"
-              :_shape_type="item._shape_type"
-              :_shape_id="item._shape_id"
-              :_width="item._width"
-              :_height="item._height"
+              class="icons draggable"
+              :class="item.icon"
+              :_component="item.component"
+              :_width="item.width"
+              :_height="item.height"
         ></span>
 
       </v-card-text>
@@ -133,63 +123,63 @@
         dragItems: [
           {
             'icon': 'bpmn-icon-start-event-none',
-            '_shape_id': 'OG.shape.bpmn.E_Start',
-            '_width': '30',
-            '_height': '30'
+            'component': 'bpmn-start-event',
+            'width': '30',
+            'height': '30'
           },
           {
             'icon': 'bpmn-icon-intermediate-event-none',
-            '_shape_id': 'OG.shape.bpmn.E_Intermediate',
-            '_width': '30',
-            '_height': '30'
+            'component': 'bpmn-intermediate-event',
+            'width': '30',
+            'height': '30'
           },
           {
             'icon': 'bpmn-icon-end-event-none',
-            '_shape_id': 'OG.shape.bpmn.E_End',
-            '_width': '30',
-            '_height': '30'
+            'component': 'bpmn-end-event',
+            'width': '30',
+            'height': '30'
           },
           {
             'icon': 'bpmn-icon-gateway-xor',
-            '_shape_id': 'OG.shape.bpmn.G_Exclusive',
-            '_width': '40',
-            '_height': '40'
+            'component': 'bpmn-exclusive-gateway',
+            'width': '40',
+            'height': '40'
           },
           {
             'icon': 'bpmn-icon-task',
-            '_shape_id': 'OG.shape.bpmn.A_Task',
-            '_width': '100',
-            '_height': '100'
+            'component': 'bpmn-task',
+            'width': '100',
+            'height': '100'
           },
           {
             'icon': 'bpmn-icon-subprocess-expanded',
-            '_shape_id': 'OG.shape.bpmn.A_Subprocess',
-            '_width': '200',
-            '_height': '150'
+            'component': 'bpmn-subprocess',
+            'width': '200',
+            'height': '150'
           },
           {
             'icon': 'bpmn-icon-data-object',
-            '_shape_id': 'OG.shape.bpmn.D_Data',
-            '_width': '50',
-            '_height': '50'
+            'component': 'bpmn-data-object',
+            'width': '50',
+            'height': '50'
           },
           {
             'icon': 'bpmn-icon-data-store',
-            '_shape_id': 'OG.shape.bpmn.D_Store',
-            '_width': '50',
-            '_height': '50'
+            'component': 'bpmn-data-store',
+            'width': '50',
+            'height': '50'
           },
           {
             'icon': 'bpmn-icon-lane',
-            '_shape_id': 'OG.shape.VerticalPoolShape',
-            '_width': '300',
-            '_height': '300'
+            'component': 'bpmn-pool',
+            'width': '300',
+            'height': '300'
           },
           {
             'icon': 'bpmn-icon-participant',
-            '_shape_id': 'OG.shape.HorizontalLaneShape',
-            '_width': '400',
-            '_height': '200'
+            'component': 'bpmn-role',
+            'width': '400',
+            'height': '200'
           }
         ]
       }
@@ -205,7 +195,7 @@
       }
     },
     methods: {
-      bindEvents: function (canvas) {
+      bindEvents: function (opengraph) {
         //this.$el
         var me = this;
         var el = me.$el;
@@ -215,9 +205,9 @@
         $(el).find('.draggable').draggable({
           start: function () {
             canvasEl.data('DRAG_SHAPE', {
-              '_shape_id': $(this).attr('_shape_id'),
-              '_width': $(this).attr('_width'),
-              '_height': $(this).attr('_height')
+              'component': $(this).attr('_component'),
+              'width': $(this).attr('_width'),
+              'height': $(this).attr('_height')
             });
           },
           helper: 'clone',
@@ -227,22 +217,22 @@
         //var canvasEl = $(el).find(".canvas");
         canvasEl.droppable({
           drop: function (event, ui) {
-            var shapeInfo = canvasEl.data('DRAG_SHAPE'), shape, element;
-            if (shapeInfo) {
+            var componentInfo = canvasEl.data('DRAG_SHAPE'), shape, element;
+            if (componentInfo) {
               var dropX = event.pageX - canvasEl.offset().left + canvasEl[0].scrollLeft;
               var dropY = event.pageY - canvasEl.offset().top + canvasEl[0].scrollTop;
-              dropX = dropX / canvas._CONFIG.SCALE;
-              dropY = dropY / canvas._CONFIG.SCALE;
+              dropX = dropX / opengraph.scale;
+              dropY = dropY / opengraph.scale;
 
-              shapeInfo = {
-                shapeId: shapeInfo._shape_id,
+              componentInfo = {
+                component: componentInfo.component,
                 x: dropX,
                 y: dropY,
-                width: parseInt(shapeInfo._width, 10),
-                height: parseInt(shapeInfo._height, 10),
+                width: parseInt(componentInfo.width, 10),
+                height: parseInt(componentInfo.height, 10),
                 label: ''
               }
-              me.$refs['bpmn-vue'].addComponenet(shapeInfo);
+              me.$refs['bpmn-vue'].addComponenet(componentInfo);
             }
             canvasEl.removeData('DRAG_SHAPE');
           }

@@ -3,7 +3,9 @@
     focus-canvas-on-select
     :enableContextmenu="false"
     :enableRootContextmenu="false"
-    v-if="filteredDefinition">
+    v-if="filteredDefinition"
+    v-on:canvasReady="canvasReady"
+  >
     <div v-for="role in filteredDefinition.roles">
       <bpmn-role :role="role"></bpmn-role>
     </div>
@@ -52,7 +54,8 @@
         undoed: false,
         id: id,
         sliderId: sliderId,
-        canvas: null
+        canvas: null,
+        propertyEditing: false
       };
     },
 
@@ -141,6 +144,9 @@
       },
       canRedo: function () {
         return this.history.length - 1 - this.historyIndex > 0
+      },
+      bpmnRole: function () {
+        return 'bpmn-vue';
       }
     },
 
@@ -150,29 +156,31 @@
     },
 
     methods: {
+      canvasReady: function (opengraph) {
+        this.canvas = opengraph.canvas;
+        this.$emit('canvasReady', opengraph);
+      },
       /**
        * @param {Object} shapeInfo (shapeId,x,y,width,height,label)
        **/
-      addComponenet: function (shapeInfo) {
+      addComponenet: function (componentInfo) {
         var me = this;
-        var component = me.getSVGComponentByShapeId(shapeInfo.shapeId);
-        var className = component.computed.className();
+        var bpmnComponent = me.getComponentByName(componentInfo.component);
+        var className = bpmnComponent.computed.className();
         var additionalData = {};
         //롤 추가인 경우
-        if (shapeInfo.shapeId == 'OG.shape.HorizontalLaneShape') {
+        if (componentInfo.component == 'bpmn-role') {
           additionalData = {
             'name': '',
             'displayName': {},
             'elementView': {
               '_type': 'org.uengine.kernel.view.DefaultActivityView',
               'id': this.uuid(), //오픈그래프 자동 생성
-              'shapeId': shapeInfo.shapeId,
-              'x': shapeInfo.x,
-              'y': shapeInfo.y,
-              'width': shapeInfo.width,
-              'height': shapeInfo.height,
-              'label': shapeInfo.label,
-              'style': JSON.stringify({})
+              'component': 'bpmn-role',
+              'x': componentInfo.x,
+              'y': componentInfo.y,
+              'width': componentInfo.width,
+              'height': componentInfo.height
             }
           }
           me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalData)));
@@ -190,30 +198,24 @@
             'elementView': {
               '_type': 'org.uengine.kernel.view.DefaultActivityView',
               'id': newTracingTag,
-              'shapeId': shapeInfo.shapeId,
-              'x': shapeInfo.x,
-              'y': shapeInfo.y,
-              'width': shapeInfo.width,
-              'height': shapeInfo.height,
-              'label': shapeInfo.label,
-              'style': JSON.stringify({})
+              'component': componentInfo.component,
+              'x': componentInfo.x,
+              'y': componentInfo.y,
+              'width': componentInfo.width,
+              'height': componentInfo.height
             }
           }
           me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalData)));
         }
       },
-      getSVGComponentByShapeId(shapeId){
-        var componentByShapeId;
-        if (shapeId) {
-          $.each(window.Vue.bpmnComponents, function (i, component) {
-            if (component.computed.shapeId) {
-              if (component.computed.shapeId() == shapeId) {
-                componentByShapeId = component;
-              }
-            }
-          });
-          return componentByShapeId;
-        }
+      getComponentByName: function (name) {
+        var componentByName;
+        $.each(window.Vue.bpmnComponents, function (i, component) {
+          if (component.name == name) {
+            componentByName = component;
+          }
+        });
+        return componentByName;
       },
       undo: function () {
         if (this.canUndo) {
@@ -262,16 +264,6 @@
           })
         }
         return isExist;
-      },
-      findComponentById: function (id) {
-        var me = this;
-        var selected = null;
-        $.each(me.$children, function (i, component) {
-          if (component.id == id) {
-            selected = component;
-          }
-        });
-        return selected;
       },
       replaceTerminalId: function (terminal, id) {
         let split = terminal.split('_TERMINAL_');

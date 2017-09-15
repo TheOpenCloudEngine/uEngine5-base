@@ -270,7 +270,7 @@
        */
       labelEditable: {
         default: function () {
-          return true;
+          return false;
         },
         type: Boolean
       },
@@ -318,6 +318,7 @@
         parentElementComponent: null,
         parentControllerComponent: null,
         element: null,
+        bindElementEvent: false,
         shape: null,
         geometrys: {}
         ,
@@ -566,6 +567,8 @@
         //아이디가 업데이트 된 경우
         var me = this;
         if (me._id != me.element.id) {
+          //선택된 엘리먼트 모두 선택 취소.
+          me.canvasComponent.canvas._HANDLER.deselectAll();
           me.element = me.canvasComponent.canvas.updateId(me.element, me._id);
         }
         //아이디를 보전하며 다시 그린다.
@@ -853,12 +856,14 @@
        */
       bindElementEvents: function () {
         var me = this;
-        if (me.element && !$(me.element).data('vue-event')) {
-          $(me.element).data('vue-event', true);
-          $(me.element).bind('click', function () {
+        if (!me.bindElementEvent) {
+          me.bindElementEvent = true;
+          $(me.element).bind('click', function (event) {
+            event.stopPropagation();
             me.$emit('click', me);
           });
-          $(me.element).bind('dblclick', function () {
+          $(me.element).bind('dblclick', function (event) {
+            event.stopPropagation();
             me.$emit('dblclick', me);
           });
         }
