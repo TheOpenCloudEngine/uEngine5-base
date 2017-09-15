@@ -1,27 +1,19 @@
 <template>
-  <div>
-    <slot v-if="canvas" name="role"
-          v-for="item in filteredDefinition.roles"
-          :canvas="canvas"
-          :item="item">
-    </slot>
-    <slot v-if="canvas" name="activity"
-          v-for="item in filteredDefinition.childActivities[1]"
-          :canvas="canvas"
-          :item="item">
-    </slot>
-    <slot v-if="canvas" name="relation"
-          v-for="item in filteredDefinition.sequenceFlows"
-          :canvas="canvas"
-          :item="item">
-    </slot>
-    <div class="canvas-wrapper">
-      <div class="canvas-container" :id="id">
-
-      </div>
+  <opengraph
+    focus-canvas-on-select
+    :enableContextmenu="false"
+    :enableRootContextmenu="false"
+    v-if="filteredDefinition">
+    <div v-for="role in filteredDefinition.roles">
+      <bpmn-role :role="role"></bpmn-role>
     </div>
-    <div :id="sliderId"></div>
-  </div>
+    <div v-for="activity in filteredDefinition.childActivities[1]">
+      <component :is="activity.elementView.component" :activity="activity"></component>
+    </div>
+    <div v-for="relation in filteredDefinition.sequenceFlows">
+      <bpmn-relation :relation="relation"></bpmn-relation>
+    </div>
+  </opengraph>
 </template>
 
 <script>
@@ -53,7 +45,7 @@
       return {
         drawer: true,
         text: 'sdfsdf',
-        filteredDefinition: this.definition,
+        filteredDefinition: filteredDefinition,
         history: [JSON.parse(JSON.stringify(this.definition))],
         historyIndex: 0,
         undoing: false,
@@ -65,9 +57,6 @@
     },
 
     watch: {
-      definition(val){
-        this.filteredDefinition = val;
-      },
       filteredDefinition: {
         handler: function (after, before) {
           console.log('definition update');
@@ -77,70 +66,70 @@
           //2.BpmnComponent: 릴레이션 아이디가 틀리게 옴.
           //3.BpmnComponent: 선연결이 사라짐.
           //4.BpmnComponent: 새로 선연결을 함.
-          var me = this;
-          let activities = after.childActivities[1];
-          let roles = after.roles;
-          let sequenceFlows = after.sequenceFlows;
-          if (activities && activities.length) {
-            $.each(activities, function (i, activitiy) {
-
-              //트레이싱 태그가 변동되었을 경우
-              if (activitiy && activitiy.tracingTag != activitiy.elementView.id) {
-                var oldId = activitiy.elementView.id;
-                activitiy.elementView.id = activitiy.tracingTag;
-
-                if (sequenceFlows && sequenceFlows.length) {
-                  $.each(sequenceFlows, function (i, relation) {
-                    if (relation && relation.sourceRef == oldId) {
-                      relation.sourceRef = activitiy.tracingTag;
-                      relation.relationView.from = me.replaceTerminalId(relation.relationView.from, activitiy.tracingTag);
-                    }
-                    if (relation && relation.targetRef == oldId) {
-                      relation.targetRef = activitiy.tracingTag;
-                      relation.relationView.to = me.replaceTerminalId(relation.relationView.to, activitiy.tracingTag);
-                    }
-                  });
-                }
-              }
-              //Name 이 변동되었을 경우
-              if (activitiy && activitiy.name && activitiy.name.text != activitiy.elementView.label) {
-                activitiy.elementView.label = activitiy.name.text;
-              }
-            })
-          }
-
-          //롤의 이름이 변경되었을 때
-          //1.Here : 휴먼 액티비티 중 oldname 을 가지고 있는 role 을 같이 변경한다.
-          if (roles && roles.length) {
-            $.each(roles, function (i, role) {
-              if (role && role.name != role.elementView.label) {
-                var oldName = role.elementView.label;
-                role.elementView.label = role.name;
-
-                if (activities && activities.length) {
-                  $.each(activities, function (i, activitiy) {
-                    if (activitiy && activitiy.role && activitiy.role.name == oldName) {
-                      activitiy.role = JSON.parse(JSON.stringify(role));
-                    }
-                  })
-                }
-              }
-            })
-          }
-
-          if (!this.undoing) {
-
-            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
-              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
-              this.undoed = false;
-            }
-
-            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
-            this.historyIndex = this.history.length;
-          } else {
-            this.undoing = false;
-          }
-          this.$emit('update:definition', this.filteredDefinition)
+//          var me = this;
+//          let activities = after.childActivities[1];
+//          let roles = after.roles;
+//          let sequenceFlows = after.sequenceFlows;
+//          if (activities && activities.length) {
+//            $.each(activities, function (i, activitiy) {
+//
+//              //트레이싱 태그가 변동되었을 경우
+//              if (activitiy && activitiy.tracingTag != activitiy.elementView.id) {
+//                var oldId = activitiy.elementView.id;
+//                activitiy.elementView.id = activitiy.tracingTag;
+//
+//                if (sequenceFlows && sequenceFlows.length) {
+//                  $.each(sequenceFlows, function (i, relation) {
+//                    if (relation && relation.sourceRef == oldId) {
+//                      relation.sourceRef = activitiy.tracingTag;
+//                      relation.relationView.from = me.replaceTerminalId(relation.relationView.from, activitiy.tracingTag);
+//                    }
+//                    if (relation && relation.targetRef == oldId) {
+//                      relation.targetRef = activitiy.tracingTag;
+//                      relation.relationView.to = me.replaceTerminalId(relation.relationView.to, activitiy.tracingTag);
+//                    }
+//                  });
+//                }
+//              }
+//              //Name 이 변동되었을 경우
+//              if (activitiy && activitiy.name && activitiy.name.text != activitiy.elementView.label) {
+//                activitiy.elementView.label = activitiy.name.text;
+//              }
+//            })
+//          }
+//
+//          //롤의 이름이 변경되었을 때
+//          //1.Here : 휴먼 액티비티 중 oldname 을 가지고 있는 role 을 같이 변경한다.
+//          if (roles && roles.length) {
+//            $.each(roles, function (i, role) {
+//              if (role && role.name != role.elementView.label) {
+//                var oldName = role.elementView.label;
+//                role.elementView.label = role.name;
+//
+//                if (activities && activities.length) {
+//                  $.each(activities, function (i, activitiy) {
+//                    if (activitiy && activitiy.role && activitiy.role.name == oldName) {
+//                      activitiy.role = JSON.parse(JSON.stringify(role));
+//                    }
+//                  })
+//                }
+//              }
+//            })
+//          }
+//
+//          if (!this.undoing) {
+//
+//            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
+//              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+//              this.undoed = false;
+//            }
+//
+//            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
+//            this.historyIndex = this.history.length;
+//          } else {
+//            this.undoing = false;
+//          }
+//          this.$emit('update:definition', this.filteredDefinition)
         },
         deep: true
       },
@@ -156,8 +145,8 @@
     },
 
     mounted: function () {
-      this.render();
-      this.bindEvents();
+//      this.render();
+//      this.bindEvents();
     },
 
     methods: {
@@ -413,43 +402,43 @@
           me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
         });
       },
-      render: function () {
-        var me = this;
-        //canvas = new OG.Canvas('canvas', [1000, 800], 'transparent');
-        var canvas = new OG.Canvas(this.id, [2000, 2000], '#f7f7f7', 'url(/static/image/grid.gif)');
-        canvas._CONFIG.DEFAULT_STYLE.EDGE["edge-type"] = "plain";
-        canvas._CONFIG.GUIDE_CONTROL_LINE_NUM = 1;
-        canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
-        canvas._CONFIG.WHEEL_SCALABLE = true;
-        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
-        canvas._CONFIG.AUTOMATIC_GUIDANCE = true;
-        canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
-        canvas._CONFIG.POOL_DROP_EVENT = true;
-        canvas._CONFIG.AUTO_EXTENSIONAL = false;
-
-        canvas.initConfig({
-          selectable: true,
-          dragSelectable: true,
-          movable: true,
-          resizable: true,
-          connectable: true,
-          selfConnectable: true,
-          connectCloneable: false,
-          connectRequired: true,
-          labelEditable: false,
-          groupDropable: true,
-          collapsible: true,
-          enableHotKey: true,
-          enableContextMenu: false,
-          useSlider: false,
-          stickGuide: true,
-          checkBridgeEdge: true,
-          autoHistory: false
-        });
-
-        this.canvas = canvas;
-        this.$emit('canvasReady', canvas);
-      },
+//      render: function () {
+//        var me = this;
+//        //canvas = new OG.Canvas('canvas', [1000, 800], 'transparent');
+//        var canvas = new OG.Canvas(this.id, [2000, 2000], '#f7f7f7', 'url(/static/image/grid.gif)');
+//        canvas._CONFIG.DEFAULT_STYLE.EDGE["edge-type"] = "plain";
+//        canvas._CONFIG.GUIDE_CONTROL_LINE_NUM = 1;
+//        canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
+//        canvas._CONFIG.WHEEL_SCALABLE = true;
+//        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
+//        canvas._CONFIG.AUTOMATIC_GUIDANCE = true;
+//        canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
+//        canvas._CONFIG.POOL_DROP_EVENT = true;
+//        canvas._CONFIG.AUTO_EXTENSIONAL = false;
+//
+//        canvas.initConfig({
+//          selectable: true,
+//          dragSelectable: true,
+//          movable: true,
+//          resizable: true,
+//          connectable: true,
+//          selfConnectable: true,
+//          connectCloneable: false,
+//          connectRequired: true,
+//          labelEditable: false,
+//          groupDropable: true,
+//          collapsible: true,
+//          enableHotKey: true,
+//          enableContextMenu: false,
+//          useSlider: false,
+//          stickGuide: true,
+//          checkBridgeEdge: true,
+//          autoHistory: false
+//        });
+//
+//        this.canvas = canvas;
+//        this.$emit('canvasReady', canvas);
+//      },
       removeComponentByElement: function (id) {
         var me = this;
         //릴레이션 삭제

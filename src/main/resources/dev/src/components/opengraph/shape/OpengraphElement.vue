@@ -88,6 +88,7 @@
       /**
        * 서브 도형 프로퍼티
        */
+      subZIndex: Number,
       subWidth: {
         default: function () {
           return '100%';
@@ -340,7 +341,7 @@
           for (var key in newVal) {
             if (typeof newVal[key] == 'object') {
               if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
-                console.log(key, newVal[key], oldVal[key]);
+                console.log('property diff', key, newVal[key], oldVal[key]);
                 needToWatch = true;
               }
             } else {
@@ -350,7 +351,7 @@
                   needToWatch = false;
                 } else {
                   needToWatch = true;
-                  console.log(key, newVal[key], oldVal[key]);
+                  console.log('property diff', key, newVal[key], oldVal[key]);
                 }
               }
             }
@@ -360,8 +361,10 @@
           }
           if (this.elementRole == 'opengraph-element') {
             if (!this.element) {
+              console.log('drawShape', this.id);
               this.drawShape();
             } else {
+              console.log('updateShape', this.id);
               this.updateShape();
             }
           }
@@ -509,7 +512,6 @@
       }
       ,
       setElementRole: function () {
-        //console.log(this.$parent);
         var me = this;
         var parentElementComponent = null;
         var parent;
@@ -637,7 +639,6 @@
               if ((!me.vertices || me.vertices.length < 2) && fromElement && toElement) {
                 me.element = me.canvasComponent.canvas.connect(
                   fromElement, toElement, style, me.label, fromP, toP, true, me._id);
-                console.log('me.element', me.element);
               }
               //vertices 가 있고 연결할 대상이 있는 경우
               else if (fromElement && toElement) {
@@ -649,7 +650,6 @@
                 me.element = me.canvasComponent.canvas.drawShape(null, shape, null, style, me._id, null, true);
               }
               //스타일은 복사하여 pops 에 영향을 주지 않도록 한다.
-              //console.log('me._style' , me._style);
 
               break;
             case OG.Constants.SHAPE_TYPE.HTML:
@@ -665,9 +665,47 @@
               me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, me._id, me.parentId);
               break;
           }
+          this.setGroup();
           this.bindElementEvents();
           this.emitElement();
         }
+      },
+      setGroup: function () {
+        var me = this;
+
+        //도형이 없거나, 부모가 설정된 경우라면 리턴.
+        if (!me.element || me.parentId) {
+          return;
+        }
+        //draw 대상이 Edge 이면 리턴.
+        if (me.canvasComponent.canvas.getRenderer().isEdge(me.element)) {
+          return;
+        }
+        //draw 대상이 Lane 인 경우 리턴.
+        if (me.canvasComponent.canvas.getRenderer().isLane(me.element)) {
+          return;
+        }
+
+        //그룹위에 그려졌을 경우 그룹처리
+        var frontGroup = me.canvasComponent.canvas.getRenderer()
+          .getFrontForBoundary(me.canvasComponent.canvas.getRenderer().getBoundary(me.element));
+
+        if (!frontGroup) {
+          return;
+        }
+        //그룹이 Lane 인 경우 RootLane 으로 변경
+        if (me.canvasComponent.canvas.getRenderer().isLane(frontGroup)) {
+          frontGroup = me.canvasComponent.canvas.getRenderer().getRootLane(frontGroup);
+        }
+        //그룹 드랍가능이 아니면 리턴.
+        if (!me.canvasComponent.canvas.getRenderer()._CONFIG.GROUP_DROPABLE || !frontGroup.shape.GROUP_DROPABLE) {
+          return;
+        }
+        //자신일 경우 반응하지 않는다.
+        if (frontGroup.id === me.element.id) {
+          return;
+        }
+        frontGroup.appendChild(me.element);
       },
       /**
        * 도형 프로퍼티를 등록한다.
@@ -899,6 +937,7 @@
               right: me.subshapes[key].subRight,
               align: me.subshapes[key].subAlign,
               'vertical-align': me.subshapes[key].subVerticalAlign,
+              'z-index': me.subshapes[key].subZIndex,
               style: JSON.parse(JSON.stringify(me.subshapes[key].subStyle))
             })
           }

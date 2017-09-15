@@ -4,16 +4,16 @@
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :definition.sync="definition"
               v-on:canvasReady="bindEvents">
-      <template slot="role" scope="props">
-        <bpmn-role :role="props.item" :canvas="props.canvas"></bpmn-role>
-      </template>
-      <template slot="activity" scope="props">
-        <component :is="getSVGComponentName(props.item)" :activity="props.item"
-                   :canvas="props.canvas"></component>
-      </template>
-      <template slot="relation" scope="props">
-        <bpmn-relation :relation="props.item" :canvas="props.canvas"></bpmn-relation>
-      </template>
+      <!--<template slot="role" scope="props">-->
+        <!--<bpmn-role :role="props.item" :canvas="props.canvas"></bpmn-role>-->
+      <!--</template>-->
+      <!--<template slot="activity" scope="props">-->
+        <!--<component :is="getSVGComponentName(props.item)" :activity="props.item"-->
+                   <!--:canvas="props.canvas"></component>-->
+      <!--</template>-->
+      <!--<template slot="relation" scope="props">-->
+        <!--<bpmn-relation :relation="props.item" :canvas="props.canvas"></bpmn-relation>-->
+      <!--</template>-->
     </bpmn-vue>
 
     <v-card v-if="!monitor" class="grey lighten-4 tools">

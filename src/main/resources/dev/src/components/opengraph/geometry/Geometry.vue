@@ -28,13 +28,11 @@
           for (var key in newVal) {
             if (typeof newVal[key] == 'object') {
               if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
-                //console.log('gemetry', key, newVal[key], oldVal[key]);
                 needToWatch = true;
               }
             } else {
               if (newVal[key] != oldVal[key]) {
                 needToWatch = true;
-                //console.log('gemetry', key, newVal[key], oldVal[key]);
               }
             }
           }

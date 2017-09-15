@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer class="property-panel"
                        temporary
-                       v-model="drawer"
+                       v-model="navigationDrawer"
                        right
                        light
                        overflow
@@ -16,6 +16,7 @@
         </v-tabs-item>
         <slot name="additional-tabs">
         </slot>
+
         <v-tabs-item
           ripple
           :href="'#visual' + _uid">
@@ -39,6 +40,7 @@
           <slot name="properties-contents">
           </slot>
         </v-tabs-content>
+
         <slot name="additional-tabs-contents">
 
         </slot>
@@ -92,25 +94,32 @@
   export default {
     name: 'bpmn-property-panel',
     props: {
-      parentId: String
+      drawer: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
+      item: Object,
+      isRole: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
     },
     computed: {},
     data: function () {
       var me = this;
       return {
+        navigationDrawer: this.drawer,
+        _item: this.item,
         preventWatch: false,
-        element: null,
-        canvas: null,
-        drawer: false,
-        id: null,
-        value: null,
         x: null,
         y: null,
         width: null,
         height: null,
-        label: null,
         style: [],
-        text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         active: null,
         tracingTag: null,
         bpmnComponent: null,
@@ -123,134 +132,90 @@
             }
           },
           tracingTag: function (value) {
-            //동일함.
-            if (me.bpmnComponent.activity.tracingTag == value) {
-              return true;
-            }
-            //이미 있음.
-            else if (me.bpmnComponent.$parent.checkExistTracingTag(value)) {
-              return 'TracingTag aleardy exist.';
-            }
-            //트레이싱 태그 값이 바뀜.
-            else if (value && value.length > 0) {
-              me.bpmnComponent.activity.tracingTag = value;
-              return true;
-            }
+//            //동일함.
+//            if (me.bpmnComponent.activity.tracingTag == value) {
+//              return true;
+//            }
+//            //이미 있음.
+//            else if (me.bpmnComponent.$parent.checkExistTracingTag(value)) {
+//              return 'TracingTag aleardy exist.';
+//            }
+//            //트레이싱 태그 값이 바뀜.
+//            else if (value && value.length > 0) {
+//              me.bpmnComponent.activity.tracingTag = value;
+//              return true;
+//            }
+            return true;
           }
         }
       }
     },
     created: function () {
-      var me = this;
-      window.Vue.bpmnBus.$on('element-dblclick', function (component, element) {
-        if (component.id == me.parentId) {
-          console.log(component.id, me.parentId);
-          me.preventWatch = true;
-          let boundary = component.canvas.getBoundary(element);
-          if (!element || !boundary) {
-            return;
-          }
-          me.width = boundary.getWidth();
-          me.height = boundary.getHeight();
-          me.x = boundary.getCentroid().x;
-          me.y = boundary.getCentroid().y;
-          me.label = element.shape.label;
 
-          var parent = component.canvas.getRenderer().getParent(element);
-          me.parent = parent ? parent.id : null;
-          me.id = element.id;
-
-          if (element.shape.geom.vertices) {
-            me.value = element.shape.geom.vertices.toString();
-          }
-
-          var style = [];
-          var createdStyle = element.shape.geom.style.map;
-          for (var key in createdStyle) {
-            style.push({
-              key: key,
-              value: createdStyle[key]
-            });
-          }
-          me.style = style;
-          me.drawer = true;
-          if (!me.canvas) {
-            me.canvas = component.canvas;
-          }
-          me.element = element;
-
-          if (component.activity) {
-            me.tracingTag = component.activity.tracingTag;
-          }
-          me.bpmnComponent = component;
-        }
-      });
     },
     mounted: function () {
-      console.log(window.Vue.bpmnLiveComponents);
+
     },
     watch: {
-      x: {
-        handler: function (newVal, oldVal) {
-          if (!this.preventWatch) {
-            var value = this.toNumber(newVal);
-            if (value) {
-              this.canvas.moveCentroid(this.element, [value, this.y]);
-              $(this.canvas.getRootElement()).trigger('addHistory');
-            }
-          }
-        },
-        deep: true
+      drawer: function (val) {
+        this.navigationDrawer = val;
       },
-      y: {
-        handler: function (newVal, oldVal) {
-          if (!this.preventWatch) {
-            var value = this.toNumber(newVal);
-            if (value && value != 0) {
-              this.canvas.moveCentroid(this.element, [this.x, value]);
-              $(this.canvas.getRootElement()).trigger('addHistory');
+      //프로퍼티 창이 오픈되었을 때 모델값을 새로 반영한다.
+      navigationDrawer: function (val) {
+        if (val) {
+          this._item = this.item;
+          this.x = this.item.elementView.x;
+          this.y = this.item.elementView.y;
+          this.width = this.item.elementView.width;
+          this.height = this.item.elementView.height;
+          //맵 형식의 스타일을 어레이타입으로 변형한다.
+          var style = [];
+          if (this.item.elementView.style) {
+            var itemStyle = JSON.parse(this.item.elementView.style);
+            if (!$.isEmptyObject(itemStyle)) {
+              for (var key in itemStyle) {
+                style.push({
+                  key: key,
+                  value: itemStyle[key]
+                });
+              }
             }
+            this.style = style;
           }
-        },
-        deep: true
+
+          if (this.item.tracingTag) {
+            this.tracingTag = this.item.tracingTag;
+          }
+        } else {
+          this.$emit('update:drawer', false);
+        }
       },
-      width: {
-        handler: function (newVal, oldVal) {
-          if (!this.preventWatch) {
-            var value = this.toNumber(newVal);
-            if (value && value != 0) {
-              this.canvas.resizeBox(this.element, [value, this.height]);
-              $(this.canvas.getRootElement()).trigger('addHistory');
-            }
-          }
-        },
-        deep: true
+      x: function (val) {
+        this._item.elementView.x = val;
+        this.$emit('update:item', this._item);
       },
-      height: {
-        handler: function (newVal, oldVal) {
-          if (!this.preventWatch) {
-            var value = this.toNumber(newVal);
-            if (value && value != 0) {
-              this.canvas.resizeBox(this.element, [this.width, value]);
-              $(this.canvas.getRootElement()).trigger('addHistory');
-            }
-          }
-        },
-        deep: true
+      y: function (val) {
+        this._item.elementView.y = val;
+        this.$emit('update:item', this._item);
+      },
+      width: function (val) {
+        this._item.elementView.width = val;
+        this.$emit('update:item', this._item);
+      },
+      height: function (val) {
+        this._item.elementView.height = val;
+        this.$emit('update:item', this._item);
       },
       style: {
         handler: function (newVal, oldVal) {
-          if (!this.preventWatch) {
-            var style = {};
-            if (newVal && newVal.length) {
-              $.each(newVal, function (i, item) {
-                style[item.key] = item.value;
-              });
-            }
-            this.canvas.setShapeStyle(this.element, style);
-            $(this.canvas.getRootElement()).trigger('addHistory');
+          var style = {};
+          if (newVal && newVal.length) {
+            $.each(newVal, function (i, item) {
+              style[item.key] = item.value;
+            });
           }
-          this.preventWatch = false;
+          this._item.elementView.style = JSON.stringify(style);
+          this.$emit('update:item', this._item);
         },
         deep: true
       }
@@ -259,18 +224,15 @@
 
     },
     methods: {
-      toNumber: function (val) {
-        var number;
-        if (isNaN(val)) {
-          try {
-            number = parseFloat(val);
-          } catch (e) {
-
-          }
-        } else {
-          number = val;
+      uuid: function () {
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
         }
-        return number;
+
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
       }
     }
   }

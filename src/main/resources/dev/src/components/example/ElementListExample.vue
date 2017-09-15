@@ -1,8 +1,6 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div class="canvas-panel">
-    <opengraph
-      focus-canvas-on-select
-    >
+    <opengraph focus-canvas-on-select>
       <template>
         <geometry-element
           selectable

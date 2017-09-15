@@ -22017,10 +22017,8 @@ OG.renderer.RaphaelRenderer.prototype.drawShape = function (position, shape, siz
             geometry.rotate(size[2]);
             shape.angle = size[2];
         }
-
         groupNode = this.drawGeom(geometry, style, id);
         shape.geom = groupNode.geom;
-
 
     } else if (shape instanceof OG.shape.TextShape) {
         text = shape.createShape();
@@ -22072,6 +22070,8 @@ OG.renderer.RaphaelRenderer.prototype.drawShape = function (position, shape, siz
 
     if (shape.geom) {
         groupNode.shape = shape;
+    } else {
+        groupNode.shape.label = shape.label;
     }
     groupNode.shapeStyle = (style instanceof OG.geometry.Style) ? style.map : style;
     $(groupNode).attr("_shape_id", shape.SHAPE_ID);
@@ -22953,7 +22953,6 @@ OG.renderer.RaphaelRenderer.prototype.drawLabel = function (shapeElement, text, 
             }
             text = beforeEvent.afterText;
         }
-
         OG.Util.apply(element.shape.geom.style.map, _style);
         element.shape.label = text === undefined ? element.shape.label : text;
 
@@ -35027,11 +35026,6 @@ OG.graph.Canvas = function (container, containerSize, backgroundColor, backgroun
         HISTORY_SIZE: 100,
 
         /**
-         * 확대/축소 슬라이더
-         */
-        USE_SLIDER: true,
-
-        /**
          * 클릭선택 가능여부
          */
         SELECTABLE: true,
@@ -35795,7 +35789,6 @@ OG.graph.Canvas.prototype = {
             this._CONFIG.ENABLE_HOTKEY = config.enableHotKey === undefined ? this._CONFIG.ENABLE_HOTKEY : config.enableHotKey;
             this._CONFIG.ENABLE_CONTEXTMENU = config.enableContextMenu === undefined ? this._CONFIG.ENABLE_CONTEXTMENU : config.enableContextMenu;
             this._CONFIG.AUTO_EXTENSIONAL = config.autoExtensional === undefined ? this._CONFIG.AUTO_EXTENSIONAL : config.autoExtensional;
-            this._CONFIG.USE_SLIDER = config.useSlider === undefined ? this._CONFIG.USE_SLIDER : config.useSlider;
             this._CONFIG.STICK_GUIDE = config.stickGuide === undefined ? this._CONFIG.STICK_GUIDE : config.stickGuide;
             this._CONFIG.CHECK_BRIDGE_EDGE = config.checkBridgeEdge === undefined ? this._CONFIG.CHECK_BRIDGE_EDGE : config.checkBridgeEdge;
             this._CONFIG.AUTO_HISTORY = config.autoHistory === undefined ? this._CONFIG.AUTO_HISTORY : config.autoHistory;

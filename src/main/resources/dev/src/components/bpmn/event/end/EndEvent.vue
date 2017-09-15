@@ -1,50 +1,90 @@
 <template>
-  <bpmn-property-panel :parentId="id">
-    <template slot="properties-contents">
-      <v-layout row wrap class="pa-3">
-        <v-flex xs12>
-          <v-text-field
-            label="액티비티 명"
-            v-model="activity.name.text"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            type="number"
-            label="retryDelay"
-            v-model.number="activity.retryDelay"
-          ></v-text-field>
-        </v-flex>
-      </v-layout>
-    </template>
-    <template slot="additional-tabs">
+  <div>
+    <geometry-element
+      selectable
+      movable
+      resizable
+      connectable
+      deletable
+      :enableFrom="false"
+      :id.sync="activity.tracingTag"
+      :x.sync="activity.elementView.x"
+      :y.sync="activity.elementView.y"
+      :width.sync="activity.elementView.width"
+      :height.sync="activity.elementView.height"
+      :_style.sync="style"
+      :parentId.sync="activity.elementView.parent"
+      :label.sync="activity.name.text"
+      v-on:dblclick="showProperty"
+    >
+      <geometry-circle
+        :center="[50,50]"
+        :radius="5"
+        :_style="{
+        'label-position': 'bottom',
+        'stroke-width': 3
+      }"
+      >
+      </geometry-circle>
+      <sub-elements>
+        <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
+      </sub-elements>
+      <bpmn-sub-controller :type="type"></bpmn-sub-controller>
+    </geometry-element>
 
-    </template>
-    <template slot="additional-tabs-contents">
+    <bpmn-property-panel
+      :drawer.sync="drawer"
+      :item.sync="activity"
+    >
+      <template slot="properties-contents">
+        <v-layout row wrap class="pa-3">
+          <v-flex xs12>
+            <v-text-field
+              label="액티비티 명"
+              v-model="activity.name.text"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-text-field
+              type="number"
+              label="retryDelay"
+              v-model.number="activity.retryDelay"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </template>
+      <template slot="additional-tabs">
 
-    </template>
-  </bpmn-property-panel>
+      </template>
+      <template slot="additional-tabs-contents">
+
+      </template>
+    </bpmn-property-panel>
+  </div>
 </template>
 
 <script>
-  /**
-   * 엔트 이벤트의 기본형.
-   */
-  import BaseEvent from '../BaseEvent'
+  import IBpmn from '../../IBpmn'
   export default {
-    mixins: [BaseEvent],
+    mixins: [IBpmn],
     name: 'bpmn-end-event',
     props: {},
     computed: {
+      defaultStyle(){
+        return {
+          'label-position': 'bottom',
+          'stroke-width': 3
+        }
+      },
+      type(){
+        return 'EndEvent'
+      },
       className(){
         return 'org.uengine.kernel.bpmn.EndEvent'
-      },
-      shapeId(){
-        return 'OG.shape.bpmn.E_End'
       }
     },
     data: function () {
-      return {}
+      return {};
     },
     watch: {},
     mounted: function () {
@@ -52,79 +92,14 @@
     },
     methods: {}
   }
-
-
-  /**
-   * BPMN : End Event Shape
-   *
-   * @class
-   * @extends OG.shape.GeomShape
-   * @requires OG.common.*
-   * @requires OG.geometry.*
-   *
-   * @param {String} label 라벨 [Optional]
-   * @author <a href="mailto:sppark@uengine.org">Seungpil Park</a>
-   * @private
-   */
-  OG.shape.bpmn.E_End = function (label) {
-    OG.shape.bpmn.E_End.superclass.call(this);
-
-    this.SHAPE_ID = 'OG.shape.bpmn.E_End';
-    this.label = label;
-    this.inclusion = false;
-  };
-  OG.shape.bpmn.E_End.prototype = new OG.shape.bpmn.Event();
-  OG.shape.bpmn.E_End.superclass = OG.shape.bpmn.Event;
-  OG.shape.bpmn.E_End.prototype.constructor = OG.shape.bpmn.E_End;
-  OG.E_End = OG.shape.bpmn.E_End;
-
-  /**
-   * 드로잉할 Shape 을 생성하여 반환한다.
-   *
-   * @return {OG.geometry.Geometry} Shape 정보
-   * @override
-   */
-  OG.shape.bpmn.E_End.prototype.createShape = function () {
-    if (this.geom) {
-      return this.geom;
-    }
-
-    this.geom = new OG.geometry.Circle([50, 50], 50);
-    this.geom.style = new OG.geometry.Style({
-      "stroke-width": 3,
-      'label-position': 'bottom'
-    });
-
-    return this.geom;
-  };
-
-  OG.shape.bpmn.E_End.prototype.createController = function () {
-    //선연결 컨트롤러
-    var me = this;
-    var controllers = [
-      {
-        image: 'annotation.png',
-        create: {
-          shape: 'OG.M_Annotation',
-          width: 120,
-          height: 30,
-          style: {}
-        }
-      },
-      {
-        image: 'wrench.png',
-        action: function (element) {
-          $(me.currentCanvas.getRootElement()).trigger('changeMenu', [element]);
-        }
-      }
-    ];
-    return controllers;
-  };
-
 </script>
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
 
+  /*네비게이션 패널 넓이*/
+  aside.navigation-drawer.navigation-drawer--absolute.navigation-drawer--is-booted.navigation-drawer--open {
+    width: 400px;
+  }
 </style>
 

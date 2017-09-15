@@ -1,43 +1,67 @@
 <template>
-  <bpmn-property-panel :parentId="id">
-    <template slot="properties-contents">
-      <v-layout row wrap class="pa-3">
-        <v-flex xs12>
-          <v-text-field
-            label="롤 명"
-            v-model="role.name"
-          ></v-text-field>
-        </v-flex>
-      </v-layout>
-    </template>
-    <template slot="additional-tabs">
+  <div>
+    <horizontal-lane-element
+      selectable
+      movable
+      resizable
+      deletable
+      :id.sync="role.elementView.id"
+      :x.sync="role.elementView.x"
+      :y.sync="role.elementView.y"
+      :width.sync="role.elementView.width"
+      :height.sync="role.elementView.height"
+      :_style.sync="style"
+      :parentId.sync="role.elementView.parent"
+      :label.sync="role.name"
+      v-on:dblclick="showProperty"
+    >
+      </geometry-circle>
+      <sub-elements>
+        <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
+      </sub-elements>
+      <bpmn-sub-controller :type="type"></bpmn-sub-controller>
+    </horizontal-lane-element>
 
-    </template>
-    <template slot="additional-tabs-contents">
+    <bpmn-property-panel
+      :drawer.sync="drawer"
+      :item.sync="role"
+    >
+      <template slot="properties-contents">
+        <v-layout row wrap class="pa-3">
+          <v-flex xs12>
+            <v-text-field
+              label="롤 명"
+              v-model="role.name"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </template>
+      <template slot="additional-tabs">
 
-    </template>
-  </bpmn-property-panel>
+      </template>
+      <template slot="additional-tabs-contents">
+
+      </template>
+    </bpmn-property-panel>
+  </div>
 </template>
 
 <script>
-  /**
-   * 게이트웨이의 기본형.
-   */
   import IBpmn from '../IBpmn'
   export default {
     mixins: [IBpmn],
     name: 'bpmn-role',
     props: {},
     computed: {
-      className(){
-        return ''
+      defaultStyle(){
+        return {}
       },
-      shapeId(){
-        return 'OG.shape.HorizontalLaneShape'
+      type(){
+        return 'Role'
       }
     },
     data: function () {
-      return {}
+      return {};
     },
     watch: {},
     mounted: function () {
@@ -45,140 +69,14 @@
     },
     methods: {}
   }
-
-
-  /**
-   * Horizontal Swimlane Shape
-   *
-   * @class
-   * @extends OG.shape.GroupShape
-   * @requires OG.common.*
-   * @requires OG.geometry.*
-   *
-   * @param {String} label 라벨 [Optional]
-   * @author <a href="mailto:sppark@uengine.org">Seungpil Park</a>
-   */
-  OG.shape.HorizontalLaneShape = function (label) {
-    OG.shape.HorizontalLaneShape.superclass.call(this, label);
-
-    this.SHAPE_ID = 'OG.shape.HorizontalLaneShape';
-
-  };
-  OG.shape.HorizontalLaneShape.prototype = new OG.shape.GroupShape();
-  OG.shape.HorizontalLaneShape.superclass = OG.shape.GroupShape;
-  OG.shape.HorizontalLaneShape.prototype.constructor = OG.shape.HorizontalLaneShape;
-  OG.HorizontalLaneShape = OG.shape.HorizontalLaneShape;
-
-  /**
-   * 드로잉할 Shape 을 생성하여 반환한다.
-   *
-   * @return {OG.geometry.Geometry} Shape 정보
-   * @override
-   */
-  OG.shape.HorizontalLaneShape.prototype.createShape = function () {
-    if (this.geom) {
-      return this.geom;
-    }
-
-    this.geom = new OG.geometry.Rectangle([0, 0], 100, 100);
-    this.geom.style = new OG.geometry.Style({
-      'label-direction': 'vertical',
-      'vertical-align' : 'top',
-      'fill' : '#ffffff',
-      'fill-opacity': 0
-    });
-
-    return this.geom;
-  };
-
-
-  OG.shape.HorizontalLaneShape.prototype.createSubShape = function () {
-    this.sub = [];
-
-    var statusShape, statusAnimation;
-    switch (this.status) {
-      case "Completed":
-        statusShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'complete.png');
-        break;
-      case "Running":
-        statusShape = new OG.ImageShape(this.currentCanvas._CONFIG.IMAGE_BASE + 'running.png');
-        statusAnimation = new OG.RectangleShape();
-        break;
-    }
-    if (statusShape) {
-      this.sub.push({
-        shape: statusShape,
-        width: '20px',
-        height: '20px',
-        align: 'center',
-        top: '0px',
-        style: {}
-      })
-    }
-    if (statusAnimation) {
-      this.sub.push({
-        shape: statusAnimation,
-        'z-index': -1,
-        width: '120%',
-        height: '120%',
-        left: '-10%',
-        top: '-10%',
-        style: {
-          'fill-opacity': 1,
-          animation: [
-            {
-              start: {
-                fill: 'white'
-              },
-              to: {
-                fill: '#C9E2FC'
-              },
-              ms: 1000
-            },
-            {
-              start: {
-                fill: '#C9E2FC'
-              },
-              to: {
-                fill: 'white'
-              },
-              ms: 1000,
-              delay: 1000
-            }
-          ],
-          'animation-repeat': true,
-          "fill": "#C9E2FC",
-          "stroke-width": "0.2",
-          "r": "10",
-          'stroke-dasharray': '--'
-        }
-      })
-    }
-    return this.sub;
-  };
-
-  OG.shape.HorizontalLaneShape.prototype.createController = function () {
-    //선연결 컨트롤러
-    var me = this;
-    var controllers = [
-      {
-        image: 'annotation.png',
-        create: {
-          shape: 'OG.M_Annotation',
-          width: 120,
-          height: 30,
-          style: {}
-        }
-      }
-    ];
-    return controllers;
-  };
-
-
 </script>
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
 
+  /*네비게이션 패널 넓이*/
+  aside.navigation-drawer.navigation-drawer--absolute.navigation-drawer--is-booted.navigation-drawer--open {
+    width: 400px;
+  }
 </style>
 
