@@ -335,7 +335,7 @@
           if (this.elementRole != 'opengraph-element') {
             return;
           }
-          console.log('1. element`s _props change detected!!');
+          console.log('1. _props change detected!! => ' + this._id);
           this.props = JSON.parse(JSON.stringify(newVal));
         }
         ,
@@ -408,6 +408,7 @@
       //오픈그래프 역할일 경우 캔버스에 엘리먼트 등록 삭제.
       if (me.elementRole == 'opengraph-element') {
         if (me.canvasComponent) {
+          console.log('** opengraph element component destroyed!!')
           me.canvasComponent.removeElement(me._id);
         }
       }
@@ -478,16 +479,19 @@
         this.innerRedraw = true;
         var me = this;
         if (!me.element) {
+          console.log('** element not found, so skip emit _props. ');
           return;
         }
+        let boundary = me.canvasComponent.canvas.getBoundary(me.element);
+        if (!boundary) {
+          console.log('** element not found, so skip emit _props. ');
+          return;
+        }
+
+        console.log('** start to emit _props. ');
 
         //리드로우는 false 로 원복한다.
         me.$emit('update:redraw', false);
-
-        let boundary = me.canvasComponent.canvas.getBoundary(me.element);
-        if (!boundary) {
-          return;
-        }
 
         if (me.element.shape instanceof OG.shape.EdgeShape) {
           let vertices = JSON.parse('[' + me.element.shape.geom.vertices.toString() + ']');
@@ -520,7 +524,6 @@
         }
 
         var style = JSON.parse(JSON.stringify(me.element.shape.geom.style.map));
-        //me.props._style = style;
         me.$emit('update:_style', style);
 
         //부모 아이디

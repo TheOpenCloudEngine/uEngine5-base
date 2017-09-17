@@ -5,6 +5,9 @@
     :enableRootContextmenu="false"
     v-if="filteredDefinition"
     v-on:canvasReady="canvasReady"
+    v-on:userAction="onUserAction"
+    v-on:connectShape="onConnectShape"
+    v-on:removeShape="onRemoveShape"
   >
     <div v-for="role in filteredDefinition.roles">
       <bpmn-role :role="role"></bpmn-role>
@@ -44,6 +47,8 @@
       if (!filteredDefinition.childActivities[1]) {
         filteredDefinition.childActivities[1] = [];
       }
+      //todo 값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
+
       return {
         drawer: true,
         text: 'sdfsdf',
@@ -120,19 +125,19 @@
 //            })
 //          }
 //
-//          if (!this.undoing) {
-//
-//            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
-//              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
-//              this.undoed = false;
-//            }
-//
-//            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
-//            this.historyIndex = this.history.length;
-//          } else {
-//            this.undoing = false;
-//          }
-//          this.$emit('update:definition', this.filteredDefinition)
+          if (!this.undoing) {
+
+            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
+              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+              this.undoed = false;
+            }
+
+            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
+            this.historyIndex = this.history.length;
+          } else {
+            this.undoing = false;
+          }
+          this.$emit('update:definition', this.filteredDefinition);
         },
         deep: true
       },
@@ -156,11 +161,25 @@
     },
 
     methods: {
+      onConnectShape: function (edge, from, to) {
+        console.log('onConnectShape', edge, from.id, to.id);
+
+      },
+      /**
+       * 그래프 상에서 사용자 액션에 의한 변경사항 발생시
+       **/
+      onUserAction: function () {
+
+      },
+      /**
+       * 캔버스 준비시
+       **/
       canvasReady: function (opengraph) {
         this.canvas = opengraph.canvas;
         this.$emit('canvasReady', opengraph);
       },
       /**
+       * 드랍이벤트 발생시
        * @param {Object} shapeInfo (shapeId,x,y,width,height,label)
        **/
       addComponenet: function (componentInfo) {
@@ -180,7 +199,8 @@
               'x': componentInfo.x,
               'y': componentInfo.y,
               'width': componentInfo.width,
-              'height': componentInfo.height
+              'height': componentInfo.height,
+              'style': JSON.stringify({})
             }
           }
           me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalData)));
@@ -202,7 +222,8 @@
               'x': componentInfo.x,
               'y': componentInfo.y,
               'width': componentInfo.width,
-              'height': componentInfo.height
+              'height': componentInfo.height,
+              'style': JSON.stringify({})
             }
           }
           me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalData)));
@@ -247,7 +268,7 @@
           $.each(me.history, function (i, definition) {
             $.each(definition.childActivities[1], function (c, activity) {
               if (activity && isInt(activity.tracingTag) && activity.tracingTag > maxTracingTag) {
-                maxTracingTag = activity.tracingTag;
+                maxTracingTag = parseInt(activity.tracingTag);
               }
             })
           })
@@ -269,21 +290,17 @@
         let split = terminal.split('_TERMINAL_');
         return id + '_TERMINAL_' + split[1];
       },
+      onRemoveShape: function (component) {
+        console.log('remove component by user action', component.id);
+        this.removeComponentById(component.id);
+      },
       bindEvents: function () {
         var me = this;
         var removed;
         //내부적으로 삭제된 경우
         me.canvas.onRemoveShape(function (event, element) {
           console.log('removeShape by user action', element.id);
-          me.removeComponentByElement(element.id);
-        });
-
-        //캔버스의 유저 액션으로 인한 변동사항 발생.
-        me.canvas.onAddHistory(function () {
-          console.log('onAddHistory!!');
-          $.each(me.$children, function (i, children) {
-            children.updateVue();
-          })
+          me.removeComponentById(element.id);
         });
 
         me.canvas.onConnectShape(function (event, edgeElement, fromElement, toElement) {
@@ -294,7 +311,7 @@
           var id = fromElement.id + '-' + toElement.id;
 
           //기존의 id 를 쓰고있는 relation 컴포넌트를 찾아서, null 처리할 수 있도록 한다.
-          me.removeComponentByElement(id);
+          me.removeComponentById(id);
 
           var relation = {
             sourceRef: fromElement.id,
@@ -394,60 +411,28 @@
           me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
         });
       },
-//      render: function () {
-//        var me = this;
-//        //canvas = new OG.Canvas('canvas', [1000, 800], 'transparent');
-//        var canvas = new OG.Canvas(this.id, [2000, 2000], '#f7f7f7', 'url(/static/image/grid.gif)');
-//        canvas._CONFIG.DEFAULT_STYLE.EDGE["edge-type"] = "plain";
-//        canvas._CONFIG.GUIDE_CONTROL_LINE_NUM = 1;
-//        canvas._CONFIG.FOCUS_CANVAS_ONSELECT = true;
-//        canvas._CONFIG.WHEEL_SCALABLE = true;
-//        canvas._CONFIG.DRAG_PAGE_MOVABLE = true;
-//        canvas._CONFIG.AUTOMATIC_GUIDANCE = true;
-//        canvas._CONFIG.IMAGE_BASE = '/static/image/symbol/';
-//        canvas._CONFIG.POOL_DROP_EVENT = true;
-//        canvas._CONFIG.AUTO_EXTENSIONAL = false;
-//
-//        canvas.initConfig({
-//          selectable: true,
-//          dragSelectable: true,
-//          movable: true,
-//          resizable: true,
-//          connectable: true,
-//          selfConnectable: true,
-//          connectCloneable: false,
-//          connectRequired: true,
-//          labelEditable: false,
-//          groupDropable: true,
-//          collapsible: true,
-//          enableHotKey: true,
-//          enableContextMenu: false,
-//          useSlider: false,
-//          stickGuide: true,
-//          checkBridgeEdge: true,
-//          autoHistory: false
-//        });
-//
-//        this.canvas = canvas;
-//        this.$emit('canvasReady', canvas);
-//      },
-      removeComponentByElement: function (id) {
+
+      //TODO 이곳을 다시보기.
+      removeComponentById: function (id) {
         var me = this;
         //릴레이션 삭제
         $.each(me.filteredDefinition.sequenceFlows, function (i, relation) {
           if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
+            console.log('** remove sequenceFlow', id);
             me.filteredDefinition.sequenceFlows[i] = null;
           }
         });
         //롤 삭제
         $.each(me.filteredDefinition.roles, function (i, role) {
           if (role && role.elementView && role.elementView.id == id) {
+            console.log('** remove role', id);
             me.filteredDefinition.roles[i] = null;
           }
         });
         //액티비티 삭제
         $.each(me.filteredDefinition.childActivities[1], function (i, activity) {
           if (activity && activity.elementView && activity.elementView.id == id) {
+            console.log('** remove activitiy', id);
             me.filteredDefinition.childActivities[1][i] = null;
           }
         });

@@ -35,7 +35,16 @@
           } else if (this.relation) {
             style = this.relation.relationView.style;
           }
-          return style ? JSON.parse(style) : this.defaultStyle;
+          if (style) {
+            var jsonStyle = JSON.parse(style);
+            if ($.isEmptyObject(jsonStyle)) {
+              return this.defaultStyle;
+            } else {
+              return jsonStyle;
+            }
+          } else {
+            return this.defaultStyle;
+          }
         },
         set: function (val) {
           if (this.activity) {

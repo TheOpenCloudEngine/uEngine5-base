@@ -93,6 +93,10 @@
         this.clone.wrench = false;
       }
     },
+    /**
+     * clone : 컨트롤러에 의해 신규 bpmn 이 생성되었을 경우
+     * showComponentChange : 컨트롤러중 렌치 모양을 클릭하여 도형 변경 창을 여는 경우
+     */
     methods: {
       intermediateClone: function () {
 

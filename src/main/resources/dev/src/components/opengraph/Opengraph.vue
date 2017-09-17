@@ -861,6 +861,10 @@
          * @param {Function} callbackFunc 콜백함수(event)
          */
         me.canvas.onAddHistory(function (event) {
+          console.log('userAction fired on opengraph!!');
+          for (var key in me.elements) {
+            me.elements[key].emitElement();
+          }
           me.$emit('userAction');
         });
 
