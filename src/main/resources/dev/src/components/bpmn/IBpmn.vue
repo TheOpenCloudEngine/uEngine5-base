@@ -29,12 +29,13 @@
           var style;
           //스타일이 없다면 디폴트 스타일을 사용한다.
           if (this.activity) {
-            return this.activity.elementView.style ? JSON.parse(this.activity.elementView.style) : this.defaultStyle;
+            style = this.activity.elementView.style;
           } else if (this.role) {
-            return this.role.elementView.style ? JSON.parse(this.role.elementView.style) : this.defaultStyle;
+            style = this.role.elementView.style;
           } else if (this.relation) {
-            return this.relation.relationView.style ? JSON.parse(this.relation.relationView.style) : this.defaultStyle;
+            style = this.relation.relationView.style;
           }
+          return style ? JSON.parse(style) : this.defaultStyle;
         },
         set: function (val) {
           if (this.activity) {

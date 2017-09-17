@@ -310,6 +310,7 @@
     ,
     data: function () {
       return {
+        innerRedraw: false,
         props: JSON.parse(JSON.stringify(this._props)),
         elementRole: null,
         shapdId: 'OG.shape.' + this.uuShapeId(),
@@ -331,43 +332,69 @@
     watch: {
       _props: {
         handler: function (newVal, oldVal) {
-          this.props = JSON.parse(JSON.stringify(newVal))
+          if (this.elementRole != 'opengraph-element') {
+            return;
+          }
+          console.log('1. element`s _props change detected!!');
+          this.props = JSON.parse(JSON.stringify(newVal));
         }
         ,
         deep: true
       },
       props: {
         handler: function (newVal, oldVal) {
+          if (this.elementRole != 'opengraph-element') {
+            return;
+          }
+          if (this.innerRedraw) {
+            console.log('2. _props change by inner side, so it will skip redraw element.');
+            this.innerRedraw = false;
+            return;
+          }
+          console.log('2. _props change by out side, so it will continue redraw element.');
+
           var needToWatch = false;
-          for (var key in newVal) {
-            if (typeof newVal[key] == 'object') {
-              if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
-                console.log('property diff', key, newVal[key], oldVal[key]);
-                needToWatch = true;
+          var needToWatchKeys = [];
+          //리드로우 트리거가 true 일때는 다시 그리기.
+          if (newVal['redraw'] == true) {
+            console.log('3. redraw property is true, it will force redraw element.');
+            needToWatch = true;
+            needToWatchKeys.push('redraw');
+          }
+          else {
+            for (var key in newVal) {
+              //신규값과 이전값이 모두 null 이거나 undefined 일때는 반응하지 않는다.
+              if (!newVal[key] && !oldVal[key]) {
+
               }
-            } else {
-              if (newVal[key] != oldVal[key]) {
-                //리드로우 트리거가 false 일때는 반응하지 않는다.
-                if (key == 'redraw' && newVal[key] == false) {
-                  needToWatch = false;
-                } else {
+              else if (typeof newVal[key] == 'object') {
+                if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
+                  console.log('3. property diff', key, newVal[key], oldVal[key]);
                   needToWatch = true;
-                  console.log('property diff', key, newVal[key], oldVal[key]);
+                  needToWatchKeys.push(key);
+                }
+              }
+              else {
+                if (newVal[key] != oldVal[key]) {
+                  needToWatch = true;
+                  console.log('3. property diff', key, newVal[key], oldVal[key]);
+                  needToWatchKeys.push(key);
                 }
               }
             }
           }
           if (!needToWatch) {
+            console.log('3. we scaned _props, but nothing changed. skip redraw.');
             return;
+          } else {
+            console.log('3. we found _props change, ' + needToWatchKeys.join() + '.');
           }
-          if (this.elementRole == 'opengraph-element') {
-            if (!this.element) {
-              console.log('drawShape', this.id);
-              this.drawShape();
-            } else {
-              console.log('updateShape', this.id);
-              this.updateShape();
-            }
+          if (!this.element) {
+            console.log('4. finally, drawShape', this._id);
+            this.drawShape();
+          } else {
+            console.log('4. finally, updateShape', this._id);
+            this.updateShape();
           }
         }
         ,
@@ -404,8 +431,8 @@
 
       //오픈그래프 엘리먼트 역할일 경우 렌더링 수행
       if (this.elementRole == 'opengraph-element') {
+        console.log('drawShape', this._id);
         this.drawShape();
-        this.emitElement();
       }
       //서브 엘리먼트 역할일 경우 서브엘리먼트 등록
       else if (this.elementRole == 'sub-elements') {
@@ -447,69 +474,67 @@
       }
       ,
       emitElement: function () {
+        //innerRedraw 를 등록하여 내부적인 업데이트인지 판별한다.
+        this.innerRedraw = true;
         var me = this;
         if (!me.element) {
           return;
         }
+
+        //리드로우는 false 로 원복한다.
+        me.$emit('update:redraw', false);
+
         let boundary = me.canvasComponent.canvas.getBoundary(me.element);
         if (!boundary) {
           return;
         }
 
-        me.$emit('update:redraw', false);
+        if (me.element.shape instanceof OG.shape.EdgeShape) {
+          let vertices = JSON.parse('[' + me.element.shape.geom.vertices.toString() + ']');
+          me.$emit('update:vertices', vertices);
 
-        //width,height,x,y,angle,은 그대로 사용.
+          var _from = $(me.element).attr('_from');
+          var _to = $(me.element).attr('_to');
+          var from, to, fromPosition, toPosition
+          if (_from) {
+            from = _from.split('_TERMINAL_')[0];
+            fromPosition = _from.split('_TERMINAL_')[1].split('_');
+            fromPosition = [parseFloat(fromPosition[0]), parseFloat(fromPosition[1])];
+          }
+          if (_to) {
+            to = _to.split('_TERMINAL_')[0];
+            toPosition = _to.split('_TERMINAL_')[1].split('_');
+            toPosition = [parseFloat(toPosition[0]), parseFloat(toPosition[1])];
+          }
+          me.$emit('update:from', from);
+          me.$emit('update:to', to);
+          me.$emit('update:fromPosition', fromPosition);
+          me.$emit('update:toPosition', toPosition);
 
-        //angle 이 있다면 잠시 원복시킨다.
+        } else {
+          me.$emit('update:id', me._id);
+          me.$emit('update:width', boundary.getWidth());
+          me.$emit('update:height', boundary.getHeight());
+          me.$emit('update:x', boundary.getCentroid().x);
+          me.$emit('update:y', boundary.getCentroid().y);
+        }
 
-//        if (angle) {
-//          me.$emit('update:angle', angle);
-//          me.element.shape.geom.rotate(-1 * angle);
-//        }
-//        me.$emit('update:width', boundary.getWidth());
-//        me.$emit('update:height', boundary.getHeight());
-//        me.$emit('update:x', boundary.getCentroid().x);
-//        me.$emit('update:y', boundary.getCentroid().y);
-//        //계산이 끝난 후 원복시킨다.
-//        if (angle) {
-//          me.element.shape.geom.rotate(angle);
-//        }
+        var style = JSON.parse(JSON.stringify(me.element.shape.geom.style.map));
+        //me.props._style = style;
+        me.$emit('update:_style', style);
 
+        //부모 아이디
+        var parent = me.canvasComponent.canvas.getRenderer().getParent(me.element);
+        var parentId;
+        if (parent) {
+          parentId = parent.id;
+        } else {
+          parentId = null;
+        }
+        //me.props.parentId = parentId;
+        me.$emit('update:parentId', parentId);
 
-        //geometry.rotate(angle);
-
-//        me.$emit('update:width', boundary.getWidth());
-//        me.$emit('update:height', boundary.getHeight());
-//        me.width = boundary.getWidth();
-//        me.height = boundary.getHeight();
-//        me.x = boundary.getCentroid().x;
-//        me.y = boundary.getCentroid().y;
-//        me.label = me.element.shape.label;
-//
-//        var parent = me.canvas.getRenderer().getParent(element);
-//        if (parent) {
-//          me.parent = parent.id;
-//        } else {
-//          me.parent = null;
-//        }
-//        me.id = element.id;
-//
-//        if (element.shape.TYPE === OG.Constants.SHAPE_TYPE.EDGE) {
-//          if ($(element).attr('_from')) {
-//            me.from = $(element).attr('_from');
-//          }
-//          if ($(element).attr('_to')) {
-//            me.to = $(element).attr('_to');
-//          }
-//        }
-//
-//        if (element.shape.geom.vertices) {
-//          me.value = element.shape.geom.vertices.toString();
-//        }
-//
-//        me.style = element.shape.geom.style.map;
-//        me.geom = null;
-//        me.element.shape
+        this.props = JSON.parse(JSON.stringify(this.props))
       }
       ,
       setElementRole: function () {
