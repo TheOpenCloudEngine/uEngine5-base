@@ -1062,6 +1062,10 @@
       },
       removeElement: function (id) {
         delete this.elements[id];
+        //도형이 남아있다면 도형을 삭제한다.
+        if (this.canvas.getElementById(id)) {
+          this.canvas.removeShape(id, true);
+        }
       },
       /**
        * 무작위 랜덤 아이디 생성

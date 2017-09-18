@@ -18,7 +18,6 @@
       _props: {
         handler: function (newVal, oldVal) {
           this.props = JSON.parse(JSON.stringify(newVal))
-          this.registToElement();
         },
         deep: true
       },
@@ -26,19 +25,27 @@
         handler: function (newVal, oldVal) {
           var needToWatch = false;
           for (var key in newVal) {
-            if (typeof newVal[key] == 'object') {
+            //신규값과 이전값이 모두 null 이거나 undefined 일때는 반응하지 않는다.
+            if (!newVal[key] && !oldVal[key]) {
+
+            }
+            else if (typeof newVal[key] == 'object') {
               if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
+                console.log('geom property diff', key, newVal[key], oldVal[key]);
                 needToWatch = true;
               }
             } else {
               if (newVal[key] != oldVal[key]) {
+                console.log('geom property diff', key, newVal[key], oldVal[key]);
                 needToWatch = true;
               }
             }
           }
           if (!needToWatch) {
+            console.log('geom _props changed, but no properties changed.');
             return;
           }
+          console.log('geom _props changed, registToElement.');
           this.registToElement();
         }
         ,

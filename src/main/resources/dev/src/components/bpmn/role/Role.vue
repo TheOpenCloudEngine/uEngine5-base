@@ -63,7 +63,19 @@
     data: function () {
       return {};
     },
-    watch: {},
+    watch: {
+      'role.name': function (newVal, oldVal) {
+        var me = this;
+        //롤의 이름이 변경되었을 때
+        //휴먼 액티비티 중 oldname 을 가지고 있는 role 을 같이 변경한다.
+        $.each(this.bpmnVue.filteredDefinition.childActivities[1], function (i, activitiy) {
+          if (activitiy && activitiy.role && activitiy.role.name == oldVal) {
+            activitiy.role = JSON.parse(JSON.stringify(me.role));
+            console.log(activitiy.tracingTag + ' Human activitiy role changed by role name updated!!');
+          }
+        });
+      }
+    },
     mounted: function () {
 
     },

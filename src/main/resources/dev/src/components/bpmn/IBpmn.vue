@@ -17,6 +17,7 @@
     },
     data: function () {
       return {
+        bpmnVue: null,
         drawer: false
       }
     },
@@ -59,7 +60,21 @@
     },
     watch: {},
     mounted: function () {
-
+      //이 Bpmn 요소의 BpmnVue 를 등록한다.
+      var bpmnVue = null;
+      var parent;
+      var getParent = function (component) {
+        parent = component.$parent;
+        if (parent) {
+          if (parent.bpmnRole == 'bpmn-vue') {
+            bpmnVue = parent;
+          } else {
+            getParent(parent);
+          }
+        }
+      }
+      getParent(this);
+      this.bpmnVue = bpmnVue;
     },
     methods: {
       showProperty: function (component) {

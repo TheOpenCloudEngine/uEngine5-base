@@ -408,7 +408,7 @@
       //오픈그래프 역할일 경우 캔버스에 엘리먼트 등록 삭제.
       if (me.elementRole == 'opengraph-element') {
         if (me.canvasComponent) {
-          console.log('** opengraph element component destroyed!!')
+          console.log('** opengraph element component destroyed!!', me._id);
           me.canvasComponent.removeElement(me._id);
         }
       }
@@ -451,26 +451,32 @@
     ,
     methods: {
       addGeometry: function (geometryComponenet, id) {
+        console.log('** addGeometry to ', this._id);
         this.geometrys[id] = geometryComponenet;
       }
       ,
       removeGeometry: function (id) {
+        console.log('** removeGeometry to ', this._id);
         delete this.geometrys[id];
       }
       ,
       addSubShapes: function (subShapeComponenet, id) {
+        console.log('** addSubShapes to ', this._id);
         this.subshapes[id] = subShapeComponenet;
       }
       ,
       removeSubShapes: function (id) {
+        console.log('** removeSubShapes to ', this._id);
         delete this.subshapes[id];
       }
       ,
       addSubContollers: function (subControllerComponenet, id) {
+        console.log('** addSubContollers to ', this._id);
         this.subcontrollers[id] = subControllerComponenet;
       }
       ,
       removeSubContollers: function (id) {
+        console.log('** removeSubContollers to ', this._id);
         delete this.subcontrollers[id];
       }
       ,

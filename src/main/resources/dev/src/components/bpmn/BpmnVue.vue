@@ -10,13 +10,13 @@
     v-on:removeShape="onRemoveShape"
   >
     <div v-for="role in filteredDefinition.roles">
-      <bpmn-role :role="role"></bpmn-role>
+      <bpmn-role v-if="role != null" :role="role"></bpmn-role>
     </div>
     <div v-for="activity in filteredDefinition.childActivities[1]">
-      <component :is="activity.elementView.component" :activity="activity"></component>
+      <component v-if="activity != null" :is="activity.elementView.component" :activity="activity"></component>
     </div>
     <div v-for="relation in filteredDefinition.sequenceFlows">
-      <bpmn-relation :relation="relation"></bpmn-relation>
+      <bpmn-relation v-if="relation != null" :relation="relation"></bpmn-relation>
     </div>
   </opengraph>
 </template>
@@ -50,6 +50,7 @@
       //todo 값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
 
       return {
+        enableHistoryAdd: false,
         drawer: true,
         text: 'sdfsdf',
         filteredDefinition: filteredDefinition,
@@ -67,7 +68,35 @@
     watch: {
       filteredDefinition: {
         handler: function (after, before) {
-          console.log('definition update');
+          //프로퍼티 패널이 열려있는 상황에서의 데피니션 변화는 모두 히스토리에 저장한다.
+          if (this.propertyEditing) {
+            this.enableHistoryAdd = false;
+            console.log('definition updated while property panel open.');
+          }
+          //그 외의 경우는 정해진 상황을 강제하여 히스토리에 저장한다.
+          else {
+            if (this.enableHistoryAdd) {
+              this.enableHistoryAdd = false;
+            } else {
+              console.log('definition updated, but not allow add history.');
+              this.$emit('update:definition', this.filteredDefinition);
+              return;
+            }
+          }
+
+
+          if (!this.undoing) {
+            console.log('definition updated, we will add history.', this.filteredDefinition);
+            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
+              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+              this.undoed = false;
+            }
+            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
+            this.historyIndex = this.history.length - 1;
+          } else {
+            console.log('definition updated, but triggered by undo,redo action. will skip add history.');
+            this.undoing = false;
+          }
 
           //액티비티이며, 트레이싱 태그가 변경될 경우 (아이디와 트레이싱 태그값이 틀림)
           //1.Here: 릴레이션 source, target 변경. from,to 를 source,target 아이디로 변경
@@ -125,19 +154,19 @@
 //            })
 //          }
 //
-          if (!this.undoing) {
-
-            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
-              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
-              this.undoed = false;
-            }
-
-            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
-            this.historyIndex = this.history.length;
-          } else {
-            this.undoing = false;
-          }
-          this.$emit('update:definition', this.filteredDefinition);
+//          if (!this.undoing) {
+//
+//            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
+//              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+//              this.undoed = false;
+//            }
+//
+//            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
+//            this.historyIndex = this.history.length;
+//          } else {
+//            this.undoing = false;
+//          }
+//          this.$emit('update:definition', this.filteredDefinition);
         },
         deep: true
       },
@@ -156,20 +185,24 @@
     },
 
     mounted: function () {
-//      this.render();
-//      this.bindEvents();
+
     },
 
     methods: {
+      onRemoveShape: function (component) {
+        console.log('remove component by user action', component.id);
+        this.removeComponentById(component.id);
+      },
       onConnectShape: function (edge, from, to) {
         console.log('onConnectShape', edge, from.id, to.id);
-
       },
       /**
        * 그래프 상에서 사용자 액션에 의한 변경사항 발생시
        **/
       onUserAction: function () {
-
+        console.log('** onUserAction fired.');
+        this.enableHistoryAdd = true;
+        this.filteredDefinition = JSON.parse(JSON.stringify(this.filteredDefinition));
       },
       /**
        * 캔버스 준비시
@@ -183,6 +216,7 @@
        * @param {Object} shapeInfo (shapeId,x,y,width,height,label)
        **/
       addComponenet: function (componentInfo) {
+        this.enableHistoryAdd = true;
         var me = this;
         var bpmnComponent = me.getComponentByName(componentInfo.component);
         var className = bpmnComponent.computed.className();
@@ -244,7 +278,7 @@
           this.undoing = true;
           this.undoed = true;
           this.filteredDefinition = this.history[this.historyIndex];
-          console.log(this.history.length, this.historyIndex, this.filteredDefinition);
+          console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.filteredDefinition);
         }
       },
       redo: function () {
@@ -253,7 +287,7 @@
           this.undoing = true;
           this.undoed = true;
           this.filteredDefinition = this.history[this.historyIndex]
-          console.log(this.history.length, this.historyIndex, this.filteredDefinition);
+          console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.filteredDefinition);
         }
       }
       ,
@@ -290,18 +324,9 @@
         let split = terminal.split('_TERMINAL_');
         return id + '_TERMINAL_' + split[1];
       },
-      onRemoveShape: function (component) {
-        console.log('remove component by user action', component.id);
-        this.removeComponentById(component.id);
-      },
       bindEvents: function () {
         var me = this;
         var removed;
-        //내부적으로 삭제된 경우
-        me.canvas.onRemoveShape(function (event, element) {
-          console.log('removeShape by user action', element.id);
-          me.removeComponentById(element.id);
-        });
 
         me.canvas.onConnectShape(function (event, edgeElement, fromElement, toElement) {
           console.log('onConnectShape');
@@ -412,7 +437,6 @@
         });
       },
 
-      //TODO 이곳을 다시보기.
       removeComponentById: function (id) {
         var me = this;
         //릴레이션 삭제
