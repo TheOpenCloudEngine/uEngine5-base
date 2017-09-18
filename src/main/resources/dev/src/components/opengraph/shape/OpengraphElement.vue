@@ -637,6 +637,13 @@
             case OG.Constants.SHAPE_TYPE.GEOM:
             case OG.Constants.SHAPE_TYPE.GROUP:
               me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height], style, me._id, me.parentId);
+              if (shape instanceof OG.HorizontalLaneShape) {
+                var parent = me.canvasComponent.canvas.getRenderer().getParent(me.element);
+                if (parent && parent.shape instanceof OG.HorizontalLaneShape) {
+                  parent.insertBefore(me.element, parent.firstChild);
+                }
+              }
+
               break;
             case OG.Constants.SHAPE_TYPE.EDGE:
               if (me.vertices && me.vertices.length > 1) {

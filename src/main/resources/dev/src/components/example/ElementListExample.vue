@@ -55,7 +55,10 @@
           :label="'hello'"></edge-element>
 
         <!--포토샵이나, http://picsvg.com/ 에서 이미지를 svg 로 엑스포트 한 후, v-bind 를 통해 원하는대로 svg 내부의 어트리뷰트를 꾸미면 됩니다. -->
-        <svg-element :x="shoeSize" :y="150" :width="200" :height="200" :label="'hello'" :redraw.sync="redraw">
+        <svg-element
+          movable
+          selectable
+          :x="shoeSize" :y="150" :width="200" :height="200" :label="'hello'" :redraw.sync="redraw">
           <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="200.000000pt" height="133.000000pt"
                viewBox="0 0 200.000000 133.000000" preserveAspectRatio="xMidYMid meet">
             <g transform="translate(0.000000,133.000000) scale(0.050000,-0.050000)" :fill="randomColor"

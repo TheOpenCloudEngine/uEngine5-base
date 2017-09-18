@@ -27229,6 +27229,9 @@ OG.renderer.RaphaelRenderer.prototype.divideLane = function (element, quarterOrd
 
     if (divedLanes.length) {
         for (var i = 0, leni = divedLanes.length; i < leni; i++) {
+            //생성된 lane 의 부모에 대해 첫번째 자식으로 들어감으로써 lane 에 속한 다른 도형의 인덱스들을 방해하지 않는다.
+            divedLanes[i].parentElement.insertBefore(divedLanes[i], divedLanes[i].parentElement.firstChild);
+
             $(this._PAPER.canvas).trigger('divideLane', divedLanes[i]);
         }
     }
@@ -36566,7 +36569,7 @@ OG.graph.Canvas.prototype = {
         edgeShape.from = fromPosition;
         edgeShape.to = toPosition;
         edge = this._RENDERER.drawShape(null, edgeShape, null, style, id);
-        edge = this._RENDERER.trimEdgeDirection(edge, fromElement, toElement);
+        //edge = this._RENDERER.trimEdgeDirection(edge, fromElement, toElement);
 
         //if label null, convert undefined
         label = label ? label : undefined;

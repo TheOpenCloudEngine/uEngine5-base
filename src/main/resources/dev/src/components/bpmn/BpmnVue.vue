@@ -4,10 +4,12 @@
     :enableContextmenu="false"
     :enableRootContextmenu="false"
     v-if="filteredDefinition"
+    ref="opengraph"
     v-on:canvasReady="canvasReady"
     v-on:userAction="onUserAction"
     v-on:connectShape="onConnectShape"
     v-on:removeShape="onRemoveShape"
+    v-on:divideLane="onDivideLane"
   >
     <div v-for="role in filteredDefinition.roles">
       <bpmn-role v-if="role != null" :role="role"></bpmn-role>
@@ -97,76 +99,6 @@
             console.log('definition updated, but triggered by undo,redo action. will skip add history.');
             this.undoing = false;
           }
-
-          //액티비티이며, 트레이싱 태그가 변경될 경우 (아이디와 트레이싱 태그값이 틀림)
-          //1.Here: 릴레이션 source, target 변경. from,to 를 source,target 아이디로 변경
-          //2.BpmnComponent: 릴레이션 아이디가 틀리게 옴.
-          //3.BpmnComponent: 선연결이 사라짐.
-          //4.BpmnComponent: 새로 선연결을 함.
-//          var me = this;
-//          let activities = after.childActivities[1];
-//          let roles = after.roles;
-//          let sequenceFlows = after.sequenceFlows;
-//          if (activities && activities.length) {
-//            $.each(activities, function (i, activitiy) {
-//
-//              //트레이싱 태그가 변동되었을 경우
-//              if (activitiy && activitiy.tracingTag != activitiy.elementView.id) {
-//                var oldId = activitiy.elementView.id;
-//                activitiy.elementView.id = activitiy.tracingTag;
-//
-//                if (sequenceFlows && sequenceFlows.length) {
-//                  $.each(sequenceFlows, function (i, relation) {
-//                    if (relation && relation.sourceRef == oldId) {
-//                      relation.sourceRef = activitiy.tracingTag;
-//                      relation.relationView.from = me.replaceTerminalId(relation.relationView.from, activitiy.tracingTag);
-//                    }
-//                    if (relation && relation.targetRef == oldId) {
-//                      relation.targetRef = activitiy.tracingTag;
-//                      relation.relationView.to = me.replaceTerminalId(relation.relationView.to, activitiy.tracingTag);
-//                    }
-//                  });
-//                }
-//              }
-//              //Name 이 변동되었을 경우
-//              if (activitiy && activitiy.name && activitiy.name.text != activitiy.elementView.label) {
-//                activitiy.elementView.label = activitiy.name.text;
-//              }
-//            })
-//          }
-//
-//          //롤의 이름이 변경되었을 때
-//          //1.Here : 휴먼 액티비티 중 oldname 을 가지고 있는 role 을 같이 변경한다.
-//          if (roles && roles.length) {
-//            $.each(roles, function (i, role) {
-//              if (role && role.name != role.elementView.label) {
-//                var oldName = role.elementView.label;
-//                role.elementView.label = role.name;
-//
-//                if (activities && activities.length) {
-//                  $.each(activities, function (i, activitiy) {
-//                    if (activitiy && activitiy.role && activitiy.role.name == oldName) {
-//                      activitiy.role = JSON.parse(JSON.stringify(role));
-//                    }
-//                  })
-//                }
-//              }
-//            })
-//          }
-//
-//          if (!this.undoing) {
-//
-//            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
-//              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
-//              this.undoed = false;
-//            }
-//
-//            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
-//            this.historyIndex = this.history.length;
-//          } else {
-//            this.undoing = false;
-//          }
-//          this.$emit('update:definition', this.filteredDefinition);
         },
         deep: true
       },
@@ -193,8 +125,46 @@
         console.log('remove component by user action', component.id);
         this.removeComponentById(component.id);
       },
+      onDivideLane: function (dividedLane) {
+        var me = this;
+        var boundary = dividedLane.shape.geom.getBoundary();
+        var additionalRole = {
+          'name': '',
+          'displayName': {},
+          'elementView': {
+            '_type': 'org.uengine.kernel.view.DefaultActivityView',
+            'id': dividedLane.id,
+            'component': 'bpmn-role',
+            'parent': me.canvas.getParent(dividedLane).id,
+            'x': boundary.getCentroid().x,
+            'y': boundary.getCentroid().y,
+            'width': boundary.getWidth(),
+            'height': boundary.getHeight(),
+            'style': JSON.stringify({})
+          }
+        }
+        me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
+      },
+      /**
+       * 도형이 연결되었을 경우.
+       **/
       onConnectShape: function (edge, from, to) {
-        console.log('onConnectShape', edge, from.id, to.id);
+        var me = this;
+        //존재하는 릴레이션인 경우 (뷰 컴포넌트), 데이터 매핑에 의해 자동으로 from, to 가 변경되어있기 때문에 따로 로직은 필요없음.
+        //신규 릴레이션인 경우에는 릴레이션 생성
+        if (edge.shape && from && to) {
+          var vertices = '[' + edge.shape.geom.vertices.toString() + ']';
+          var additionalRelation = {
+            sourceRef: from.id,
+            targetRef: to.id,
+            relationView: {
+              style: JSON.stringify({}),
+              value: vertices
+            }
+          }
+          me.canvas.removeShape(edge.id, true);
+          me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
+        }
       },
       /**
        * 그래프 상에서 사용자 액션에 의한 변경사항 발생시
@@ -218,8 +188,6 @@
       addComponenet: function (componentInfo) {
         this.enableHistoryAdd = true;
         var me = this;
-        var bpmnComponent = me.getComponentByName(componentInfo.component);
-        var className = bpmnComponent.computed.className();
         var additionalData = {};
         //롤 추가인 경우
         if (componentInfo.component == 'bpmn-role') {
@@ -228,7 +196,7 @@
             'displayName': {},
             'elementView': {
               '_type': 'org.uengine.kernel.view.DefaultActivityView',
-              'id': this.uuid(), //오픈그래프 자동 생성
+              'id': null,//this.uuid(), //오픈그래프 자동 생성
               'component': 'bpmn-role',
               'x': componentInfo.x,
               'y': componentInfo.y,
@@ -241,6 +209,8 @@
         }
         //액티비티 추가인 경우
         else {
+          var bpmnComponent = me.getComponentByName(componentInfo.component);
+          var className = bpmnComponent.computed.className();
           var newTracingTag = me.createNewTracingTag();
           console.log('newTracingTag', newTracingTag);
           additionalData = {
@@ -320,42 +290,9 @@
         }
         return isExist;
       },
-      replaceTerminalId: function (terminal, id) {
-        let split = terminal.split('_TERMINAL_');
-        return id + '_TERMINAL_' + split[1];
-      },
       bindEvents: function () {
         var me = this;
         var removed;
-
-        me.canvas.onConnectShape(function (event, edgeElement, fromElement, toElement) {
-          console.log('onConnectShape');
-          var from = $(edgeElement).attr('_from');
-          var to = $(edgeElement).attr('_to');
-          var value = edgeElement.shape.geom.vertices.toString();
-          var id = fromElement.id + '-' + toElement.id;
-
-          //기존의 id 를 쓰고있는 relation 컴포넌트를 찾아서, null 처리할 수 있도록 한다.
-          me.removeComponentById(id);
-
-          var relation = {
-            sourceRef: fromElement.id,
-            targetRef: toElement.id,
-            relationView: {
-              from: from,
-              to: to,
-              value: value
-            }
-          }
-          me.filteredDefinition.sequenceFlows.push(relation);
-          //Next Flow: onAddHistory > updateVue > filteredDefinition update
-
-          //Remove Native Edge (Random Id Shape)
-          setTimeout(function () {
-            me.canvas.removeShape(edgeElement, true);
-          }, 10)
-        })
-
 
         me.canvas.onDuplicated(function (event, edgeElement, sourceElement, targetElement) {
           var boundary = targetElement.shape.geom.getBoundary();
