@@ -61,7 +61,21 @@
     },
     watch: {},
     mounted: function () {
-
+      //이 bpmn 요소(액티비티,롤,릴레이션)의 BpmnVue 를 등록한다.
+      var bpmnVue = null;
+      var parent;
+      var getParent = function (component) {
+        parent = component.$parent;
+        if (parent) {
+          if (parent.bpmnRole == 'bpmn-vue') {
+            bpmnVue = parent;
+          } else {
+            getParent(parent);
+          }
+        }
+      }
+      getParent(this);
+      this.bpmnVue = bpmnVue;
     },
     methods: {
       showProperty: function (component) {

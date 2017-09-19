@@ -19,7 +19,7 @@
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
-      <bpmn-sub-controller :type="type"></bpmn-sub-controller>
+      <bpmn-sub-controller :type="type" :bpmnVue="bpmnVue"></bpmn-sub-controller>
     </horizontal-lane-element>
 
     <bpmn-property-panel

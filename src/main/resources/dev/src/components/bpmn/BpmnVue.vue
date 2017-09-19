@@ -33,7 +33,7 @@
     data: function () {
       let id = this.uuid();
       let sliderId = id + '-slider';
-      var filteredDefinition = this.definition;
+      var filteredDefinition = JSON.parse(JSON.stringify(this.definition));
       if (!filteredDefinition.sequenceFlows) {
         filteredDefinition.sequenceFlows = [];
       }
@@ -49,6 +49,8 @@
       if (!filteredDefinition.childActivities[1]) {
         filteredDefinition.childActivities[1] = [];
       }
+      filteredDefinition.trigger = {};
+      console.log('filteredDefinition', filteredDefinition);
       //todo 값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
 
       return {
@@ -56,7 +58,7 @@
         drawer: true,
         text: 'sdfsdf',
         filteredDefinition: filteredDefinition,
-        history: [JSON.parse(JSON.stringify(this.definition))],
+        history: [JSON.parse(JSON.stringify(filteredDefinition))],
         historyIndex: 0,
         undoing: false,
         undoed: false,
@@ -172,7 +174,8 @@
       onUserAction: function () {
         console.log('** onUserAction fired.');
         this.enableHistoryAdd = true;
-        this.filteredDefinition = JSON.parse(JSON.stringify(this.filteredDefinition));
+        //TODO 데피니션 업데이트 watch 를 강제 활성화시키는 더 좋은 방법 찾아보기.
+        this.filteredDefinition.trigger = JSON.parse(JSON.stringify(this.filteredDefinition.trigger));
       },
       /**
        * 캔버스 준비시
@@ -185,12 +188,24 @@
        * 드랍이벤트 발생시
        * @param {Object} shapeInfo (shapeId,x,y,width,height,label)
        **/
-      addComponenet: function (componentInfo) {
+      addComponenet: function (componentInfo, newTracingTag) {
         this.enableHistoryAdd = true;
         var me = this;
         var additionalData = {};
+        //릴레이션 추가인 경우
+        if (componentInfo.component == 'bpmn-relation') {
+          additionalData = {
+            sourceRef: componentInfo.from,
+            targetRef: componentInfo.to,
+            relationView: {
+              style: JSON.stringify({}),
+              value: componentInfo.vertices
+            }
+          }
+          me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalData)));
+        }
         //롤 추가인 경우
-        if (componentInfo.component == 'bpmn-role') {
+        else if (componentInfo.component == 'bpmn-role') {
           additionalData = {
             'name': '',
             'displayName': {},
@@ -211,7 +226,9 @@
         else {
           var bpmnComponent = me.getComponentByName(componentInfo.component);
           var className = bpmnComponent.computed.className();
-          var newTracingTag = me.createNewTracingTag();
+          if (!newTracingTag) {
+            newTracingTag = me.createNewTracingTag();
+          }
           console.log('newTracingTag', newTracingTag);
           additionalData = {
             '_type': className,
@@ -343,7 +360,6 @@
 
           me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalActivity)));
 
-          //TODO why first sequenceFlow is Mounted if not use timeout?
           setTimeout(function () {
             me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
           }, 10);
@@ -380,21 +396,21 @@
         $.each(me.filteredDefinition.sequenceFlows, function (i, relation) {
           if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
             console.log('** remove sequenceFlow', id);
-            me.filteredDefinition.sequenceFlows[i] = null;
+            me.filteredDefinition.sequenceFlows[i] = undefined;
           }
         });
         //롤 삭제
         $.each(me.filteredDefinition.roles, function (i, role) {
           if (role && role.elementView && role.elementView.id == id) {
             console.log('** remove role', id);
-            me.filteredDefinition.roles[i] = null;
+            me.filteredDefinition.roles[i] = undefined;
           }
         });
         //액티비티 삭제
         $.each(me.filteredDefinition.childActivities[1], function (i, activity) {
           if (activity && activity.elementView && activity.elementView.id == id) {
             console.log('** remove activitiy', id);
-            me.filteredDefinition.childActivities[1][i] = null;
+            me.filteredDefinition.childActivities[1][i] = undefined;
           }
         });
       },

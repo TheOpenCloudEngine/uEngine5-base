@@ -21,7 +21,7 @@
       cloneable
       :image="'gateway_exclusive.png'"
       v-on:clone="exclusiveGatewayClone">
-      <circle-element :width="30" :height="30"></circle-element>
+      <circle-element :width="50" :height="50"></circle-element>
     </sub-controller>
 
     <sub-controller
@@ -29,7 +29,7 @@
       cloneable
       :image="'task.png'"
       v-on:clone="taskClone">
-      <circle-element :width="30" :height="30"></circle-element>
+      <circle-element :width="100" :height="100"></circle-element>
     </sub-controller>
 
     <sub-controller
@@ -37,7 +37,7 @@
       cloneable
       :image="'annotation.png'"
       v-on:clone="annotaionClone">
-      <circle-element :width="30" :height="30"></circle-element>
+      <circle-element :width="100" :height="30"></circle-element>
     </sub-controller>
 
     <sub-controller
@@ -53,18 +53,19 @@
   export default {
     name: 'bpmn-sub-controller',
     props: {
-      type: String
+      type: String,
+      bpmnVue: Object
     },
     computed: {},
     data: function () {
       return {
         clone: {
-          intermediate: true,
-          end: true,
-          gateway: true,
-          task: true,
-          annotaion: true,
-          wrench: true
+          intermediate: false,
+          end: false,
+          gateway: false,
+          task: false,
+          annotaion: false,
+          wrench: false
         }
       }
     },
@@ -73,24 +74,32 @@
 
       //종료 이벤트인 경우 어노테이션, 도형바꾸기만 가능.
       if (this.type == 'EndEvent') {
-        this.clone.intermediate = false;
-        this.clone.end = false;
-        this.clone.gateway = false;
-        this.clone.task = false;
+        this.clone.annotaion = true;
+        this.clone.wrench = true;
       }
 
       //서브프로세스는 도형바꾸기 불가능
       else if (this.type == 'SubProcess') {
-        this.clone.wrench = false;
+        this.clone.intermediate = true;
+        this.clone.end = true;
+        this.clone.gateway = true;
+        this.clone.task = true;
+        this.clone.annotaion = true;
       }
 
       //데이터나 롤은 어노테이션만 가능
       else if (this.type == 'Data' || this.type == 'Role') {
-        this.clone.intermediate = false;
-        this.clone.end = false;
-        this.clone.gateway = false;
-        this.clone.task = false;
-        this.clone.wrench = false;
+        this.clone.annotaion = true;
+      }
+
+      //나머지는 모두 가능
+      else {
+        this.clone.intermediate = true;
+        this.clone.end = true;
+        this.clone.gateway = true;
+        this.clone.task = true;
+        this.clone.annotaion = true;
+        this.clone.wrench = true;
       }
     },
     /**
@@ -98,23 +107,46 @@
      * showComponentChange : 컨트롤러중 렌치 모양을 클릭하여 도형 변경 창을 여는 경우
      */
     methods: {
-      intermediateClone: function () {
+      createEdgeAndElement: function (edgeElement, sourceElement, targetElement, component) {
+        var newTracingTag = this.bpmnVue.createNewTracingTag();
+        var edgeInfo = {
+          from: sourceElement.id,
+          to: newTracingTag,
+          vertices: '[' + edgeElement.shape.geom.vertices.toString() + ']',
+          component: 'bpmn-relation'
+        }
 
+        let boundary = targetElement.shape.geom.getBoundary();
+        var targetInfo = {
+          x: boundary.getCentroid().x,
+          y: boundary.getCentroid().y,
+          width: boundary.getWidth(),
+          height: boundary.getHeight(),
+          component: component
+        }
+
+        this.bpmnVue.canvas.removeShape(edgeElement);
+        this.bpmnVue.canvas.removeShape(targetElement);
+        this.bpmnVue.addComponenet(targetInfo, newTracingTag);
+        this.bpmnVue.addComponenet(edgeInfo);
       },
-      endClone: function () {
-
+      intermediateClone: function (edgeElement, sourceElement, targetElement) {
+        this.createEdgeAndElement(edgeElement, sourceElement, targetElement, 'bpmn-intermediate-event');
       },
-      exclusiveGatewayClone: function () {
-
+      endClone: function (edgeElement, sourceElement, targetElement) {
+        this.createEdgeAndElement(edgeElement, sourceElement, targetElement, 'bpmn-end-event');
       },
-      taskClone: function () {
-
+      exclusiveGatewayClone: function (edgeElement, sourceElement, targetElement) {
+        this.createEdgeAndElement(edgeElement, sourceElement, targetElement, 'bpmn-exclusive-gateway');
       },
-      annotaionClone: function () {
-
+      taskClone: function (edgeElement, sourceElement, targetElement) {
+        this.createEdgeAndElement(edgeElement, sourceElement, targetElement, 'bpmn-task');
+      },
+      annotaionClone: function (edgeElement, sourceElement, targetElement) {
+        this.createEdgeAndElement(edgeElement, sourceElement, targetElement, 'bpmn-annotaion');
       },
       showComponentChange: function (component) {
-
+        alert('open component change context menu');
       }
     }
   }
