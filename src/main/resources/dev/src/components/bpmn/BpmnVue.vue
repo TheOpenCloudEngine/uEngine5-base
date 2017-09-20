@@ -3,7 +3,7 @@
     focus-canvas-on-select
     :enableContextmenu="false"
     :enableRootContextmenu="false"
-    v-if="filteredDefinition"
+    v-if="data.definition"
     ref="opengraph"
     v-on:canvasReady="canvasReady"
     v-on:userAction="onUserAction"
@@ -11,13 +11,13 @@
     v-on:removeShape="onRemoveShape"
     v-on:divideLane="onDivideLane"
   >
-    <div v-for="role in filteredDefinition.roles">
+    <div v-for="role in data.definition.roles">
       <bpmn-role v-if="role != null" :role="role"></bpmn-role>
     </div>
-    <div v-for="activity in filteredDefinition.childActivities[1]">
+    <div v-for="activity in data.definition.childActivities[1]">
       <component v-if="activity != null" :is="activity.elementView.component" :activity="activity"></component>
     </div>
-    <div v-for="relation in filteredDefinition.sequenceFlows">
+    <div v-for="relation in data.definition.sequenceFlows">
       <bpmn-relation v-if="relation != null" :relation="relation"></bpmn-relation>
     </div>
   </opengraph>
@@ -36,21 +36,21 @@
 
       //값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
       //시퀀스 플로우 검증.
-      var filteredDefinition = JSON.parse(JSON.stringify(this.definition));
-      if (!filteredDefinition.sequenceFlows) {
-        filteredDefinition.sequenceFlows = [];
+      var definition = JSON.parse(JSON.stringify(this.definition));
+      if (!definition.sequenceFlows) {
+        definition.sequenceFlows = [];
       }
-      $.each(filteredDefinition.sequenceFlows, function (i, relation) {
+      $.each(definition.sequenceFlows, function (i, relation) {
         if (!relation.relationView.style) {
           relation.relationView.style = JSON.stringify({});
         }
       })
 
       //롤 검증.
-      if (!filteredDefinition.roles) {
-        filteredDefinition.roles = [];
+      if (!definition.roles) {
+        definition.roles = [];
       }
-      $.each(filteredDefinition.roles, function (i, role) {
+      $.each(definition.roles, function (i, role) {
         if (!role.elementView.style) {
           role.elementView.style = JSON.stringify({});
         }
@@ -58,31 +58,31 @@
 
 
       //액티비티 검증.
-      if (!filteredDefinition.childActivities) {
-        filteredDefinition.childActivities = [
+      if (!definition.childActivities) {
+        definition.childActivities = [
           'java.util.ArrayList',
           []
         ]
       }
-      if (!filteredDefinition.childActivities[1]) {
-        filteredDefinition.childActivities[1] = [];
+      if (!definition.childActivities[1]) {
+        definition.childActivities[1] = [];
       }
-      $.each(filteredDefinition.childActivities[1], function (i, activity) {
+      $.each(definition.childActivities[1], function (i, activity) {
         if (!activity.elementView.style) {
           activity.elementView.style = JSON.stringify({});
         }
       })
 
-      //트리거 등록 (강제로 watch 핸들러를 만들기 위해)
-      filteredDefinition.trigger = {};
-      console.log('filteredDefinition', filteredDefinition);
 
       return {
         enableHistoryAdd: false,
         drawer: true,
         text: 'sdfsdf',
-        filteredDefinition: filteredDefinition,
-        history: [JSON.parse(JSON.stringify(filteredDefinition))],
+        data: {
+          definition: definition,
+          trigger: {}
+        },
+        history: [JSON.parse(JSON.stringify(definition))],
         historyIndex: 0,
         undoing: false,
         undoed: false,
@@ -94,70 +94,72 @@
     },
 
     watch: {
-      filteredDefinition: {
+      data: {
         handler: function (after, before) {
-          this.addHistory(after);
-        },
+          this.$emit('update:definition', after.definition);
+
+          if (this.propertyEditing) {
+            this.enableHistoryAdd = false;
+            console.log('definition updated while property panel open.');
+          }
+          //그 외의 경우는 정해진 상황을 강제하여 히스토리에 저장한다.
+          else {
+            if (this.enableHistoryAdd) {
+              this.enableHistoryAdd = false;
+            } else {
+              console.log('definition updated, but not allow add history.');
+              return;
+            }
+          }
+
+          if (!this.undoing) {
+            console.log('definition updated, we will add history.', after.definition);
+            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
+              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+              this.undoed = false;
+            }
+            this.history.push(JSON.parse(JSON.stringify(after.definition))); //heavy
+            this.historyIndex = this.history.length - 1;
+          } else {
+            console.log('definition updated, but triggered by undo,redo action. will skip add history.');
+            this.undoing = false;
+          }
+        }
+        ,
         deep: true
-      },
+      }
+      ,
     },
 
     computed: {
       canUndo: function () {
         return this.historyIndex > 0
-      },
+      }
+      ,
       canRedo: function () {
         return this.history.length - 1 - this.historyIndex > 0
-      },
+      }
+      ,
       bpmnRole: function () {
         return 'bpmn-vue';
       }
-    },
+    }
+    ,
 
     mounted: function () {
 
-    },
+    }
+    ,
 
     methods: {
-      addHistory: function (newDefinition) {
-        console.log(this);
-        var definition = newDefinition ? newDefinition : this.filteredDefinition;
-        //프로퍼티 패널이 열려있는 상황에서의 데피니션 변화는 모두 히스토리에 저장한다.
-        if (this.propertyEditing) {
-          this.enableHistoryAdd = false;
-          console.log('definition updated while property panel open.');
-        }
-        //그 외의 경우는 정해진 상황을 강제하여 히스토리에 저장한다.
-        else {
-          if (this.enableHistoryAdd) {
-            this.enableHistoryAdd = false;
-          } else {
-            console.log('definition updated, but not allow add history.');
-            return;
-          }
-        }
-        //this.$emit('update:definition', this.filteredDefinition);
-
-        if (!this.undoing) {
-          console.log('definition updated, we will add history.', definition);
-          if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
-            this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
-            this.undoed = false;
-          }
-          this.history.push(JSON.parse(JSON.stringify(definition))); //heavy
-          this.historyIndex = this.history.length - 1;
-        } else {
-          console.log('definition updated, but triggered by undo,redo action. will skip add history.');
-          this.undoing = false;
-        }
-      },
       /**
        * 도형이 삭제되었을 경우.
        **/
       onRemoveShape: function (component) {
         console.log('remove component by user action', component.id);
         this.removeComponentById(component.id);
-      },
+      }
+      ,
       /**
        * Lane 이 분기되었을 경우.
        **/
@@ -179,8 +181,9 @@
             'style': JSON.stringify({})
           }
         }
-        me.filteredDefinition.roles.push(additionalRole);
-      },
+        me.data.definition.roles.push(additionalRole);
+      }
+      ,
       /**
        * 도형이 연결되었을 경우.
        **/
@@ -199,9 +202,10 @@
             }
           }
           me.canvas.removeShape(edge.id, true);
-          me.filteredDefinition.sequenceFlows.push(additionalRelation);
+          me.data.definition.sequenceFlows.push(additionalRelation);
         }
-      },
+      }
+      ,
       /**
        * 그래프 상에서 사용자 액션에 의한 변경사항 발생시
        **/
@@ -209,15 +213,17 @@
         console.log('** onUserAction fired.');
         this.enableHistoryAdd = true;
         //TODO 데피니션 업데이트 watch 를 강제 활성화시키는 더 좋은 방법 찾아보기.
-        this.filteredDefinition.trigger = JSON.parse(JSON.stringify(this.filteredDefinition.trigger));
-      },
+        this.data.trigger = JSON.parse(JSON.stringify(this.data.trigger));
+      }
+      ,
       /**
        * 캔버스 준비시
        **/
       canvasReady: function (opengraph) {
         this.canvas = opengraph.canvas;
         this.$emit('canvasReady', opengraph);
-      },
+      }
+      ,
       /**
        * 드랍이벤트 발생시
        * @param {Object} shapeInfo (shapeId,x,y,width,height,label)
@@ -236,7 +242,7 @@
               value: componentInfo.vertices
             }
           }
-          me.filteredDefinition.sequenceFlows.push(additionalData);
+          me.data.definition.sequenceFlows.push(additionalData);
         }
         //롤 추가인 경우
         else if (componentInfo.component == 'bpmn-role') {
@@ -254,7 +260,7 @@
               'style': JSON.stringify({})
             }
           }
-          me.filteredDefinition.roles.push(additionalData);
+          me.data.definition.roles.push(additionalData);
         }
         //액티비티 추가인 경우
         else {
@@ -281,9 +287,10 @@
               'style': JSON.stringify({})
             }
           }
-          me.filteredDefinition.childActivities[1].push(additionalData);
+          me.data.definition.childActivities[1].push(additionalData);
         }
-      },
+      }
+      ,
       getComponentByName: function (name) {
         var componentByName;
         $.each(window.Vue.bpmnComponents, function (i, component) {
@@ -292,23 +299,25 @@
           }
         });
         return componentByName;
-      },
+      }
+      ,
       undo: function () {
         if (this.canUndo) {
           this.historyIndex -= 1
           this.undoing = true;
           this.undoed = true;
-          this.filteredDefinition = this.history[this.historyIndex];
-          console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.filteredDefinition);
+          this.data.definition = this.history[this.historyIndex];
+          console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.data.definition);
         }
-      },
+      }
+      ,
       redo: function () {
         if (this.canRedo) {
           this.historyIndex += 1
           this.undoing = true;
           this.undoed = true;
-          this.filteredDefinition = this.history[this.historyIndex]
-          console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.filteredDefinition);
+          this.data.definition = this.history[this.historyIndex]
+          console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.data.definition);
         }
       }
       ,
@@ -329,18 +338,20 @@
           })
         }
         return maxTracingTag + 1 + '';
-      },
+      }
+      ,
       checkExistTracingTag: function (tracingTag) {
         var me = this, isExist = false;
-        if (me.filteredDefinition) {
-          $.each(me.filteredDefinition.childActivities[1], function (c, activity) {
+        if (me.data.definition) {
+          $.each(me.data.definition.childActivities[1], function (c, activity) {
             if (activity && activity.tracingTag == tracingTag) {
               isExist = true;
             }
           })
         }
         return isExist;
-      },
+      }
+      ,
       bindEvents: function () {
         var me = this;
         var removed;
@@ -384,7 +395,7 @@
               value: value
             }
           }
-          //Next Flow: onAddHistory > updateVue > filteredDefinition update
+          //Next Flow: onAddHistory > updateVue > data.definition update
 
           //Remove Native Edge And Shape (Random Id Shape)
           setTimeout(function () {
@@ -392,10 +403,10 @@
             me.canvas.removeShape(targetElement, true);
           }, 10)
 
-          me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalActivity)));
+          me.data.definition.childActivities[1].push(JSON.parse(JSON.stringify(additionalActivity)));
 
           setTimeout(function () {
-            me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
+            me.data.definition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
           }, 10);
         });
 
@@ -420,34 +431,36 @@
               'style': JSON.stringify({})
             }
           }
-          me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
+          me.data.definition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
         });
-      },
+      }
+      ,
 
       removeComponentById: function (id) {
         var me = this;
         //릴레이션 삭제
-        $.each(me.filteredDefinition.sequenceFlows, function (i, relation) {
+        $.each(me.data.definition.sequenceFlows, function (i, relation) {
           if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
             console.log('** remove sequenceFlow', id);
-            me.filteredDefinition.sequenceFlows[i] = undefined;
+            me.data.definition.sequenceFlows[i] = undefined;
           }
         });
         //롤 삭제
-        $.each(me.filteredDefinition.roles, function (i, role) {
+        $.each(me.data.definition.roles, function (i, role) {
           if (role && role.elementView && role.elementView.id == id) {
             console.log('** remove role', id);
-            me.filteredDefinition.roles[i] = undefined;
+            me.data.definition.roles[i] = undefined;
           }
         });
         //액티비티 삭제
-        $.each(me.filteredDefinition.childActivities[1], function (i, activity) {
+        $.each(me.data.definition.childActivities[1], function (i, activity) {
           if (activity && activity.elementView && activity.elementView.id == id) {
             console.log('** remove activitiy', id);
-            me.filteredDefinition.childActivities[1][i] = undefined;
+            me.data.definition.childActivities[1][i] = undefined;
           }
         });
-      },
+      }
+      ,
       /**
        * 무작위 랜덤 아이디 생성
        * @returns {string} 랜덤 아이디
