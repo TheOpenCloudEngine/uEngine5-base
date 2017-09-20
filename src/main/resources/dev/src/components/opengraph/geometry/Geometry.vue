@@ -9,14 +9,15 @@
     computed: {},
     data: function () {
       return {
-        props: JSON.parse(JSON.stringify(this._props)),
+        props: JSON.parse(JSON.stringify(this.$props)),
         id: this.uuid(),
         element: null
       }
     },
     watch: {
-      _props: {
+      '$props': {
         handler: function (newVal, oldVal) {
+          console.log('$props!!', this.element.id);
           this.props = JSON.parse(JSON.stringify(newVal))
         },
         deep: true
@@ -42,10 +43,10 @@
             }
           }
           if (!needToWatch) {
-            console.log('geom _props changed, but no properties changed.');
+            console.log('geom $props changed, but no properties changed.');
             return;
           }
-          console.log('geom _props changed, registToElement.');
+          console.log('geom $props changed, registToElement.');
           this.registToElement();
         }
         ,

@@ -691,7 +691,7 @@
       let id = this.uuid();
       let sliderId = id + '-slider';
       return {
-        props: JSON.parse(JSON.stringify(this._props)),
+        props: JSON.parse(JSON.stringify(this.$props)),
         id: id,
         sliderId: sliderId,
         canvas: null,
@@ -700,7 +700,7 @@
     },
 
     watch: {
-      _props: {
+      '$props': {
         handler: function (newVal, oldVal) {
           this.props = JSON.parse(JSON.stringify(newVal))
         }

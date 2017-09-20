@@ -31,7 +31,7 @@
       }
     },
     watch: {
-      _props: {
+      '$props': {
         handler: function () {
           this.registToElement();
         },

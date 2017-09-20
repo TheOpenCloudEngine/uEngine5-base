@@ -311,7 +311,7 @@
     data: function () {
       return {
         innerRedraw: false,
-        props: JSON.parse(JSON.stringify(this._props)),
+        props: JSON.parse(JSON.stringify(this.$props)),
         elementRole: null,
         shapdId: 'OG.shape.' + this.uuShapeId(),
         immidiateId: this.uuid(),
@@ -330,12 +330,12 @@
     }
     ,
     watch: {
-      _props: {
+      '$props': {
         handler: function (newVal, oldVal) {
           if (this.elementRole != 'opengraph-element') {
             return;
           }
-          console.log('1. _props change detected!! => ' + this._id);
+          console.log('1. $props change detected!! => ' + this._id);
           this.props = JSON.parse(JSON.stringify(newVal));
         }
         ,
@@ -347,11 +347,11 @@
             return;
           }
           if (this.innerRedraw) {
-            console.log('2. _props change by inner side, so it will skip redraw element.');
+            console.log('2. $props change by inner side, so it will skip redraw element.');
             this.innerRedraw = false;
             return;
           }
-          console.log('2. _props change by out side, so it will continue redraw element.');
+          console.log('2. $props change by out side, so it will continue redraw element.');
 
           var needToWatch = false;
           var needToWatchKeys = [];
@@ -384,10 +384,10 @@
             }
           }
           if (!needToWatch) {
-            console.log('3. we scaned _props, but nothing changed. skip redraw.');
+            console.log('3. we scaned $props, but nothing changed. skip redraw.');
             return;
           } else {
-            console.log('3. we found _props change, ' + needToWatchKeys.join() + '.');
+            console.log('3. we found $props change, ' + needToWatchKeys.join() + '.');
           }
           if (!this.element) {
             console.log('4. finally, drawShape', this._id);
@@ -485,16 +485,16 @@
         this.innerRedraw = true;
         var me = this;
         if (!me.element) {
-          console.log('** element not found, so skip emit _props. ');
+          console.log('** element not found, so skip emit $props. ');
           return;
         }
         let boundary = me.canvasComponent.canvas.getBoundary(me.element);
         if (!boundary) {
-          console.log('** element not found, so skip emit _props. ');
+          console.log('** element not found, so skip emit $props. ');
           return;
         }
 
-        console.log('** start to emit _props. ');
+        console.log('** start to emit $props. ');
 
         //리드로우는 false 로 원복한다.
         me.$emit('update:redraw', false);

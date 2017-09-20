@@ -33,13 +33,31 @@
     data: function () {
       let id = this.uuid();
       let sliderId = id + '-slider';
+
+      //값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
+      //시퀀스 플로우 검증.
       var filteredDefinition = JSON.parse(JSON.stringify(this.definition));
       if (!filteredDefinition.sequenceFlows) {
         filteredDefinition.sequenceFlows = [];
       }
+      $.each(filteredDefinition.sequenceFlows, function (i, relation) {
+        if (!relation.relationView.style) {
+          relation.relationView.style = JSON.stringify({});
+        }
+      })
+
+      //롤 검증.
       if (!filteredDefinition.roles) {
         filteredDefinition.roles = [];
       }
+      $.each(filteredDefinition.roles, function (i, role) {
+        if (!role.elementView.style) {
+          role.elementView.style = JSON.stringify({});
+        }
+      })
+
+
+      //액티비티 검증.
       if (!filteredDefinition.childActivities) {
         filteredDefinition.childActivities = [
           'java.util.ArrayList',
@@ -49,9 +67,15 @@
       if (!filteredDefinition.childActivities[1]) {
         filteredDefinition.childActivities[1] = [];
       }
+      $.each(filteredDefinition.childActivities[1], function (i, activity) {
+        if (!activity.elementView.style) {
+          activity.elementView.style = JSON.stringify({});
+        }
+      })
+
+      //트리거 등록 (강제로 watch 핸들러를 만들기 위해)
       filteredDefinition.trigger = {};
       console.log('filteredDefinition', filteredDefinition);
-      //todo 값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
 
       return {
         enableHistoryAdd: false,
@@ -72,35 +96,7 @@
     watch: {
       filteredDefinition: {
         handler: function (after, before) {
-          //프로퍼티 패널이 열려있는 상황에서의 데피니션 변화는 모두 히스토리에 저장한다.
-          if (this.propertyEditing) {
-            this.enableHistoryAdd = false;
-            console.log('definition updated while property panel open.');
-          }
-          //그 외의 경우는 정해진 상황을 강제하여 히스토리에 저장한다.
-          else {
-            if (this.enableHistoryAdd) {
-              this.enableHistoryAdd = false;
-            } else {
-              console.log('definition updated, but not allow add history.');
-              this.$emit('update:definition', this.filteredDefinition);
-              return;
-            }
-          }
-
-
-          if (!this.undoing) {
-            console.log('definition updated, we will add history.', this.filteredDefinition);
-            if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
-              this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
-              this.undoed = false;
-            }
-            this.history.push(JSON.parse(JSON.stringify(after))); //heavy
-            this.historyIndex = this.history.length - 1;
-          } else {
-            console.log('definition updated, but triggered by undo,redo action. will skip add history.');
-            this.undoing = false;
-          }
+          this.addHistory(after);
         },
         deep: true
       },
@@ -123,10 +119,48 @@
     },
 
     methods: {
+      addHistory: function (newDefinition) {
+        console.log(this);
+        var definition = newDefinition ? newDefinition : this.filteredDefinition;
+        //프로퍼티 패널이 열려있는 상황에서의 데피니션 변화는 모두 히스토리에 저장한다.
+        if (this.propertyEditing) {
+          this.enableHistoryAdd = false;
+          console.log('definition updated while property panel open.');
+        }
+        //그 외의 경우는 정해진 상황을 강제하여 히스토리에 저장한다.
+        else {
+          if (this.enableHistoryAdd) {
+            this.enableHistoryAdd = false;
+          } else {
+            console.log('definition updated, but not allow add history.');
+            return;
+          }
+        }
+        //this.$emit('update:definition', this.filteredDefinition);
+
+        if (!this.undoing) {
+          console.log('definition updated, we will add history.', definition);
+          if (this.undoed) { //if undoed just before, clear the history from the current historyIndex
+            this.history.splice(this.historyIndex, this.history.length - this.historyIndex);
+            this.undoed = false;
+          }
+          this.history.push(JSON.parse(JSON.stringify(definition))); //heavy
+          this.historyIndex = this.history.length - 1;
+        } else {
+          console.log('definition updated, but triggered by undo,redo action. will skip add history.');
+          this.undoing = false;
+        }
+      },
+      /**
+       * 도형이 삭제되었을 경우.
+       **/
       onRemoveShape: function (component) {
         console.log('remove component by user action', component.id);
         this.removeComponentById(component.id);
       },
+      /**
+       * Lane 이 분기되었을 경우.
+       **/
       onDivideLane: function (dividedLane) {
         var me = this;
         var boundary = dividedLane.shape.geom.getBoundary();
@@ -145,7 +179,7 @@
             'style': JSON.stringify({})
           }
         }
-        me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
+        me.filteredDefinition.roles.push(additionalRole);
       },
       /**
        * 도형이 연결되었을 경우.
@@ -165,7 +199,7 @@
             }
           }
           me.canvas.removeShape(edge.id, true);
-          me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
+          me.filteredDefinition.sequenceFlows.push(additionalRelation);
         }
       },
       /**
@@ -202,7 +236,7 @@
               value: componentInfo.vertices
             }
           }
-          me.filteredDefinition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalData)));
+          me.filteredDefinition.sequenceFlows.push(additionalData);
         }
         //롤 추가인 경우
         else if (componentInfo.component == 'bpmn-role') {
@@ -220,7 +254,7 @@
               'style': JSON.stringify({})
             }
           }
-          me.filteredDefinition.roles.push(JSON.parse(JSON.stringify(additionalData)));
+          me.filteredDefinition.roles.push(additionalData);
         }
         //액티비티 추가인 경우
         else {
@@ -247,7 +281,7 @@
               'style': JSON.stringify({})
             }
           }
-          me.filteredDefinition.childActivities[1].push(JSON.parse(JSON.stringify(additionalData)));
+          me.filteredDefinition.childActivities[1].push(additionalData);
         }
       },
       getComponentByName: function (name) {
