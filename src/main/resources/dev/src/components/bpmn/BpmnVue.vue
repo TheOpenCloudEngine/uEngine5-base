@@ -321,21 +321,33 @@
       ,
       undo: function () {
         if (this.canUndo) {
+          this.canvas._CONFIG.FAST_LOADING = true;
           this.historyIndex -= 1
           this.undoing = true;
           this.undoed = true;
           this.data.definition = this.history[this.historyIndex];
           console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.data.definition);
+
+          this.$nextTick(function () {
+            this.canvas._CONFIG.FAST_LOADING = false;
+            this.canvas.updateSlider();
+          })
         }
       }
       ,
       redo: function () {
         if (this.canRedo) {
+          this.canvas._CONFIG.FAST_LOADING = true;
           this.historyIndex += 1
           this.undoing = true;
           this.undoed = true;
           this.data.definition = this.history[this.historyIndex]
           console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.data.definition);
+
+          this.$nextTick(function () {
+            this.canvas._CONFIG.FAST_LOADING = false;
+            this.canvas.updateSlider();
+          })
         }
       }
       ,

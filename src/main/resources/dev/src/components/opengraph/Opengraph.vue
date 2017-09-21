@@ -857,6 +857,7 @@
 
         var canvas = new OG.Canvas(this.id, [this.width, this.height], this.backgroundColor,
           this.backgroundImage ? 'url(' + this.backgroundImage + ')' : null);
+
         this.setCanvasConfiguration(canvas);
         canvas.initConfig({});
         this.canvas = canvas;
