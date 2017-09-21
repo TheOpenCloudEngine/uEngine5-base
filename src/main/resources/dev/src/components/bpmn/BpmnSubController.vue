@@ -146,7 +146,7 @@
         this.createEdgeAndElement(edgeElement, sourceElement, targetElement, 'bpmn-annotaion');
       },
       showComponentChange: function (component) {
-        alert('open component change context menu');
+        this.bpmnVue.componentToChange = component;
       }
     }
   }

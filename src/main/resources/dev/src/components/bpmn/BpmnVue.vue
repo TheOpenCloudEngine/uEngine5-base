@@ -1,26 +1,33 @@
 <template>
-  <opengraph
-    focus-canvas-on-select
-    :enableContextmenu="false"
-    :enableRootContextmenu="false"
-    v-if="data.definition"
-    ref="opengraph"
-    v-on:canvasReady="canvasReady"
-    v-on:userAction="onUserAction"
-    v-on:connectShape="onConnectShape"
-    v-on:removeShape="onRemoveShape"
-    v-on:divideLane="onDivideLane"
-  >
-    <div v-for="role in data.definition.roles">
-      <bpmn-role v-if="role != null" :role="role"></bpmn-role>
-    </div>
-    <div v-for="activity in data.definition.childActivities[1]">
-      <component v-if="activity != null" :is="activity.elementView.component" :activity="activity"></component>
-    </div>
-    <div v-for="relation in data.definition.sequenceFlows">
-      <bpmn-relation v-if="relation != null" :relation="relation"></bpmn-relation>
-    </div>
-  </opengraph>
+  <div>
+    <opengraph
+      focus-canvas-on-select
+      :enableContextmenu="false"
+      :enableRootContextmenu="false"
+      :slider="true"
+      v-if="data.definition"
+      ref="opengraph"
+      v-on:canvasReady="bpmnReady"
+      v-on:userAction="onUserAction"
+      v-on:connectShape="onConnectShape"
+      v-on:removeShape="onRemoveShape"
+      v-on:divideLane="onDivideLane"
+    >
+      <div v-for="role in data.definition.roles">
+        <bpmn-role v-if="role != null" :role="role"></bpmn-role>
+      </div>
+      <div v-for="activity in data.definition.childActivities[1]">
+        <component v-if="activity != null" :is="activity.elementView.component" :activity="activity"></component>
+      </div>
+      <div v-for="relation in data.definition.sequenceFlows">
+        <bpmn-relation v-if="relation != null" :relation="relation"></bpmn-relation>
+      </div>
+    </opengraph>
+    <bpmn-component-changer
+      :bpmnComponent="componentToChange"
+    >
+    </bpmn-component-changer>
+  </div>
 </template>
 
 <script>
@@ -29,67 +36,40 @@
     props: {
       definition: Object
     },
-
+    mounted: function () {
+      this.id = this.uuid();
+      this.data.definition = this.validateDefinition(this.definition);
+      this.history = [JSON.parse(JSON.stringify(this.data.definition))];
+      this.$nextTick(function () {
+        //$nextTick delays the callback function until Vue has updated the DOM
+        // (which usually happens as a result of us changing the data
+        //  so make any DOM changes here
+        this.canvas._CONFIG.FAST_LOADING = false;
+        this.canvas.updateSlider();
+      })
+    }
+    ,
     data: function () {
-      let id = this.uuid();
-      let sliderId = id + '-slider';
-
-      //값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
-      //시퀀스 플로우 검증.
-      var definition = JSON.parse(JSON.stringify(this.definition));
-      if (!definition.sequenceFlows) {
-        definition.sequenceFlows = [];
-      }
-      $.each(definition.sequenceFlows, function (i, relation) {
-        if (!relation.relationView.style) {
-          relation.relationView.style = JSON.stringify({});
-        }
-      })
-
-      //롤 검증.
-      if (!definition.roles) {
-        definition.roles = [];
-      }
-      $.each(definition.roles, function (i, role) {
-        if (!role.elementView.style) {
-          role.elementView.style = JSON.stringify({});
-        }
-      })
-
-
-      //액티비티 검증.
-      if (!definition.childActivities) {
-        definition.childActivities = [
-          'java.util.ArrayList',
-          []
-        ]
-      }
-      if (!definition.childActivities[1]) {
-        definition.childActivities[1] = [];
-      }
-      $.each(definition.childActivities[1], function (i, activity) {
-        if (!activity.elementView.style) {
-          activity.elementView.style = JSON.stringify({});
-        }
-      })
-
-
+//      let id = this.uuid();
+//      let sliderId = id + '-slider';
+//
+//      var definition = this.validateDefinition(this.definition);
       return {
         enableHistoryAdd: false,
         drawer: true,
         text: 'sdfsdf',
         data: {
-          definition: definition,
+          definition: null,
           trigger: {}
         },
-        history: [JSON.parse(JSON.stringify(definition))],
+        history: [],
         historyIndex: 0,
         undoing: false,
         undoed: false,
-        id: id,
-        sliderId: sliderId,
+        id: null,
         canvas: null,
-        propertyEditing: false
+        propertyEditing: false,
+        componentToChange: null
       };
     },
 
@@ -128,7 +108,6 @@
         ,
         deep: true
       }
-      ,
     },
 
     computed: {
@@ -145,13 +124,47 @@
       }
     }
     ,
-
-    mounted: function () {
-
-    }
-    ,
-
     methods: {
+      validateDefinition: function (definition) {
+        //값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
+
+        //시퀀스 플로우 검증.
+        if (!definition.sequenceFlows) {
+          definition.sequenceFlows = [];
+        }
+        $.each(definition.sequenceFlows, function (i, relation) {
+          if (!relation.relationView.style) {
+            relation.relationView.style = JSON.stringify({});
+          }
+        })
+
+        //롤 검증.
+        if (!definition.roles) {
+          definition.roles = [];
+        }
+        $.each(definition.roles, function (i, role) {
+          if (!role.elementView.style) {
+            role.elementView.style = JSON.stringify({});
+          }
+        })
+
+        //액티비티 검증.
+        if (!definition.childActivities) {
+          definition.childActivities = [
+            'java.util.ArrayList',
+            []
+          ]
+        }
+        if (!definition.childActivities[1]) {
+          definition.childActivities[1] = [];
+        }
+        $.each(definition.childActivities[1], function (i, activity) {
+          if (!activity.elementView.style) {
+            activity.elementView.style = JSON.stringify({});
+          }
+        })
+        return definition;
+      },
       /**
        * 도형이 삭제되었을 경우.
        **/
@@ -219,9 +232,11 @@
       /**
        * 캔버스 준비시
        **/
-      canvasReady: function (opengraph) {
+      bpmnReady: function (opengraph) {
         this.canvas = opengraph.canvas;
-        this.$emit('canvasReady', opengraph);
+        this.canvas._CONFIG.FAST_LOADING = true;
+        console.log('this.canvas._CONFIG.FAST_LOADING');
+        this.$emit('bpmnReady', opengraph);
       }
       ,
       /**
@@ -291,6 +306,9 @@
         }
       }
       ,
+      /**
+       * 컴포넌트 이름으로 Bpmn 컴포넌트를 가져온다.
+       **/
       getComponentByName: function (name) {
         var componentByName;
         $.each(window.Vue.bpmnComponents, function (i, component) {
@@ -321,6 +339,9 @@
         }
       }
       ,
+      /**
+       * 새로운 트레이싱 태그를 생성한다.
+       **/
       createNewTracingTag: function () {
         var me = this, maxTracingTag = 0,
           isInt = function (value) {
@@ -340,6 +361,9 @@
         return maxTracingTag + 1 + '';
       }
       ,
+      /**
+       * 데피니션에 트레이싱 태그가 있는지 확인한다.
+       **/
       checkExistTracingTag: function (tracingTag) {
         var me = this, isExist = false;
         if (me.data.definition) {
@@ -352,90 +376,10 @@
         return isExist;
       }
       ,
-      bindEvents: function () {
-        var me = this;
-        var removed;
 
-        me.canvas.onDuplicated(function (event, edgeElement, sourceElement, targetElement) {
-          var boundary = targetElement.shape.geom.getBoundary();
-          var component = me.getSVGComponentByShapeId(targetElement.shape.SHAPE_ID);
-          var className = component.computed.className();
-          var newTracingTag = me.createNewTracingTag();
-          console.log('newTracingTag', newTracingTag);
-          var additionalActivity = {
-            '_type': className,
-            'name': {
-              'text': ''
-            },
-            'tracingTag': newTracingTag,
-            'elementView': {
-              '_type': 'org.uengine.kernel.view.DefaultActivityView',
-              'id': newTracingTag,
-              'shapeId': targetElement.shape.SHAPE_ID,
-              'x': boundary.getCentroid().x,
-              'y': boundary.getCentroid().y,
-              'width': boundary.getWidth(),
-              'height': boundary.getHeight(),
-              'label': '',
-              'style': JSON.stringify({})
-            }
-          }
-
-          var from = $(edgeElement).attr('_from');
-          var to = me.replaceTerminalId($(edgeElement).attr('_to'), newTracingTag);
-          var value = edgeElement.shape.geom.vertices.toString();
-          var id = sourceElement.id + '-' + newTracingTag;
-
-          var additionalRelation = {
-            sourceRef: sourceElement.id,
-            targetRef: newTracingTag,
-            relationView: {
-              from: from,
-              to: to,
-              value: value
-            }
-          }
-          //Next Flow: onAddHistory > updateVue > data.definition update
-
-          //Remove Native Edge And Shape (Random Id Shape)
-          setTimeout(function () {
-            //edgeElement will remove together
-            me.canvas.removeShape(targetElement, true);
-          }, 10)
-
-          me.data.definition.childActivities[1].push(JSON.parse(JSON.stringify(additionalActivity)));
-
-          setTimeout(function () {
-            me.data.definition.sequenceFlows.push(JSON.parse(JSON.stringify(additionalRelation)));
-          }, 10);
-        });
-
-        //Lane 이 분기되었을 경우.
-        //Lane 분기는 생성되었을 시 아이디를 그대로 씀으로 삭제처리하지 않는다.
-        me.canvas.onDivideLane(function (event, dividedLane) {
-          var boundary = dividedLane.shape.geom.getBoundary();
-          var component = me.getSVGComponentByShapeId(dividedLane.shape.SHAPE_ID);
-          var additionalRole = {
-            'name': '',
-            'displayName': {},
-            'elementView': {
-              '_type': 'org.uengine.kernel.view.DefaultActivityView',
-              'id': dividedLane.id,
-              'parent': me.canvas.getParent(dividedLane).id,
-              'shapeId': dividedLane.shape.SHAPE_ID,
-              'x': boundary.getCentroid().x,
-              'y': boundary.getCentroid().y,
-              'width': boundary.getWidth(),
-              'height': boundary.getHeight(),
-              'label': '',
-              'style': JSON.stringify({})
-            }
-          }
-          me.data.definition.roles.push(JSON.parse(JSON.stringify(additionalRole)));
-        });
-      }
-      ,
-
+      /**
+       * 아이디에 해당하는 Bpmn 컴포넌트를 삭제한다.
+       **/
       removeComponentById: function (id) {
         var me = this;
         //릴레이션 삭제
@@ -480,21 +424,10 @@
 </script>
 
 
-<style scoped lang="scss" rel="stylesheet/scss">
-  .canvas-wrapper {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    overflow: scroll;
-  }
-
-  .canvas-container {
-    position: relative;
-    width: 2000px;
-    height: 2000px;
-    background: #f7f7f7;
+<style lang="scss" rel="stylesheet/scss">
+  /*네비게이션 패널 넓이*/
+  aside.navigation-drawer.navigation-drawer--absolute.navigation-drawer--is-booted.navigation-drawer--open {
+    width: 400px;
   }
 </style>
 

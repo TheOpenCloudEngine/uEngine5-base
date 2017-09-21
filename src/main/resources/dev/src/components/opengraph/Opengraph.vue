@@ -16,6 +16,12 @@
   export default {
     name: 'opengraph',
     props: {
+      slider: {
+        default: function () {
+          return false;
+        },
+        type: Boolean
+      },
       /**
        * 캔버스 가로 (px)
        */
@@ -695,7 +701,8 @@
         id: id,
         sliderId: sliderId,
         canvas: null,
-        elements: {}
+        elements: {},
+        container: null
       }
     },
 
@@ -741,13 +748,15 @@
     mounted: function () {
       this.render();
       this.bindEvents();
-      this.$emit('canvasReady', this);
     },
 
     methods: {
       setCanvasConfiguration: function (canvas) {
 
         var me = this;
+
+        canvas._CONTAINER = $(this.$el).find('.canvas-wrapper')[0];
+        this.container = canvas._CONTAINER;
 
         //캔버스 스케일, 사이즈, 배경 관련.
         canvas._CONFIG.CANVAS_BACKGROUND = this.backgroundColor
@@ -762,11 +771,6 @@
         }
         canvas.setCanvasSize([me.width, me.height]);
         canvas.setScale(me.scale);
-
-
-        //TODO
-        //navigator 가 있다면 슬라이더를 추가함.
-        //navigator 가 꺼지면 슬라이더를 없앰.
 
         //옵션 관련
         canvas._CONFIG.POOL_DROP_EVENT = this.poolDropEvent;
@@ -825,18 +829,38 @@
         canvas._CONFIG.DEFAULT_STYLE.CONNECT_GUIDE_SPOT_RECT = JSON.parse(JSON.stringify(this.defaultStyleConnectGuideSpotRect));
         canvas._CONFIG.DEFAULT_STYLE.CONNECTABLE_HIGHLIGHT = this.defaultStyleConnectableHighlight;
 
+        //줌 슬라이더
+        if (!this.slider) {
+          canvas.removeSlider();
+        }
+        else {
+          if (!canvas._CONFIG.SLIDER) {
+            canvas.addSlider({
+              slider: $("#" + this.sliderId),
+              width: 200,
+              height: 300,
+              appendTo: "body"
+            });
+          }
+        }
+
       },
       getElementById: function (id) {
         return this.elements[id];
       },
       render: function () {
         var me = this;
+        //컨테이너 변경
+        OG.renderer.RaphaelRenderer.prototype.getContainer = function () {
+          return this._PAPER.canvas.parentNode.parentNode;
+        };
+
         var canvas = new OG.Canvas(this.id, [this.width, this.height], this.backgroundColor,
           this.backgroundImage ? 'url(' + this.backgroundImage + ')' : null);
         this.setCanvasConfiguration(canvas);
         canvas.initConfig({});
         this.canvas = canvas;
-        this.$emit('canvasReady', canvas);
+        this.$emit('canvasReady', this);
       },
       /**
        * 캔버스의 이벤트 핸들러 emit
@@ -866,6 +890,13 @@
             me.elements[key].emitElement();
           }
           me.$emit('userAction');
+          me.$nextTick(function () {
+            me.canvas.setCanvasSize([2000, 2000]);
+
+            //TODO 네비게이터의 이미지가 $nextTick 이전에 스냅샷을 따왔기 때문에, 이미 화면이 틀어져있음.
+            //이를 위해서는 오픈그래프의 메소드를 오버라이드 해야한다. => updateSlider => 캔버스 사이즈 강제 고정으로.
+            //me.canvas.updateNavigatior();
+          })
         });
 
         /**

@@ -78,7 +78,7 @@
       this.bpmnVue = bpmnVue;
     },
     methods: {
-      showProperty: function (component) {
+      showProperty: function (event, component) {
         this.drawer = true;
       },
       uuid: function () {

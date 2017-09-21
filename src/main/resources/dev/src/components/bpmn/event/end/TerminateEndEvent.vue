@@ -21,7 +21,16 @@
         :center="[50,50]"
         :radius="5"
         :_style="{
-          'stroke-width': 3
+        'stroke-width': 3
+        }"
+      >
+      </geometry-circle>
+      <geometry-circle
+        :center="[50,50]"
+        :radius="5"
+        :_style="{
+        'fill': 'black',
+        'fill-opacity': 1
         }"
       >
       </geometry-circle>
@@ -66,7 +75,7 @@
   import IBpmn from '../../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-end-event',
+    name: 'bpmn-terminate-end-event',
     props: {},
     computed: {
       defaultStyle(){

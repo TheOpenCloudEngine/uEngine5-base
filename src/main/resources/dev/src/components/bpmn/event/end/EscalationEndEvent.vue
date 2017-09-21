@@ -21,10 +21,18 @@
         :center="[50,50]"
         :radius="5"
         :_style="{
-          'stroke-width': 3
+        'stroke-width': 3
         }"
       >
       </geometry-circle>
+      <geometry-polygon
+        :vertices="[[20, 80],[50, 20],[80, 80],[50, 50]]"
+        :_style="{
+        'fill': 'black',
+        'fill-opacity': 1
+      }"
+      >
+      </geometry-polygon>
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
@@ -66,7 +74,7 @@
   import IBpmn from '../../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-end-event',
+    name: 'bpmn-escalation-end-event',
     props: {},
     computed: {
       defaultStyle(){

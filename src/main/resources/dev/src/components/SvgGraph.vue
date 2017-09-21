@@ -3,7 +3,7 @@
 
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :definition.sync="definition"
-              v-on:canvasReady="bindEvents">
+              v-on:bpmnReady="bindEvents">
     </bpmn-vue>
 
     <v-card v-if="!monitor" class="grey lighten-4 tools">
@@ -199,8 +199,10 @@
         //this.$el
         var me = this;
         var el = me.$el;
-        var canvasEl = $(el).find('.full-canvas'); //me.$refs['bpmn-vue'].$el; //$(el).find('.full-canvas');
-
+        var canvasEl = $(opengraph.container);
+        if (!canvasEl || !canvasEl.length) {
+          return;
+        }
         //아이콘 드래그 드랍 이벤트 등록
         $(el).find('.draggable').draggable({
           start: function () {
@@ -214,13 +216,13 @@
           appendTo: canvasEl
         });
 
-        //var canvasEl = $(el).find(".canvas");
         canvasEl.droppable({
           drop: function (event, ui) {
             var componentInfo = canvasEl.data('DRAG_SHAPE'), shape, element;
             if (componentInfo) {
               var dropX = event.pageX - canvasEl.offset().left + canvasEl[0].scrollLeft;
               var dropY = event.pageY - canvasEl.offset().top + canvasEl[0].scrollTop;
+
               dropX = dropX / opengraph.scale;
               dropY = dropY / opengraph.scale;
 
@@ -255,20 +257,7 @@
         }
       }
       ,
-      getSVGComponentName(activity){
-        var componentName;
-        if (activity) {
-          var shapeId = activity.elementView.shapeId;
-          $.each(window.Vue.bpmnComponents, function (i, component) {
-            if (component.computed.shapeId) {
-              if (component.computed.shapeId() == shapeId) {
-                componentName = component.name;
-              }
-            }
-          });
-          return componentName;
-        }
-      },
+
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;

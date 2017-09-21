@@ -901,11 +901,11 @@
           me.bindElementEvent = true;
           $(me.element).bind('click', function (event) {
             event.stopPropagation();
-            me.$emit('click', me);
+            me.$emit('click', event, me);
           });
           $(me.element).bind('dblclick', function (event) {
             event.stopPropagation();
-            me.$emit('dblclick', me);
+            me.$emit('dblclick', event, me);
           });
         }
       },
