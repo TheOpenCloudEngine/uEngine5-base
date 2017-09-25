@@ -937,8 +937,8 @@
         var me = this;
         controllers.push({
           image: controllerComponent.image,
-          action: function (element) {
-            controllerComponent.$emit('click', me);
+          action: function (event, element) {
+            controllerComponent.$emit('click', event, me);
           }
         })
       }

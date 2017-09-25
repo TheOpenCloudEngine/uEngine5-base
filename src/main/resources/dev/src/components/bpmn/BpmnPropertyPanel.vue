@@ -91,7 +91,10 @@
 </template>
 
 <script>
+  import BpmnVueFinder from './BpmnVueFinder'
+  import BpmnComponentFinder from './BpmnComponentFinder'
   export default {
+    mixins: [BpmnVueFinder, BpmnComponentFinder],
     name: 'bpmn-property-panel',
     props: {
       drawer: {
@@ -106,7 +109,6 @@
     data: function () {
       var me = this;
       return {
-        bpmnVue: null,
         navigationDrawer: this.drawer,
         _item: this.item,
         preventWatch: false,
@@ -117,7 +119,6 @@
         style: [],
         active: null,
         tracingTag: null,
-        bpmnComponent: null,
         rules: {
           required: function (value) {
             if (!value || value.length < 1) {
@@ -144,7 +145,7 @@
               me.$emit('update:item', me._item);
 
               //해당 트레이싱 태그를 사용중인 릴레이션의 source,target 을 변경한다.
-              var sequenceFlows = me.bpmnVue.filteredDefinition.sequenceFlows;
+              var sequenceFlows = me.bpmnVue.data.definition.sequenceFlows;
               $.each(sequenceFlows, function (i, relation) {
                 if (relation.sourceRef == oldTracingTag) {
                   relation.sourceRef = value;
@@ -198,22 +199,6 @@
             if (this.item.tracingTag) {
               this.tracingTag = this.item.tracingTag;
             }
-
-            //이 프로퍼티 패널의 BpmnVue 를 등록한다.
-            var bpmnVue = null;
-            var parent;
-            var getParent = function (component) {
-              parent = component.$parent;
-              if (parent) {
-                if (parent.bpmnRole == 'bpmn-vue') {
-                  bpmnVue = parent;
-                } else {
-                  getParent(parent);
-                }
-              }
-            }
-            getParent(this);
-            this.bpmnVue = bpmnVue;
 
             //bpmnVue 에 프로퍼티 에디팅중임을 알린다.
             //프로퍼티 에디팅 중 데피니션 변화는 히스토리에 기록된다.

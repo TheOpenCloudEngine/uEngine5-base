@@ -26,32 +26,38 @@
 </template>
 
 <script>
+  import BpmnVueFinder from './BpmnVueFinder'
   export default {
+    mixins: [BpmnVueFinder],
     name: 'bpmn-component-changer',
     props: {
-      bpmnComponent: Object
+      data: Object
     },
     computed: {},
     data: function () {
       return {
-        bpmnVue: this.$parent
+        bpmnComponent: null
       };
     },
     watch: {
       /**
        * bpmnComponent = 컴포넌트를 교체할 대상.
        */
-      bpmnComponent: function () {
-        var canvasEl = $(this.bpmnVue.canvas._CONTAINER);
-        var pageX = this.bpmnComponent.x + canvasEl.offset().left - canvasEl[0].scrollLeft;
-        var pageY = this.bpmnComponent.y + canvasEl.offset().top - canvasEl[0].scrollTop;
+      data: function (newVal, oldVal) {
+        console.log('newVal', newVal);
+        if (!newVal || !newVal.bpmnComponent) {
+          this.bpmnComponent = null;
+          return;
+        } else {
+          this.bpmnComponent = newVal.bpmnComponent;
+        }
 
         $(this.$el).css({
           position: 'absolute',
-          width: '200px',
-          height: '500px',
-          top: pageY + 'px',
-          left: pageX + 'px'
+          width: '180px',
+          height: 'auto',
+          top: newVal.top + 'px',
+          left: newVal.top + 'px'
         })
       }
     },

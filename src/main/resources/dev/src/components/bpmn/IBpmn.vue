@@ -3,7 +3,9 @@
 </template>
 
 <script>
+  import BpmnVueFinder from './BpmnVueFinder'
   export default {
+    mixins: [BpmnVueFinder],
     name: 'bpmn-base',
     props: {
       activity: Object,
@@ -18,13 +20,15 @@
     data: function () {
       return {
         _id: null,
-        bpmnVue: null,
         drawer: false
       }
     },
     computed: {
       type(){
         return ''
+      },
+      bpmnRole: function () {
+        return 'bpmn-component';
       },
       style: {
         get: function () {
@@ -61,23 +65,24 @@
     },
     watch: {},
     mounted: function () {
-      //이 bpmn 요소(액티비티,롤,릴레이션)의 BpmnVue 를 등록한다.
-      var bpmnVue = null;
-      var parent;
-      var getParent = function (component) {
-        parent = component.$parent;
-        if (parent) {
-          if (parent.bpmnRole == 'bpmn-vue') {
-            bpmnVue = parent;
-          } else {
-            getParent(parent);
-          }
-        }
-      }
-      getParent(this);
-      this.bpmnVue = bpmnVue;
+
     },
     methods: {
+      closeComponentChanger: function () {
+        this.bpmnVue.componentToChange = null;
+      },
+      openComponentChanger: function (top, left) {
+        //TODO 저 프로퍼티 패널이 deselect 되었을 때 닫히지 않게 하려면...?
+
+
+        console.log(top, left);
+        //opengraphComponent 에서 x.y 뽑기.
+        this.bpmnVue.componentChangerData = {
+          bpmnComponent: this,
+          top: top,
+          left: left
+        };
+      },
       showProperty: function (event, component) {
         this.drawer = true;
       },

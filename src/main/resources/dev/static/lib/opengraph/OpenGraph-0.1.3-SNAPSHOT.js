@@ -23965,8 +23965,8 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
         guide._image = _image.node;
 
         if (controller.action) {
-            $(_image.node).click(function () {
-                controller.action(element);
+            $(_image.node).click(function (event) {
+                controller.action(event, element);
             })
         }
         else if (controller.create) {

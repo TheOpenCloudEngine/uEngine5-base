@@ -16,6 +16,9 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
+
+      v-on:removeShape="closeComponentChanger"
+      v-on:redrawShape="closeComponentChanger"
     >
       <geometry-circle
         :center="[50,50]"
@@ -25,7 +28,7 @@
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
-      <bpmn-sub-controller :type="type" :bpmnVue="bpmnVue"></bpmn-sub-controller>
+      <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
 
     <bpmn-property-panel

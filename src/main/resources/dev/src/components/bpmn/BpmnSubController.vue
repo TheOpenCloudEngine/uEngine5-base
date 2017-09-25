@@ -50,11 +50,13 @@
 </template>
 
 <script>
+  import BpmnVueFinder from './BpmnVueFinder'
+  import BpmnComponentFinder from './BpmnComponentFinder'
   export default {
+    mixins: [BpmnVueFinder, BpmnComponentFinder],
     name: 'bpmn-sub-controller',
     props: {
-      type: String,
-      bpmnVue: Object
+      type: String
     },
     computed: {},
     data: function () {
@@ -145,8 +147,20 @@
       annotaionClone: function (edgeElement, sourceElement, targetElement) {
         this.createEdgeAndElement(edgeElement, sourceElement, targetElement, 'bpmn-annotaion');
       },
-      showComponentChange: function (component) {
-        this.bpmnVue.componentToChange = component;
+      showComponentChange: function (event, opengraphComponent) {
+        if (this.bpmnComponent) {
+          var canvasEl = $(this.bpmnVue.canvas._CONTAINER);
+          var x = this.bpmnComponent.x;
+          var y = this.bpmnComponent.y;
+          var width = this.bpmnComponent.width;
+          var height = this.bpmnComponent.height;
+
+          var pageX = x + canvasEl.offset().left - canvasEl[0].scrollLeft;
+          var pageY = y + canvasEl.offset().top - canvasEl[0].scrollTop;
+          var top = pageY - 50;
+          var left = pageX + (width / 2 + 10);
+          this.bpmnComponent.openComponentChanger(top, left);
+        }
       }
     }
   }

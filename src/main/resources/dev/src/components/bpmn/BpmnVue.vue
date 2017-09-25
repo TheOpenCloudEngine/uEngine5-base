@@ -24,7 +24,7 @@
       </div>
     </opengraph>
     <bpmn-component-changer
-      :bpmnComponent="componentToChange"
+      :data="componentChangerData"
     >
     </bpmn-component-changer>
   </div>
@@ -69,7 +69,7 @@
         id: null,
         canvas: null,
         propertyEditing: false,
-        componentToChange: null
+        componentChangerData: null
       };
     },
 

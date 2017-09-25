@@ -33,7 +33,7 @@
         <bpmn-loop-type :loopType="loopType"></bpmn-loop-type>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
-      <bpmn-sub-controller :type="type" :bpmnVue="bpmnVue"></bpmn-sub-controller>
+      <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
 
     <bpmn-property-panel
