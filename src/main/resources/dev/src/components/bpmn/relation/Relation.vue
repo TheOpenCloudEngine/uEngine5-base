@@ -9,8 +9,36 @@
       :from.sync="relation.sourceRef"
       :to.sync="relation.targetRef"
       :_style.sync="style"
+      :label.sync="relation.name"
+      v-on:dblclick="showProperty"
+      v-on:selectShape="closeComponentChanger"
+      v-on:deSelectShape="closeComponentChanger"
+      v-on:removeShape="closeComponentChanger"
+      v-on:redrawShape="closeComponentChanger"
     >
     </edge-element>
+
+    <bpmn-property-panel
+      :drawer.sync="drawer"
+      :item.sync="relation"
+    >
+      <template slot="properties-contents">
+        <v-layout row wrap class="pa-3">
+          <v-flex xs12>
+            <v-text-field
+              label="릴레이션 이름"
+              v-model="relation.name"
+            ></v-text-field>
+          </v-flex>
+        </v-layout>
+      </template>
+      <template slot="additional-tabs">
+
+      </template>
+      <template slot="additional-tabs-contents">
+
+      </template>
+    </bpmn-property-panel>
   </div>
 </template>
 

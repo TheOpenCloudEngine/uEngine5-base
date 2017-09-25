@@ -15,6 +15,10 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
+      v-on:selectShape="closeComponentChanger"
+      v-on:deSelectShape="closeComponentChanger"
+      v-on:removeShape="closeComponentChanger"
+      v-on:redrawShape="closeComponentChanger"
     >
       <geometry-polygon :vertices="[[0, 50],[50, 100],[100, 50],[50, 0]]"></geometry-polygon>
 

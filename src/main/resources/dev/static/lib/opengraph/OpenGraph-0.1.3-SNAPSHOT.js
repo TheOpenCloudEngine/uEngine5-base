@@ -23966,7 +23966,10 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
 
         if (controller.action) {
             $(_image.node).click(function (event) {
-                controller.action(event, element);
+                //mousedown 이후에 지속하도록.
+                setTimeout(function () {
+                    controller.action(event, element);
+                }, 10);
             })
         }
         else if (controller.create) {

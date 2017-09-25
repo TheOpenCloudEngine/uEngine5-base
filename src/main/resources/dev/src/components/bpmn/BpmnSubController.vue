@@ -150,10 +150,10 @@
       showComponentChange: function (event, opengraphComponent) {
         if (this.bpmnComponent) {
           var canvasEl = $(this.bpmnVue.canvas._CONTAINER);
-          var x = this.bpmnComponent.x;
-          var y = this.bpmnComponent.y;
-          var width = this.bpmnComponent.width;
-          var height = this.bpmnComponent.height;
+          var x = opengraphComponent.x;
+          var y = opengraphComponent.y;
+          var width = opengraphComponent.width;
+          var height = opengraphComponent.height;
 
           var pageX = x + canvasEl.offset().left - canvasEl[0].scrollLeft;
           var pageY = y + canvasEl.offset().top - canvasEl[0].scrollTop;

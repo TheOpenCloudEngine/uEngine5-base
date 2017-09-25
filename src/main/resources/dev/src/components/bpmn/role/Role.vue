@@ -14,6 +14,10 @@
       :parentId.sync="role.elementView.parent"
       :label.sync="role.name"
       v-on:dblclick="showProperty"
+      v-on:selectShape="closeComponentChanger"
+      v-on:deSelectShape="closeComponentChanger"
+      v-on:removeShape="closeComponentChanger"
+      v-on:redrawShape="closeComponentChanger"
     >
       </geometry-circle>
       <sub-elements>

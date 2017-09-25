@@ -40,10 +40,7 @@
       };
     },
     watch: {
-      /**
-       * bpmnComponent = 컴포넌트를 교체할 대상.
-       */
-      data: function (newVal, oldVal) {
+      '$props.data': function (newVal, oldVal) {
         console.log('newVal', newVal);
         if (!newVal || !newVal.bpmnComponent) {
           this.bpmnComponent = null;
@@ -57,7 +54,7 @@
           width: '180px',
           height: 'auto',
           top: newVal.top + 'px',
-          left: newVal.top + 'px'
+          left: newVal.left + 'px'
         })
       }
     },

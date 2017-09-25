@@ -69,16 +69,19 @@
     },
     methods: {
       closeComponentChanger: function () {
-        this.bpmnVue.componentToChange = null;
+        console.log('closeComponentChanger');
+        this.bpmnVue.componentChangerData = {};
       },
       openComponentChanger: function (top, left) {
+        var me = this;
         //TODO 저 프로퍼티 패널이 deselect 되었을 때 닫히지 않게 하려면...?
 
 
         console.log(top, left);
         //opengraphComponent 에서 x.y 뽑기.
+        console.log('this.bpmnVue.componentChangerData', this.bpmnVue.componentChangerData);
         this.bpmnVue.componentChangerData = {
-          bpmnComponent: this,
+          bpmnComponent: me,
           top: top,
           left: left
         };

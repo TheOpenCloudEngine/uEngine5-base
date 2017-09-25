@@ -46,33 +46,39 @@
         </slot>
         <v-tabs-content :id="'visual' + _uid">
           <v-layout row wrap class="pa-3">
-            <v-flex xs6>
-              <v-text-field
-                type="number"
-                label="x"
-                v-model.number="x"
-              ></v-text-field>
-            </v-flex>
-            <v-flex xs6>
-              <v-text-field
-                type="number"
-                label="y"
-                v-model.number="y"
-              ></v-text-field>
-            </v-flex>
-            <v-flex xs6>
-              <v-text-field
-                type="number"
-                label="width"
-                v-model.number="width"
-              ></v-text-field>
-            </v-flex>
-            <v-flex xs6>
-              <v-text-field
-                type="number"
-                label="height"
-                v-model.number="height"
-              ></v-text-field>
+
+            <!--엘리먼트뷰가 있을경우 x,y,width,height 조정-->
+            <v-flex xs12 v-if="item.elementView">
+              <v-layout row wrap>
+                <v-flex xs6>
+                  <v-text-field
+                    type="number"
+                    label="x"
+                    v-model.number="x"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs6>
+                  <v-text-field
+                    type="number"
+                    label="y"
+                    v-model.number="y"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs6>
+                  <v-text-field
+                    type="number"
+                    label="width"
+                    v-model.number="width"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs6>
+                  <v-text-field
+                    type="number"
+                    label="height"
+                    v-model.number="height"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
             </v-flex>
             <v-flex xs12 v-for="(item, index) in style"
                     :item="item"
@@ -177,14 +183,18 @@
         handler: function (val, oldval) {
           if (val == true) {
             this._item = this.item;
-            this.x = this.item.elementView.x;
-            this.y = this.item.elementView.y;
-            this.width = this.item.elementView.width;
-            this.height = this.item.elementView.height;
+            if (this.item.elementView) {
+              this.x = this.item.elementView.x;
+              this.y = this.item.elementView.y;
+              this.width = this.item.elementView.width;
+              this.height = this.item.elementView.height;
+            }
+
             //맵 형식의 스타일을 어레이타입으로 변형한다.
+            var view = this.item.elementView || this.item.relationView;
             var style = [];
-            if (this.item.elementView.style) {
-              var itemStyle = JSON.parse(this.item.elementView.style);
+            if (view.style) {
+              var itemStyle = JSON.parse(view.style);
               if (!$.isEmptyObject(itemStyle)) {
                 for (var key in itemStyle) {
                   style.push({
@@ -237,7 +247,8 @@
               style[item.key] = item.value;
             });
           }
-          this._item.elementView.style = JSON.stringify(style);
+          var view = this._item.elementView || this._item.relationView;
+          view.style = JSON.stringify(style);
           this.$emit('update:item', this._item);
         },
         deep: true
