@@ -23,7 +23,7 @@
     >
       <geometry-circle
         :center="[50,50]"
-        :radius="5"
+        :radius="50"
         :_style="{
         'stroke-width': 3
         }"

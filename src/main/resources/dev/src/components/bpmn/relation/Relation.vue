@@ -52,6 +52,9 @@
       defaultStyle(){
         return {}
       },
+      type(){
+        return 'Relation'
+      },
       vertices: {
         get: function () {
           var style;

@@ -1,16 +1,68 @@
-<template>
+<template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
-    <v-card v-if="bpmnComponent"
-            class="grey lighten-4 change-panel"
-    >
-      <v-card-text>
-        <span class="icons bpmn-icon-hand-tool"></span>
-        <span class="icons bpmn-icon-lasso-tool"></span>
-        <span class="icons bpmn-icon-space-tool"></span>
-        <span class="icons bpmn-icon-connection-multi"></span>
+    <v-card v-if="bpmnComponent" class="grey lighten-4">
+      <v-card-text class="pa-0">
+        <div v-if="bpmnComponent.type == 'Task'">
+          <span class="icons bpmn-icon-parallel-mi-marker"></span>
+          <span class="icons bpmn-icon-sequential-mi-marker"></span>
+          <span class="icons bpmn-icon-loop-marker"></span>
 
-        <hr class="separator">
+          <hr class="separator">
+        </div>
 
+        <div v-if="bpmnComponent.type == 'StartEvent'">
+          <p class="icons bpmn-icon-start-event-none">
+            <span class="icon-text">Start Event</span>
+          </p>
+          <p v-on:click="chage('bpmn-terminate-end-event')" class="icons bpmn-icon-start-event-message">
+            <span class="icon-text">Message Start Event</span>
+          </p>
+          <p class="icons bpmn-icon-start-event-timer">
+            <span class="icon-text">Timer Start Event</span>
+          </p>
+          <p class="icons bpmn-icon-start-event-condition">
+            <span class="icon-text">Conditional Start Event</span>
+          </p>
+          <p class="icons bpmn-icon-start-event-signal">
+            <span class="icon-text">Signal Start Event</span>
+          </p>
+        </div>
+
+        <div v-if="bpmnComponent.type == 'IntermediateEvent'">
+          <p class="icons bpmn-icon-intermediate-event-none">
+            <span class="icon-text">Intermediate Throw Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-catch-message">
+            <span class="icon-text">Message Intermediate Catch Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-throw-message">
+            <span class="icon-text">Message Intermediate Throw Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-catch-timer">
+            <span class="icon-text">Timer Intermediate Catch Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-throw-escalation">
+            <span class="icon-text">Escalation Intermediate Throw Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-catch-condition">
+            <span class="icon-text">Conditional Intermediate Catch Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-catch-link">
+            <span class="icon-text">Link Intermediate Catch Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-throw-link">
+            <span class="icon-text">Link Intermediate Throw Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-throw-compensation">
+            <span class="icon-text">Compensation Intermediate Throw Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-catch-signal">
+            <span class="icon-text">Signal Intermediate Catch Event</span>
+          </p>
+          <p class="icons bpmn-icon-intermediate-event-throw-signal">
+            <span class="icon-text">Signal Intermediate Throw Event</span>
+          </p>
+        </div>
         <!--<span v-for="item in dragItems"-->
         <!--class="icons draggable"-->
         <!--:class="item.icon"-->
@@ -18,7 +70,6 @@
         <!--:_width="item.width"-->
         <!--:_height="item.height"-->
         <!--&gt;</span>-->
-        <span>sdfsdfsdfsdf</span>
 
       </v-card-text>
     </v-card>
@@ -41,7 +92,6 @@
     },
     watch: {
       '$props.data': function (newVal, oldVal) {
-        console.log('newVal', newVal);
         if (!newVal || !newVal.bpmnComponent) {
           this.bpmnComponent = null;
           return;
@@ -51,7 +101,7 @@
 
         $(this.$el).css({
           position: 'absolute',
-          width: '180px',
+          width: '260px',
           height: 'auto',
           top: newVal.top + 'px',
           left: newVal.left + 'px'
@@ -61,12 +111,50 @@
     mounted: function () {
 
     },
-    methods: {}
+    methods: {
+      chage: function (componentName) {
+//        this.bpmnComponent.activity.elementView.component = componentName;
+//
+//        //스타일 초기화.
+//        this.bpmnComponent.activity.elementView.style = JSON.stringify({});
+
+        //여기서, 기존 컴포넌트를 삭제하고 새로운 컴포넌트를 생성할 필요가 있음.
+
+        var newActivity = JSON.parse(JSON.stringify(this.bpmnComponent.activity));
+        newActivity.elementView.component = componentName;
+        newActivity.elementView.style = JSON.stringify({});
+
+        console.log('newActivity.elementView', newActivity.elementView);
+        this.bpmnVue.enableHistoryAdd = true;
+        this.bpmnVue.removeComponentById(this.bpmnComponent.id);
+        this.bpmnVue.data.definition.childActivities[1].push(newActivity);
+
+        //여기서 변환한 것을 다시 change 하면, 먹히지 않는이유?
+
+        //콘솔찍어보기
+        setTimeout(function(){
+          console.log('newActivity', newActivity);
+        },1000);
+
+      }
+    }
   }
 </script>
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
+  .icons {
+    font-size: 25px;
+    margin-left: 10px;
+  }
+
+  p.icons {
+    margin-bottom: -10px;
+
+    .icon-text {
+      font-size: 11px;
+    }
+  }
 
 </style>
 

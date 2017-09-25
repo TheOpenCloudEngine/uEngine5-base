@@ -21767,7 +21767,7 @@ OG.renderer.RaphaelRenderer.prototype._drawGeometry = function (groupElement, ge
         case OG.Constants.GEOM_TYPE.COLLECTION:
             for (var i = 0, leni = geometry.geometries.length; i < leni; i++) {
                 // recursive call
-                this._drawGeometry(groupElement, geometry.geometries[i], style, geometry.style.map);
+                this._drawGeometry(groupElement, geometry.geometries[i], geometry.geometries[i].style, geometry.style.map);
             }
             break;
     }

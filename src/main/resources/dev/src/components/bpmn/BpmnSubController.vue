@@ -149,6 +149,7 @@
       },
       showComponentChange: function (event, opengraphComponent) {
         if (this.bpmnComponent) {
+          console.log('showComponentChange', this.bpmnComponent.activity.elementView);
           var canvasEl = $(this.bpmnVue.canvas._CONTAINER);
           var x = opengraphComponent.x;
           var y = opengraphComponent.y;

@@ -23,7 +23,7 @@
     >
       <geometry-circle
         :center="[50,50]"
-        :radius="5"
+        :radius="50"
         :_style="{
         'stroke-width': 3
         }"
@@ -31,7 +31,7 @@
       </geometry-circle>
       <geometry-circle
         :center="[50,50]"
-        :radius="5"
+        :radius="30"
         :_style="{
         'fill': 'black',
         'fill-opacity': 1
