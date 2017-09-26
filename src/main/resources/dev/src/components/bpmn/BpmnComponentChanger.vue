@@ -113,10 +113,13 @@
         //여기서, 기존 컴포넌트를 삭제하고 새로운 컴포넌트를 생성할 필요가 있음.
 
         var newActivity = JSON.parse(JSON.stringify(this.bpmnComponent.activity));
-        newActivity.elementView.component = componentName;
+        //newActivity.elementView.component = componentName;
+
+        var component = this.bpmnVue.getComponentByName(componentName);
+        newActivity._type = component.computed.className();
         newActivity.elementView.style = JSON.stringify({});
 
-        console.log('newActivity.elementView', newActivity.elementView);
+        console.log('newActivity', newActivity);
         this.bpmnVue.enableHistoryAdd = true;
         this.bpmnVue.removeComponentById(this.bpmnComponent.id);
         this.bpmnVue.data.definition.childActivities[1].push(newActivity);

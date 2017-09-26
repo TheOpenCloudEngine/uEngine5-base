@@ -19,7 +19,8 @@
         <bpmn-role v-if="role != null" :role="role"></bpmn-role>
       </div>
       <div v-for="activity in data.definition.childActivities[1]">
-        <component v-if="activity != null" :is="activity.elementView.component" :activity="activity"></component>
+        <component v-if="activity != null" :is="getComponentByClassName(activity._type)"
+                   :activity="activity"></component>
       </div>
       <div v-for="relation in data.definition.sequenceFlows">
         <bpmn-relation v-if="relation != null" :relation="relation"></bpmn-relation>
@@ -269,7 +270,6 @@
             'elementView': {
               '_type': 'org.uengine.kernel.view.DefaultActivityView',
               'id': null,//this.uuid(), //오픈그래프 자동 생성
-              'component': 'bpmn-role',
               'x': componentInfo.x,
               'y': componentInfo.y,
               'width': componentInfo.width,
@@ -296,7 +296,6 @@
             'elementView': {
               '_type': 'org.uengine.kernel.view.DefaultActivityView',
               'id': newTracingTag,
-              'component': componentInfo.component,
               'x': componentInfo.x,
               'y': componentInfo.y,
               'width': componentInfo.width,
@@ -308,6 +307,18 @@
         }
       }
       ,
+      /**
+       * 자바 클래스로 Bpmn 컴포넌트를 가져온다.
+       **/
+      getComponentByClassName: function (className) {
+        var componentByClassName;
+        $.each(window.Vue.bpmnComponents, function (i, component) {
+          if (component.computed && component.computed.className && component.computed.className() == className) {
+            componentByClassName = component;
+          }
+        });
+        return componentByClassName;
+      },
       /**
        * 컴포넌트 이름으로 Bpmn 컴포넌트를 가져온다.
        **/

@@ -63,8 +63,6 @@ Vue.component('class-selector', ClassSelector);
 Vue.component('avatar-uploader', AvatarUploader);
 Vue.component('svg-graph', SvgGraph);
 
-import Test from '@/components/Test'
-Vue.component('svg-test', Test);
 
 import CloudExample from '../components/example/CloudExample'
 Vue.component('cloud-example', CloudExample);
@@ -86,12 +84,6 @@ export default new Router({
       component: Home,
       props: {iam: iam},
       children: [
-        {
-          path: 'test',
-          name: 'test',
-          component: Test,
-          beforeEnter: RouterGuard.requireUser,
-        },
         {
           path: 'example/cloud',
           name: 'cloudexample',

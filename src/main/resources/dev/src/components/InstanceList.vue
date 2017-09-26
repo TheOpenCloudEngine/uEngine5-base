@@ -1,22 +1,22 @@
 <template>
-  <v-data-table
-    v-bind:headers="headers"
-    :items="items"
-    hide-actions
-    class="elevation-1"
-  >
-    <template slot="items" scope="props">
-      <td>{{ props.item.instId }}</td>
-      <td class="text-xs-right">
-        <v-btn outline class="indigo--text" v-on:click="move(props.item.instId)">진행상황 보기</v-btn>
-      </td>
-      <td class="text-xs-right">{{ props.item.defName }}</td>
-      <td class="text-xs-right">{{ props.item.defId }}</td>
-      <td class="text-xs-right">{{ props.item.isSubProcess }}</td>
-      <td class="text-xs-right">{{ props.item.startedDate }}</td>
-      <td class="text-xs-right">{{ props.item.finishedDate }}</td>
-    </template>
-  </v-data-table>
+  <!--<v-data-table-->
+    <!--v-bind:headers="headers"-->
+    <!--:items="items"-->
+    <!--hide-actions-->
+    <!--class="elevation-1"-->
+  <!--&gt;-->
+    <!--<template slot="items" scope="props">-->
+      <!--<td>{{ props.item.instId }}</td>-->
+      <!--<td class="text-xs-right">-->
+        <!--<v-btn outline class="indigo&#45;&#45;text" v-on:click="move(props.item.instId)">진행상황 보기</v-btn>-->
+      <!--</td>-->
+      <!--<td class="text-xs-right">{{ props.item.defName }}</td>-->
+      <!--<td class="text-xs-right">{{ props.item.defId }}</td>-->
+      <!--<td class="text-xs-right">{{ props.item.isSubProcess }}</td>-->
+      <!--<td class="text-xs-right">{{ props.item.startedDate }}</td>-->
+      <!--<td class="text-xs-right">{{ props.item.finishedDate }}</td>-->
+    <!--</template>-->
+  <!--</v-data-table>-->
 </template>
 <script>
   export default {
