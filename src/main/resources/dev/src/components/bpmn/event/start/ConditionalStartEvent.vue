@@ -59,7 +59,7 @@
   import IBpmn from '../../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-start-event',
+    name: 'bpmn-conditional-start-event',
     props: {},
     computed: {
       defaultStyle(){
@@ -72,7 +72,7 @@
         return 'StartEvent'
       },
       className(){
-        return 'org.uengine.kernel.bpmn.StartEvent'
+        return 'org.uengine.kernel.bpmn.ConditionalStartEvent'
       }
     },
     data: function () {
