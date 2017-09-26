@@ -1095,8 +1095,12 @@
       removeElement: function (id) {
         delete this.elements[id];
         //도형이 남아있다면 도형을 삭제한다.
-        if (this.canvas.getElementById(id)) {
-          this.canvas.removeShape(id, true);
+        //이때, 도형과 연결된 선분이 있다면 연결을 해제하고 삭제한다.
+        var element = this.canvas.getElementById(id);
+        if (element) {
+          $(element).removeAttr('_toedge');
+          $(element).removeAttr('_fromedge');
+          this.canvas.removeShape(element, true);
         }
       },
       /**

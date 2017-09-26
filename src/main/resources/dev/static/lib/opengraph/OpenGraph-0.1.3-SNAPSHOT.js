@@ -30597,9 +30597,9 @@ OG.handler.EventHandler.prototype = {
             var cuScale;
             var preScale = renderer.getScale();
             if (isUp) {
-                cuScale = preScale + 0.1;
+                cuScale = preScale + 0.02;
             } else {
-                cuScale = preScale - 0.1;
+                cuScale = preScale - 0.02;
             }
             if (cuScale < 0.25) {
                 cuScale = 0.25;

@@ -412,13 +412,13 @@
           me.canvasComponent.removeElement(me._id);
         }
       }
-      //서브 엘리먼트 역할일 경우 서브엘리먼트 등록
+      //서브 엘리먼트 역할일 경우 서브엘리먼트 등록 삭제
       else if (this.elementRole == 'sub-elements') {
         if (this.parentElementComponent) {
           this.parentElementComponent.removeSubShapes(me._id);
         }
       }
-      //서브 컨트롤러 역할일 경우 서브컨트롤러 등록
+      //서브 컨트롤러 역할일 경우 서브컨트롤러 등록 삭제
       else if (this.elementRole == 'sub-controller') {
         if (this.parentControllerComponent) {
           this.parentControllerComponent.removeCloneElement();
@@ -903,6 +903,8 @@
             event.stopPropagation();
             me.$emit('click', event, me);
           });
+
+          $(me.element).unbind('dblclick');
           $(me.element).bind('dblclick', function (event) {
             event.stopPropagation();
             me.$emit('dblclick', event, me);

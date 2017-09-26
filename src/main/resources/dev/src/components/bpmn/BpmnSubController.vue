@@ -80,8 +80,8 @@
         this.clone.wrench = true;
       }
 
-      //서브프로세스는 도형바꾸기 불가능
-      else if (this.type == 'SubProcess') {
+      //풀은 도형바꾸기 불가능
+      else if (this.type == 'Pool') {
         this.clone.intermediate = true;
         this.clone.end = true;
         this.clone.gateway = true;

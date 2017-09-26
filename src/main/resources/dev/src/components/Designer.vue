@@ -1,39 +1,35 @@
 <template>
-  <v-layout row wrap>
-    <v-flex
-      xs3
-      v-for="card in cards"
-      :key="card.name"
-    >
-      <v-card>
-        <v-card-media
-          :src="card.src" height="150px">
-        </v-card-media>
-        <v-card-title primary-title>
-          <div>
-            <h3 class="headline mb-0">{{card.name}}</h3>
-            <div>{{card.desc}}</div>
-          </div>
-        </v-card-title>
-        <v-card-actions>
-          <v-btn v-on:click="initiateProcess(card.name)" flat class="orange--text">Activate</v-btn>
-          <v-btn v-on:click="move(card.name)" flat class="orange--text">Edit</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-flex>
+  <div>
+    <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
 
-    <v-btn
-      absolute
-      dark
-      fab
-      top
-      right
-      class="pink mt-100"
-      v-on:click="newProcess"
-    >
-      <v-icon class="margin-top:100px">add</v-icon>
-    </v-btn>
-  </v-layout>
+    <md-layout md-gutter="24">
+      <md-layout md-flex-xsmall="100" md-flex-small="50" md-flex-medium="25" md-flex="25"
+                 v-for="card in cards"
+                 :key="card.name"
+      >
+        <md-card md-with-hover>
+          <md-card-area>
+            <md-card-media>
+              <img :src="card.src">
+            </md-card-media>
+
+            <md-card-header>
+              <div class="md-title">{{card.name}}</div>
+            </md-card-header>
+
+            <md-card-content>
+              {{card.desc}}
+            </md-card-content>
+          </md-card-area>
+
+          <md-card-actions>
+            <md-button v-on:click="initiateProcess(card.name)">Activate</md-button>
+            <md-button v-on:click="move(card.name)">Edit</md-button>
+          </md-card-actions>
+        </md-card>
+      </md-layout>
+    </md-layout>
+  </div>
 </template>
 <script>
   export default {

@@ -1,99 +1,70 @@
 <template>
-  <v-navigation-drawer class="property-panel"
-                       temporary
-                       v-model="navigationDrawer"
-                       right
-                       light
-                       overflow
-                       absolute
-  >
-    <v-tabs light v-model="active"
-            :scrollable="false"
-            centered>
-      <v-tabs-bar class="cyan">
-        <v-tabs-item ripple :href="'#properties' + _uid">
-          Properties
-        </v-tabs-item>
-        <slot name="additional-tabs">
+  <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')">
+    <md-tabs>
+      <md-tab :id="'properties' + _uid" md-label="Properties">
+
+        <md-input-container v-if="tracingTag !== null">
+          <label>액티비티 ID</label>
+          <md-input v-model="tracingTag"
+                    type="text"
+                    maxlength="50"
+                    required></md-input>
+        </md-input-container>
+
+        <slot name="properties-contents">
         </slot>
+      </md-tab>
 
-        <v-tabs-item
-          ripple
-          :href="'#visual' + _uid">
-          Visual
-        </v-tabs-item>
-        <v-tabs-slider class="primary"></v-tabs-slider>
-      </v-tabs-bar>
-      <v-tabs-items>
-        <v-tabs-content :id="'properties' + _uid">
-          <v-layout v-if="tracingTag" row wrap class="pa-3">
-            <v-flex xs12>
-              <v-text-field
-                label="액티비티 ID"
-                counter
-                max="50"
-                v-model="tracingTag"
-                :rules="[rules.required, rules.tracingTag]"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-          <slot name="properties-contents">
-          </slot>
-        </v-tabs-content>
+      <slot name="additional-tabs">
+      </slot>
 
-        <slot name="additional-tabs-contents">
+      <md-tab :id="'visual' + _uid" md-label="Visual">
+        <div v-if="item.elementView">
+          <md-layout>
+            <md-layout>
+              <md-input-container>
+                <label>x</label>
+                <md-input type="number"
+                          v-model.number="x"></md-input>
+              </md-input-container>
+            </md-layout>
+            <md-layout>
+              <md-input-container>
+                <label>y</label>
+                <md-input type="number"
+                          v-model.number="y"></md-input>
+              </md-input-container>
+            </md-layout>
+          </md-layout>
+          <md-layout>
+            <md-layout>
+              <md-input-container>
+                <label>width</label>
+                <md-input type="number"
+                          v-model.number="width"></md-input>
+              </md-input-container>
+            </md-layout>
+            <md-layout>
+              <md-input-container>
+                <label>height</label>
+                <md-input type="number"
+                          v-model.number="height"></md-input>
+              </md-input-container>
+            </md-layout>
+          </md-layout>
+        </div>
 
-        </slot>
-        <v-tabs-content :id="'visual' + _uid">
-          <v-layout row wrap class="pa-3">
+        <md-input-container v-for="(item, index) in style"
+                            :item="item"
+                            :index="index">
+          <label>{{item.key}}</label>
+          <md-input type="text"
+                    v-model="style[index].value"></md-input>
+        </md-input-container>
+      </md-tab>
 
-            <!--엘리먼트뷰가 있을경우 x,y,width,height 조정-->
-            <v-flex xs12 v-if="item.elementView">
-              <v-layout row wrap>
-                <v-flex xs6>
-                  <v-text-field
-                    type="number"
-                    label="x"
-                    v-model.number="x"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs6>
-                  <v-text-field
-                    type="number"
-                    label="y"
-                    v-model.number="y"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs6>
-                  <v-text-field
-                    type="number"
-                    label="width"
-                    v-model.number="width"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs6>
-                  <v-text-field
-                    type="number"
-                    label="height"
-                    v-model.number="height"
-                  ></v-text-field>
-                </v-flex>
-              </v-layout>
-            </v-flex>
-            <v-flex xs12 v-for="(item, index) in style"
-                    :item="item"
-                    :index="index">
-              <v-text-field
-                type="text"
-                :label="item.key"
-                v-model="style[index].value"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-        </v-tabs-content>
-      </v-tabs-items>
-    </v-tabs>
-  </v-navigation-drawer>
+    </md-tabs>
+  </md-sidenav>
 </template>
 
 <script>
@@ -124,48 +95,7 @@
         height: null,
         style: [],
         active: null,
-        tracingTag: null,
-        rules: {
-          required: function (value) {
-            if (!value || value.length < 1) {
-              return 'Required.';
-            } else {
-              return true;
-            }
-          },
-          tracingTag: function (value) {
-            //동일함.
-            if (me._item.tracingTag == value) {
-              return true;
-            }
-            //이미 있음.
-            else if (me.bpmnVue.checkExistTracingTag(value)) {
-              return 'TracingTag aleardy exist.';
-            }
-            //트레이싱 태그 값이 바뀜.
-            else if (value && value.length > 0) {
-              var oldTracingTag = me._item.tracingTag;
-
-              //해당 액티비티 업데이트.
-              me._item.tracingTag = value;
-              me.$emit('update:item', me._item);
-
-              //해당 트레이싱 태그를 사용중인 릴레이션의 source,target 을 변경한다.
-              var sequenceFlows = me.bpmnVue.data.definition.sequenceFlows;
-              $.each(sequenceFlows, function (i, relation) {
-                if (relation.sourceRef == oldTracingTag) {
-                  relation.sourceRef = value;
-                }
-                if (relation.targetRef == oldTracingTag) {
-                  relation.targetRef = value;
-                }
-              });
-              return true;
-            } else {
-              return 'Invalid TracingTag.';
-            }
-          }
-        }
+        tracingTag: null
       }
     },
     created: function () {
@@ -181,6 +111,7 @@
       //프로퍼티 창이 오픈되었을 때 모델값을 새로 반영한다.
       navigationDrawer: {
         handler: function (val, oldval) {
+            console.log('val' , val);
           if (val == true) {
             this._item = this.item;
             if (this.item.elementView) {
@@ -214,12 +145,16 @@
             //프로퍼티 에디팅 중 데피니션 변화는 히스토리에 기록된다.
             this.bpmnVue.propertyEditing = true;
             this.$emit('update:drawer', true);
+
+            this.toggleRightSidenav();
           } else {
             //프로퍼티 에디팅 해제.
             if (this.bpmnVue) {
               this.bpmnVue.propertyEditing = false;
             }
             this.$emit('update:drawer', false);
+
+            this.closeRightSidenav();
           }
         }
       },
@@ -252,12 +187,61 @@
           this.$emit('update:item', this._item);
         },
         deep: true
+      },
+
+      //모델러에 의해 tracingTag 가 변경되었을 경우.
+      tracingTag: function (value) {
+        var me = this;
+        //동일함.
+        if (me._item.tracingTag == value) {
+          return true;
+        }
+        //이미 있음.
+        else if (me.bpmnVue.checkExistTracingTag(value)) {
+          return 'TracingTag aleardy exist.';
+        }
+        //트레이싱 태그 값이 바뀜.
+        else if (value && value.length > 0) {
+          var oldTracingTag = me._item.tracingTag;
+
+          //해당 액티비티 업데이트.
+          me._item.tracingTag = value;
+          me.$emit('update:item', me._item);
+
+          //해당 트레이싱 태그를 사용중인 릴레이션의 source,target 을 변경한다.
+          var sequenceFlows = me.bpmnVue.data.definition.sequenceFlows;
+          $.each(sequenceFlows, function (i, relation) {
+            if (relation.sourceRef == oldTracingTag) {
+              relation.sourceRef = value;
+            }
+            if (relation.targetRef == oldTracingTag) {
+              relation.targetRef = value;
+            }
+          });
+          return true;
+        } else {
+          return 'Invalid TracingTag.';
+        }
       }
     },
     mounted: function () {
 
     },
     methods: {
+      open(ref) {
+        this.navigationDrawer = true;
+        console.log('Opened: ' + ref);
+      },
+      close(ref) {
+        this.navigationDrawer = false;
+        console.log('Closed: ' + ref);
+      },
+      closeRightSidenav() {
+        this.$refs.rightSidenav.close();
+      },
+      toggleRightSidenav() {
+        this.$refs.rightSidenav.toggle();
+      },
       uuid: function () {
         function s4() {
           return Math.floor((1 + Math.random()) * 0x10000)
@@ -274,6 +258,8 @@
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
-
+  .md-sidenav-content {
+    width: 400px;
+  }
 </style>
 

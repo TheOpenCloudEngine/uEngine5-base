@@ -59,25 +59,27 @@
         </div>
       </template>
     </opengraph>
-    <v-layout row wrap v-for="(data, index) in chart">
-      <v-flex xs6>
-
-      </v-flex>
-      <v-flex xs3>
-        <v-text-field
-          v-model="data.value"
-          :label="index + '번 값'"
-          single-line
-        ></v-text-field>
-      </v-flex>
-      <v-flex xs3>
-        <v-text-field
-          v-model="data.name"
-          :label="index + '번 이름'"
-          single-line
-        ></v-text-field>
-      </v-flex>
-    </v-layout>
+    <md-layout>
+      <md-layout></md-layout>
+      <md-layout>
+        <md-layout md-flex="100" v-for="(data, index) in chart">
+          <md-layout md-flex="50">
+            <md-input-container>
+              <label>{{ index + '번 값' }}</label>
+              <md-input v-model="data.value"
+                        single-line></md-input>
+            </md-input-container>
+          </md-layout>
+          <md-layout md-flex="50">
+            <md-input-container>
+              <label>{{ index + '번 이름' }}</label>
+              <md-input v-model="data.name"
+                        single-line></md-input>
+            </md-input-container>
+          </md-layout>
+        </md-layout>
+      </md-layout>
+    </md-layout>
   </div>
 </template>
 <script>

@@ -1,31 +1,22 @@
 <template>
 
-  <div v-if="workItem">
+  <md-card v-if="workItem">
+    <md-card-area>
+      <md-card-header>
+        <div class="md-title">{{workItem.activity.name}}</div>
+      </md-card-header>
 
-    <v-layout row>
-      <v-flex xs12 sm6 offset-sm3>
-        <v-card>
-          <v-toolbar class="cyan" dark>
-            <v-toolbar-title>{{workItem.activity.name}}</v-toolbar-title>
-          </v-toolbar>
+      <md-card-content>
+        {{workItem.activity.description ? workItem.activity.description.text : ""}}
+      </md-card-content>
+    </md-card-area>
 
-
-          <v-card-title primary-title>
-            <div>
-              <h3 class="headline mb-0">{{workItem.activity.name}}</h3>
-              <div>{{workItem.activity.description ? workItem.activity.description.text : ""}}</div>
-            </div>
-          </v-card-title>
-          <v-card-actions>
-            <v-btn flat class="orange--text" @click.native="complete">완료</v-btn>
-            <v-btn flat class="orange--text">저장</v-btn>
-            <v-btn flat class="orange--text">건너뛰기</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
-    </v-layout>
-
-  </div>
+    <md-card-actions>
+      <md-button @click.native="complete">완료</md-button>
+      <md-button>저장</md-button>
+      <md-button>건너뛰기</md-button>
+    </md-card-actions>
+  </md-card>
 
 </template>
 
@@ -51,19 +42,18 @@
     methods: {
       load: function () {
         var me = this;
-
-        var serviceLocator = this.$parent.$refs["backend"]; //TODO hardcoded
-
+        var serviceLocator = this.$root.$children[0].$refs["backend"]; //TODO hardcoded
         serviceLocator.invoke({
           path: this.taskId.replace("worklist", "work-item"),
           success: function (value) {
             me.workItem = value;
+            console.log('value', value);
           }
         });
 
       },
       complete: function () {
-        var serviceLocator = this.$parent.$refs["backend"]; //TODO hardcoded
+        var serviceLocator = this.$root.$children[0].$refs["backend"]; //TODO hardcoded
 
         var me = this;
 

@@ -6,103 +6,108 @@
               v-on:bpmnReady="bindEvents">
     </bpmn-vue>
 
-    <v-card v-if="!monitor" class="grey lighten-4 tools">
-      <v-card-text>
-        <span class="icons bpmn-icon-hand-tool"></span>
-        <span class="icons bpmn-icon-lasso-tool"></span>
-        <span class="icons bpmn-icon-space-tool"></span>
-        <span class="icons bpmn-icon-connection-multi"></span>
+    <md-card v-if="!monitor" class="tools">
+      <span class="icons bpmn-icon-hand-tool"></span>
+      <span class="icons bpmn-icon-lasso-tool"></span>
+      <span class="icons bpmn-icon-space-tool"></span>
+      <span class="icons bpmn-icon-connection-multi"></span>
 
-        <hr class="separator">
+      <hr class="separator">
 
-        <span v-for="item in dragItems"
-              class="icons draggable"
-              :class="item.icon"
-              :_component="item.component"
-              :_width="item.width"
-              :_height="item.height"
-        ></span>
+      <span v-for="item in dragItems"
+            class="icons draggable"
+            :class="item.icon"
+            :_component="item.component"
+            :_width="item.width"
+            :_height="item.height"
+      ></span>
+    </md-card>
 
-      </v-card-text>
-    </v-card>
+    <md-card v-if="!monitor" class="import">
+      <md-layout>
+        <md-layout>
+          <span class="icons fa fa-folder-open"></span>
+        </md-layout>
+        <md-layout>
+          <span class="icons fa fa-cloud-upload"></span>
+        </md-layout>
+      </md-layout>
+    </md-card>
 
-    <v-card v-if="!monitor" class="grey lighten-4 import">
-      <v-card-text>
-        <span class="icons fa fa-folder-open"></span>
-        <span class="icons fa fa-cloud-upload"></span>
-      </v-card-text>
-    </v-card>
+    <md-card v-if="!monitor" class="export">
+      <md-layout>
+        <md-layout>
+          <span class="icons fa fa-download"></span>
+        </md-layout>
+        <md-layout>
+          <span class="icons fa fa-picture-o"></span>
+        </md-layout>
+      </md-layout>
+    </md-card>
 
-    <v-card v-if="!monitor" class="grey lighten-4 export">
-      <v-card-text>
-        <span class="icons fa fa-download"></span>
-        <span class="icons fa fa-picture-o"></span>
-      </v-card-text>
-    </v-card>
+    <md-card v-if="!monitor" class="history">
+      <md-layout>
+        <md-layout>
+          <span class="icons fa fa-undo" v-on:click="undo"></span>
+        </md-layout>
+        <md-layout>
+          <span class="icons fa fa-repeat" v-on:click="redo"></span>
+        </md-layout>
+      </md-layout>
+    </md-card>
 
-    <v-card v-if="!monitor" class="grey lighten-4 history">
-      <v-card-text>
-        <span class="icons fa fa-undo" v-on:click="undo"></span>
-        <span class="icons fa fa-repeat" v-on:click="redo"></span>
-      </v-card-text>
-    </v-card>
+    <md-card v-if="!monitor" class="zoom">
+      <span class="icons fa fa-arrows-alt"></span>
 
-    <v-card v-if="shapeMenu" class="grey lighten-4 shapeMenu">
-      <v-card-text>
-        <span class="icons fa fa-download"></span>
-        <span class="icons fa fa-picture-o"></span>
-      </v-card-text>
-    </v-card>
+      <hr class="separator">
 
+      <span class="icons fa fa-plus-square-o"></span>
+      <span class="icons fa fa-minus-square-o"></span>
+    </md-card>
 
-    <v-card class="grey lighten-4 zoom">
-      <v-card-text>
-        <span class="icons fa fa-arrows-alt"></span>
+    <md-layout>
+      <md-layout md-flex="50">
 
-        <hr class="separator">
+      </md-layout>
+      <md-layout md-flex="50">
 
-        <span class="icons fa fa-plus-square-o"></span>
-        <span class="icons fa fa-minus-square-o"></span>
-      </v-card-text>
-    </v-card>
+        <!--프로세스 아이디-->
+        <md-layout>
+          <md-input-container>
+            <label>Process Name</label>
+            <md-input v-model="id" type="text"></md-input>
+          </md-input-container>
+        </md-layout>
 
-    <v-layout row wrap>
-      <v-flex xs6>
+        <!--프로세스 세이브-->
+        <md-layout>
+          <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
+            <md-icon>save</md-icon>
+          </md-button>
+        </md-layout>
 
-      </v-flex>
-      <v-flex xs3>
-        <v-text-field
-          v-model="id"
-          name="input-1-3"
-          label="MyProcess"
-          single-line
-        ></v-text-field>
-      </v-flex>
-      <v-flex xs3 v-if="!monitor">
-        <v-btn fab dark class="cyan" v-on:click="save">
-          <v-icon dark>edit</v-icon>
-        </v-btn>
-        <v-dialog v-model="dialog" fullscreen transition="dialog-bottom-transition" :overlay=false>
-          <v-btn primary dark slot="activator">Variable</v-btn>
-          <v-card>
-            <v-toolbar dark class="primary">
-              <v-btn icon @click.native="dialog = false" dark>
-                <v-icon>close</v-icon>
-              </v-btn>
-              <v-toolbar-title>Process Variable</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-toolbar-items>
-                <v-btn dark flat @click.native="dialog = false">Save</v-btn>
-              </v-toolbar-items>
-            </v-toolbar>
-            <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
-                         :full-fledged="true">
-            </object-grid>
-          </v-card>
-        </v-dialog>
-      </v-flex>
-    </v-layout>
+        <!--프로세스 변수-->
+        <md-layout>
+          <md-dialog md-open-from="#processVariables" md-close-to="#processVariables" ref="processVariables">
+            <md-dialog-title>User Profile</md-dialog-title>
 
+            <md-dialog-content>
+              <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
+                           :full-fledged="true">
+              </object-grid>
+            </md-dialog-content>
+
+            <md-dialog-actions>
+              <md-button class="md-primary" @click="closeDialog('processVariables')">Close</md-button>
+            </md-dialog-actions>
+          </md-dialog>
+
+          <md-button class="md-raised" id="processVariables" @click="openDialog('processVariables')">ProcessVariable
+          </md-button>
+        </md-layout>
+
+      </md-layout>
+    </md-layout>
   </div>
 </template>
 <script>
@@ -152,7 +157,7 @@
             'height': '100'
           },
           {
-            'icon': 'bpmn-icon-subprocess-expanded',
+            'icon': 'bpmn-icon-subprocess-collapsed',
             'component': 'bpmn-subprocess',
             'width': '200',
             'height': '150'
@@ -195,6 +200,12 @@
       }
     },
     methods: {
+      openDialog(ref) {
+        this.$refs[ref].open();
+      },
+      closeDialog(ref) {
+        this.$refs[ref].close();
+      },
       bindEvents: function (opengraph) {
         //this.$el
         var me = this;
@@ -410,21 +421,39 @@
 
     .tools {
       position: absolute;
-      width: 42px;
+      width: 48px;
       left: 20px;
       top: 20px;
-
-      .card__text {
-        padding: 0px;
+      padding: 4px;
+      overflow: hidden;
+      .icons {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+    }
+    .zoom {
+      position: absolute;
+      width: 42px;
+      right: 20px;
+      bottom: 120px;
+      .icons {
+        font-size: 25px;
+        margin-left: 10px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+    }
+    .icons {
+      cursor: pointer;
+      font-size: 30px;
+      &:hover {
+        color: #ffc124;
       }
     }
 
-    .import, .export, .zoom, .save, .history {
+    .import, .export, .save, .history {
       position: absolute;
-      .card__text {
-        padding: 10px 10px 10px 0px;
-        height: 42px;
-      }
+      padding: 8px;
       .icons {
         font-size: 25px;
         margin-left: 10px;
@@ -441,28 +470,6 @@
     .history {
       left: 280px;
       bottom: 20px;
-    }
-    .zoom {
-      right: 20px;
-      bottom: 120px;
-      width: 42px;
-
-      .card__text {
-        padding: 0px;
-        height: auto;
-      }
-      .icons {
-        font-size: 25px;
-        margin-top: 10px;
-      }
-    }
-
-    .icons {
-      cursor: pointer;
-      font-size: 30px;
-      &:hover {
-        color: #ffc124;
-      }
     }
   }
 </style>

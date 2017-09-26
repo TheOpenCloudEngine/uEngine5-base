@@ -6,6 +6,7 @@
       resizable
       connectable
       deletable
+      :enableTo="false"
       :id.sync="activity.tracingTag"
       :x.sync="activity.elementView.x"
       :y.sync="activity.elementView.y"
@@ -20,21 +21,12 @@
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
     >
-      <geometry-rect
-        :_style="{
-          'fill-r': 1,
-          'fill-cx': .1,
-          'fill-cy': .1,
-          'stroke-width': 1.2,
-          fill: '#FFFFFF',
-          'fill-opacity': 0,
-          r: '10'
-        }"
+      <geometry-circle
+        :center="[50,50]"
+        :radius="50"
       >
-      </geometry-rect>
-
+      </geometry-circle>
       <sub-elements>
-        <bpmn-loop-type :loopType="loopType"></bpmn-loop-type>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
@@ -64,20 +56,23 @@
 </template>
 
 <script>
-  import IBpmn from '../IBpmn'
+  import IBpmn from '../../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-task',
+    name: 'bpmn-timer-start-event',
     props: {},
     computed: {
       defaultStyle(){
-        return {}
+        return {
+          'label-position': 'bottom',
+          'stroke-width': 1.5
+        }
       },
       type(){
-        return 'Task'
+        return 'StartEvent'
       },
       className(){
-        return 'org.uengine.kernel.DefaultActivity'
+        return 'org.uengine.kernel.bpmn.TimerStartEvent'
       }
     },
     data: function () {
