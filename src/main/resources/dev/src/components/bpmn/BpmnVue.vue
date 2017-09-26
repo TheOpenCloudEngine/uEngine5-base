@@ -2,9 +2,11 @@
   <div>
     <opengraph
       focus-canvas-on-select
+      wheelScalable
+      dragPageMovable
       :enableContextmenu="false"
       :enableRootContextmenu="false"
-      :slider="true"
+      :slider="false"
       v-if="data.definition"
       ref="opengraph"
       v-on:canvasReady="bpmnReady"
