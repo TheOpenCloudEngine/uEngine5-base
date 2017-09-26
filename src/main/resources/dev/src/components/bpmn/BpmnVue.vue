@@ -173,7 +173,7 @@
        **/
       onRemoveShape: function (component) {
         console.log('remove component by user action', component.id);
-        this.removeComponentById(component.id);
+        this.removeComponentByOpenGraphComponentId(component.id);
       }
       ,
       /**
@@ -403,9 +403,9 @@
       ,
 
       /**
-       * 아이디에 해당하는 Bpmn 컴포넌트를 삭제한다.
+       * 오픈그래프 컴포넌트 아이디에 해당하는 Bpmn 컴포넌트를 삭제한다.
        **/
-      removeComponentById: function (id) {
+      removeComponentByOpenGraphComponentId: function (id) {
         var me = this;
         //릴레이션 삭제
         $.each(me.data.definition.sequenceFlows, function (i, relation) {

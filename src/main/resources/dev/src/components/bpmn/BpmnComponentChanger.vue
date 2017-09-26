@@ -2,7 +2,7 @@
   <div>
     <md-card v-if="bpmnComponent">
       <md-card-content class="no-padding">
-        <div v-if="bpmnComponent.type == 'Task'">
+        <div v-if="bpmnComponent.type == 'Task' || bpmnComponent.type == 'SubProcess'">
           <span class="icons bpmn-icon-parallel-mi-marker"></span>
           <span class="icons bpmn-icon-sequential-mi-marker"></span>
           <span class="icons bpmn-icon-loop-marker"></span>
@@ -10,59 +10,13 @@
           <hr class="separator">
         </div>
 
-        <div v-if="bpmnComponent.type == 'StartEvent'">
-          <p class="icons bpmn-icon-start-event-none">
-            <span class="icon-text">Start Event</span>
-          </p>
-          <p v-on:click="chage('bpmn-terminate-end-event')" class="icons bpmn-icon-start-event-message">
-            <span class="icon-text">Message Start Event</span>
-          </p>
-          <p class="icons bpmn-icon-start-event-timer">
-            <span class="icon-text">Timer Start Event</span>
-          </p>
-          <p class="icons bpmn-icon-start-event-condition">
-            <span class="icon-text">Conditional Start Event</span>
-          </p>
-          <p class="icons bpmn-icon-start-event-signal">
-            <span class="icon-text">Signal Start Event</span>
-          </p>
-        </div>
-
-        <div v-if="bpmnComponent.type == 'IntermediateEvent'">
-          <p class="icons bpmn-icon-intermediate-event-none">
-            <span class="icon-text">Intermediate Throw Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-catch-message">
-            <span class="icon-text">Message Intermediate Catch Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-throw-message">
-            <span class="icon-text">Message Intermediate Throw Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-catch-timer">
-            <span class="icon-text">Timer Intermediate Catch Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-throw-escalation">
-            <span class="icon-text">Escalation Intermediate Throw Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-catch-condition">
-            <span class="icon-text">Conditional Intermediate Catch Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-catch-link">
-            <span class="icon-text">Link Intermediate Catch Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-throw-link">
-            <span class="icon-text">Link Intermediate Throw Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-throw-compensation">
-            <span class="icon-text">Compensation Intermediate Throw Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-catch-signal">
-            <span class="icon-text">Signal Intermediate Catch Event</span>
-          </p>
-          <p class="icons bpmn-icon-intermediate-event-throw-signal">
-            <span class="icon-text">Signal Intermediate Throw Event</span>
-          </p>
-        </div>
+        <p v-for="item in items"
+           class="icons"
+           :class="item.icon"
+           v-on:click="chage(item.component)"
+        >
+          <span class="icon-text">{{item.label}}</span>
+        </p>
       </md-card-content>
     </md-card>
   </div>
@@ -79,7 +33,8 @@
     computed: {},
     data: function () {
       return {
-        bpmnComponent: null
+        bpmnComponent: null,
+        items: []
       };
     },
     watch: {
@@ -98,20 +53,242 @@
           top: newVal.top + 'px',
           left: newVal.left + 'px'
         })
+
+        this.getComponentChangeItems();
       }
     },
     mounted: function () {
 
     },
     methods: {
+      getComponentChangeItems: function () {
+        if (this.bpmnComponent.type == 'StartEvent') {
+          this.items = [
+            {
+              component: 'bpmn-start-event',
+              label: 'Start Event',
+              icon: 'bpmn-icon-start-event-none'
+            },
+            {
+              component: 'bpmn-message-start-event',
+              label: 'Message Start Event',
+              icon: 'bpmn-icon-start-event-message'
+            },
+            {
+              component: 'bpmn-timer-start-event',
+              label: 'Timer Start Event',
+              icon: 'bpmn-icon-start-event-timer'
+            },
+            {
+              component: 'bpmn-conditional-start-event',
+              label: 'Conditional Start Event',
+              icon: 'bpmn-icon-start-event-condition'
+            },
+            {
+              component: 'bpmn-signal-start-event',
+              label: 'Signal Start Event',
+              icon: 'bpmn-icon-start-event-signal'
+            }
+          ]
+        }
+        else if (this.bpmnComponent.type == 'IntermediateEvent') {
+          this.items = [
+            {
+              component: 'bpmn-intermediate-event',
+              label: 'Intermediate Throw Event',
+              icon: 'bpmn-icon-intermediate-event-none'
+            },
+            {
+              component: 'bpmn-message-intermediate-catch-event',
+              label: 'Message Intermediate Catch Event',
+              icon: 'bpmn-icon-intermediate-event-catch-message'
+            },
+            {
+              component: 'bpmn-message-intermediate-throw-event',
+              label: 'Message Intermediate Throw Event',
+              icon: 'bpmn-icon-intermediate-event-throw-message'
+            },
+            {
+              component: 'bpmn-timer-intermediate-catch-event',
+              label: 'Timer Intermediate Catch Event',
+              icon: 'bpmn-icon-intermediate-event-catch-timer'
+            },
+            {
+              component: 'bpmn-escalation-intermediate-throw-event',
+              label: 'Escalation Intermediate Throw Event',
+              icon: 'bpmn-icon-intermediate-event-throw-escalation'
+            },
+            {
+              component: 'bpmn-conditional-intermediate-catch-event',
+              label: 'Conditional Intermediate Catch Event',
+              icon: 'bpmn-icon-intermediate-event-catch-condition'
+            },
+            {
+              component: 'bpmn-link-intermediate-catch-event',
+              label: 'Link Intermediate Catch Event',
+              icon: 'bpmn-icon-intermediate-event-catch-link'
+            },
+            {
+              component: 'bpmn-link-intermediate-throw-event',
+              label: 'Link Intermediate Throw Event',
+              icon: 'bpmn-icon-intermediate-event-throw-link'
+            },
+            {
+              component: 'bpmn-compensation-intermediate-throw-event',
+              label: 'Compensation Intermediate Throw Event',
+              icon: 'bpmn-icon-intermediate-event-throw-compensation'
+            },
+            {
+              component: 'bpmn-signal-intermediate-catch-event',
+              label: 'Signal Intermediate Catch Event',
+              icon: 'bpmn-icon-intermediate-event-catch-signal'
+            },
+            {
+              component: 'bpmn-signal-intermediate-throw-event',
+              label: 'Signal Intermediate Throw Event',
+              icon: 'bpmn-icon-intermediate-event-throw-signal'
+            }
+          ]
+        }
+        else if (this.bpmnComponent.type == 'EndEvent') {
+          this.items = [
+            {
+              component: 'bpmn-end-event',
+              label: 'End Event',
+              icon: 'bpmn-icon-end-event-none'
+            },
+            {
+              component: 'bpmn-escalation-end-event',
+              label: 'Escalation End Event',
+              icon: 'bpmn-icon-end-event-escalation'
+            },
+            {
+              component: 'bpmn-error-end-event',
+              label: 'Error End Event',
+              icon: 'bpmn-icon-end-event-error'
+            },
+            {
+              component: 'bpmn-compensation-end-event',
+              label: 'Compensation End Event',
+              icon: 'bpmn-icon-end-event-compensation'
+            },
+            {
+              component: 'bpmn-signal-end-event',
+              label: 'Signal End Event',
+              icon: 'bpmn-icon-end-event-signal'
+            },
+            {
+              component: 'bpmn-terminate-end-event',
+              label: 'Terminate End Event',
+              icon: 'bpmn-icon-end-event-terminate'
+            }
+          ]
+        }
+        else if (this.bpmnComponent.type == 'Gateway') {
+          this.items = [
+            {
+              component: 'bpmn-gateway',
+              label: 'Gateway',
+              icon: 'bpmn-icon-gateway-none'
+            },
+            {
+              component: 'bpmn-parallel-gateway',
+              label: 'Parallel Gateway',
+              icon: 'bpmn-icon-gateway-parallel'
+            },
+            {
+              component: 'bpmn-exclusive-gateway',
+              label: 'Exclusive Gateway',
+              icon: 'bpmn-icon-gateway-xor'
+            },
+            {
+              component: 'bpmn-inclusive-gateway',
+              label: 'Inclusive Gateway',
+              icon: 'bpmn-icon-gateway-or'
+            },
+            {
+              component: 'bpmn-complex-gateway',
+              label: 'Complex Gateway',
+              icon: 'bpmn-icon-gateway-complex'
+            },
+            {
+              component: 'bpmn-eventbased-gateway',
+              label: 'EventBased Gateway',
+              icon: 'bpmn-icon-gateway-eventbased'
+            }
+          ]
+        }
+        else if (this.bpmnComponent.type == 'Task') {
+          this.items = [
+            {
+              component: 'bpmn-task',
+              label: 'Task',
+              icon: 'bpmn-icon-task-none'
+            },
+            {
+              component: 'bpmn-send-task',
+              label: 'Send Task',
+              icon: 'bpmn-icon-send-task'
+            },
+            {
+              component: 'bpmn-receive-task',
+              label: 'Receive Task',
+              icon: 'bpmn-icon-receive-task'
+            },
+            {
+              component: 'bpmn-user-task',
+              label: 'User Task',
+              icon: 'bpmn-icon-user-task'
+            },
+            {
+              component: 'bpmn-manual-task',
+              label: 'Manual Task',
+              icon: 'bpmn-icon-manual-task'
+            },
+            {
+              component: 'bpmn-business-task',
+              label: 'Business Task',
+              icon: 'bpmn-icon-business-rule-task'
+            },
+            {
+              component: 'bpmn-service-task',
+              label: 'Service Task',
+              icon: 'bpmn-icon-service-task'
+            },
+            {
+              component: 'bpmn-script-task',
+              label: 'Script Task',
+              icon: 'bpmn-icon-script-task'
+            },
+            {
+              component: 'bpmn-call-activity',
+              label: 'Call Activity',
+              icon: 'bpmn-icon-call-activity'
+            }
+          ]
+        }
+        else if (this.bpmnComponent.type == 'SubProcess') {
+          this.items = [
+            {
+              component: 'bpmn-subprocess',
+              label: 'Sub Process',
+              icon: 'bpmn-icon-subprocess-collapsed'
+            },
+            {
+              component: 'bpmn-transaction',
+              label: 'Transaction',
+              icon: 'bpmn-icon-transaction'
+            },
+            {
+              component: 'bpmn-event-subprocess',
+              label: 'Event Sub Process',
+              icon: 'bpmn-icon-event-subprocess-expanded'
+            }
+          ]
+        }
+        //그외 데이터, Pool, Lane 은 바꿀 메뉴 없음.
+      },
       chage: function (componentName) {
-//        this.bpmnComponent.activity.elementView.component = componentName;
-//
-//        //스타일 초기화.
-//        this.bpmnComponent.activity.elementView.style = JSON.stringify({});
-
-        //여기서, 기존 컴포넌트를 삭제하고 새로운 컴포넌트를 생성할 필요가 있음.
-
         var newActivity = JSON.parse(JSON.stringify(this.bpmnComponent.activity));
         //newActivity.elementView.component = componentName;
 
@@ -119,18 +296,31 @@
         newActivity._type = component.computed.className();
         newActivity.elementView.style = JSON.stringify({});
 
-        console.log('newActivity', newActivity);
-        this.bpmnVue.enableHistoryAdd = true;
-        this.bpmnVue.removeComponentById(this.bpmnComponent.id);
-        this.bpmnVue.data.definition.childActivities[1].push(newActivity);
+        //기존 액티비티를 삭제하고 신규 액티비티를 인서트한다.
+        var tracingTag = this.bpmnComponent.activity.tracingTag;
+        var definition = this.bpmnVue.data.definition;
+        $.each(definition.childActivities[1], function (i, activity) {
+          if (activity && activity.tracingTag == tracingTag) {
+            console.log('** remove activitiy by component change', tracingTag);
+            definition.childActivities[1][i] = undefined;
+          }
+        });
+        definition.childActivities[1].push(newActivity);
 
-        //여기서 변환한 것을 다시 change 하면, 먹히지 않는이유?
+        this.$nextTick(function () {
+          //오픈그래프 컴포넌트 중 from, to 인 것을 redraw 시킨다.
+          var opengraphComponent;
+          for (var id in this.bpmnVue.$refs['opengraph'].elements) {
+            opengraphComponent = this.bpmnVue.$refs['opengraph'].elements[id];
+            if (opengraphComponent.to == tracingTag || opengraphComponent.from == tracingTag) {
+              console.log('redraw relation by component change.', opengraphComponent.id);
+              opengraphComponent.updateShape();
+            }
+          }
 
-        //콘솔찍어보기
-        setTimeout(function () {
-          console.log('newActivity', newActivity);
-        }, 1000);
-
+          //히스토리를 갱신한다.
+          this.bpmnVue.onUserAction();
+        });
       }
     }
   }
@@ -149,6 +339,7 @@
   .icons {
     font-size: 25px;
     margin-left: 10px;
+    margin-top: 0px;
   }
 
   p.icons {

@@ -157,7 +157,7 @@
             'height': '100'
           },
           {
-            'icon': 'bpmn-icon-subprocess-expanded',
+            'icon': 'bpmn-icon-subprocess-collapsed',
             'component': 'bpmn-subprocess',
             'width': '200',
             'height': '150'

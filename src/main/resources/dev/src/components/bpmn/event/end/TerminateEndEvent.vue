@@ -83,7 +83,7 @@
         return 'EndEvent'
       },
       className(){
-        return 'org.uengine.kernel.bpmn.EndEvent'
+        return 'org.uengine.kernel.bpmn.TerminateEndEvent'
       }
     },
     data: function () {

@@ -6,7 +6,7 @@
       resizable
       connectable
       deletable
-      :enableFrom="false"
+      :enableTo="false"
       :id.sync="activity.tracingTag"
       :x.sync="activity.elementView.x"
       :y.sync="activity.elementView.y"
@@ -24,27 +24,8 @@
       <geometry-circle
         :center="[50,50]"
         :radius="50"
-        :_style="{
-        'stroke-width': 3
-        }"
       >
       </geometry-circle>
-      <geometry-polygon
-        :vertices="[[15, 50],[45, 70],[45, 30]]"
-        :_style="{
-        'fill': 'black',
-        'fill-opacity': 1
-      }"
-      >
-      </geometry-polygon>
-      <geometry-polygon
-        :vertices="[[45, 50],[75, 70],[75, 30]]"
-        :_style="{
-        'fill': 'black',
-        'fill-opacity': 1
-      }"
-      >
-      </geometry-polygon>
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
@@ -78,19 +59,20 @@
   import IBpmn from '../../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-compensation-end-event',
+    name: 'bpmn-start-event',
     props: {},
     computed: {
       defaultStyle(){
         return {
-          'label-position': 'bottom'
+          'label-position': 'bottom',
+          'stroke-width': 1.5
         }
       },
       type(){
-        return 'EndEvent'
+        return 'StartEvent'
       },
       className(){
-        return 'org.uengine.kernel.bpmn.CompensationEndEvent'
+        return 'org.uengine.kernel.bpmn.StartEvent'
       }
     },
     data: function () {
