@@ -421,9 +421,15 @@
 
     .tools {
       position: absolute;
-      width: 42px;
+      width: 48px;
       left: 20px;
       top: 20px;
+      padding: 4px;
+      overflow: hidden;
+      .icons {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
     }
     .zoom {
       position: absolute;

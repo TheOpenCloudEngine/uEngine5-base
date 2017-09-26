@@ -9,22 +9,10 @@
     <service-locator ref="backend" :host="location.protocol + '//' + location.hostname + ':8080'"></service-locator>
 
     <!--글로벌 알림 컴포넌트-->
-    <v-snackbar ref="snackbar"
-                :timeout="snackbar.timeout"
-                :top="snackbar.top === true"
-                :right="snackbar.right === true"
-                v-model="snackbar.trigger"
-                :success="snackbar.context === 'success'"
-                :info="snackbar.context === 'info'"
-                :warning="snackbar.context === 'warning'"
-                :error="snackbar.context === 'error'"
-                :primary="snackbar.context === 'primary'"
-                :secondary="snackbar.context === 'secondary'"
-                :multi-line="snackbar.mode === 'multi-line'"
-    >
-      {{ snackbar.text }}
-      <v-btn dark flat @click.native="snackbar.trigger = false">Close</v-btn>
-    </v-snackbar>
+    <md-snackbar md-position="top right" ref="snackbar" :md-duration="4000">
+      <span class="md-primary">{{snackbar.text}}</span>
+      <md-button class="md-accent" md-theme="light-blue" @click="$refs.snackbar.close()">Close</md-button>
+    </md-snackbar>
   </div>
 </template>
 <script>
@@ -50,22 +38,22 @@
       info: function (msg) {
         this.snackbar.context = 'info';
         this.snackbar.text = msg;
-        this.snackbar.trigger = true;
+        this.$refs.snackbar.open();
       },
       error: function (msg) {
         this.snackbar.context = 'error';
         this.snackbar.text = msg;
-        this.snackbar.trigger = true;
+        this.$refs.snackbar.open();
       },
       warning: function (msg) {
         this.snackbar.context = 'warning';
         this.snackbar.text = msg;
-        this.snackbar.trigger = true;
+        this.$refs.snackbar.open();
       },
       success: function (msg) {
         this.snackbar.context = 'success';
         this.snackbar.text = msg;
-        this.snackbar.trigger = true;
+        this.$refs.snackbar.open();
       }
     }
   }
