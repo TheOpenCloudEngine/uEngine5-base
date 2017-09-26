@@ -1,7 +1,7 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
-    <v-card v-if="bpmnComponent" class="grey lighten-4">
-      <v-card-text class="pa-0">
+    <md-card v-if="bpmnComponent">
+      <md-card-content class="no-padding">
         <div v-if="bpmnComponent.type == 'Task'">
           <span class="icons bpmn-icon-parallel-mi-marker"></span>
           <span class="icons bpmn-icon-sequential-mi-marker"></span>
@@ -63,16 +63,8 @@
             <span class="icon-text">Signal Intermediate Throw Event</span>
           </p>
         </div>
-        <!--<span v-for="item in dragItems"-->
-        <!--class="icons draggable"-->
-        <!--:class="item.icon"-->
-        <!--:_component="item.component"-->
-        <!--:_width="item.width"-->
-        <!--:_height="item.height"-->
-        <!--&gt;</span>-->
-
-      </v-card-text>
-    </v-card>
+      </md-card-content>
+    </md-card>
   </div>
 </template>
 
@@ -132,9 +124,9 @@
         //여기서 변환한 것을 다시 change 하면, 먹히지 않는이유?
 
         //콘솔찍어보기
-        setTimeout(function(){
+        setTimeout(function () {
           console.log('newActivity', newActivity);
-        },1000);
+        }, 1000);
 
       }
     }
@@ -143,14 +135,21 @@
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
+  .md-card .md-card-content {
+    padding: 5px 0 0 0;
+  }
+
+  .md-card .md-card-content:last-child {
+    padding-bottom: 0px;
+  }
+
   .icons {
     font-size: 25px;
     margin-left: 10px;
   }
 
   p.icons {
-    margin-bottom: -10px;
-
+    margin-bottom: 0px;
     .icon-text {
       font-size: 11px;
     }

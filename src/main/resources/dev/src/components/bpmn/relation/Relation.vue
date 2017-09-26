@@ -23,19 +23,13 @@
       :item.sync="relation"
     >
       <template slot="properties-contents">
-        <v-layout row wrap class="pa-3">
-          <v-flex xs12>
-            <v-text-field
-              label="릴레이션 이름"
-              v-model="relation.name"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
+        <md-input-container>
+          <label>릴레이션 이름</label>
+          <md-input type="text"
+                    v-model="relation.name"></md-input>
+        </md-input-container>
       </template>
       <template slot="additional-tabs">
-
-      </template>
-      <template slot="additional-tabs-contents">
 
       </template>
     </bpmn-property-panel>
@@ -83,9 +77,5 @@
 
 <style scoped lang="scss" rel="stylesheet/scss">
 
-  /*네비게이션 패널 넓이*/
-  aside.navigation-drawer.navigation-drawer--absolute.navigation-drawer--is-booted.navigation-drawer--open {
-    width: 400px;
-  }
 </style>
 

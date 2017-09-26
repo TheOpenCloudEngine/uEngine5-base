@@ -437,9 +437,6 @@
 
 
 <style lang="scss" rel="stylesheet/scss">
-  /*네비게이션 패널 넓이*/
-  aside.navigation-drawer.navigation-drawer--absolute.navigation-drawer--is-booted.navigation-drawer--open {
-    width: 400px;
-  }
+
 </style>
 

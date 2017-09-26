@@ -1,32 +1,30 @@
 <template>
 
-  <v-dialog v-model="dialog" width="600px">
-    <v-btn primary dark slot="activator">Profile</v-btn>
-    <v-card>
-      <v-card-title>
-        <span class="headline">User Profile</span>
-      </v-card-title>
-      <v-card-text>
-        <v-flex xs12>
-          <vue-img-inputer
-            :maxSize='5120'
-            placeholder="프로필 사진"
-            accept="image/*"
-            theme="material"
-            size="large"
-            :onChange="onFileChange"
-          >
-          </vue-img-inputer>
-        </v-flex>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn class="blue--text darken-1" flat @click.native="dialog = false">Close</v-btn>
-        <v-btn class="blue--text darken-1" flat @click.native="upload">Save</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <div>
+    <md-dialog md-open-from="#profile" md-close-to="#profile" ref="dialog1">
+      <md-dialog-title>User Profile</md-dialog-title>
 
+      <md-dialog-content>
+        <vue-img-inputer
+          :maxSize='5120'
+          placeholder="프로필 사진"
+          accept="image/*"
+          theme="material"
+          size="large"
+          :onChange="onFileChange"
+        >
+        </vue-img-inputer>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="closeDialog('dialog1')">Cancel</md-button>
+        <md-button class="md-primary" @click="upload">Save</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
+
+    <md-button class="md-primary md-raised" id="profile" @click="openDialog('dialog1')">Profile</md-button>
+  </div>
 </template>
 
 
@@ -50,6 +48,12 @@
     },
 
     methods: {
+      openDialog(ref) {
+        this.$refs[ref].open();
+      },
+      closeDialog(ref) {
+        this.$refs[ref].close();
+      },
       onFileChange: function (file, fileName) {
         this.file = file;
       },
@@ -58,7 +62,7 @@
         this.iam.createUserAvatarByFormData(me.file, me.file.type, null, localStorage['username'])
           .done(function () {
             me.$root.$children[0].success('사진이 업로드 되었습니다.');
-            me.dialog = false;
+            me.closeDialog('dialog1');
           })
           .fail(function () {
             me.$root.$children[0].error('사진을 업로드할 수 없습니다.');

@@ -1,150 +1,150 @@
 <template>
-  <v-app light>
-    <main>
-      <v-container fluid fill-height>
-        <v-layout>
-          <v-flex xs6 offset-xs3>
+  <md-layout>
+    <md-layout md-vertical-align md-flex="50" md-flex-offset="25">
+      <form v-if="command === 'login'" @submit.prevent="login" style="width: 100%">
+        <md-card>
+          <md-card-area>
+            <md-card-media>
+              <!--<img src="assets/card-image-1.jpg" alt="People">-->
+            </md-card-media>
 
-            <!--로그인 화면-->
-            <form v-if="command === 'login'" @submit.prevent="login">
-              <v-card>
-                <v-card-title primary-title>
-                  <v-layout row wrap>
-                    <v-flex xs12>
-                      로그인
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="username"
-                        label="E-mail"
-                        class="mt-5"
-                        type="email"
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="password"
-                        label="Enter your password"
-                        class="input-group--focused"
-                        type="password"
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                  </v-layout>
-                </v-card-title>
-                <v-card-actions>
-                  <v-btn type="submit" flat class="orange--text">Login</v-btn>
-                  <v-btn v-on:click="move('signup')" flat class="orange--text">Sign Up</v-btn>
-                  <v-btn v-on:click="move('forgot')" flat class="orange--text">Forgot Password?</v-btn>
-                </v-card-actions>
-              </v-card>
-            </form>
+            <md-card-header>
+              <div class="md-title">로그인</div>
+            </md-card-header>
 
-            <!--회원가입 화면-->
-            <form v-if="command === 'signup'" @submit.prevent="signup">
-              <v-card>
-                <v-card-title primary-title>
-                  <v-layout row wrap>
-                    <v-flex xs12>
-                      회원 가입
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="username"
-                        label="E-mail"
-                        class="mt-5"
-                        type="email"
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="password"
-                        label="Enter your password"
-                        class="input-group--focused"
-                        type="password"
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="name"
-                        label="이름"
-                        class="input-group--focused"
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                  </v-layout>
-                </v-card-title>
-                <v-card-actions>
-                  <v-btn type="submit" flat class="orange--text">제출</v-btn>
-                  <v-btn v-on:click="move('login')" flat class="orange--text">로그인 화면으로</v-btn>
-                  <v-btn v-on:click="move('forgot')" flat class="orange--text">Forgot Password?</v-btn>
-                </v-card-actions>
-              </v-card>
-            </form>
+            <md-card-content>
+              <md-input-container>
+                <label>E-mail</label>
+                <md-input v-model="username"
+                          type="email"
+                          required></md-input>
+              </md-input-container>
 
-            <!--패스워드 분실 화면-->
-            <form v-if="command === 'forgot'" @submit.prevent="forgot">
-              <v-card>
-                <v-card-title primary-title>
-                  <v-layout row wrap>
-                    <v-flex xs12>
-                      비밀번호 분실
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="username"
-                        label="E-mail"
-                        class="mt-5"
-                        type="email"
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                  </v-layout>
-                </v-card-title>
-                <v-card-actions>
-                  <v-btn type="submit" flat class="orange--text">제출</v-btn>
-                  <v-btn v-on:click="move('login')" flat class="orange--text">로그인 화면으로</v-btn>
-                  <v-btn v-on:click="move('signup')" flat class="orange--text">Sign Up</v-btn>
-                </v-card-actions>
-              </v-card>
-            </form>
+              <md-input-container>
+                <label>Enter your password</label>
+                <md-input v-model="password"
+                          label="Enter your password"
+                          type="password"
+                          required></md-input>
+              </md-input-container>
+            </md-card-content>
+          </md-card-area>
 
-            <!--패스워드 분실 후 재설정 화면-->
-            <form v-if="command === 'edit-password'" @submit.prevent="editPassword">
-              <v-card>
-                <v-card-title primary-title>
-                  <v-layout row wrap>
-                    <v-flex xs12>
-                      새로운 비밀번호를 입력하십시오.
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        v-model="password"
-                        label="Enter your password"
-                        class="mt-5"
-                        type="password"
-                        required
-                      ></v-text-field>
-                    </v-flex>
-                  </v-layout>
-                </v-card-title>
-                <v-card-actions>
-                  <v-btn type="submit" flat class="orange--text">제출</v-btn>
-                  <v-btn v-on:click="move('login')" flat class="orange--text">로그인 화면으로</v-btn>
-                  <v-btn v-on:click="move('signup')" flat class="orange--text">Sign Up</v-btn>
-                </v-card-actions>
-              </v-card>
-            </form>
+          <md-card-actions>
+            <md-button type="submit">Login</md-button>
+            <md-button v-on:click="move('signup')">Sign Up</md-button>
+            <md-button v-on:click="move('forgot')">Forgot Password?</md-button>
+          </md-card-actions>
+        </md-card>
+      </form>
 
+      <form v-if="command === 'signup'" @submit.prevent="signup" style="width: 100%">
+        <md-card>
+          <md-card-area>
+            <md-card-media>
+              <!--<img src="assets/card-image-1.jpg" alt="People">-->
+            </md-card-media>
 
-          </v-flex>
-        </v-layout>
-      </v-container>
-    </main>
-  </v-app>
+            <md-card-header>
+              <div class="md-title">회원 가입</div>
+            </md-card-header>
+
+            <md-card-content>
+              <md-input-container>
+                <label>E-mail</label>
+                <md-input v-model="username"
+                          type="email"
+                          required></md-input>
+              </md-input-container>
+
+              <md-input-container>
+                <label>Enter your password</label>
+                <md-input v-model="password"
+                          label="Enter your password"
+                          type="password"
+                          required></md-input>
+              </md-input-container>
+
+              <md-input-container>
+                <label>이름</label>
+                <md-input v-model="name"
+                          type="text"
+                          required></md-input>
+              </md-input-container>
+            </md-card-content>
+          </md-card-area>
+
+          <md-card-actions>
+            <md-button type="submit">제출</md-button>
+            <md-button v-on:click="move('login')">로그인 화면으로</md-button>
+            <md-button v-on:click="move('forgot')">Forgot Password?</md-button>
+          </md-card-actions>
+        </md-card>
+      </form>
+
+      <form v-if="command === 'forgot'" @submit.prevent="forgot" style="width: 100%">
+        <md-card>
+          <md-card-area>
+            <md-card-media>
+              <!--<img src="assets/card-image-1.jpg" alt="People">-->
+            </md-card-media>
+
+            <md-card-header>
+              <div class="md-title">비밀번호 분실</div>
+            </md-card-header>
+
+            <md-card-content>
+              <md-input-container>
+                <label>E-mail</label>
+                <md-input v-model="username"
+                          type="email"
+                          required></md-input>
+              </md-input-container>
+
+            </md-card-content>
+          </md-card-area>
+
+          <md-card-actions>
+            <md-button type="submit">제출</md-button>
+            <md-button v-on:click="move('login')">로그인 화면으로</md-button>
+            <md-button v-on:click="move('signup')">Sign Up</md-button>
+          </md-card-actions>
+        </md-card>
+      </form>
+
+      <!--패스워드 분실 후 재설정 화면-->
+      <form v-if="command === 'edit-password'" @submit.prevent="editPassword" style="width: 100%">
+        <md-card>
+          <md-card-area>
+            <md-card-media>
+              <!--<img src="assets/card-image-1.jpg" alt="People">-->
+            </md-card-media>
+
+            <md-card-header>
+              <div class="md-title">새로운 비밀번호를 입력하십시오.</div>
+            </md-card-header>
+
+            <md-card-content>
+              <md-input-container>
+                <label>Enter your password</label>
+                <md-input v-model="password"
+                          type="password"
+                          required></md-input>
+              </md-input-container>
+
+            </md-card-content>
+          </md-card-area>
+
+          <md-card-actions>
+            <md-button type="submit">제출</md-button>
+            <md-button v-on:click="move('login')">로그인 화면으로</md-button>
+            <md-button v-on:click="move('signup')">Sign Up</md-button>
+          </md-card-actions>
+        </md-card>
+      </form>
+
+    </md-layout>
+  </md-layout>
 </template>
 
 <script>
@@ -236,7 +236,7 @@
           path: '/auth/' + command
         })
       },
-      editPassword: function(e){
+      editPassword: function (e) {
         e.preventDefault();
         var me = this;
 
@@ -337,21 +337,5 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  h1, h2 {
-    font-weight: normal;
-  }
 
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-
-  a {
-    color: #42b983;
-  }
 </style>

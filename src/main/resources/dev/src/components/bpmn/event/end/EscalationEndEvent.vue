@@ -48,26 +48,18 @@
       :item.sync="activity"
     >
       <template slot="properties-contents">
-        <v-layout row wrap class="pa-3">
-          <v-flex xs12>
-            <v-text-field
-              label="액티비티 명"
-              v-model="activity.name.text"
-            ></v-text-field>
-          </v-flex>
-          <v-flex xs12>
-            <v-text-field
-              type="number"
-              label="retryDelay"
-              v-model.number="activity.retryDelay"
-            ></v-text-field>
-          </v-flex>
-        </v-layout>
+        <md-input-container>
+          <label>액티비티 명</label>
+          <md-input type="text"
+                    v-model="activity.name.text"></md-input>
+        </md-input-container>
+        <md-input-container>
+          <label>retryDelay</label>
+          <md-input type="number"
+                    v-model.number="activity.retryDelay"></md-input>
+        </md-input-container>
       </template>
       <template slot="additional-tabs">
-
-      </template>
-      <template slot="additional-tabs-contents">
 
       </template>
     </bpmn-property-panel>

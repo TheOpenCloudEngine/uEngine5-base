@@ -903,6 +903,8 @@
             event.stopPropagation();
             me.$emit('click', event, me);
           });
+
+          $(me.element).unbind('dblclick');
           $(me.element).bind('dblclick', function (event) {
             event.stopPropagation();
             me.$emit('dblclick', event, me);
