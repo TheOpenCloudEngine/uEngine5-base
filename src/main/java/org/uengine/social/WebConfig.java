@@ -1,5 +1,6 @@
 package org.uengine.social;
 
+import org.metaworks.iam.IamRestFilter;
 import org.metaworks.multitenancy.ClassManager;
 import org.metaworks.multitenancy.DefaultMetadataService;
 import org.metaworks.multitenancy.MetadataService;
@@ -116,6 +117,12 @@ public class WebConfig extends Metaworks4WebConfig {
     public Filter webFilter() {
         return new TenantAwareFilter();
     }
+
+    @Bean
+    public IamRestFilter iamRestFilter() {
+        return new IamRestFilter();
+    }
+
 }
 
 
