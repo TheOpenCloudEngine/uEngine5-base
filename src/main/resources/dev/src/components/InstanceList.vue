@@ -1,55 +1,130 @@
 <template>
-  <!--<v-data-table-->
-    <!--v-bind:headers="headers"-->
-    <!--:items="items"-->
-    <!--hide-actions-->
-    <!--class="elevation-1"-->
-  <!--&gt;-->
-    <!--<template slot="items" scope="props">-->
-      <!--<td>{{ props.item.instId }}</td>-->
-      <!--<td class="text-xs-right">-->
-        <!--<v-btn outline class="indigo&#45;&#45;text" v-on:click="move(props.item.instId)">진행상황 보기</v-btn>-->
-      <!--</td>-->
-      <!--<td class="text-xs-right">{{ props.item.defName }}</td>-->
-      <!--<td class="text-xs-right">{{ props.item.defId }}</td>-->
-      <!--<td class="text-xs-right">{{ props.item.isSubProcess }}</td>-->
-      <!--<td class="text-xs-right">{{ props.item.startedDate }}</td>-->
-      <!--<td class="text-xs-right">{{ props.item.finishedDate }}</td>-->
-    <!--</template>-->
-  <!--</v-data-table>-->
+  <md-layout md-gutter>
+    <md-layout md-gutter>
+      <md-layout md-flex="15">
+        <div class="phone-viewport">
+          <md-toolbar md-theme="white">
+            <span class="md-title">프로세스 목록</span>
+          </md-toolbar>
+
+          <md-list>
+            <md-list-item md-expand-multiple>
+              <md-icon>folder</md-icon>
+              <span class="md-body-1">LEVEL1</span>
+              <md-list-expand>
+                <md-list>
+                  <md-list-item class="md-inset" v-for="tree in trees" :key="tree.name">
+                    {{tree.name}}
+                    <!--<md-list>-->
+                      <!--<md-list-item md-expand-multiple>-->
+                        <!--<md-icon>folder</md-icon>-->
+                        <!--<span class="md-body-1">TEST1</span>-->
+                        <!--<md-list-expand>-->
+                          <!--<md-list>-->
+                            <!--<md-list-item class="md-inset"> abc1 </md-list-item>-->
+                            <!--<md-list-item class="md-inset"> bcd1 </md-list-item>-->
+                          <!--</md-list>-->
+                        <!--</md-list-expand>-->
+                      <!--</md-list-item>-->
+                    <!--</md-list>-->
+                  </md-list-item>
+                </md-list>
+              </md-list-expand>
+            </md-list-item>
+          </md-list>
+        </div>
+      </md-layout>
+      <md-layout md-flex="85">
+        <md-table>
+          <md-table-header>
+            <md-table-row>
+              <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
+            </md-table-row>
+          </md-table-header>
+
+          <md-table-body>
+            <md-table-row v-for="item in items" :key="item.defId">
+              <md-table-cell>{{item.status}}</md-table-cell>
+              <md-table-cell>{{item.instId}}</md-table-cell>
+              <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
+              <md-table-cell>{{item.defName}}</md-table-cell>
+              <md-table-cell>{{item.defName}}</md-table-cell>
+              <md-table-cell>{{item.eventHandler}}</md-table-cell>
+              <md-table-cell>{{item.info}}</md-table-cell>
+              <md-table-cell>{{item.startedDate}}</md-table-cell>
+              <md-table-cell>{{item.finishedDate}}</md-table-cell>
+              <md-table-cell>{{item.ext1}}</md-table-cell>
+              <md-table-cell>{{item.instId}}</md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
+      </md-layout>
+    </md-layout>
+  </md-layout>
+
+    <!--<v-data-table-->
+      <!--v-bind:headers="headers"-->
+      <!--:items="items"-->
+      <!--hide-actions-->
+      <!--class="elevation-1"-->
+    <!--&gt;-->
+      <!--<template slot="items" scope="props">-->
+        <!--<td>{{ props.item.instId }}</td>-->
+        <!--<td class="text-xs-right">-->
+          <!--<v-btn outline class="indigo&#45;&#45;text" v-on:click="move(props.item.instId)">진행상황 보기</v-btn>-->
+        <!--</td>-->
+        <!--<td class="text-xs-right">{{ props.item.defName }}</td>-->
+        <!--<td class="text-xs-right">{{ props.item.defId }}</td>-->
+        <!--<td class="text-xs-right">{{ props.item.isSubProcess }}</td>-->
+        <!--<td class="text-xs-right">{{ props.item.startedDate }}</td>-->
+        <!--<td class="text-xs-right">{{ props.item.finishedDate }}</td>-->
+      <!--</template>-->
+    <!--</v-data-table>-->
 </template>
 <script>
   export default {
     data () {
       return {
         headers: [
-          {
-            text: 'ID',
-            align: 'left',
-            sortable: false,
-            value: 'instId'
-          },
-          {text: '모니터링', value: ''},
-          {text: '프로세스 이름', value: 'defName'},
-          {text: '프로세스 아이디', value: 'defId'},
-          {text: '서브 프로세스', value: 'isSubProcess'},
+          {text: '상태', value: 'status'},
+          {text: '아이디', value: 'instId'},
+          {text: '인스턴스명', value: 'defId'},
+          {text: '프로세스명', value: 'defName'},
+          {text: '시작자', value: 'defName'},
+          {text: '현담당자', value: 'eventHandler'},
+          {text: '정보', value: 'info'},
           {text: '시작일', value: 'startedDate'},
-          {text: '종료일', value: 'finishedDate'}
+          {text: '종료일', value: 'finishedDate'},
+          {text: 'Ext1', value: 'ext1'},
+          {text: '삭제', value: 'instId'}
         ],
         items: [
           {
-            instId: 1,
-            defName: 1,
-            defId: 1,
-            isSubProcess: 1,
-            startedDate: 1,
-            finishedDate: 1
+            instId: 'instId',
+            defName: 'defName',
+            defId: 'defId',
+            name: 'name',
+            status: 'status',
+            eventHandler: 'eventHandler',
+            isSubProcess: 'isSubProcess',
+            startedDate: 'startedDate',
+            info: 'info',
+            ext1: 'ext1',
+            finishedDate: 'finishedDate'
+          }
+        ],
+        trees: [
+          {
+            name : 'name'
           }
         ]
       }
     },
     mounted() {
       var me = this;
+      $('.scroll-inner').slimScroll({
+        height: '100%'
+      });
       this.$root.codi('instances').get()
         .then(function (response) {
           var instances = [];
@@ -61,6 +136,18 @@
             });
             me.items = instances;
           }
+        })
+      var tree = this;
+      this.$root.codi('definitions').get()
+        .then(function (response) {
+          var trees = [];
+            $.each(response.data, function (i, definition) {
+              definition = definition.replace('/', '');
+                trees.push({
+                  name:definition
+                });
+            });
+            tree.trees = trees;
         })
     },
     methods: {
