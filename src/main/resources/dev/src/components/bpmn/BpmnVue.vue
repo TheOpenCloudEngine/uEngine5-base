@@ -27,9 +27,26 @@
       </div>
     </opengraph>
     <bpmn-component-changer
+      v-if="data.definition"
       :data="componentChangerData"
     >
     </bpmn-component-changer>
+
+    <md-dialog
+      v-if="data.definition"
+      md-open-from="#processVariables" md-close-to="#processVariables" ref="processVariables">
+      <md-dialog-title>Process Variables</md-dialog-title>
+
+      <md-dialog-content>
+        <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
+                     :full-fledged="true">
+        </object-grid>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="closeProcessVariables">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
   </div>
 </template>
 
@@ -42,6 +59,18 @@
     mounted: function () {
       this.id = this.uuid();
       this.data.definition = this.validateDefinition(this.definition);
+      var processVariables = this.data.definition.processVariableDescriptors;
+      if (processVariables && processVariables.length) {
+        var copy = JSON.parse(JSON.stringify(processVariables));
+        $.each(copy, function (i, variable) {
+          if (variable.displayName) {
+            variable.displayName = variable.displayName.text;
+          }
+        });
+        this.processVariables = copy;
+      }
+
+
       this.history = [JSON.parse(JSON.stringify(this.data.definition))];
       this.$nextTick(function () {
         //$nextTick delays the callback function until Vue has updated the DOM
@@ -53,14 +82,9 @@
     }
     ,
     data: function () {
-//      let id = this.uuid();
-//      let sliderId = id + '-slider';
-//
-//      var definition = this.validateDefinition(this.definition);
       return {
         enableHistoryAdd: false,
-        drawer: true,
-        text: 'sdfsdf',
+        processVariables: [],
         data: {
           definition: null,
           trigger: {}
@@ -77,6 +101,25 @@
     },
 
     watch: {
+      processVariables: {
+        handler: function (after, before) {
+          console.log('processVariables update!!', after);
+          //processVariables 주입
+          var processVariables = after;
+          if (processVariables && processVariables.length) {
+            var copy = JSON.parse(JSON.stringify(processVariables));
+            $.each(copy, function (i, variable) {
+              if (variable.displayName) {
+                variable.displayName = {
+                  text: variable.displayName
+                }
+              }
+            });
+            this.data.definition.processVariableDescriptors = copy;
+          }
+        },
+        deep: true
+      },
       data: {
         handler: function (after, before) {
           this.$emit('update:definition', after.definition);
@@ -128,6 +171,12 @@
     }
     ,
     methods: {
+      openProcessVariables(ref) {
+        this.$refs['processVariables'].open();
+      },
+      closeProcessVariables(ref) {
+        this.$refs['processVariables'].close();
+      },
       validateDefinition: function (definition) {
         //값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
 
