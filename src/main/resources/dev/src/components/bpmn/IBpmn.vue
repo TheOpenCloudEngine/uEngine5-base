@@ -9,6 +9,7 @@
     name: 'bpmn-base',
     props: {
       activity: Object,
+      definition: Object,
       role: Object,
       relation: Object,
       status: String,
@@ -65,7 +66,6 @@
     },
     watch: {},
     mounted: function () {
-
     },
     methods: {
       closeComponentChanger: function () {

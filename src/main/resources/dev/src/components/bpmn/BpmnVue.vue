@@ -20,7 +20,7 @@
       </div>
       <div v-for="activity in data.definition.childActivities[1]">
         <component v-if="activity != null" :is="getComponentByClassName(activity._type)"
-                   :activity="activity"></component>
+                   :activity="activity" :definition="data.definition"></component>
       </div>
       <div v-for="relation in data.definition.sequenceFlows">
         <bpmn-relation v-if="relation != null" :relation="relation"></bpmn-relation>

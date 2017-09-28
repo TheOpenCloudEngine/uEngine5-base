@@ -13,7 +13,7 @@
         <p v-for="item in items"
            class="icons"
            :class="item.icon"
-           v-on:click="chage(item.component)"
+           v-on:click="change(item.component)"
         >
           <span class="icon-text">{{item.label}}</span>
         </p>
@@ -288,12 +288,12 @@
         }
         //그외 데이터, Pool, Lane 은 바꿀 메뉴 없음.
       },
-      chage: function (componentName) {
+      change: function (componentName) {
         var newActivity = JSON.parse(JSON.stringify(this.bpmnComponent.activity));
         //newActivity.elementView.component = componentName;
 
-        var component = this.bpmnVue.getComponentByName(componentName);
-        newActivity._type = component.computed.className();
+        var component = this.bpmnVue.getComponentByName(componentName); //TODO :  getComponentByName 은 공통
+        newActivity._type = component.computed.className(); //change the type
         newActivity.elementView.style = JSON.stringify({});
 
         //기존 액티비티를 삭제하고 신규 액티비티를 인서트한다.
