@@ -87,6 +87,24 @@
       },
       className(){
         return 'org.uengine.kernel.HumanActivity'
+      },
+      createNew(newTracingTag, x, y, width, height){
+        return {
+          _type: this.className(),
+          name: {
+            text: ''
+          },
+          tracingTag: newTracingTag,
+          elementView: {
+            '_type': 'org.uengine.kernel.view.DefaultActivityView',
+            'id': newTracingTag,
+            'x': x,
+            'y': y,
+            'width': width,
+            'height': height,
+            'style': JSON.stringify({})
+          }
+        }
       }
     },
     data: function () {

@@ -49,6 +49,16 @@
       type(){
         return 'Relation'
       },
+      createNew(from, to, vertices){
+        return {
+          sourceRef: from,
+          targetRef: to,
+          relationView: {
+            style: JSON.stringify({}),
+            value: vertices
+          }
+        }
+      },
       vertices: {
         get: function () {
           var style;

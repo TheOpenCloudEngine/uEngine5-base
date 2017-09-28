@@ -56,6 +56,21 @@
       },
       type(){
         return 'Role'
+      },
+      createNew(x, y, width, height){
+        return {
+          name: '',
+          displayName: {},
+          elementView: {
+            '_type': 'org.uengine.kernel.view.DefaultActivityView',
+            'id': null,//this.uuid(), //오픈그래프 자동 생성
+            'x': x,
+            'y': y,
+            'width': width,
+            'height': height,
+            'style': JSON.stringify({})
+          }
+        }
       }
     },
     data: function () {

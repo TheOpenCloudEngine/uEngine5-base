@@ -65,22 +65,22 @@
             <md-option value="pulp_fiction">Pulp Fiction</md-option>
             <md-option value="scarface">Scarface</md-option>
           </md-select>
-
         </md-input-container>
 
 
-        <md-input-container v-if="activity.definitionId">
-          <label>연결 변수 매핑</label>
+        <p>연결 변수 매핑</p>
+        <bpmn-parameter-contexts
+          v-if="activity.definitionId"
+          :parameterContexts="activity.variableBindings"
+          :definition="definition"></bpmn-parameter-contexts>
 
-          <bpmn-parameter-contexts :parameterContxts="activity.variableBindings" :definition="definition"></bpmn-parameter-contexts>
+        <p>연결 역할 매핑</p>
+        <bpmn-parameter-contexts
+          v-if="activity.definitionId"
+          :parameterContexts="activity.roleBindings"
+          :definition="definition"></bpmn-parameter-contexts>
 
-        </md-input-container>
-        <md-input-container v-if="activity.definitionId">
-          <label>연결 역할 매핑</label>
-
-          <bpmn-parameter-contexts :parameterContxts="activity.roleBindings" :definition="definition"></bpmn-parameter-contexts>
-
-        </md-input-container>
+        <!--</md-input-container>-->
         <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
@@ -109,15 +109,31 @@
       },
       className(){
         return 'org.uengine.kernel.bpmn.CallActivity'
+      },
+      createNew(newTracingTag, x, y, width, height){
+        return {
+          _type: this.className(),
+          name: {
+            text: ''
+          },
+          tracingTag: newTracingTag,
+          definitionId: null,
+          variableBindings: [],
+          roleBindings: [],
+          elementView: {
+            '_type': 'org.uengine.kernel.view.DefaultActivityView',
+            'id': newTracingTag,
+            'x': x,
+            'y': y,
+            'width': width,
+            'height': height,
+            'style': JSON.stringify({})
+          }
+        }
       }
     },
     data: function () {
       return {};
-    },
-    watch: {},
-    mounted: function () {
-      console.log(this.definition);
-
     },
     methods: {}
   }

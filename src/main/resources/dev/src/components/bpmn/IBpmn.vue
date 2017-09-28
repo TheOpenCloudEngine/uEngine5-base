@@ -64,7 +64,29 @@
         }
       }
     },
-    watch: {},
+    watch: {
+//      activity: {
+//        handler: function (after, before) {
+//          console.log('activity changed');
+//          this.$emit('activity', after);
+//        },
+//        deep: true
+//      },
+//      role: {
+//        handler: function (after, before) {
+//          console.log('role changed');
+//          this.$emit('role', after);
+//        },
+//        deep: true
+//      },
+//      relation: {
+//        handler: function (after, before) {
+//          console.log('relation changed');
+//          this.$emit('relation', after);
+//        },
+//        deep: true
+//      }
+    },
     mounted: function () {
     },
     methods: {

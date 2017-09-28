@@ -289,19 +289,21 @@
         //그외 데이터, Pool, Lane 은 바꿀 메뉴 없음.
       },
       change: function (componentName) {
-        var newActivity = JSON.parse(JSON.stringify(this.bpmnComponent.activity));
-        //newActivity.elementView.component = componentName;
-
+        var oldActivity = this.bpmnComponent.activity;
         var component = this.bpmnVue.getComponentByName(componentName); //TODO :  getComponentByName 은 공통
-        newActivity._type = component.computed.className(); //change the type
-        newActivity.elementView.style = JSON.stringify({});
+        var newActivity = component.computed.createNew(
+          oldActivity.tracingTag,
+          oldActivity.elementView.x,
+          oldActivity.elementView.y,
+          oldActivity.elementView.width,
+          oldActivity.elementView.height
+        );
 
         //기존 액티비티를 삭제하고 신규 액티비티를 인서트한다.
-        var tracingTag = this.bpmnComponent.activity.tracingTag;
         var definition = this.bpmnVue.data.definition;
         $.each(definition.childActivities[1], function (i, activity) {
-          if (activity && activity.tracingTag == tracingTag) {
-            console.log('** remove activitiy by component change', tracingTag);
+          if (activity && activity.tracingTag == oldActivity.tracingTag) {
+            console.log('** remove activitiy by component change', oldActivity.tracingTag);
             definition.childActivities[1][i] = undefined;
           }
         });
@@ -312,7 +314,7 @@
           var opengraphComponent;
           for (var id in this.bpmnVue.$refs['opengraph'].elements) {
             opengraphComponent = this.bpmnVue.$refs['opengraph'].elements[id];
-            if (opengraphComponent.to == tracingTag || opengraphComponent.from == tracingTag) {
+            if (opengraphComponent.to == oldActivity.tracingTag || opengraphComponent.from == oldActivity.tracingTag) {
               console.log('redraw relation by component change.', opengraphComponent.id);
               opengraphComponent.updateShape();
             }

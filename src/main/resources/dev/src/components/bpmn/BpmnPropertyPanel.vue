@@ -111,7 +111,7 @@
       //프로퍼티 창이 오픈되었을 때 모델값을 새로 반영한다.
       navigationDrawer: {
         handler: function (val, oldval) {
-            console.log('val' , val);
+          console.log('val', val);
           if (val == true) {
             this._item = this.item;
             if (this.item.elementView) {
@@ -194,11 +194,11 @@
         var me = this;
         //동일함.
         if (me._item.tracingTag == value) {
-          return true;
+
         }
         //이미 있음.
         else if (me.bpmnVue.checkExistTracingTag(value)) {
-          return 'TracingTag aleardy exist.';
+          console.log('TracingTag aleardy exist.');
         }
         //트레이싱 태그 값이 바뀜.
         else if (value && value.length > 0) {
@@ -210,17 +210,16 @@
 
           //해당 트레이싱 태그를 사용중인 릴레이션의 source,target 을 변경한다.
           var sequenceFlows = me.bpmnVue.data.definition.sequenceFlows;
-          $.each(sequenceFlows, function (i, relation) {
-            if (relation.sourceRef == oldTracingTag) {
-              relation.sourceRef = value;
-            }
-            if (relation.targetRef == oldTracingTag) {
-              relation.targetRef = value;
-            }
-          });
-          return true;
-        } else {
-          return 'Invalid TracingTag.';
+          if (sequenceFlows && sequenceFlows.length) {
+            $.each(sequenceFlows, function (i, relation) {
+              if (relation.sourceRef == oldTracingTag) {
+                relation.sourceRef = value;
+              }
+              if (relation.targetRef == oldTracingTag) {
+                relation.targetRef = value;
+              }
+            });
+          }
         }
       }
     },
@@ -257,9 +256,9 @@
 </script>
 
 
-<style scoped lang="scss" rel="stylesheet/scss">
-  .md-sidenav-content {
-    width: 400px;
+<style lang="scss" rel="stylesheet/scss">
+  .md-sidenav .md-sidenav-content {
+    width: 400px
   }
 </style>
 

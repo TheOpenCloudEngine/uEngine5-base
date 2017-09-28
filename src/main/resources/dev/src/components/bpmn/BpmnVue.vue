@@ -16,14 +16,14 @@
       v-on:divideLane="onDivideLane"
     >
       <div v-for="role in data.definition.roles">
-        <bpmn-role v-if="role != null" :role="role"></bpmn-role>
+        <bpmn-role v-if="role != null" :role.sync="role"></bpmn-role>
       </div>
       <div v-for="activity in data.definition.childActivities[1]">
         <component v-if="activity != null" :is="getComponentByClassName(activity._type)"
-                   :activity="activity" :definition="data.definition"></component>
+                   :activity.sync="activity" :definition="data.definition"></component>
       </div>
       <div v-for="relation in data.definition.sequenceFlows">
-        <bpmn-relation v-if="relation != null" :relation="relation"></bpmn-relation>
+        <bpmn-relation v-if="relation != null" :relation.sync="relation"></bpmn-relation>
       </div>
     </opengraph>
     <bpmn-component-changer
@@ -104,10 +104,8 @@
       processVariables: {
         handler: function (after, before) {
           console.log('processVariables update!!', after);
-          //processVariables 주입
-          var processVariables = after;
-          if (processVariables && processVariables.length) {
-            var copy = JSON.parse(JSON.stringify(processVariables));
+          if (after && after.length) {
+            var copy = JSON.parse(JSON.stringify(after));
             $.each(copy, function (i, variable) {
               if (variable.displayName) {
                 variable.displayName = {
@@ -177,14 +175,29 @@
       closeProcessVariables(ref) {
         this.$refs['processVariables'].close();
       },
-      validateDefinition: function (definition) {
-        //값 밸리데이션 해서 누락값 넣기. ex) style 값이 없으면 style 들 넣어주기.
+      /**
+       * 이 과정에서는 부모-자식 양방향 통신이 필요한 요소나,
+       * watch 가 필요한 요소들이 null 로 인해 감지를 하지 못할 경우를 위해
+       * 값을 채워넣는다.
+       *
+       * 값을 채우지 않고 null 이 흘러간다면, 뒤이은 컴포넌트에서 값을 업데이트하여도 Vue 라이프사이클은 이를 감지하지 못한다.
+       **/
+      validateDefinition: function (value) {
+        var bpmnComponent, required, me = this;
+        var definition = JSON.parse(JSON.stringify(value));
 
         //시퀀스 플로우 검증.
         if (!definition.sequenceFlows) {
           definition.sequenceFlows = [];
         }
+        bpmnComponent = me.getComponentByName('bpmn-relation');
         $.each(definition.sequenceFlows, function (i, relation) {
+          required = bpmnComponent.computed.createNew();
+          for (var key in required) {
+            if (!relation[key]) {
+              relation[key] = required[key];
+            }
+          }
           if (!relation.relationView.style) {
             relation.relationView.style = JSON.stringify({});
           }
@@ -194,7 +207,14 @@
         if (!definition.roles) {
           definition.roles = [];
         }
+        bpmnComponent = me.getComponentByName('bpmn-role');
         $.each(definition.roles, function (i, role) {
+          required = bpmnComponent.computed.createNew();
+          for (var key in required) {
+            if (!role[key]) {
+              role[key] = required[key];
+            }
+          }
           if (!role.elementView.style) {
             role.elementView.style = JSON.stringify({});
           }
@@ -210,11 +230,26 @@
         if (!definition.childActivities[1]) {
           definition.childActivities[1] = [];
         }
+
+
         $.each(definition.childActivities[1], function (i, activity) {
+          bpmnComponent = me.getComponentByClassName(activity._type);
+          required = bpmnComponent.computed.createNew();
+          for (var key in required) {
+            if (!activity[key]) {
+              activity[key] = required[key];
+            }
+          }
           if (!activity.elementView.style) {
             activity.elementView.style = JSON.stringify({});
           }
         })
+
+        //processVariableDescriptors 검증
+        if (!definition.processVariableDescriptors) {
+          definition.processVariableDescriptors = [];
+        }
+
         return definition;
       },
       /**
@@ -231,22 +266,18 @@
       onDivideLane: function (dividedLane) {
         var me = this;
         var boundary = dividedLane.shape.geom.getBoundary();
-        var additionalRole = {
-          'name': '',
-          'displayName': {},
-          'elementView': {
-            '_type': 'org.uengine.kernel.view.DefaultActivityView',
-            'id': dividedLane.id,
-            'component': 'bpmn-role',
-            'parent': me.canvas.getParent(dividedLane).id,
-            'x': boundary.getCentroid().x,
-            'y': boundary.getCentroid().y,
-            'width': boundary.getWidth(),
-            'height': boundary.getHeight(),
-            'style': JSON.stringify({})
-          }
-        }
-        me.data.definition.roles.push(additionalRole);
+        var bpmnComponent = me.getComponentByName('bpmn-role');
+
+        var additionalData = bpmnComponent.computed.createNew(
+          boundary.getCentroid().x,
+          boundary.getCentroid().y,
+          boundary.getWidth(),
+          boundary.getHeight());
+
+        additionalData.elementView.id = dividedLane.id;
+        additionalData.elementView.parent = me.canvas.getParent(dividedLane).id;
+
+        me.data.definition.roles.push(additionalData);
       }
       ,
       /**
@@ -258,16 +289,14 @@
         //신규 릴레이션인 경우에는 릴레이션 생성
         if (edge.shape && from && to) {
           var vertices = '[' + edge.shape.geom.vertices.toString() + ']';
-          var additionalRelation = {
-            sourceRef: from.id,
-            targetRef: to.id,
-            relationView: {
-              style: JSON.stringify({}),
-              value: vertices
-            }
-          }
+          var bpmnComponent = me.getComponentByName('bpmn-relation');
+          var additionalData = bpmnComponent.computed.createNew(
+            from.id,
+            to.id,
+            vertices);
+
           me.canvas.removeShape(edge.id, true);
-          me.data.definition.sequenceFlows.push(additionalRelation);
+          me.data.definition.sequenceFlows.push(additionalData);
         }
       }
       ,
@@ -301,57 +330,40 @@
         var additionalData = {};
         //릴레이션 추가인 경우
         if (componentInfo.component == 'bpmn-relation') {
-          additionalData = {
-            sourceRef: componentInfo.from,
-            targetRef: componentInfo.to,
-            relationView: {
-              style: JSON.stringify({}),
-              value: componentInfo.vertices
-            }
-          }
+          var bpmnComponent = me.getComponentByName('bpmn-relation');
+          additionalData = bpmnComponent.computed.createNew(
+            componentInfo.from,
+            componentInfo.to,
+            componentInfo.vertices);
+
           me.data.definition.sequenceFlows.push(additionalData);
         }
         //롤 추가인 경우
         else if (componentInfo.component == 'bpmn-role') {
-          additionalData = {
-            'name': '',
-            'displayName': {},
-            'elementView': {
-              '_type': 'org.uengine.kernel.view.DefaultActivityView',
-              'id': null,//this.uuid(), //오픈그래프 자동 생성
-              'x': componentInfo.x,
-              'y': componentInfo.y,
-              'width': componentInfo.width,
-              'height': componentInfo.height,
-              'style': JSON.stringify({})
-            }
-          }
+          var bpmnComponent = me.getComponentByName('bpmn-role');
+
+          additionalData = bpmnComponent.computed.createNew(
+            componentInfo.x,
+            componentInfo.y,
+            componentInfo.width,
+            componentInfo.height);
           me.data.definition.roles.push(additionalData);
         }
         //액티비티 추가인 경우
         else {
           var bpmnComponent = me.getComponentByName(componentInfo.component);
-          var className = bpmnComponent.computed.className();
           if (!newTracingTag) {
             newTracingTag = me.createNewTracingTag();
           }
           console.log('newTracingTag', newTracingTag);
-          additionalData = {
-            '_type': className,
-            'name': {
-              'text': ''
-            },
-            'tracingTag': newTracingTag,
-            'elementView': {
-              '_type': 'org.uengine.kernel.view.DefaultActivityView',
-              'id': newTracingTag,
-              'x': componentInfo.x,
-              'y': componentInfo.y,
-              'width': componentInfo.width,
-              'height': componentInfo.height,
-              'style': JSON.stringify({})
-            }
-          }
+
+          additionalData = bpmnComponent.computed.createNew(
+            newTracingTag,
+            componentInfo.x,
+            componentInfo.y,
+            componentInfo.width,
+            componentInfo.height);
+
           me.data.definition.childActivities[1].push(additionalData);
         }
       }
