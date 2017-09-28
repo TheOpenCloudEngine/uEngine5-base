@@ -66,6 +66,12 @@
 
         </md-input-container>
         <md-input-container>
+          <label>연결 변수 매핑</label>
+
+          <bpmn-variable-mapper :parameterContxt="activity.variableBindings" :definition="definition"></bpmn-variable-mapper>
+
+        </md-input-container>
+        <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
                     v-model.number="activity.retryDelay"></md-input>
@@ -100,6 +106,7 @@
     },
     watch: {},
     mounted: function () {
+      console.log(this.definition);
 
     },
     methods: {}
