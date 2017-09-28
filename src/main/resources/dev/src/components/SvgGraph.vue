@@ -88,21 +88,7 @@
 
         <!--프로세스 변수-->
         <md-layout>
-          <md-dialog md-open-from="#processVariables" md-close-to="#processVariables" ref="processVariables">
-            <md-dialog-title>User Profile</md-dialog-title>
-
-            <md-dialog-content>
-              <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
-                           :full-fledged="true">
-              </object-grid>
-            </md-dialog-content>
-
-            <md-dialog-actions>
-              <md-button class="md-primary" @click="closeDialog('processVariables')">Close</md-button>
-            </md-dialog-actions>
-          </md-dialog>
-
-          <md-button class="md-raised" id="processVariables" @click="openDialog('processVariables')">ProcessVariable
+          <md-button class="md-raised" id="processVariables" @click="openProcessVariables">ProcessVariable
           </md-button>
         </md-layout>
 
@@ -200,11 +186,8 @@
       }
     },
     methods: {
-      openDialog(ref) {
-        this.$refs[ref].open();
-      },
-      closeDialog(ref) {
-        this.$refs[ref].close();
+      openProcessVariables() {
+        this.$refs['bpmn-vue'].openProcessVariables();
       },
       bindEvents: function (opengraph) {
         //this.$el
@@ -332,38 +315,12 @@
           this.$root.codi('definition{/id}').get({id: me.id + '.json'})
             .then(function (response) {
               me.definition = response.data.definition;
-
-              //processVariables displayName 전환.
-              var processVariables = response.data.definition.processVariableDescriptors;
-              if (processVariables && processVariables.length) {
-                var copy = JSON.parse(JSON.stringify(processVariables));
-                $.each(copy, function (i, variable) {
-                  if (variable.displayName) {
-                    variable.displayName = variable.displayName.text;
-                  }
-                });
-                me.processVariables = copy;
-              }
             })
         }
       }
       ,
       save: function () {
         var me = this;
-        //processVariables 주입
-        var processVariables = me.processVariables;
-        if (processVariables && processVariables.length) {
-          var copy = JSON.parse(JSON.stringify(processVariables));
-          $.each(copy, function (i, variable) {
-            if (variable.displayName) {
-              variable.displayName = {
-                text: variable.displayName
-              }
-            }
-          });
-          me.definition.processVariableDescriptors = copy;
-        }
-
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
         var definitionToSave = JSON.parse(JSON.stringify(me.definition));
         definitionToSave.childActivities[1] = [];

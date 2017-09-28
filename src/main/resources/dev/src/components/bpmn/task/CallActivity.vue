@@ -54,7 +54,9 @@
         <md-input-container>
           <label>연결 프로세스 정의</label>
 
+          <!--TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 -->
           <md-select name="movie" id="movie" v-model="activity.definitionId">
+            <md-option :value="null">선택</md-option>
             <md-option value="fight_club">Fight Club</md-option>
             <md-option value="godfather">Godfather</md-option>
             <md-option value="godfather_ii">Godfather II</md-option>
@@ -65,10 +67,18 @@
           </md-select>
 
         </md-input-container>
-        <md-input-container>
+
+
+        <md-input-container v-if="activity.definitionId">
           <label>연결 변수 매핑</label>
 
-          <bpmn-variable-mapper :parameterContxt="activity.variableBindings" :definition="definition"></bpmn-variable-mapper>
+          <bpmn-parameter-contexts :parameterContxts="activity.variableBindings" :definition="definition"></bpmn-parameter-contexts>
+
+        </md-input-container>
+        <md-input-container v-if="activity.definitionId">
+          <label>연결 역할 매핑</label>
+
+          <bpmn-parameter-contexts :parameterContxts="activity.roleBindings" :definition="definition"></bpmn-parameter-contexts>
 
         </md-input-container>
         <md-input-container>

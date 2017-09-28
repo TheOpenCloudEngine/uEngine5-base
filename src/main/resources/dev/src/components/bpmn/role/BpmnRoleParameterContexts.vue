@@ -1,3 +1,4 @@
+
 <template>
 
   <div>
@@ -32,7 +33,7 @@
 <script>
 
   export default {
-    name: "bpmn-variable-mapper",
+    name: "bpmn-role-parameter-contexts",
 
     computed: {
         calleeDefinition: function(){
