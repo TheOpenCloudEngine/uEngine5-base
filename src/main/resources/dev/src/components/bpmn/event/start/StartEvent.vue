@@ -26,6 +26,10 @@
         :radius="50"
       >
       </geometry-circle>
+
+      <!--//TODO 여기의 status 를 http://localhost:8080/instance/1/variables 에서 얻어온 status 로 교체하여야 한다.-->
+      <!--그러기 위해서는 BpmnVue 에서 이 컴포넌트의 status 를 주입해야 함.-->
+
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
@@ -56,6 +60,7 @@
 </template>
 
 <script>
+  //이것은, 클래스 임포트인테 임포트 개념과 살짝 다른점이 믹신 이라고 하고, 상속 구조는 아니고, 공통 메소드 공유 개념이다.
   import IBpmn from '../../IBpmn'
   export default {
     mixins: [IBpmn],

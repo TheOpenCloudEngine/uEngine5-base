@@ -15,13 +15,27 @@
       v-on:removeShape="onRemoveShape"
       v-on:divideLane="onDivideLane"
     >
+
+      <!--롤은 Lane 형식의 큰 틀-->
       <div v-for="role in data.definition.roles">
         <bpmn-role v-if="role != null" :role.sync="role"></bpmn-role>
       </div>
+
+      <!--액티비티는 각 활동 요소-->
       <div v-for="activity in data.definition.childActivities[1]">
+        <!--component 로 지칭한 것은 뒤의 is 가 가르키는 컴포넌트 이름으로 뜸-->
+
+        <!--//TODO 여기의 status 를 http://localhost:8080/instance/1/variables 에서 얻어온 status 로 교체하여야 한다.-->
+        <!--ex) :status="???"-->
+        <!--그러기 위해서는 SvgGraph(데이터 불러오는 부분) 에서, definition 가져온 이후에, definition 안에 있는 childActivities 를 까서-->
+        <!--그 안에 tracingTag 가 동일한 것들에 대해 status 를 매핑시켜주어야 한다.-->
         <component v-if="activity != null" :is="getComponentByClassName(activity._type)"
-                   :activity.sync="activity" :definition="data.definition"></component>
+                   :activity.sync="activity" :definition="data.definition"
+                   status=""
+        ></component>
       </div>
+
+      <!--릴레이션은 액티비티간 연결선(흐름)-->
       <div v-for="relation in data.definition.sequenceFlows">
         <bpmn-relation v-if="relation != null" :relation.sync="relation"></bpmn-relation>
       </div>
@@ -51,6 +65,9 @@
 </template>
 
 <script>
+  /**
+   * 디자이너를 그리는 부분.
+   */
   export default {
     name: 'bpmn-vue',
     props: {

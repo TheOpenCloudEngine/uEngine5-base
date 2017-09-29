@@ -298,8 +298,16 @@
           .then(function () {
             me.$root.codi('definition{/id}').get({id: defId})
               .then(function (response) {
+
+
+
+                // definition 이란 것은 디자이너가 도형을 그리는 스펙 정의.
+                // status 를 불러와서 definition 을 손본 후, me.definition 에 등록할 것.
+
                 me.definition = response.data.definition;
-                me.getStatus();
+
+
+                //me.getStatus();
               })
           })
       }
