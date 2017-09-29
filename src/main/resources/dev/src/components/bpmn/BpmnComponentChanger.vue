@@ -272,7 +272,7 @@
             {
               component: 'bpmn-subprocess',
               label: 'Sub Process',
-              icon: 'bpmn-icon-subprocess-collapsed'
+              icon: 'bpmn-icon-subprocess-expanded'
             },
             {
               component: 'bpmn-transaction',
@@ -289,7 +289,7 @@
         //그외 데이터, Pool, Lane 은 바꿀 메뉴 없음.
       },
       change: function (componentName) {
-        var oldActivity = this.bpmnComponent.activity;
+        var oldActivity = JSON.parse(JSON.stringify(this.bpmnComponent.activity));
         var component = this.bpmnVue.getComponentByName(componentName); //TODO :  getComponentByName 은 공통
         var newActivity = component.computed.createNew(
           oldActivity.tracingTag,
@@ -298,6 +298,12 @@
           oldActivity.elementView.width,
           oldActivity.elementView.height
         );
+//        var required = component.computed.createNew();
+//        for (var key in required) {
+//          if (!activity[key]) {
+//            activity[key] = required[key];
+//          }
+//        }
 
         //기존 액티비티를 삭제하고 신규 액티비티를 인서트한다.
         var definition = this.bpmnVue.data.definition;

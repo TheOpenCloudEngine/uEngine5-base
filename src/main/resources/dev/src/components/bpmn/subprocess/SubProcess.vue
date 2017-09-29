@@ -1,12 +1,12 @@
 <template>
   <div>
-    <geometry-element
+    <group-element
       selectable
       movable
       resizable
       connectable
       deletable
-      :enableTo="false"
+      :enableFrom="false"
       :id.sync="activity.tracingTag"
       :x.sync="activity.elementView.x"
       :y.sync="activity.elementView.y"
@@ -20,19 +20,35 @@
       v-on:deSelectShape="closeComponentChanger"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
-      v-on:addedToGroup="onAddedToGroup"
     >
-      <geometry-circle
-        :center="[50,50]"
-        :radius="50"
+      <geometry-rect
+        :_style="{
+          'stroke-width': 1.2,
+          'r': 6,
+          fill: '#FFFFFF',
+          'fill-opacity': 0.7,
+          'vertical-align': 'top',
+          'text-anchor': 'start'
+        }"
       >
-      </geometry-circle>
-
+      </geometry-rect>
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
-    </geometry-element>
+    </group-element>
+
+    <!--childActivities-->
+    <div v-if="bpmnVue && activity.childActivities" v-for="subActivity in activity.childActivities[1]">
+      <component v-if="subActivity != null" :is="bpmnVue.getComponentByClassName(subActivity._type)"
+                 :activity.sync="subActivity" :definition="definition"
+      ></component>
+    </div>
+
+    <!--릴레이션은 액티비티간 연결선(흐름)-->
+    <div v-if="bpmnVue && activity.sequenceFlows" v-for="subRelation in activity.sequenceFlows">
+      <bpmn-relation v-if="subRelation != null" :relation.sync="subRelation"></bpmn-relation>
+    </div>
 
     <bpmn-property-panel
       :drawer.sync="drawer"
@@ -58,24 +74,20 @@
 </template>
 
 <script>
-  //이것은, 클래스 임포트인테 임포트 개념과 살짝 다른점이 믹신 이라고 하고, 상속 구조는 아니고, 공통 메소드 공유 개념이다.
-  import IBpmn from '../../IBpmn'
+  import IBpmn from '../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-start-event',
+    name: 'bpmn-subprocess',
     props: {},
     computed: {
       defaultStyle(){
-        return {
-          'label-position': 'bottom',
-          'stroke-width': 1.5
-        }
+        return {}
       },
       type(){
-        return 'StartEvent'
+        return 'SubProcess'
       },
       className(){
-        return 'org.uengine.kernel.bpmn.StartEvent'
+        return 'org.uengine.kernel.bpmn.SubProcess'
       },
       createNew(newTracingTag, x, y, width, height){
         return {
@@ -84,6 +96,11 @@
             text: ''
           },
           tracingTag: newTracingTag,
+          childActivities: [
+            "java.util.ArrayList",
+            []
+          ],
+          sequenceFlows: [],
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,
@@ -103,9 +120,7 @@
     mounted: function () {
 
     },
-    methods: {
-
-    }
+    methods: {}
   }
 </script>
 

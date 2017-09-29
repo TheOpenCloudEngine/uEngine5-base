@@ -111,6 +111,18 @@
       showProperty: function (event, component) {
         this.drawer = true;
       },
+      /**
+       * 도형이 그룹 속으로 이동했을 때 데피니션의 모델을 이동시킨다.
+       * @param groupElement
+       * @param element
+       * @param eventOffset
+       */
+      onAddedToGroup: function (groupElement, element, eventOffset) {
+
+          //서브 프로세스 안에 서브 프로세스 일 경우
+
+        console.log(groupElement, element, eventOffset);
+      },
       uuid: function () {
         function s4() {
           return Math.floor((1 + Math.random()) * 0x10000)

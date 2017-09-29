@@ -1,8 +1,6 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div class="canvas-panel">
 
-    <p id="sample" style="position: absolute;top: 100px;left: 100px;z-index: 100">샘플</p>
-
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :definition.sync="definition"
               v-on:bpmnReady="bindEvents">
@@ -146,7 +144,7 @@
             'height': '100'
           },
           {
-            'icon': 'bpmn-icon-subprocess-collapsed',
+            'icon': 'bpmn-icon-subprocess-expanded',
             'component': 'bpmn-subprocess',
             'width': '200',
             'height': '150'
@@ -184,23 +182,6 @@
     mounted() {
       var me = this;
       me.setMode();
-
-
-      console.log(me);
-
-      //this => 자기자신을 의미하는데, 이것은 function 단위로 구분한다.
-      //그래서, 이 코드는 setTimeout 안에 있는 function 을 가르키기 때문에 aaa 는 undefined 가 나올것임.
-      setTimeout(function () {
-        me.aaa = 'BBB';
-      }, 2000);
-
-
-      //직접 Dom 을 컨트롤 할 경우는 $el 을 가지고 한다.
-      setTimeout(function () {
-        $(me.$el).find('#sample').remove();
-      }, 2000);
-
-
     },
 
     //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.

@@ -67,6 +67,7 @@
         <p>연결 변수 매핑</p>
         <bpmn-parameter-contexts
           v-if="activity.definitionId"
+          :calleeDefinitionId="activity.definitionId"
           :parameterContexts="activity.variableBindings"
           :definition="definition"
           :calleeDefinitionId="activity.definitionId"
