@@ -20,15 +20,13 @@
       v-on:deSelectShape="closeComponentChanger"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
+      v-on:addedToGroup="onAddedToGroup"
     >
       <geometry-circle
         :center="[50,50]"
         :radius="50"
       >
       </geometry-circle>
-
-      <!--//TODO 여기의 status 를 http://localhost:8080/instance/1/variables 에서 얻어온 status 로 교체하여야 한다.-->
-      <!--그러기 위해서는 BpmnVue 에서 이 컴포넌트의 status 를 주입해야 함.-->
 
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
@@ -105,7 +103,9 @@
     mounted: function () {
 
     },
-    methods: {}
+    methods: {
+
+    }
   }
 </script>
 

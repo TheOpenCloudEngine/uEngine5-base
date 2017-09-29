@@ -43,23 +43,26 @@
       $('.scroll-inner').slimScroll({
         height: '100%'
       });
-
-      this.$root.codi('definitions').get()
-        .then(function (response) {
-          console.log(response);
-          var cards = [];
-          $.each(response.data, function (i, name) {
-            name = name.replace('/', '');
-            cards.push({
-              name: name,
-              desc: name + '...',
-              src: '/static/image/sample.png'
-            })
-          });
-          me.cards = cards;
-        })
+      this.getDefinitionList();
     },
     methods: {
+      getDefinitionList: function () {
+        var me = this;
+        this.$root.codi('definitions').get()
+          .then(function (response) {
+            console.log(response);
+            var cards = [];
+            $.each(response.data, function (i, name) {
+              name = name.replace('/', '');
+              cards.push({
+                name: name,
+                desc: name + '...',
+                src: '/static/image/sample.png'
+              })
+            });
+            me.cards = cards;
+          })
+      },
       newProcess: function () {
         this.$router.push({
           path: 'definition/new-process-definition'
@@ -80,11 +83,13 @@
               me.$router.push({
                 path: '/sns'
               })
+              console.log(123);
             },
             function (response) {
               me.$root.$children[0].error('프로세스를 시작할 수 없습니다.');
             }
           );
+        console.log(456);
       },
     }
   }

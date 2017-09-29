@@ -73,6 +73,9 @@
       };
     },
     watch: {
+      calleeDefinitionId: function () {
+        console.log('calleeDefinitionId changed!!');
+      },
       data: {
         handler: function (after, before) {
           this.$emit('update:parameterContexts', after);
