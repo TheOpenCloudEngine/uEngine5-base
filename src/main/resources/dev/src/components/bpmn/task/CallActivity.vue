@@ -57,13 +57,9 @@
           <!--TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 -->
           <md-select name="movie" id="movie" v-model="activity.definitionId">
             <md-option :value="null">선택</md-option>
-            <md-option value="fight_club">Fight Club</md-option>
-            <md-option value="godfather">Godfather</md-option>
-            <md-option value="godfather_ii">Godfather II</md-option>
-            <md-option value="godfather_iii">Godfather III</md-option>
-            <md-option value="godfellas">Godfellas</md-option>
-            <md-option value="pulp_fiction">Pulp Fiction</md-option>
-            <md-option value="scarface">Scarface</md-option>
+            <md-option value="new-process-definition2">new-process-definition2</md-option>
+            <md-option value="new-process-definition3">new-process-definition3</md-option>
+            <md-option value="new-process-definition4">new-process-definition4</md-option>
           </md-select>
         </md-input-container>
 
@@ -72,7 +68,9 @@
         <bpmn-parameter-contexts
           v-if="activity.definitionId"
           :parameterContexts="activity.variableBindings"
-          :definition="definition"></bpmn-parameter-contexts>
+          :definition="definition"
+          :calleeDefinitionId="activity.definitionId"
+        ></bpmn-parameter-contexts>
 
         <p>연결 역할 매핑</p>
         <bpmn-parameter-contexts
@@ -117,7 +115,7 @@
             text: ''
           },
           tracingTag: newTracingTag,
-          definitionId: null,
+          definitionId: "",
           variableBindings: [],
           roleBindings: [],
           elementView: {
