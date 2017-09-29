@@ -1,6 +1,8 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div class="canvas-panel">
 
+    <p id="sample" style="position: absolute;top: 100px;left: 100px;z-index: 100">샘플</p>
+
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :definition.sync="definition"
               v-on:bpmnReady="bindEvents">
@@ -80,14 +82,14 @@
         </md-layout>
 
         <!--프로세스 세이브-->
-        <md-layout>
+        <md-layout v-if="!monitor">
           <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
             <md-icon>save</md-icon>
           </md-button>
         </md-layout>
 
         <!--프로세스 변수-->
-        <md-layout>
+        <md-layout v-if="!monitor">
           <md-button class="md-raised" id="processVariables" @click="openProcessVariables">ProcessVariable
           </md-button>
         </md-layout>
@@ -103,6 +105,7 @@
     },
     data () {
       return {
+        aaa: 'AAA',
         id: null,
         definition: null,
         definitionName: null,
@@ -176,11 +179,37 @@
       }
     },
     computed: {},
+
+    //컴포넌트가 Dom 에 등록되었을 떄(실제 렌더링 되기 위해 활성화 되었을 때.)
     mounted() {
       var me = this;
       me.setMode();
+
+
+      console.log(me);
+
+      //this => 자기자신을 의미하는데, 이것은 function 단위로 구분한다.
+      //그래서, 이 코드는 setTimeout 안에 있는 function 을 가르키기 때문에 aaa 는 undefined 가 나올것임.
+      setTimeout(function () {
+        me.aaa = 'BBB';
+      }, 2000);
+
+
+      //직접 Dom 을 컨트롤 할 경우는 $el 을 가지고 한다.
+      setTimeout(function () {
+        $(me.$el).find('#sample').remove();
+      }, 2000);
+
+
     },
+
+    //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
     watch: {
+      aaa: function (after, before) {
+        //after => 바뀐 후 값
+        //before => 바뀌기 전.
+        console.log('after,before', after, before);
+      },
       '$route'(to, from) {
         this.setMode();
       }
@@ -242,6 +271,7 @@
         this.$refs['bpmn-vue'].redo();
       }
       ,
+      //여기서는, 라우터에서 전달해준 monitor prop 를 가지고 디자이너 모드인지, 모니터 모드인지 판별함.
       setMode: function () {
         var me = this;
         if (me.monitor) {
@@ -257,6 +287,9 @@
         me.id = this.$route.params.id;
 
         var defId;
+
+        //이 부분에 대한 것은, ServiceLocator.vue 를 보도록.
+        //ServiceLocator.vue 는 App.vue (최상단 컴포넌트) 안에 붙어있습니다.
         me.$root.codi('instances{/id}').get({id: me.id})
           .then(function (response) {
             let split = response.data.defId.split('/');
@@ -266,24 +299,24 @@
             me.$root.codi('definition{/id}').get({id: defId})
               .then(function (response) {
                 me.definition = response.data.definition;
-                //me.getStatus();
+                me.getStatus();
               })
           })
       }
       ,
       getStatus: function () {
-        var me = this;
-        me.$root.codi('instance{/id}/variables').get({id: me.id})
-          .then(function (response) {
-            var statusData = response.data;
-            for (var key in response.data) {
-              if (key.indexOf(':_status:prop') != -1) {
-                var elementId = key.replace(':_status:prop', '');
-                var status = response.data[key];
-                me.updateElementStatus(elementId, status);
-              }
-            }
-          })
+//        var me = this;
+//        me.$root.codi('instance{/id}/variables').get({id: me.id})
+//          .then(function (response) {
+//            var statusData = response.data;
+//            for (var key in response.data) {
+//              if (key.indexOf(':_status:prop') != -1) {
+//                var elementId = key.replace(':_status:prop', '');
+//                var status = response.data[key];
+//                me.updateElementStatus(elementId, status);
+//              }
+//            }
+//          })
       }
       ,
       updateElementStatus: function (elementId, status) {

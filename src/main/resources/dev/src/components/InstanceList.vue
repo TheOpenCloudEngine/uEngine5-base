@@ -15,18 +15,6 @@
                 <md-list>
                   <md-list-item class="md-inset" v-for="tree in trees" :key="tree.name">
                     {{tree.name}}
-                    <!--<md-list>-->
-                      <!--<md-list-item md-expand-multiple>-->
-                        <!--<md-icon>folder</md-icon>-->
-                        <!--<span class="md-body-1">TEST1</span>-->
-                        <!--<md-list-expand>-->
-                          <!--<md-list>-->
-                            <!--<md-list-item class="md-inset"> abc1 </md-list-item>-->
-                            <!--<md-list-item class="md-inset"> bcd1 </md-list-item>-->
-                          <!--</md-list>-->
-                        <!--</md-list-expand>-->
-                      <!--</md-list-item>-->
-                    <!--</md-list>-->
                   </md-list-item>
                 </md-list>
               </md-list-expand>
@@ -61,25 +49,6 @@
       </md-layout>
     </md-layout>
   </md-layout>
-
-    <!--<v-data-table-->
-      <!--v-bind:headers="headers"-->
-      <!--:items="items"-->
-      <!--hide-actions-->
-      <!--class="elevation-1"-->
-    <!--&gt;-->
-      <!--<template slot="items" scope="props">-->
-        <!--<td>{{ props.item.instId }}</td>-->
-        <!--<td class="text-xs-right">-->
-          <!--<v-btn outline class="indigo&#45;&#45;text" v-on:click="move(props.item.instId)">진행상황 보기</v-btn>-->
-        <!--</td>-->
-        <!--<td class="text-xs-right">{{ props.item.defName }}</td>-->
-        <!--<td class="text-xs-right">{{ props.item.defId }}</td>-->
-        <!--<td class="text-xs-right">{{ props.item.isSubProcess }}</td>-->
-        <!--<td class="text-xs-right">{{ props.item.startedDate }}</td>-->
-        <!--<td class="text-xs-right">{{ props.item.finishedDate }}</td>-->
-      <!--</template>-->
-    <!--</v-data-table>-->
 </template>
 <script>
   export default {
@@ -115,7 +84,7 @@
         ],
         trees: [
           {
-            name : 'name'
+            name: 'name'
           }
         ]
       }
@@ -141,13 +110,13 @@
       this.$root.codi('definitions').get()
         .then(function (response) {
           var trees = [];
-            $.each(response.data, function (i, definition) {
-              definition = definition.replace('/', '');
-                trees.push({
-                  name:definition
-                });
+          $.each(response.data, function (i, definition) {
+            definition = definition.replace('/', '');
+            trees.push({
+              name: definition
             });
-            tree.trees = trees;
+          });
+          tree.trees = trees;
         })
     },
     methods: {
