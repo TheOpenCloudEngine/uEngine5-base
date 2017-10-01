@@ -1,32 +1,59 @@
-
 <template>
-
   <div>
-    <div v-if="parameterContexts">
 
-      <div v-for="parameterContext in parameterContexts">
+    <div v-if="calleeDefinitionId">
 
-        <md-select name="input" id="input" multiple v-model="parameterContext.variable.name">
-          <md-option v-for="variable in definition.processVariableDescriptors"
-                     :key="variable.name"
-                     :value="variable.name">
-            {{ variable.name }}
-          </md-option>
-        </md-select>
-        <md-select v-model="parameterContext.direction">
-          <md-option value="IN-OUT"></md-option>
-          <md-option value="IN"></md-option>
-          <md-option value="OUT"></md-option>
-        </md-select>
+      <md-layout v-for="parameterContext in data.parameterContexts">
+        <md-layout md-flex="30">
+          <md-input-container>
+            <label>피호출측 역할</label>
+            <md-select name="input" id="input" v-model="parameterContext.argument">
+              <md-option v-for="role in calleeDefinition.roles"
+                         :key="role.name"
+                         :value="role.name">
+                {{ role.name }}
+              </md-option>
+            </md-select>
+          </md-input-container>
+        </md-layout>
+        <md-layout md-flex="30">
+          <md-input-container>
+            <label>연결 역할</label>
+            <md-select name="input" id="input" v-model="parameterContext.role.name">
+              <md-option v-for="role in definition.roles"
+                         :key="role.name"
+                         :value="role.name">
+                {{ role.name }}
+              </md-option>
+            </md-select>
+          </md-input-container>
+        </md-layout>
+        <md-layout md-flex="30">
+          <md-input-container>
+            <label>연결 변수 방향</label>
+            <md-select v-model="parameterContext.direction">
+              <md-option value="IN-OUT">IN-OUT</md-option>
+              <md-option value="IN">IN</md-option>
+              <md-option value="OUT">OUT</md-option>
+            </md-select>
+          </md-input-container>
+        </md-layout>
 
-        <md-button v-on:click.native="remove(parameterContext)"></md-button>
+        <md-layout md-flex="20">
+          <md-checkbox v-model="parameterContext.multipleInput">Multi</md-checkbox>
+        </md-layout>
 
-        <md-checkbox v-model="parameterContext.multipleInput"></md-checkbox>
+        <md-layout md-flex="20">
+          <md-icon v-on:click.native="remove(parameterContext)"
+                   class="md-primary"
+                   style="cursor: pointer"
+          >delete
+          </md-icon>
+        </md-layout>
+      </md-layout>
 
-      </div>
+      <md-button v-on:click.native="add">매핑 추가</md-button>
     </div>
-
-    <md-button v-on:click.native="add">매핑 추가</md-button>
   </div>
 </template>
 
@@ -35,51 +62,72 @@
   export default {
     name: "bpmn-role-parameter-contexts",
 
-    computed: {
-        calleeDefinition: function(){
-
-            //TODO: load the definition by AJAX
-            return {
-
-                processVariableDescriptors: [
-                  {name: 'a'},
-                  {name: 'b'}
-                ]
-
-            }
-        }
-    },
-
     props: {
-
-        parameterContexts: Array,
-        definition: Object,
-        calleeDefinitionId: String
-
+      parameterContexts: Array,
+      definition: Object,
+      calleeDefinitionId: String
     },
+    data: function () {
 
-    methods: {
+      return {
+        data: {
+          parameterContexts: this.parameterContexts,
 
-        add: function(){
-
-            if(!this.parameterContexts)
-                this.parameterContexts = [];
-
-            this.parameterContexts.push({
-                direction: 'IN-OUT',
-                variable: {
-                    name: 'name'
-                },
-                argument: {
-                      text: 'arg'
-                }
-            })
         },
 
-      remove: function(parameterContext){
+        calleeDefinition: {
+          roles: [
+            {name: '-- not loaded -- '},
+          ]
 
-            //TODO: find and remove
-            //this.parameterContexts.splice()
+        }
+      };
+    },
+    watch: {
+      calleeDefinitionId: function () {
+        console.log('calleeDefinitionId changed!!');
+      },
+      data: {
+        handler: function (after, before) {
+          this.$emit('update:parameterContexts', after);
+        },
+        deep: true
+      },
+
+      calleeDefinitionId  : function(val){
+
+        console.log("========>" + val)
+        this.refreshCalleeDefinition();
+
+
+      }
+    },
+    methods: {
+
+      refreshCalleeDefinition: function(){
+        var me = this;
+        this.$root.codi('definition/' + this.calleeDefinitionId + ".json").get()
+          .then(function (response) {
+            me.calleeDefinition = response.data.definition;
+          })
+
+      },
+
+      add: function () {
+        this.data.parameterContexts.push({
+          direction: 'IN-OUT',
+          role: {
+            name: ''
+          },
+          argument: ''  //TODO: object path differ from ParameterContext
+
+        })
+      },
+
+      remove: function (parameterContext) {
+
+        //TODO: find and remove
+        //this.parameterContexts.splice()
       }
     }
   }

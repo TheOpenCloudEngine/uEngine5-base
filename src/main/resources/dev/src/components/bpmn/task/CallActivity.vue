@@ -64,24 +64,28 @@
         </md-input-container>
 
 
-        <p>연결 변수 매핑</p>
-        <bpmn-parameter-contexts
-          v-if="activity.definitionId"
-          :calleeDefinitionId="activity.definitionId"
-          :parameterContexts="activity.variableBindings"
-          :definition="definition"
-          :calleeDefinitionId="activity.definitionId"
-        ></bpmn-parameter-contexts>
+        <div v-if="activity.definitionId">
+          <p>연결 변수 매핑</p>
+          <bpmn-parameter-contexts
+            :parameter-contexts="activity.variableBindings"
+            :definition="definition"
+            :callee-definition-id="activity.definitionId"
+            :for-sub-process="true"
+          ></bpmn-parameter-contexts>
 
-        <p>연결 역할 매핑</p>
-        <bpmn-parameter-contexts
-          v-if="activity.definitionId"
-          :parameterContexts="activity.roleBindings"
-          :definition="definition"></bpmn-parameter-contexts>
+          <p>연결 역할 매핑</p>
+          <bpmn-role-parameter-contexts
+            :parameter-contexts="activity.roleBindings"
+            :callee-definition-id="activity.definitionId"
+            :definition="definition">
+          </bpmn-role-parameter-contexts>
+        </div>
+
+
 
         <!--</md-input-container>-->
         <md-input-container>
-          <label>retryDelay</label>
+          <label>Retry Delay</label>
           <md-input type="number"
                     v-model.number="activity.retryDelay"></md-input>
         </md-input-container>

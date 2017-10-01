@@ -1,11 +1,9 @@
 <template>
   <div>
 
-    <div v-if="calleeDefinitionId">
-
-      <md-layout v-for="parameterContext in data.parameterContexts">
+      <md-layout v-for="parameterContext in parameterContexts">
         <md-layout md-flex="30">
-          <md-input-container>
+          <md-input-container v-if="forSubProcess">
             <label>피호출측 변수</label>
             <md-select name="input" id="input" v-model="parameterContext.argument.text">
               <md-option v-for="variable in calleeDefinition.processVariableDescriptors"
@@ -14,6 +12,11 @@
                 {{ variable.name }}
               </md-option>
             </md-select>
+          </md-input-container>
+          <md-input-container v-else>
+            <label>아규먼트</label>
+            <md-input name="input" id="input" v-model="parameterContext.argument.text">
+            </md-input>
           </md-input-container>
         </md-layout>
         <md-layout md-flex="30">
@@ -39,8 +42,10 @@
           </md-input-container>
         </md-layout>
 
+
         <md-layout md-flex="20">
-          <md-checkbox v-model="parameterContext.multipleInput">Multi</md-checkbox>
+          <md-checkbox v-model="parameterContext.split" v-if="forSubProcess">Split</md-checkbox>
+          <md-checkbox v-model="parameterContext.multipleInput" v-else>Multi</md-checkbox>
         </md-layout>
 
         <md-layout md-flex="20">
@@ -52,8 +57,8 @@
         </md-layout>
       </md-layout>
 
-      <md-button v-on:click.native="add">매핑 추가</md-button>
-    </div>
+
+    <md-button v-on:click.native="add">매핑 추가</md-button>
   </div>
 </template>
 
@@ -84,7 +89,8 @@
     props: {
       parameterContexts: Array,
       definition: Object,
-      calleeDefinitionId: String
+      calleeDefinitionId: String,
+      forSubProcess: Boolean
     },
     data: function () {
 
@@ -103,9 +109,6 @@
       };
     },
     watch: {
-      calleeDefinitionId: function () {
-        console.log('calleeDefinitionId changed!!');
-      },
       data: {
         handler: function (after, before) {
           this.$emit('update:parameterContexts', after);
@@ -114,26 +117,25 @@
       },
 
       calleeDefinitionId  : function(val){
-
-          console.log("========>" + val)
         this.refreshCalleeDefinition();
-
-
       }
     },
     methods: {
 
-        refreshCalleeDefinition: function(){
+      refreshCalleeDefinition: function(){
 
-          this.$root.codi('definition/' + this.calleeDefinitionId).get()
-            .then(function (response) {
-              me.calleeDefinition = response.data;
-            })
+          if(!this.forSubProcess) return;
 
-        },
+        var me = this;
+        this.$root.codi('definition/' + this.calleeDefinitionId + ".json").get()
+          .then(function (response) {
+            me.calleeDefinition = response.data.definition;
+          })
+
+      },
 
       add: function () {
-        this.data.parameterContexts.push({
+        this.parameterContexts.push({
           direction: 'IN-OUT',
           variable: {
             name: 'name'

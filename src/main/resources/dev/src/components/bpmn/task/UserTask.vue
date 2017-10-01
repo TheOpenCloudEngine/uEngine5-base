@@ -59,6 +59,11 @@
           <md-input type="text"
                     v-model="activity.name.text"></md-input>
         </md-input-container>
+          <p>파라미터</p>
+          <bpmn-parameter-contexts
+            :parameter-contexts="activity.parameters"
+            :definition="definition"
+          ></bpmn-parameter-contexts>
         <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
@@ -94,6 +99,7 @@
           name: {
             text: ''
           },
+          parameters: [],
           tracingTag: newTracingTag,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
