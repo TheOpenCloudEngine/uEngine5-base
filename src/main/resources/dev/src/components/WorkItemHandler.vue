@@ -14,7 +14,7 @@
         <p>파라미터</p>
         <object-form
           :classDefinition="parameterValueDefinition"
-          :data="parameterValues"
+          :data="workItem.parameterValues"
         ></object-form>
       </div>
 
@@ -47,7 +47,6 @@
       return {
         parameterValueDefinition: null,
         workItem: null,
-        parameterValues: {}
       };
     },
 
@@ -60,6 +59,9 @@
           success: function (value) {
             me.workItem = value;
             console.log('value', value);
+
+            if(!me.workItem.parameterValues)
+              me.workItem.parameterValues = {};
 
             var parameterValueDefinition = {fieldDescriptors:[]};
 
@@ -106,7 +108,8 @@
           data: {
             worklist: {
               status: 'COMPLETED'
-            }
+            },
+            parameterValues: this.workItem.parameterValues
           },
           success: function (value) {
             me.workItem = null;

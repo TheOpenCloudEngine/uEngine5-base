@@ -204,6 +204,7 @@
 
         }
       },
+
       update_: function () {
 
         var pathElements = this.java.split(".");

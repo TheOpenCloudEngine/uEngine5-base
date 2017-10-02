@@ -54,6 +54,8 @@ public class WorkItemService {
         workItem.setActivity(activity);
         workItem.setWorklist(worklistEntity);
 
+        //TODO get the parameter values and set them to the "workItem.parameterValues" so that WorkItemHandler.vue can insert the default values
+
         return workItem;
     }
 
@@ -81,10 +83,10 @@ public class WorkItemService {
 
 
         if("saved".equals(workItem.getDesiredState())){
-            humanActivity.saveWorkItem(instance, null);
+            humanActivity.saveWorkItem(instance, workItem.getParameterValues());
         }else{
             try{
-                humanActivity.fireReceived(instance, null);
+                humanActivity.fireReceived(instance, workItem.getParameterValues());
             }catch(Exception e){
                 humanActivity.fireFault(instance, e);
 
