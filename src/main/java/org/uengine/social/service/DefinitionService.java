@@ -11,10 +11,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.bind.annotation.*;
 import org.uengine.five.ChangeEvent;
-import org.uengine.kernel.DefaultProcessInstance;
-import org.uengine.kernel.NeedArrangementToSerialize;
-import org.uengine.kernel.ProcessDefinition;
-import org.uengine.kernel.ProcessInstance;
+import org.uengine.kernel.*;
 import org.uengine.modeling.resource.*;
 import org.uengine.processpublisher.BPMNUtil;
 import org.uengine.uml.model.ClassDefinition;
@@ -91,6 +88,7 @@ public class DefinitionService {
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
         Object object = resourceManager.getObject(resource);
+
 
         ObjectMapper objectMapper = createObjectMapper();
         DefinitionWrapper definitionWrapper = new DefinitionWrapper((Serializable) object);

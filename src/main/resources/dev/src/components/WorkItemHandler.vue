@@ -9,6 +9,15 @@
       <md-card-content>
         {{workItem.activity.description ? workItem.activity.description.text : ""}}
       </md-card-content>
+
+      <div v-if="parameterValueDefinition">
+        <p>파라미터</p>
+        <object-form
+          :classDefinition="parameterValueDefinition"
+          :data="parameterValues"
+        ></object-form>
+      </div>
+
     </md-card-area>
 
     <md-card-actions>
@@ -34,8 +43,11 @@
     },
 
     data: function () {
+
       return {
+        parameterValueDefinition: null,
         workItem: null,
+        parameterValues: {}
       };
     },
 
@@ -48,6 +60,37 @@
           success: function (value) {
             me.workItem = value;
             console.log('value', value);
+
+            var parameterValueDefinition = {fieldDescriptors:[]};
+
+            if(me.workItem.activity.parameters) {
+              for (var idx in me.workItem.activity.parameters) {
+                var parameter = me.workItem.activity.parameters[idx];
+
+                if (parameter.argument && parameter.argument.text && parameter.variable && parameter.variable.typeClassName) {
+
+                    if(parameter.multipleInput){
+
+                      parameterValueDefinition.fieldDescriptors.push({
+                        name: parameter.argument.text,
+                        displayName: parameter.argument.text,
+                        collectionClass: parameter.variable.typeClassName,
+                      });
+                    }else
+                    {
+
+                      parameterValueDefinition.fieldDescriptors.push({
+                        name: parameter.argument.text,
+                        displayName: parameter.argument.text,
+                        className: parameter.variable.typeClassName
+                      });
+                    }
+
+                }
+              }
+
+              me.parameterValueDefinition = parameterValueDefinition;
+            }
           }
         });
 

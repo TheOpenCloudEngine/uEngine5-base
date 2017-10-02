@@ -59,7 +59,17 @@
           <md-input type="text"
                     v-model="activity.name.text"></md-input>
         </md-input-container>
-          <p>파라미터</p>
+        <md-input-container>
+          <label>역할 (추후 레인에서 자동설정)</label>
+          <md-select v-model="activity.role.name">
+            <md-option v-for="role in definition.roles"
+                       :key="role.name"
+                       :value="role.name">
+              {{ role.name }}
+            </md-option>
+          </md-select>
+        </md-input-container>
+        <p>파라미터</p>
           <bpmn-parameter-contexts
             :parameter-contexts="activity.parameters"
             :definition="definition"
@@ -83,6 +93,10 @@
     mixins: [IBpmn],
     name: 'bpmn-user-task',
     props: {},
+    created: function(){
+      if(!this.activity.role)
+          this.activity.role = {name:''};
+    },
     computed: {
       defaultStyle(){
         return {}
@@ -98,6 +112,9 @@
           _type: this.className(),
           name: {
             text: ''
+          },
+          role: {
+            name: ''
           },
           parameters: [],
           tracingTag: newTracingTag,

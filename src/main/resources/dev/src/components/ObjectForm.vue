@@ -1,10 +1,11 @@
 <template>
 
+
   <form novalidate @submit.stop.prevent="submit">
     <md-input-container v-for="key in columns">
       <label>{{ key.displayName }}</label>
       <md-input v-if="!key.component" v-model="data[key.name]" :type="key.type"></md-input>
-      <component v-if="key.component" :is="key.component" :data="data[key.name]" :java="key.elemClassName"
+      <component v-if="key.component" :is="key.component" :data.sync="data[key.name]" :java="key.elemClassName"
                  :full-fledged="true" :options="options_[key.name]" :selection="-1"></component>
     </md-input-container>
 
@@ -21,6 +22,7 @@
   export default {
     props: {
       java: String,
+      classDefinition: Object,
       data: Object,
       eventListeners: Array,
       online: Boolean,
@@ -60,68 +62,83 @@
       },
 
       initForm: function () {
-
-        var xhr = new XMLHttpRequest()
         var self = this;
         var columns;
         var metadata;
         var initOptions = this.options;
-        if(!initOptions){
+
+        if (!initOptions) {
           initOptions = {};
         }
 
-        xhr.open('GET', this.getServiceHost() + "/classdefinition?className=" + this.java, false);
-        xhr.setRequestHeader("access_token", localStorage['access_token']);
-        xhr.onload = function () {
-          metadata = JSON.parse(xhr.responseText)
-          columns = metadata.fieldDescriptors;
+        if(this.classDefinition){
+            metadata = this.classDefinition;
 
-          for (var i = 0; i < columns.length; i++) {
-            var fd = columns[i];
+        }else {
 
-            if (fd.options && fd.values) {
-              fd.optionMap = {};
-              for (var keyIdx in fd.options) {
-                var key = fd.options[keyIdx];
-                fd.optionMap[key] = fd.values[keyIdx];
-              }
+          var xhr = new XMLHttpRequest();
 
-              initOptions[fd.name] = fd.optionMap;
-            } else {
-              initOptions[fd.name] = {};
+          xhr.open('GET', this.getServiceHost() + "/classdefinition?className=" + this.java, false);
+          xhr.setRequestHeader("access_token", localStorage['access_token']);
+          xhr.onload = function () {
+            metadata = JSON.parse(xhr.responseText)
+
+          };
+          xhr.send();
+        }
+
+        columns = metadata.fieldDescriptors;
+
+        for (var i = 0; i < columns.length; i++) {
+          var fd = columns[i];
+
+          //if(!fd.className) throw "field [" + fd.name + "] doesn't have its className";
+
+          if (fd.options && fd.values) {
+            fd.optionMap = {};
+            for (var keyIdx in fd.options) {
+              var key = fd.options[keyIdx];
+              fd.optionMap[key] = fd.values[keyIdx];
             }
 
-            if (fd.attributes && fd.attributes['hidden']) {
-              columns.splice(i, 1);
-              i--;
-            } else if (fd.optionMap && fd.optionMap['vue-component'] && Vue.options.components[fd.optionMap['vue-component']]) {
-              fd.component = fd.optionMap['vue-component'];
-            } else if (fd.className == "long" || fd.className == "java.lang.Long" || fd.className == "java.lang.Integer") {
-              fd.type = "number";
-            } else if (fd.className == "java.util.Date" || fd.className == "java.util.Calendar") {
-              fd.type = "date";
-            } else if (fd.className.indexOf('[L') == 0 && fd.className.indexOf(";") > 1) {
-              fd.component = "object-grid"
-              fd.elemClassName = fd.className.substring(2, fd.className.length - 1);
-
-              initOptions[fd.name]['editable'] = true;
-
-            } else if (fd.collectionClass) {
-              fd.component = "object-grid"
-              fd.elemClassName = fd.collectionClass;
-
-              initOptions[fd.name]['editable'] = true;
-
-            }
+            initOptions[fd.name] = fd.optionMap;
+          } else {
+            initOptions[fd.name] = {};
           }
-        };
-        xhr.send();
+
+          if (fd.attributes && fd.attributes['hidden']) {
+            columns.splice(i, 1);
+            i--;
+          } else if (fd.optionMap && fd.optionMap['vue-component'] && Vue.options.components[fd.optionMap['vue-component']]) {
+            fd.component = fd.optionMap['vue-component'];
+          } else if (fd.className == "long" || fd.className == "java.lang.Long" || fd.className == "java.lang.Integer") {
+            fd.type = "number";
+          } else if (fd.className == "java.util.Date" || fd.className == "java.util.Calendar") {
+            fd.type = "date";
+          } else if (fd.className && fd.className.indexOf('[L') == 0 && fd.className.indexOf(";") > 1) {
+            fd.component = "object-grid"
+            fd.elemClassName = fd.className.substring(2, fd.className.length - 1);
+
+            initOptions[fd.name]['editable'] = true;
+
+          } else if (fd.collectionClass) {
+            fd.component = "object-grid"
+            fd.elemClassName = fd.collectionClass;
+
+            initOptions[fd.name]['editable'] = true;
+
+          }
+        }
+
         return {
           columns: columns,
           metadata: metadata,
           options_: initOptions ? initOptions : {}
         }
       },
+
+
+
 
 
       submit_: function () {

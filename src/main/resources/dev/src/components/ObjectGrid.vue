@@ -45,8 +45,21 @@
           </md-table-row>
         </md-table-header>
 
-        <md-table-body>
+        <md-table-body v-if="primitiveType">
+
           <md-table-row v-for="(entry, rowIndex) in rowData" :key="rowIndex" :md-item="entry" md-selection>
+
+            <md-table-cell>
+              <span v-if="!options_.editable">{{ rowData[rowIndex] }}</span>
+              <input v-if="options_.editable" v-model="rowData[rowIndex]"></input>
+            </md-table-cell>
+          </md-table-row>
+        </md-table-body>
+
+        <md-table-body v-else>
+
+          <md-table-row v-for="(entry, rowIndex) in rowData" :key="rowIndex" :md-item="entry" md-selection>
+
             <md-table-cell v-for="key in columns">
               <span v-if="!options_.editable">{{ showValue(key, entry) }}</span>
 
@@ -151,6 +164,14 @@
 
         //var data = this.rowData
         return this.rowData
+      },
+
+      primitiveType: function(){
+
+          if(this.java && this.java.indexOf("java.lang.") == 0)
+              return true;
+
+          return false;
       }
     },
     filters: {
@@ -349,6 +370,9 @@
         }
       },
       addObject: function (aRow) {
+
+          if(this.primitiveType) aRow = aRow.value; //TODO: not a good manner
+
         if (!this.rowData) this.rowData = [];
         this.rowData.push(aRow);
         this.$emit('update:data', this.rowData);
@@ -395,6 +419,7 @@
           this.submit_for_delete(this.selected[i]._links.self.href);
         }
         this.loadData();
+        this.$emit('update:data', this.rowData);
       },
 
       deleteSelectedRows: function () {
@@ -404,6 +429,7 @@
           count++;
         }
         this.loadData();
+        this.$emit('update:data', this.rowData);
       }
     }
   }
