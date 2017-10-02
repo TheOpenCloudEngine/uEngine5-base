@@ -207,6 +207,8 @@ public class DefinitionService {
 
     public Object getDefinitionLocal(String definitionPath) throws Exception {
 
+        if(definitionPath.indexOf(".")==-1) definitionPath = definitionPath + ".json"; //TODO: check definition id convention
+
         IResource resource = new DefaultResource((definitionPath.startsWith(resourceRoot) ? definitionPath : resourceRoot + "/" + definitionPath));
         Object definition = resourceManager.getObject(resource);
 

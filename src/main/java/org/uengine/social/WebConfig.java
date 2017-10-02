@@ -18,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.uengine.five.JPAProcessInstance;
 import org.uengine.five.JPAWorkList;
+import org.uengine.five.ProcessDefinitionFactory;
 import org.uengine.kernel.ProcessDefinition;
 import org.uengine.kernel.ProcessInstance;
 import org.uengine.modeling.resource.CachedResourceManager;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackageClasses = {ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
+@ComponentScan(basePackageClasses = { ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
 @EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
 public class WebConfig extends Metaworks4WebConfig {
 
@@ -123,6 +124,10 @@ public class WebConfig extends Metaworks4WebConfig {
         return new IamRestFilter();
     }
 
+    @Bean
+    public ProcessDefinitionFactory processDefinitionFactory(){
+        return new ProcessDefinitionFactory();
+    }
 }
 
 
