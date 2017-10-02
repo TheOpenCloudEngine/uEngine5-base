@@ -5,7 +5,9 @@
     <md-input-container v-for="key in columns">
       <label>{{ key.displayName }}</label>
       <md-input v-if="!key.component" v-model="data[key.name]" :type="key.type"></md-input>
-      <component v-if="key.component" :is="key.component" :data.sync="data[key.name]" :java="key.elemClassName"
+
+      <div style="height:100px" v-if="key.component"></div>
+      <component v-if="key.component" :is="key.component" :data.sync="data[key.name]" :java="key.elemClassName" :data-label="key.displayName"
                  :full-fledged="true" :options="options_[key.name]" :selection="-1"></component>
     </md-input-container>
 
@@ -93,6 +95,8 @@
           var fd = columns[i];
 
           //if(!fd.className) throw "field [" + fd.name + "] doesn't have its className";
+
+          if(!fd.displayName) fd.displayName = fd.name;
 
           if (fd.options && fd.values) {
             fd.optionMap = {};

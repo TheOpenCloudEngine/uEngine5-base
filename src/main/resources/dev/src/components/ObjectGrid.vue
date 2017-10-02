@@ -36,7 +36,14 @@
       </md-table-alternate-header>
 
       <md-table md-sort="dessert" md-sort-type="desc" @select="onSelect" @sort="onSort">
-        <md-table-header>
+        <md-table-header v-if="primitiveType">
+          <md-table-row>
+            <md-table-head>
+              {{ dataLabel ? dataLabel : metadata.displayName}}
+            </md-table-head>
+          </md-table-row>
+        </md-table-header>
+        <md-table-header v-else>
           <md-table-row>
             <md-table-head v-for="key in columns"
                            :md-sort-by="key.name">
@@ -126,7 +133,8 @@
       fullFledged: Boolean,
       online: Boolean,
       options: Object,
-      serviceLocator: Object
+      serviceLocator: Object,
+      dataLabel: String
     },
 
 
@@ -199,6 +207,8 @@
 
           for (var i = 0; i < columns.length; i++) {
             var fd = columns[i];
+
+            if(!fd.displayName) fd.displayName = fd.name;
 
             if (fd.options && fd.values) {
               fd.optionMap = {};
