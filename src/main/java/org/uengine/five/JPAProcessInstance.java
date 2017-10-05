@@ -62,22 +62,23 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     }
 
     @Autowired
-    ApplicationEventPublisher applicationEventPublisher;
+    ApplicationEventPublisher applicationEventPublisher; //TODO see the DefinitionService.beforeProcessInstanceCommit() and move to here someday
 
     @PostConstruct
     public void init() throws Exception {
 
         if(isNewInstance()) { //if new instance, create one
             processInstanceRepository.save(getProcessInstanceEntity());
-            setInstanceId(String.valueOf(getProcessInstanceEntity().getInstId()));
         }else{ //else, load the instance
             setProcessInstanceEntity(processInstanceRepository.findOne(Long.valueOf(getInstanceId())));
 
             IResource resource = new DefaultResource("instances/" + getInstanceId());
             Map variables = (Map) resourceManager.getObject(resource);
 
-            setVariables(variables);
+            setVariables(variables); //variable from CGLIB cannot change the base class?
         }
+
+        setInstanceId(String.valueOf(getProcessInstanceEntity().getInstId()));
 
         applicationEventPublisher.publishEvent(new ProcessInstanceChangeEvent(this));
     }

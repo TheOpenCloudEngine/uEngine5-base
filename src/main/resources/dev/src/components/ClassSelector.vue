@@ -1,6 +1,6 @@
 <template>
 
-  <md-select v-model="data">
+  <md-select v-model="classType">
     <md-option v-for="entry in classTypes" :value="entry.className">{{entry.displayName}}</md-option>
   </md-select>
 
@@ -15,9 +15,16 @@
       data: String,
     },
 
+    watch: {
+      classType: function(){
+          this.$emit('update:data', this.classType);
+      }
+    },
+
     data:function(){
 
       return {
+        classType: 'java.lang.String',
         classTypes: [
           {
             displayName: '문자열',

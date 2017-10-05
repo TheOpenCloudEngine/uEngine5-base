@@ -155,6 +155,12 @@
       },
       data: function(){
           this.rowData = this.data;
+      },
+      rowData: {
+          handler: function(){
+            this.$emit('update:data', this.rowData);
+          },
+          deep: true
       }
     },
 
@@ -364,7 +370,7 @@
       addRow: function (aRow) {
         if (!this.rowData) this.rowData = [];
         this.rowData.push(aRow);
-        this.$emit('update:data', this.rowData);
+       /// this.$emit('update:data', this.rowData);
       },
 
       showValue: function (key, entry) {
@@ -385,7 +391,7 @@
 
         if (!this.rowData) this.rowData = [];
         this.rowData.push(aRow);
-        this.$emit('update:data', this.rowData);
+        //this.$emit('update:data', this.rowData);
       },
       submit_for_delete: function (uri, num) {
         var path = 'product';
@@ -429,7 +435,7 @@
           this.submit_for_delete(this.selected[i]._links.self.href);
         }
         this.loadData();
-        this.$emit('update:data', this.rowData);
+        //this.$emit('update:data', this.rowData);
       },
 
       deleteSelectedRows: function () {
@@ -439,7 +445,7 @@
           count++;
         }
         this.loadData();
-        this.$emit('update:data', this.rowData);
+        //this.$emit('update:data', this.rowData);
       }
     }
   }
