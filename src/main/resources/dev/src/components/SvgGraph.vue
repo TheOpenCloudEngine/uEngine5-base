@@ -285,7 +285,22 @@
                 // definition 이란 것은 디자이너가 도형을 그리는 스펙 정의.
                 // status 를 불러와서 definition 을 손본 후, me.definition 에 등록할 것.
 
-                me.definition = response.data.definition;
+                var definition = response.data.definition;
+
+                me.getStatus(function(result){
+
+                  for(var key in definition.childActivities[1]) {
+
+                    //데이터 꾸미기 status 로 definition 바꾸기.
+                    if(definition.childActivities[1][key]["tracingTag"] == result.elementId){
+                      definition.childActivities[1][key]["status"] = result.status;
+                    }
+                    definition.status = result.status;
+                    me.definition = definition;
+
+                  }
+
+                });
 
 
                 //me.getStatus();
@@ -293,19 +308,21 @@
           })
       }
       ,
-      getStatus: function () {
-//        var me = this;
-//        me.$root.codi('instance{/id}/variables').get({id: me.id})
-//          .then(function (response) {
-//            var statusData = response.data;
-//            for (var key in response.data) {
-//              if (key.indexOf(':_status:prop') != -1) {
-//                var elementId = key.replace(':_status:prop', '');
-//                var status = response.data[key];
-//                me.updateElementStatus(elementId, status);
-//              }
-//            }
-//          })
+      getStatus: function (callback) {
+        var me = this;
+        me.$root.codi('instance{/id}/variables').get({id: me.id})
+          .then(function (response) {
+            for (var key in response.data) {
+              if (key.indexOf(':_status:prop') != -1) {
+                var result = [];
+                result.elementId = key.replace(':_status:prop', '');
+                result.status = response.data[key];
+
+                callback(result);
+                //me.updateElementStatus(elementId, status);
+              }
+            }
+          })
       }
       ,
       updateElementStatus: function (elementId, status) {
