@@ -3,6 +3,7 @@
 
     <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
               :definition.sync="definition"
+              :monitor="monitor"
               v-on:bpmnReady="bindEvents">
     </bpmn-vue>
 

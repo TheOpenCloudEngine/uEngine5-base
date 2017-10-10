@@ -7,6 +7,10 @@
       :enableContextmenu="false"
       :enableRootContextmenu="false"
       :slider="false"
+      :movable="!monitor"
+      :resizable="!monitor"
+      :selectable="!monitor"
+      :connectable="!monitor"
       v-if="data.definition"
       ref="opengraph"
       v-on:canvasReady="bpmnReady"
@@ -71,7 +75,8 @@
   export default {
     name: 'bpmn-vue',
     props: {
-      definition: Object
+      definition: Object,
+      monitor: Boolean
     },
     mounted: function () {
       this.id = this.uuid();
