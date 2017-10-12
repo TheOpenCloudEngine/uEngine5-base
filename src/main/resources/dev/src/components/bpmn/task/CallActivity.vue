@@ -56,10 +56,7 @@
 
           <!--TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 -->
           <md-select name="movie" id="movie" v-model="activity.definitionId">
-            <md-option :value="null">선택</md-option>
-            <md-option value="new-process-definition2">new-process-definition2</md-option>
-            <md-option value="new-process-definition3">new-process-definition3</md-option>
-            <md-option value="new-process-definition4">new-process-definition4</md-option>
+            <md-option v-for="definition in rowData" :value="definition.name">{{definition.name}}</md-option>
           </md-select>
         </md-input-container>
 
@@ -136,9 +133,43 @@
       }
     },
     data: function () {
-      return {};
+      return {
+        rowData : []
+      };
     },
-    methods: {}
+    //매번 창을 열때 (창을 열때 activity 를 갱신시켜주는건 프로퍼티 패널에 장치가 되있음.) 리스트를 갱신하길 원함.
+    //그러기 위해서는 watch 를 해야하는데, watch 대상은 activity 이다.
+    watch: {
+      drawer: function (editingMode) {
+          console.log('editing mode changed');
+          if(editingMode) {
+            this.loadData();
+          }
+      }
+    },
+    mounted: function(){
+      //데피니션 리스트 조회
+      this.loadData();
+  },
+    methods: {
+      loadData: function () {
+        var me = this;
+        this.$root.codi('definitions').get()
+          .then(function (response) {
+            me.rowData = response.data;
+            var definitions = [];
+            $.each(response.data, function (i, definition) {
+              definition = definition.replace('/', '');
+              //확장자명이 무조건 .json으로만 오는가??
+              definition = definition.replace('.json', '');
+              definitions.push({
+                name: definition
+              })
+            });
+            me.rowData = definitions;
+          })
+      }
+    }
   }
 </script>
 
