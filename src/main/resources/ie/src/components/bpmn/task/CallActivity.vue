@@ -41,58 +41,58 @@
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
 
-    <bpmn-property-panel
-      :drawer.sync="drawer"
-      :item.sync="activity"
-    >
-      <template slot="properties-contents">
-        <md-input-container>
-          <label>액티비티 명</label>
-          <md-input type="text"
-                    v-model="activity.name.text"></md-input>
-        </md-input-container>
-        <md-input-container>
-          <label>연결 프로세스 정의</label>
-
-          <!--TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 -->
-          <md-select name="movie" id="movie" v-model="activity.definitionId">
-            <md-option :value="null">선택</md-option>
-            <md-option value="new-process-definition2">new-process-definition2</md-option>
-            <md-option value="new-process-definition3">new-process-definition3</md-option>
-            <md-option value="new-process-definition4">new-process-definition4</md-option>
-          </md-select>
-        </md-input-container>
-
-
-        <div v-if="activity.definitionId">
-          <p>연결 변수 매핑</p>
-          <bpmn-parameter-contexts
-            :parameter-contexts="activity.variableBindings"
-            :definition="definition"
-            :callee-definition-id="activity.definitionId"
-            :for-sub-process="true"
-          ></bpmn-parameter-contexts>
-
-          <p>연결 역할 매핑</p>
-          <bpmn-role-parameter-contexts
-            :parameter-contexts="activity.roleBindings"
-            :callee-definition-id="activity.definitionId"
-            :definition="definition">
-          </bpmn-role-parameter-contexts>
-        </div>
-
-
+    <!--<bpmn-property-panel-->
+      <!--:drawer.sync="drawer"-->
+      <!--:item.sync="activity"-->
+    <!--&gt;-->
+      <!--<template slot="properties-contents">-->
+        <!--<md-input-container>-->
+          <!--<label>액티비티 명</label>-->
+          <!--<md-input type="text"-->
+                    <!--v-model="activity.name.text"></md-input>-->
         <!--</md-input-container>-->
-        <md-input-container>
-          <label>Retry Delay</label>
-          <md-input type="number"
-                    v-model.number="activity.retryDelay"></md-input>
-        </md-input-container>
-      </template>
-      <template slot="additional-tabs">
+        <!--<md-input-container>-->
+          <!--<label>연결 프로세스 정의</label>-->
 
-      </template>
-    </bpmn-property-panel>
+          <!--&lt;!&ndash;TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 &ndash;&gt;-->
+          <!--<md-select name="movie" id="movie" v-model="activity.definitionId">-->
+            <!--<md-option :value="null">선택</md-option>-->
+            <!--<md-option value="new-process-definition2">new-process-definition2</md-option>-->
+            <!--<md-option value="new-process-definition3">new-process-definition3</md-option>-->
+            <!--<md-option value="new-process-definition4">new-process-definition4</md-option>-->
+          <!--</md-select>-->
+        <!--</md-input-container>-->
+
+
+        <!--<div v-if="activity.definitionId">-->
+          <!--<p>연결 변수 매핑</p>-->
+          <!--<bpmn-parameter-contexts-->
+            <!--:parameter-contexts="activity.variableBindings"-->
+            <!--:definition="definition"-->
+            <!--:callee-definition-id="activity.definitionId"-->
+            <!--:for-sub-process="true"-->
+          <!--&gt;</bpmn-parameter-contexts>-->
+
+          <!--<p>연결 역할 매핑</p>-->
+          <!--<bpmn-role-parameter-contexts-->
+            <!--:parameter-contexts="activity.roleBindings"-->
+            <!--:callee-definition-id="activity.definitionId"-->
+            <!--:definition="definition">-->
+          <!--</bpmn-role-parameter-contexts>-->
+        <!--</div>-->
+
+
+        <!--&lt;!&ndash;</md-input-container>&ndash;&gt;-->
+        <!--<md-input-container>-->
+          <!--<label>Retry Delay</label>-->
+          <!--<md-input type="number"-->
+                    <!--v-model.number="activity.retryDelay"></md-input>-->
+        <!--</md-input-container>-->
+      <!--</template>-->
+      <!--<template slot="additional-tabs">-->
+
+      <!--</template>-->
+    <!--</bpmn-property-panel>-->
   </div>
 </template>
 

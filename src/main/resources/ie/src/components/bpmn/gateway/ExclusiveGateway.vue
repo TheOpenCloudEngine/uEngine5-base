@@ -30,26 +30,26 @@
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
 
-    <bpmn-property-panel
-      :drawer.sync="drawer"
-      :item.sync="activity"
-    >
-      <template slot="properties-contents">
-        <md-input-container>
-          <label>액티비티 명</label>
-          <md-input type="text"
-                    v-model="activity.name.text"></md-input>
-        </md-input-container>
-        <md-input-container>
-          <label>retryDelay</label>
-          <md-input type="number"
-                    v-model.number="activity.retryDelay"></md-input>
-        </md-input-container>
-      </template>
-      <template slot="additional-tabs">
+    <!--<bpmn-property-panel-->
+      <!--:drawer.sync="drawer"-->
+      <!--:item.sync="activity"-->
+    <!--&gt;-->
+      <!--<template slot="properties-contents">-->
+        <!--<md-input-container>-->
+          <!--<label>액티비티 명</label>-->
+          <!--<md-input type="text"-->
+                    <!--v-model="activity.name.text"></md-input>-->
+        <!--</md-input-container>-->
+        <!--<md-input-container>-->
+          <!--<label>retryDelay</label>-->
+          <!--<md-input type="number"-->
+                    <!--v-model.number="activity.retryDelay"></md-input>-->
+        <!--</md-input-container>-->
+      <!--</template>-->
+      <!--<template slot="additional-tabs">-->
 
-      </template>
-    </bpmn-property-panel>
+      <!--</template>-->
+    <!--</bpmn-property-panel>-->
   </div>
 </template>
 

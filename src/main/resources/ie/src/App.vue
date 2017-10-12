@@ -5,9 +5,9 @@
     <!--서비스 로케이터 리스트-->
     <!--<service-locator :host="'http://192.168.43.74:8080'" path="/" resource-name="codi"></service-locator>-->
 
-    <service-locator :host="'http://192.168.43.74:8080'" path="/" ref="codi"></service-locator>
+    <service-locator :host="'http://localhost:8080'" path="/" ref="codi"></service-locator>
 
-    <service-locator ref="backend" :host="'http://192.168.43.74:8080'"></service-locator>
+    <service-locator ref="backend" :host="'http://localhost:8080'"></service-locator>
 
     <!--글로벌 알림 컴포넌트-->
     <md-snackbar md-position="top right" ref="snackbar" :md-duration="4000">

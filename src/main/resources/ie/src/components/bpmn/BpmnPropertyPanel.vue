@@ -1,70 +1,70 @@
 <template>
-  <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')">
-    <md-tabs>
-      <md-tab :id="'properties' + _uid" md-label="Properties">
+  <!--<md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')">-->
+    <!--<md-tabs>-->
+      <!--<md-tab :id="'properties' + _uid" md-label="Properties">-->
 
-        <md-input-container v-if="tracingTag !== null">
-          <label>액티비티 ID</label>
-          <md-input v-model="tracingTag"
-                    type="text"
-                    maxlength="50"
-                    required></md-input>
-        </md-input-container>
+        <!--<md-input-container v-if="tracingTag !== null">-->
+          <!--<label>액티비티 ID</label>-->
+          <!--<md-input v-model="tracingTag"-->
+                    <!--type="text"-->
+                    <!--maxlength="50"-->
+                    <!--required></md-input>-->
+        <!--</md-input-container>-->
 
-        <slot name="properties-contents">
-        </slot>
-      </md-tab>
+        <!--<slot name="properties-contents">-->
+        <!--</slot>-->
+      <!--</md-tab>-->
 
-      <slot name="additional-tabs">
-      </slot>
+      <!--<slot name="additional-tabs">-->
+      <!--</slot>-->
 
-      <md-tab :id="'visual' + _uid" md-label="Visual">
-        <div v-if="item.elementView">
-          <md-layout>
-            <md-layout>
-              <md-input-container>
-                <label>x</label>
-                <md-input type="number"
-                          v-model.number="x"></md-input>
-              </md-input-container>
-            </md-layout>
-            <md-layout>
-              <md-input-container>
-                <label>y</label>
-                <md-input type="number"
-                          v-model.number="y"></md-input>
-              </md-input-container>
-            </md-layout>
-          </md-layout>
-          <md-layout>
-            <md-layout>
-              <md-input-container>
-                <label>width</label>
-                <md-input type="number"
-                          v-model.number="width"></md-input>
-              </md-input-container>
-            </md-layout>
-            <md-layout>
-              <md-input-container>
-                <label>height</label>
-                <md-input type="number"
-                          v-model.number="height"></md-input>
-              </md-input-container>
-            </md-layout>
-          </md-layout>
-        </div>
+      <!--<md-tab :id="'visual' + _uid" md-label="Visual">-->
+        <!--<div v-if="item.elementView">-->
+          <!--<md-layout>-->
+            <!--<md-layout>-->
+              <!--<md-input-container>-->
+                <!--<label>x</label>-->
+                <!--<md-input type="number"-->
+                          <!--v-model.number="x"></md-input>-->
+              <!--</md-input-container>-->
+            <!--</md-layout>-->
+            <!--<md-layout>-->
+              <!--<md-input-container>-->
+                <!--<label>y</label>-->
+                <!--<md-input type="number"-->
+                          <!--v-model.number="y"></md-input>-->
+              <!--</md-input-container>-->
+            <!--</md-layout>-->
+          <!--</md-layout>-->
+          <!--<md-layout>-->
+            <!--<md-layout>-->
+              <!--<md-input-container>-->
+                <!--<label>width</label>-->
+                <!--<md-input type="number"-->
+                          <!--v-model.number="width"></md-input>-->
+              <!--</md-input-container>-->
+            <!--</md-layout>-->
+            <!--<md-layout>-->
+              <!--<md-input-container>-->
+                <!--<label>height</label>-->
+                <!--<md-input type="number"-->
+                          <!--v-model.number="height"></md-input>-->
+              <!--</md-input-container>-->
+            <!--</md-layout>-->
+          <!--</md-layout>-->
+        <!--</div>-->
 
-        <md-input-container v-for="(item, index) in style"
-                            :item="item"
-                            :index="index">
-          <label>{{item.key}}</label>
-          <md-input type="text"
-                    v-model="style[index].value"></md-input>
-        </md-input-container>
-      </md-tab>
+        <!--<md-input-container v-for="(item, index) in style"-->
+                            <!--:item="item"-->
+                            <!--:index="index">-->
+          <!--<label>{{item.key}}</label>-->
+          <!--<md-input type="text"-->
+                    <!--v-model="style[index].value"></md-input>-->
+        <!--</md-input-container>-->
+      <!--</md-tab>-->
 
-    </md-tabs>
-  </md-sidenav>
+    <!--</md-tabs>-->
+  <!--</md-sidenav>-->
 </template>
 
 <script>
