@@ -17,6 +17,9 @@ public interface ProcessInstanceRepository extends MultitenantRepository<Process
     @Query("select pi from ProcessInstanceEntity pi where exists (select 1 from WorklistEntity wl where wl.endpoint = ?#{loggedUserId})")
     List<ProcessInstanceEntity> findAllICanSee();
 
+    @Query("select pi from ProcessInstanceEntity pi where pi.mainInstId is null")
+    List<ProcessInstanceEntity> findMainInstICanSee();
+
     @Query("select pi from ProcessInstanceEntity pi where pi.defId like CONCAT('%',:defId,'%') or pi.instId = :instId or pi.status = :status or pi.eventHandler = :eventHandler or pi.name like :name or pi.startedDate = :startedDate or pi.finishedDate = :finishedDate")
     List<ProcessInstanceEntity> findFilterICanSee(
                                                   @Param("defId") String defId,

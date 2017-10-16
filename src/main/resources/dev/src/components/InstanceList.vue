@@ -192,10 +192,7 @@
           name: 'name',
           status: 'status',
           eventHandler: 'eventHandler',
-          isSubProcess: 'isSubProcess',
           startedDate: 'startedDate',
-          info: 'info',
-          ext1: 'ext1',
           finishedDate: 'finishedDate'
         }
       }
@@ -237,15 +234,33 @@
         })
       },
       search: function () {
-        console.log(this.filter.instId);
         var url = 'instances/search/findFilterICanSee?';
         if (this.filter.instId != null ){
           url += 'instId=' + this.filter.instId;
         }
-        this.$router.push({
-
-          path: url
-        })
+        this.$root.codi(url).get()
+          .then(function (response) {
+            var items = [];
+            $.each(response.data, function (i, filteredData){
+              console.log(filteredData.instances[0].defId);
+              console.log(filteredData.instances);
+//              filteredData = filteredData.replace('/', '');
+              items.push({
+                instId: filteredData.instId,
+                defName: filteredData.defName,
+                defId: filteredData.defId,
+                name: filteredData.name,
+                status: filteredData.status,
+                eventHandler: filteredData.eventHandler,
+                isSubProcess: filteredData.isSubProcess,
+                startedDate: filteredData.startedDate,
+                info: filteredData.info,
+                ext1: filteredData.ext1,
+                finishedDate: filteredData.finishedDate
+              });
+            });
+            item.items = items;
+          })
       },
       setStatus: function (status) {
         this.status = status;
