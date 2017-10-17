@@ -92,7 +92,7 @@
 
 
     <div v-if="fullFledged">
-      <md-button class="md-primary" @click.native="$refs['dialog'].open()">추가</md-button>
+      <md-button class="md-primary" @click.native="newForm">추가</md-button>
 
       <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog">
         <md-dialog-title>New</md-dialog-title>
@@ -108,7 +108,7 @@
 
         <md-dialog-actions>
           <md-button class="md-primary" @click.native="addObject($refs['object-form'].data); $refs['dialog'].close()">
-            저장
+            추가
           </md-button>
           <md-button class="md-primary" @click.native="$refs['dialog'].close()">닫기</md-button>
         </md-dialog-actions>
@@ -155,6 +155,12 @@
       },
       data: function(){
           this.rowData = this.data;
+      },
+      rowData: {
+          handler: function(){
+            this.$emit('update:data', this.rowData);
+          },
+          deep: true
       }
     },
 
@@ -364,7 +370,7 @@
       addRow: function (aRow) {
         if (!this.rowData) this.rowData = [];
         this.rowData.push(aRow);
-        this.$emit('update:data', this.rowData);
+       /// this.$emit('update:data', this.rowData);
       },
 
       showValue: function (key, entry) {
@@ -385,7 +391,7 @@
 
         if (!this.rowData) this.rowData = [];
         this.rowData.push(aRow);
-        this.$emit('update:data', this.rowData);
+        //this.$emit('update:data', this.rowData);
       },
       submit_for_delete: function (uri, num) {
         var path = 'product';
@@ -429,17 +435,24 @@
           this.submit_for_delete(this.selected[i]._links.self.href);
         }
         this.loadData();
-        this.$emit('update:data', this.rowData);
+        //this.$emit('update:data', this.rowData);
       },
 
       deleteSelectedRows: function () {
         var count = 0;
         for (var i in this.selected) {
-          this.rowData.splice(i - count, 1);
+          var where = this.rowData.indexOf(this.selected[i]);
+          this.rowData.splice(where - count, 1);
           count++;
         }
         this.loadData();
-        this.$emit('update:data', this.rowData);
+        //this.$emit('update:data', this.rowData);
+      },
+
+      newForm: function () {
+        this.$refs['object-form'].data = {};
+        this.$refs['dialog'].open();
+
       }
     }
   }

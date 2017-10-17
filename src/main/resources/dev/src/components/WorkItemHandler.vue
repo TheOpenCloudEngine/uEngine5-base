@@ -21,8 +21,8 @@
     </md-card-area>
 
     <md-card-actions>
-      <md-button @click.native="complete">완료</md-button>
-      <md-button>저장</md-button>
+      <md-button @click.native="complete('COMPLETED')">완료</md-button>
+      <md-button @click.native="complete('SAVED')">저장</md-button>
       <md-button>건너뛰기</md-button>
     </md-card-actions>
   </md-card>
@@ -97,7 +97,7 @@
         });
 
       },
-      complete: function () {
+      complete: function (desiredState) {
         var serviceLocator = this.$root.$children[0].$refs["backend"]; //TODO hardcoded
 
         var me = this;
@@ -107,12 +107,13 @@
           method: 'POST',
           data: {
             worklist: {
-              status: 'COMPLETED'
+              status: desiredState // 'COMPLETED' or 'SAVED'
             },
             parameterValues: this.workItem.parameterValues
           },
           success: function (value) {
-            me.workItem = null;
+            //me.workItem = null;
+            me.load();
 
             me.$root.$children[0].success('작업을 완료했습니다.');
             me.$emit('update:reload', true);

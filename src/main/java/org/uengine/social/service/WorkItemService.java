@@ -9,6 +9,8 @@ import org.uengine.social.entity.WorklistEntity;
 import org.uengine.social.repository.WorklistRepository;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by uengine on 2017. 8. 9..
@@ -48,13 +50,31 @@ public class WorkItemService {
         String defId = worklistEntity.getDefId();
 
         ProcessDefinition definition = (ProcessDefinition) definitionService.getDefinitionLocal(defId);
-        Activity activity = definition.getActivity(worklistEntity.getTrcTag());
+        HumanActivity activity = (HumanActivity) definition.getActivity(worklistEntity.getTrcTag());
 
         WorkItem workItem = new WorkItem();
         workItem.setActivity(activity);
         workItem.setWorklist(worklistEntity);
 
-        //TODO get the parameter values and set them to the "workItem.parameterValues" so that WorkItemHandler.vue can insert the default values
+        org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
+                org.uengine.kernel.ProcessInstance.class,
+                new Object[]{
+                        null,
+                        worklistEntity.getInstId().toString(),
+                        null
+                }
+        );
+
+        //get the parameter values and set them to the "workItem.parameterValues" so that WorkItemHandler.vue can insert the default values
+        Map parameterValues = new HashMap<String, Object>();
+        for(ParameterContext parameterContext : activity.getParameters()){
+            if(parameterContext.getDirection().indexOf("IN") == 0){
+                parameterValues.put(parameterContext.getArgument().getText(), parameterContext.getVariable().get(instance, "", ""));
+            }
+        }
+
+        if(parameterValues.size() > 0)
+            workItem.setParameterValues(parameterValues);
 
         return workItem;
     }
@@ -82,11 +102,21 @@ public class WorkItemService {
         }
 
 
-        if("saved".equals(workItem.getDesiredState())){
-            humanActivity.saveWorkItem(instance, workItem.getParameterValues());
+        //map the argument list to variables change list
+        Map variableChanges = new HashMap<String, Object>();
+
+        if(workItem.getParameterValues()!=null)
+        for(ParameterContext parameterContext : humanActivity.getParameters()){
+            if(parameterContext.getDirection().indexOf("OUT") >= 0 && workItem.getParameterValues().containsKey(parameterContext.getArgument().getText())){
+                variableChanges.put(parameterContext.getVariable().getName(), workItem.getParameterValues().get(parameterContext.getArgument().getText()));
+            }
+        }
+
+        if("SAVED".equals(workItem.getWorklist().getStatus())){
+            humanActivity.saveWorkItem(instance, variableChanges);
         }else{
             try{
-                humanActivity.fireReceived(instance, workItem.getParameterValues());
+                humanActivity.fireReceived(instance, variableChanges);
             }catch(Exception e){
                 humanActivity.fireFault(instance, e);
 

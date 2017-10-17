@@ -27,6 +27,7 @@ import org.uengine.modeling.resource.ResourceManager;
 import org.uengine.modeling.resource.Storage;
 import org.uengine.social.entity.ProcessInstanceEntity;
 import org.uengine.social.repository.ProcessInstanceRepository;
+import org.uengine.social.service.DefinitionService;
 import org.uengine.webservices.worklist.WorkList;
 
 import javax.servlet.Filter;
@@ -34,7 +35,7 @@ import java.util.Map;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackageClasses = { ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
+@ComponentScan(basePackageClasses = {DefinitionService.class, ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
 @EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
 public class WebConfig extends Metaworks4WebConfig {
 

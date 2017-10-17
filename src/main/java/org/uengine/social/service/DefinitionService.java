@@ -236,13 +236,13 @@ public class DefinitionService {
 
         ProcessInstance instance = changeEvent.getObject();
 
+        //TODO: check the instance is dirty
         IResource resource = new DefaultResource("instances/" + instance.getInstanceId());
         resourceManager.save(resource, ((DefaultProcessInstance)instance).getVariables());
     }
 
 
-
-        @Autowired
+    @Autowired
     ApplicationContext applicationContext;
 
 
