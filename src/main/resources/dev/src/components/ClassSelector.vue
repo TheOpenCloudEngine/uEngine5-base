@@ -15,6 +15,12 @@
       data: String,
     },
 
+    created: function(){
+      if(!this.data){
+        this.$emit('update:data', 'java.lang.String');
+      }
+    },
+
     watch: {
       classType: function(){
           this.$emit('update:data', this.classType);
@@ -24,7 +30,7 @@
     data:function(){
 
       return {
-        classType: 'java.lang.String',
+        classType: this.data ? this.data : 'java.lang.String',
         classTypes: [
           {
             displayName: '문자열',
