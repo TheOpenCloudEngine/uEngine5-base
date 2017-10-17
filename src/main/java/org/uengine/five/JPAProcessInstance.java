@@ -1,5 +1,6 @@
 package org.uengine.five;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
@@ -30,34 +31,54 @@ import java.util.Map;
 public class JPAProcessInstance extends DefaultProcessInstance {
 
     ProcessInstanceEntity processInstanceEntity;
-        public ProcessInstanceEntity getProcessInstanceEntity() {
-            return processInstanceEntity;
-        }
-        public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
-            this.processInstanceEntity = processInstanceEntity;
-        }
+
+    public ProcessInstanceEntity getProcessInstanceEntity() {
+        return processInstanceEntity;
+    }
+
+    public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
+        this.processInstanceEntity = processInstanceEntity;
+    }
 
     @Autowired
     ProcessInstanceRepository processInstanceRepository;
 
     boolean newInstance;
 
-        public boolean isNewInstance() {
-            return newInstance;
-        }
+    public boolean isNewInstance() {
+        return newInstance;
+    }
 
-        public void setNewInstance(boolean newInstance) {
-            this.newInstance = newInstance;
-        }
+    public void setNewInstance(boolean newInstance) {
+        this.newInstance = newInstance;
+    }
 
     public JPAProcessInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
         super(procDefinition, instanceId, options);
 
-        if(instanceId==null){
+        if(procDefinition  == null){
+            return;
+        }
+        if (instanceId == null && procDefinition != null) {
             setNewInstance(true);
             setProcessInstanceEntity(new ProcessInstanceEntity());
             getProcessInstanceEntity().setName(instanceId);
             getProcessInstanceEntity().setDefId(procDefinition.getId());
+            if (options != null) {
+                if (options.containsKey("isSubProcess")) {
+                    boolean subProcess = false;
+                    subProcess = options.get("isSubProcess").toString() == "yes" ? true : false;
+                    getProcessInstanceEntity().setSubProcess(subProcess);
+                }
+                if(options.containsKey("_rootProcess")){
+                    getProcessInstanceEntity().setRootInstId(Long.parseLong(options.get("_rootProcess").toString()));
+                }
+                if(options.containsKey("_dontReturn")){
+                    boolean dontReturn = false;
+                    dontReturn = options.get("_dontReturn").toString() == "false" ? false : true;
+                    getProcessInstanceEntity().setDontReturn(dontReturn);
+                }
+            }
         }
     }
 
@@ -67,10 +88,14 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     @PostConstruct
     public void init() throws Exception {
 
-        if(isNewInstance()) { //if new instance, create one
+        if(processInstanceEntity == null){
+            return;
+        }
+
+        if (isNewInstance()) { //if new instance, create one
             processInstanceRepository.save(getProcessInstanceEntity());
             setInstanceId(String.valueOf(getProcessInstanceEntity().getInstId()));
-        }else{ //else, load the instance
+        } else { //else, load the instance
             setProcessInstanceEntity(processInstanceRepository.findOne(Long.valueOf(getInstanceId())));
 
             IResource resource = new DefaultResource("instances/" + getInstanceId());
@@ -89,7 +114,7 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     public ProcessDefinition getProcessDefinition() throws Exception {
         ProcessDefinition definition = super.getProcessDefinition();
 
-        if(definition==null){
+        if (definition == null) {
             definition = (ProcessDefinition) definitionService.getDefinitionLocal(processInstanceEntity.getDefId());
         }
 
