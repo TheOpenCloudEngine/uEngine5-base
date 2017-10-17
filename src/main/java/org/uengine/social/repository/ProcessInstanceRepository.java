@@ -20,7 +20,15 @@ public interface ProcessInstanceRepository extends MultitenantRepository<Process
     @Query("select pi from ProcessInstanceEntity pi where pi.mainInstId is null")
     List<ProcessInstanceEntity> findMainInstICanSee();
 
-    @Query("select pi from ProcessInstanceEntity pi where pi.defId like CONCAT('%',:defId,'%') or pi.instId = :instId or pi.status = :status or pi.eventHandler = :eventHandler or pi.name like :name or pi.startedDate = :startedDate or pi.finishedDate = :finishedDate")
+    @Query("select pi from ProcessInstanceEntity pi " +
+            "where 1=1 " +
+            "and (:instId is null or pi.instId = :instId )" +
+            "and (:defId is null or pi.defId like CONCAT('%',:defId,'%')) " +
+            "and (:status is null or pi.status = :status )" +
+            "and (:eventHandler is null or pi.eventHandler = :eventHandler )" +
+            "and (:name is null or pi.name like CONCAT('%',:name,'%') )" +
+            "and (:startedDate is null or pi.startedDate >= :startedDate )" +
+            "and (:finishedDate is null or pi.finishedDate <= :finishedDate )")
     List<ProcessInstanceEntity> findFilterICanSee(
                                                   @Param("defId") String defId,
                                                   @Param("instId") Long instId,
