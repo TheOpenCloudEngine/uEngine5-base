@@ -92,10 +92,20 @@
       };
     },
     watch: {
+      drawer: function (val) {
+        //패널 열릴때 other wise 체크
+        if (val) {
+          if (this.relation.condition._type == 'org.uengine.kernel.Otherwise') {
+            this.otherwise = true;
+          } else {
+            this.otherwise = false;
+          }
+        }
+      },
       otherwise: function (_val) {
         var me = this;
         var condition = {};
-        if(_val) { //otherwise 이면
+        if (_val) { //otherwise 이면
           condition._type = 'org.uengine.kernel.Otherwise'
         } else { //otherwise가 아니면
           condition._type = 'org.uengine.kernel.ExpressionEvaluateCondition'

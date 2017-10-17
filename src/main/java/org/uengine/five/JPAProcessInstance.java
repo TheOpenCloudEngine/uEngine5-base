@@ -92,12 +92,14 @@ public class JPAProcessInstance extends DefaultProcessInstance {
                 getProcessInstanceEntity().setIsEventHandler(options.containsKey("isEventHandler"));
             }
 
-            if(options.containsKey(DefaultProcessInstance.ROOT_PROCESS)) {
-                getProcessInstanceEntity().setRootInstId(new Long((String) options.get(DefaultProcessInstance.ROOT_PROCESS)));
-            }
+            if(options != null){
+                if(options.containsKey(DefaultProcessInstance.ROOT_PROCESS)) {
+                    getProcessInstanceEntity().setRootInstId(new Long((String) options.get(DefaultProcessInstance.ROOT_PROCESS)));
+                }
 
-            if(options.containsKey(DefaultProcessInstance.SIMULATIONPROCESS)){
-                setSimulation(true);
+                if(options.containsKey(DefaultProcessInstance.SIMULATIONPROCESS)){
+                    setSimulation(true);
+                }
             }
 
         }

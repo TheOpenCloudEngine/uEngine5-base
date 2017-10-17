@@ -115,13 +115,6 @@
           if (val == true) {
             this._item = this.item;
 
-            //other wise 체크
-            if(this.item.condition._type == 'org.uengine.kernel.Otherwise') {
-              this.$emit('update:otherwise', true);
-            } else {
-              this.$emit('update:otherwise', false);
-            }
-
             if (this.item.elementView) {
               this.x = this.item.elementView.x;
               this.y = this.item.elementView.y;
