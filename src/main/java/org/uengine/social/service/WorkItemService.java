@@ -113,7 +113,7 @@ public class WorkItemService {
         }
 
         if("SAVED".equals(workItem.getWorklist().getStatus())){
-//            humanActivity.saveWorkItem(instance, variableChanges);
+            humanActivity.saveWorkItem(instance, variableChanges);
         }else{
             try{
                 humanActivity.fireReceived(instance, variableChanges);
