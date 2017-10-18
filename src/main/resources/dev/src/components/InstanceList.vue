@@ -29,14 +29,14 @@
                   <md-list-item class="md-inset">
                     <md-input-container>
                       <md-select name="status" id="status" v-model="filter.status" @change="setStatus">
-                        <md-option value="all">모두</md-option>
-                        <md-option value="doing">진행중</md-option>
-                        <md-option value="ready">준비중</md-option>
-                        <md-option value="complete">완료됨</md-option>
-                        <md-option value="stop">중지됨</md-option>
-                        <md-option value="skip">건너뜀</md-option>
-                        <md-option value="pause">일시중지</md-option>
-                        <md-option value="fail">실패함</md-option>
+                        <md-option value="All">모두</md-option>
+                        <md-option value="Running">진행중</md-option>
+                        <md-option value="Ready">준비중</md-option>
+                        <md-option value="Completed">완료됨</md-option>
+                        <md-option value="Stopped">중지됨</md-option>
+                        <md-option value="Skipped">건너뜀</md-option>
+                        <md-option value="Suspended">일시중지</md-option>
+                        <md-option value="Failed">실패함</md-option>
                       </md-select>
                     </md-input-container>
                   </md-list-item>
@@ -49,7 +49,7 @@
                   <md-list-item class="md-inset">
                     <md-input-container>
                       <label>이름</label>
-                      <md-input placeholder="name" v-model="filter.name"></md-input>
+                      <md-input placeholder="name" v-model="filter.defId"></md-input>
                     </md-input-container>
                   </md-list-item>
                   <md-list-item class="md-inset">
@@ -57,17 +57,17 @@
                       <label>시작자</label>
                       <md-input placeholder="starter" v-model="filter.defName"></md-input>
                     </md-input-container>
-                    <md-dialog-prompt
-                      :md-title="prompt.title"
-                      :md-ok-text="prompt.ok"
-                      :md-cancel-text="prompt.cancel"
-                      @open="onOpen"
-                      @close="onClose"
-                      ref="dialog6">
-                    </md-dialog-prompt>
+                    <!--<md-dialog-prompt-->
+                    <!--:md-title="prompt.title"-->
+                    <!--:md-ok-text="prompt.ok"-->
+                    <!--:md-cancel-text="prompt.cancel"-->
+                    <!--@open="onOpen"-->
+                    <!--@close="onClose"-->
+                    <!--ref="dialog6">-->
+                    <!--</md-dialog-prompt>-->
 
                     <md-button class="md-icon-button md-raised md-primary" @click.native="openDialog('dialog6')">
-                      <md-icon style="color: white">search</md-icon>
+                      <md-icon style="color: #ffffff">search</md-icon>
                     </md-button>
                   </md-list-item>
                   <md-list-item class="md-inset">
@@ -75,28 +75,28 @@
                       <label>현담당자</label>
                       <md-input placeholder="current manager" v-model="filter.eventHandler"></md-input>
                     </md-input-container>
-                    <md-dialog-prompt
-                      :md-title="prompt.title"
-                      :md-ok-text="prompt.ok"
-                      :md-cancel-text="prompt.cancel"
-                      @open="onOpen"
-                      @close="onClose"
-                      ref="dialog6">
-                    </md-dialog-prompt>
+                    <!--<md-dialog-prompt-->
+                    <!--:md-title="prompt.title"-->
+                    <!--:md-ok-text="prompt.ok"-->
+                    <!--:md-cancel-text="prompt.cancel"-->
+                    <!--@open="onOpen"-->
+                    <!--@close="onClose"-->
+                    <!--ref="dialog6">-->
+                    <!--</md-dialog-prompt>-->
                     <md-button class="md-icon-button md-raised md-primary">
-                      <md-icon style="color: white">search</md-icon>
+                      <md-icon style="color: #ffffff">search</md-icon>
                     </md-button>
                   </md-list-item>
                   <md-list-item class="md-inset">
                     <md-input-container>
                       <label>시작일</label>
-                      <md-input placeholder="Start Date" v-model="filter.startedDate"></md-input>
+                      <md-input type="date" placeholder="Start Date" v-model="filter.startedDate"></md-input>
                     </md-input-container>
                   </md-list-item>
                   <md-list-item class="md-inset">
                     <md-input-container>
                       <label>종료일</label>
-                      <md-input placeholder="End Date" v-model="filter.finishedDate"></md-input>
+                      <md-input type="date" md-format="yyyy/mm/dd" placeholder="End Date" v-model="filter.finishedDate"></md-input>
                     </md-input-container>
                   </md-list-item>
                   <md-list-item class="md-inset">
@@ -155,16 +155,16 @@
           {text: 'Ext1', value: 'ext1'},
           {text: '삭제', value: 'instId'}
         ],
-        prompt: {
-          title: 'What\'s your name?',
-          ok: 'Done',
-          cancel: 'Cancel',
-          id: 'name',
-          name: 'name',
-          placeholder: 'Type your name...',
-          maxlength: 30,
-          value: ''
-        },
+//        prompt: {
+//          title: 'What\'s your name?',
+//          ok: 'Done',
+//          cancel: 'Cancel',
+//          id: 'name',
+//          name: 'name',
+//          placeholder: 'Type your name...',
+//          maxlength: 30,
+//          value: ''
+//        },
         items: [
           {
             instId: 'instId',
@@ -185,15 +185,14 @@
             name: 'name'
           }
         ],
-        filter:{
-          instId: 'instId',
-          defName: 'defName',
-          defId: 'defId',
-          name: 'name',
-          status: 'status',
-          eventHandler: 'eventHandler',
-          startedDate: 'startedDate',
-          finishedDate: 'finishedDate'
+        filter: {
+          instId: '',
+          defName: '',
+          defId: '',
+          name: '',
+          eventHandler: '',
+          startedDate: '',
+          finishedDate: ''
         }
       }
     },
@@ -234,19 +233,26 @@
         })
       },
       search: function () {
-        var url = 'instances/search/findFilterICanSee?';
-        if (this.filter.instId != null ){
-          url += 'instId=' + this.filter.instId;
-        }
+        var item = this;
+        var url = 'instances/search/findFilterICanSee?'
+        var filter =  this.filter
+        $.each(this.filter,function(obj,value){
+          if (value != undefined && value != '') {
+            if (url.indexOf("?") != url.length-1) {
+              url = url + "&" + obj +"=" + value;
+            } else {
+              url = url  + obj +"=" + value;
+            }
+          }
+        })
         this.$root.codi(url).get()
           .then(function (response) {
             var items = [];
-            $.each(response.data, function (i, filteredData){
-              console.log(filteredData.instances[0].defId);
-              console.log(filteredData.instances);
-//              filteredData = filteredData.replace('/', '');
+            $.each(response.data._embedded.instances, function (i, filteredData) {
+              let split = filteredData._links.self.href.split('/');
+              items['instId'] = split[split.length - 1];
               items.push({
-                instId: filteredData.instId,
+                instId: split[split.length - 1],
                 defName: filteredData.defName,
                 defId: filteredData.defId,
                 name: filteredData.name,
@@ -261,6 +267,7 @@
             });
             item.items = items;
           })
+
       },
       setStatus: function (status) {
         this.status = status;

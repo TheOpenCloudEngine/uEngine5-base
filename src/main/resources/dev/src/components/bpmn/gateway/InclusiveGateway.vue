@@ -6,7 +6,6 @@
       resizable
       connectable
       deletable
-      :enableFrom="false"
       :id.sync="activity.tracingTag"
       :x.sync="activity.elementView.x"
       :y.sync="activity.elementView.y"
@@ -22,23 +21,9 @@
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
     >
-      <geometry-circle
-        :center="[50,50]"
-        :radius="50"
-        :_style="{
-        'stroke-width': 3
-        }"
-      >
-      </geometry-circle>
-      <geometry-circle
-        :center="[50,50]"
-        :radius="30"
-        :_style="{
-        'fill': 'black',
-        'fill-opacity': 1
-        }"
-      >
-      </geometry-circle>
+      <geometry-polygon :vertices="[[0, 50],[50, 100],[100, 50],[50, 0]]"></geometry-polygon>
+      <geometry-circle :center="[50, 50]" :radius="25" :_style="{'stroke-width': 3}"></geometry-circle>
+
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
@@ -69,10 +54,10 @@
 </template>
 
 <script>
-  import IBpmn from '../../IBpmn'
+  import IBpmn from '../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-terminate-end-event',
+    name: 'bpmn-inclusive-gateway',
     props: {},
     computed: {
       defaultStyle(){
@@ -81,10 +66,10 @@
         }
       },
       type(){
-        return 'EndEvent'
+        return 'Gateway'
       },
       className(){
-        return 'org.uengine.kernel.bpmn.TerminateEndEvent'
+        return 'org.uengine.kernel.bpmn.InclusiveGateway'
       },
       createNew(newTracingTag, x, y, width, height){
         return {
@@ -120,4 +105,3 @@
 <style scoped lang="scss" rel="stylesheet/scss">
 
 </style>
-

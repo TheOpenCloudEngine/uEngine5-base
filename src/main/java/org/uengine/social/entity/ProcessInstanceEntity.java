@@ -68,8 +68,10 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
 
     String defName;
 
+    @Temporal(TemporalType.TIMESTAMP)
     Date startedDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
     Date finishedDate;
 
     Date dueDate;

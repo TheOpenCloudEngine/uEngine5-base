@@ -84,7 +84,7 @@
       addCloneElement: function (component) {
         this.cloneComponent = component;
       },
-      removeCloneElement: function () {
+      removeControllerElement: function () {
         this.cloneComponent = null;
       },
       uuid: function () {

@@ -21,12 +21,21 @@
     <bpmn-property-panel
       :drawer.sync="drawer"
       :item.sync="relation"
+      :otherwise.sync="otherwise"
     >
       <template slot="properties-contents">
         <md-input-container>
           <label>릴레이션 이름</label>
           <md-input type="text"
                     v-model="relation.name"></md-input>
+        </md-input-container>
+        <md-layout md-flex="20">
+          <md-checkbox v-model="otherwise">otherwise</md-checkbox>
+        </md-layout>
+        <md-input-container>
+          <label>컨디션</label>
+          <md-input type="text"
+                    v-model="relation.condition.conditionExpression" v-if="!otherwise"></md-input>
         </md-input-container>
       </template>
       <template slot="additional-tabs">
@@ -56,6 +65,10 @@
           relationView: {
             style: JSON.stringify({}),
             value: vertices
+          },
+          condition: {
+            _type: 'org.uengine.kernel.ExpressionEvaluateCondition',
+            //conditionExpression: 'arg2=="call"'
           }
         }
       },
@@ -74,11 +87,34 @@
       }
     },
     data: function () {
-      return {};
+      return {
+        otherwise: false
+      };
     },
-    watch: {},
+    watch: {
+      drawer: function (val) {
+        //패널 열릴때 other wise 체크
+        if (val) {
+          if (this.relation.condition._type == 'org.uengine.kernel.Otherwise') {
+            this.otherwise = true;
+          } else {
+            this.otherwise = false;
+          }
+        }
+      },
+      otherwise: function (_val) {
+        var me = this;
+        var condition = {};
+        if (_val) { //otherwise 이면
+          condition._type = 'org.uengine.kernel.Otherwise'
+        } else { //otherwise가 아니면
+          condition._type = 'org.uengine.kernel.ExpressionEvaluateCondition'
+          condition.conditionExpression = me.relation.condition.conditionExpression
+        }
+        me.relation.condition = condition;
+      }
+    },
     mounted: function () {
-
     },
     methods: {}
   }

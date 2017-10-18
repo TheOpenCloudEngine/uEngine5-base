@@ -114,6 +114,7 @@
           console.log('val', val);
           if (val == true) {
             this._item = this.item;
+
             if (this.item.elementView) {
               this.x = this.item.elementView.x;
               this.y = this.item.elementView.y;

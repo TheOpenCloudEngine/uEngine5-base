@@ -887,6 +887,7 @@
          */
         me.canvas.onAddHistory(function (event) {
           console.log('userAction fired on opengraph!!');
+          console.log('me.elements',)
           for (var key in me.elements) {
             me.elements[key].emitElement();
           }
@@ -1093,14 +1094,27 @@
         this.elements[id] = elementComponenet;
       },
       removeElement: function (id) {
-        delete this.elements[id];
-        //도형이 남아있다면 도형을 삭제한다.
-        //이때, 도형과 연결된 선분이 있다면 연결을 해제하고 삭제한다.
-        var element = this.canvas.getElementById(id);
-        if (element) {
-          $(element).removeAttr('_toedge');
-          $(element).removeAttr('_fromedge');
-          this.canvas.removeShape(element, true);
+        var me = this;
+        var result;
+        this.$emit('beforeDestroyElement',
+          me.getElementById(id),
+          function (emitResult) {
+            result = emitResult;
+          });
+
+        //beforeDestroyElement 결과가 false 이면 삭제하지 않음.
+        if (typeof result == 'boolean' && !result) {
+          console.log('beforeDestroyElement, prenve remove!!', id);
+        } else {
+          delete this.elements[id];
+          //도형이 남아있다면 도형을 삭제한다.
+          //이때, 도형과 연결된 선분이 있다면 연결을 해제하고 삭제한다.
+          var element = this.canvas.getElementById(id);
+          if (element) {
+            $(element).removeAttr('_toedge');
+            $(element).removeAttr('_fromedge');
+            this.canvas.removeShape(element, true);
+          }
         }
       },
       /**
