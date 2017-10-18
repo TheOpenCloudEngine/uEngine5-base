@@ -288,12 +288,12 @@
 
                 var definition = response.data.definition;
 
-                me.getStatus(function(result){
+                me.getStatus(function (result) {
 
-                  for(var key in definition.childActivities[1]) {
+                  for (var key in definition.childActivities[1]) {
 
                     //데이터 꾸미기 status 로 definition 바꾸기.
-                    if(definition.childActivities[1][key]["tracingTag"] == result.elementId){
+                    if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
                       definition.childActivities[1][key]["status"] = result.status;
                     }
                     definition.status = result.status;
@@ -363,24 +363,39 @@
         var me = this;
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
         var definitionToSave = JSON.parse(JSON.stringify(me.definition));
-        definitionToSave.childActivities[1] = [];
-        definitionToSave.roles = [];
-        definitionToSave.sequenceFlows = [];
-        $.each(me.definition.childActivities[1], function (i, activity) {
-          if (activity) {
-            definitionToSave.childActivities[1].push(activity);
+//        definitionToSave.childActivities[1] = [];
+//        definitionToSave.roles = [];
+        //definitionToSave.sequenceFlows = [];
+
+        var nullFilter = function (array) {
+          return array.filter(function (x) {
+            if (x) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        }
+
+        //롤 널 체크
+        definitionToSave.roles = nullFilter(definitionToSave.roles);
+
+        var recursiveCheck = function (activity) {
+          if (!activity) {
+            return;
           }
-        })
-        $.each(me.definition.roles, function (i, role) {
-          if (role) {
-            definitionToSave.roles.push(role);
+          if (activity.sequenceFlows && activity.sequenceFlows.length) {
+            activity.sequenceFlows = nullFilter(activity.sequenceFlows);
           }
-        })
-        $.each(me.definition.sequenceFlows, function (i, sequenceFlow) {
-          if (sequenceFlow) {
-            definitionToSave.sequenceFlows.push(sequenceFlow);
+          if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
+            activity.childActivities[1] = nullFilter(activity.childActivities[1]);
+            $.each(activity.childActivities[1], function (i, child) {
+              recursiveCheck(child);
+            })
           }
-        })
+        }
+        //액티비티, 릴레이션 널 체크
+        recursiveCheck(definitionToSave, null);
 
         var data = {definition: definitionToSave};
         this.$root.codi('definition{/id}').save({id: me.id + '.json'}, data)

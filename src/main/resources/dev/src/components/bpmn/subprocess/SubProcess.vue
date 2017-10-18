@@ -6,7 +6,6 @@
       resizable
       connectable
       deletable
-      :enableFrom="false"
       :id.sync="activity.tracingTag"
       :x.sync="activity.elementView.x"
       :y.sync="activity.elementView.y"
@@ -20,6 +19,7 @@
       v-on:deSelectShape="closeComponentChanger"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
+      v-on:addedToGroup="onAddedToGroup"
     >
       <geometry-rect
         :_style="{
@@ -39,15 +39,15 @@
     </group-element>
 
     <!--childActivities-->
-    <div v-if="bpmnVue && activity.childActivities" v-for="subActivity in activity.childActivities[1]">
-      <component v-if="subActivity != null" :is="bpmnVue.getComponentByClassName(subActivity._type)"
-                 :activity.sync="subActivity" :definition="definition"
+    <div v-if="bpmnVue && activity.childActivities" v-for="childActivity in activity.childActivities[1]">
+      <component v-if="childActivity != null" :is="bpmnVue.getComponentByClassName(childActivity._type)"
+                 :activity.sync="childActivity" :definition="definition"
       ></component>
     </div>
 
     <!--릴레이션은 액티비티간 연결선(흐름)-->
-    <div v-if="bpmnVue && activity.sequenceFlows" v-for="subRelation in activity.sequenceFlows">
-      <bpmn-relation v-if="subRelation != null" :relation.sync="subRelation"></bpmn-relation>
+    <div v-if="bpmnVue && activity.sequenceFlows" v-for="childRelation in activity.sequenceFlows">
+      <bpmn-relation v-if="childRelation != null" :relation.sync="childRelation"></bpmn-relation>
     </div>
 
     <bpmn-property-panel

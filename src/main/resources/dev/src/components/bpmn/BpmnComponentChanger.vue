@@ -298,22 +298,35 @@
           oldActivity.elementView.width,
           oldActivity.elementView.height
         );
-//        var required = component.computed.createNew();
-//        for (var key in required) {
-//          if (!activity[key]) {
-//            activity[key] = required[key];
-//          }
-//        }
+
+        //값 이관.
+        for (var key in oldActivity) {
+          if (key != 'elementView' && key != '_type') {
+            newActivity[key] = oldActivity[key];
+          }
+        }
 
         //기존 액티비티를 삭제하고 신규 액티비티를 인서트한다.
-        var definition = this.bpmnVue.data.definition;
-        $.each(definition.childActivities[1], function (i, activity) {
-          if (activity && activity.tracingTag == oldActivity.tracingTag) {
-            console.log('** remove activitiy by component change', oldActivity.tracingTag);
-            definition.childActivities[1][i] = undefined;
+        //기존 액티비티의 부모 검색.
+        var parent = this.bpmnVue.getParentActByOpengraphId(oldActivity.tracingTag);
+
+        //기존 액티비티 식제
+        this.bpmnVue.removeComponentByOpenGraphComponentId(oldActivity.tracingTag);
+
+        //부모가 있으면 부모에 넣기
+        if (parent) {
+          if (!parent.childActivities) {
+            parent.childActivities = [
+              'java.util.ArrayList',
+              []
+            ]
           }
-        });
-        definition.childActivities[1].push(newActivity);
+          parent.childActivities[1].push(newActivity);
+        }
+        //부모가 없으면 데피니션에 추가
+        else {
+          this.bpmnVue.data.definition.childActivities[1].push(newActivity);
+        }
 
         this.$nextTick(function () {
           //오픈그래프 컴포넌트 중 from, to 인 것을 redraw 시킨다.
@@ -325,7 +338,6 @@
               opengraphComponent.updateShape();
             }
           }
-
           //히스토리를 갱신한다.
           this.bpmnVue.onUserAction();
         });

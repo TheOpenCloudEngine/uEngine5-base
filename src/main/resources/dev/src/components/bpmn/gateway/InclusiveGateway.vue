@@ -19,6 +19,7 @@
       v-on:deSelectShape="closeComponentChanger"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
+      v-on:addedToGroup="onAddedToGroup"
     >
       <geometry-polygon :vertices="[[0, 50],[50, 100],[100, 50],[50, 0]]"></geometry-polygon>
       <geometry-circle :center="[50, 50]" :radius="25" :_style="{'stroke-width': 3}"></geometry-circle>

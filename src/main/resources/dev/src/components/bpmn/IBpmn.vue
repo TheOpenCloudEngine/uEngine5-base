@@ -67,8 +67,10 @@
     watch: {
 //      activity: {
 //        handler: function (after, before) {
-//          console.log('activity changed');
-//          this.$emit('activity', after);
+//          //console.log(JSON.stringify(after));
+//
+////          console.log('activity changed');
+////          this.$emit('activity', after);
 //        },
 //        deep: true
 //      },
@@ -98,10 +100,7 @@
         var me = this;
         //TODO 저 프로퍼티 패널이 deselect 되었을 때 닫히지 않게 하려면...?
 
-
         console.log(top, left);
-        //opengraphComponent 에서 x.y 뽑기.
-        console.log('this.bpmnVue.componentChangerData', this.bpmnVue.componentChangerData);
         this.bpmnVue.componentChangerData = {
           bpmnComponent: me,
           top: top,
@@ -113,15 +112,59 @@
       },
       /**
        * 도형이 그룹 속으로 이동했을 때 데피니션의 모델을 이동시킨다.
-       * @param groupElement
-       * @param element
+       * @param groupOpengraphComponent 오픈그래프 그룹 컴포넌트
+       * @param opengraphComponent 이동된 오픈그래프 컴포넌트
        * @param eventOffset
        */
-      onAddedToGroup: function (groupElement, element, eventOffset) {
+      onAddedToGroup: function (groupOpengraphComponent, opengraphComponent, eventOffset) {
+        console.log('onAddedToGroup!!');
+        var me = this;
 
-          //서브 프로세스 안에 서브 프로세스 일 경우
+        //액티비티가 아닐 경우 스킵.
+        if (!me.activity) {
+          return;
+        }
 
-        console.log(groupElement, element, eventOffset);
+        //아래 작업이 수행되기 전 데피니션 히스토리 업데이트 금지.
+        me.bpmnVue.preventEvent = true;
+
+        me.$nextTick(function () {
+          //서브프로세스 안에는 lane 들어갈 수 없으니 안심하자!!! 고려하지 말자!!!
+          me.bpmnVue.preventEvent = false;
+          me.bpmnVue.enableHistoryAdd = true;
+
+          //내 자신의 트래이싱 태그
+          var myTracingTag = me.activity.tracingTag;
+
+          //신규 서브 프로세스
+          var newSubProcess = me.bpmnVue.getActAndRelByOpengraphId(groupOpengraphComponent.id);
+
+          //기존 서브 프로세스
+          var currentSubProcess = me.bpmnVue.getParentActByOpengraphId(myTracingTag);
+
+          //신규 서브프로세스가 없을때, 기존 서브프로세스가 있다면 데피니션으로 이동.
+          if (!newSubProcess) {
+            if (currentSubProcess) {
+              me.bpmnVue.moveActivity(myTracingTag, null);
+            }
+          }
+
+          //신규 서브프로세스가 있을때
+          //기존 서브프로세스가 있고, 기존 서브프로세스와 트레이싱 태그가 같다면 스킵. (같은 서브프로세스 내부의 이동이다.)
+          //신규 서브프로세스가 서브프로세스면 신규그룹 속으로 이동.
+          //신규 서브프로세스가 서브프로세스가 아니면 데피니션으로 이동.
+          else {
+            if (currentSubProcess && newSubProcess.tracingTag == currentSubProcess.tracingTag) {
+              console.log('currentSubProcess == newSubProcess', newSubProcess.tracingTag);
+              return;
+            }
+            if (newSubProcess._type == 'org.uengine.kernel.bpmn.SubProcess') {
+              me.bpmnVue.moveActivity(myTracingTag, newSubProcess.tracingTag);
+            } else {
+              me.bpmnVue.moveActivity(myTracingTag, null);
+            }
+          }
+        });
       },
       uuid: function () {
         function s4() {

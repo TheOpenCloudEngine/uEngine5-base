@@ -73,7 +73,6 @@
     },
     watch: {},
     mounted: function () {
-
       //종료 이벤트인 경우 어노테이션, 도형바꾸기만 가능.
       if (this.type == 'EndEvent') {
         this.clone.annotaion = true;

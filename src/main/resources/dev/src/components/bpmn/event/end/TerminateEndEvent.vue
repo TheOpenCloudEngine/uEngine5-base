@@ -20,6 +20,7 @@
       v-on:deSelectShape="closeComponentChanger"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
+      v-on:addedToGroup="onAddedToGroup"
     >
       <geometry-circle
         :center="[50,50]"

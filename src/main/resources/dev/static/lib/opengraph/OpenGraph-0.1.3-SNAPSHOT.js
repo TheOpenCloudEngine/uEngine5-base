@@ -22073,6 +22073,13 @@ OG.renderer.RaphaelRenderer.prototype.drawShape = function (position, shape, siz
     } else {
         groupNode.shape.label = shape.label;
     }
+
+    //shape 부가기능 덮어쓰기
+    if (groupNode.shape.geom) {
+        shape.geom = groupNode.shape.geom;
+        groupNode.shape = shape;
+    }
+
     groupNode.shapeStyle = (style instanceof OG.geometry.Style) ? style.map : style;
     $(groupNode).attr("_shape_id", shape.SHAPE_ID);
 

@@ -346,6 +346,7 @@
           if (this.elementRole != 'opengraph-element') {
             return;
           }
+
           if (this.innerRedraw) {
             console.log('2. $props change by inner side, so it will skip redraw element.');
             this.innerRedraw = false;
@@ -421,7 +422,7 @@
       //서브 컨트롤러 역할일 경우 서브컨트롤러 등록 삭제
       else if (this.elementRole == 'sub-controller') {
         if (this.parentControllerComponent) {
-          this.parentControllerComponent.removeCloneElement();
+          this.parentControllerComponent.removeControllerElement();
         }
       }
     }
@@ -485,16 +486,16 @@
         this.innerRedraw = true;
         var me = this;
         if (!me.element) {
-          console.log('** element not found, so skip emit $props. ');
+          console.log('** element not found, so skip emit $props. ', this._id);
           return;
         }
         let boundary = me.canvasComponent.canvas.getBoundary(me.element);
         if (!boundary) {
-          console.log('** element not found, so skip emit $props. ');
+          console.log('** element not found, so skip emit $props. ', this._id);
           return;
         }
 
-        console.log('** start to emit $props. ');
+        console.log('** start to emit $props. ', this._id);
 
         //리드로우는 false 로 원복한다.
         me.$emit('update:redraw', false);
@@ -643,7 +644,6 @@
                   parent.insertBefore(me.element, parent.firstChild);
                 }
               }
-
               break;
             case OG.Constants.SHAPE_TYPE.EDGE:
               if (me.vertices && me.vertices.length > 1) {
@@ -709,6 +709,7 @@
               me.element = me.canvasComponent.canvas.drawShape([me.x, me.y], shape, [me.width, me.height, me.angle], style, me._id, me.parentId);
               break;
           }
+
           this.setGroup();
           this.bindElementEvents();
           this.emitElement();
