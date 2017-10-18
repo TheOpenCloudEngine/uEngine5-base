@@ -29,14 +29,14 @@
                   <md-list-item class="md-inset">
                     <md-input-container>
                       <md-select name="status" id="status" v-model="filter.status" @change="setStatus">
-                        <md-option value="">모두</md-option>
-                        <md-option value="doing">진행중</md-option>
-                        <md-option value="ready">준비중</md-option>
-                        <md-option value="complete">완료됨</md-option>
-                        <md-option value="stop">중지됨</md-option>
-                        <md-option value="skip">건너뜀</md-option>
-                        <md-option value="pause">일시중지</md-option>
-                        <md-option value="fail">실패함</md-option>
+                        <md-option value="All">모두</md-option>
+                        <md-option value="Running">진행중</md-option>
+                        <md-option value="Ready">준비중</md-option>
+                        <md-option value="Completed">완료됨</md-option>
+                        <md-option value="Stopped">중지됨</md-option>
+                        <md-option value="Skipped">건너뜀</md-option>
+                        <md-option value="Suspended">일시중지</md-option>
+                        <md-option value="Failed">실패함</md-option>
                       </md-select>
                     </md-input-container>
                   </md-list-item>
@@ -90,13 +90,13 @@
                   <md-list-item class="md-inset">
                     <md-input-container>
                       <label>시작일</label>
-                      <md-input placeholder="Start Date" v-model="filter.startedDate"></md-input>
+                      <md-input type="date" placeholder="Start Date" v-model="filter.startedDate"></md-input>
                     </md-input-container>
                   </md-list-item>
                   <md-list-item class="md-inset">
                     <md-input-container>
                       <label>종료일</label>
-                      <md-input placeholder="End Date" v-model="filter.finishedDate"></md-input>
+                      <md-input type="date" md-format="yyyy/mm/dd" placeholder="End Date" v-model="filter.finishedDate"></md-input>
                     </md-input-container>
                   </md-list-item>
                   <md-list-item class="md-inset">
@@ -155,16 +155,16 @@
           {text: 'Ext1', value: 'ext1'},
           {text: '삭제', value: 'instId'}
         ],
-        prompt: {
-          title: 'What\'s your name?',
-          ok: 'Done',
-          cancel: 'Cancel',
-          id: 'name',
-          name: 'name',
-          placeholder: 'Type your name...',
-          maxlength: 30,
-          value: ''
-        },
+//        prompt: {
+//          title: 'What\'s your name?',
+//          ok: 'Done',
+//          cancel: 'Cancel',
+//          id: 'name',
+//          name: 'name',
+//          placeholder: 'Type your name...',
+//          maxlength: 30,
+//          value: ''
+//        },
         items: [
           {
             instId: 'instId',

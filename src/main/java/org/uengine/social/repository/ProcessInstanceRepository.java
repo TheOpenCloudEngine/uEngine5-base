@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.uengine.social.entity.ProcessInstanceEntity;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,8 +28,8 @@ public interface ProcessInstanceRepository extends MultitenantRepository<Process
             "and (:status is null or pi.status = :status )" +
             "and (:eventHandler is null or pi.eventHandler = :eventHandler )" +
             "and (:name is null or pi.name like CONCAT('%',:name,'%') )" +
-            "and (:startedDate is null or pi.startedDate >= :startedDate )" +
-            "and (:finishedDate is null or pi.finishedDate <= :finishedDate )")
+            "and (:startedDate is null or pi.startedDate >= :startedDate)" +
+            "and (:finishedDate is null or :finishedDate >= pi.finishedDate )")
     List<ProcessInstanceEntity> findFilterICanSee(
                                                   @Param("defId") String defId,
                                                   @Param("instId") Long instId,
