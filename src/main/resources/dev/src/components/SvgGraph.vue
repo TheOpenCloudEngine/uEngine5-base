@@ -68,7 +68,19 @@
 
     <md-layout>
       <md-layout md-flex="50">
-
+        <md-list v-if="monitor">
+          <md-list-item md-expand-multiple>
+            <md-icon>folder</md-icon>
+            <span class="md-body-1">프로세스 목록</span>
+            <md-list-expand>
+              <md-list>
+                <md-list-item class="md-inset" v-for="tree in trees" :key="tree.name">
+                  {{tree.name}}
+                </md-list-item>
+              </md-list>
+            </md-list-expand>
+          </md-list-item>
+        </md-list>
       </md-layout>
       <md-layout md-flex="50">
 
@@ -174,7 +186,8 @@
             'width': '400',
             'height': '200'
           }
-        ]
+        ],
+        trees: []
       }
     },
     computed: {},
@@ -276,6 +289,18 @@
           .then(function (response) {
             let split = response.data.defId.split('/');
             defId = split[split.length - 1];
+
+            //왼편 instance 트리 구조
+            var name = me.getLastText(response.data.defId).replace('.json', '');
+            var instanceId = me.getLastText(response.data._links.self.href);
+
+            me.trees.push({
+              name: name,
+              id: instanceId
+            });
+
+            me.
+            me.treeStruecture(instanceId);
           })
           .then(function () {
             me.$root.codi('definition{/id}').get({id: defId})
@@ -307,6 +332,38 @@
                 //me.getStatus();
               })
           })
+      }
+      ,
+      //트리 구조를 위해 subprocess가 있는지 확인한다.
+      //재귀호출 하여 하위 참조 인스턴스가 없을 때까지 찾는다.
+      treeStruecture: function(instanceId) {
+        var me = this;
+        this.$root.codi('instances/search/findChild?instId=' + instanceId).get()
+          .then(function (response) {
+            $.each(response.data, function (key, instances) {
+              if(key == '_embedded') {
+                if(instances.instances.length == 0) {
+                  return false;
+                }
+                var name = instances.instances[0]["defId"].replace('/', '');
+                var childId = instances.instances[0]["_links"]["self"]["href"];
+                childId = me.getLastText(childId);
+                me.trees.push({
+                  name: name,
+                  id: instanceId
+                });
+              }
+              me.treeStruecture(childId);
+            });
+          })
+      }
+      ,
+      getLastText: function (_val) {
+        var length = _val.length;
+        var lastSlash = _val.lastIndexOf('/') + 1;
+        var lastText = _val.substring(lastSlash, length);
+
+        return lastText;
       }
       ,
       getStatus: function (callback) {

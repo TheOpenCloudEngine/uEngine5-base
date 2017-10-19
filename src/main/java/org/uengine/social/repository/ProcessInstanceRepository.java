@@ -39,5 +39,8 @@ public interface ProcessInstanceRepository extends MultitenantRepository<Process
                                                   @Param("startedDate") String startedDate,
                                                   @Param("finishedDate") String finishedDate
                                                   );
+
+    @Query("select pi from ProcessInstanceEntity pi where pi.mainInstId = :instId")
+    List<ProcessInstanceEntity> findChild(@Param("instId") Long instId);
 }
 
