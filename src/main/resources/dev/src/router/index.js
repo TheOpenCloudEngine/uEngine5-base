@@ -20,9 +20,10 @@ import UserPicker from '@/components/bpm-portal/UserPicker'
  * Iam && Vue Router
  * @type {IAM}
  */
-let iam = new IAM(location.protocol + '//' + location.hostname + ':8080/iam');
-// let iam = new IAM('http://iam.uengine.io:8080');
-// iam.setDefaultClient('e74a9505-a811-407f-b4f6-129b7af1c703','109cf590-ac67-4b8c-912a-913373ada046');
+//let iam = new IAM(location.protocol + '//' + location.hostname + ':8080/iam');
+var iam = new IAM('http://iam.uengine.io:8080');
+//TODO Implict grant flow 로 전환하기. (클라이언트 시크릿키가 필요없는 flow, 로그인 창을 iam 이 제공.)
+iam.setDefaultClient('e74a9505-a811-407f-b4f6-129b7af1c703','109cf590-ac67-4b8c-912a-913373ada046');
 
 let RouterGuard = require("./RouterGuard.js")(iam);
 Vue.use(Router);

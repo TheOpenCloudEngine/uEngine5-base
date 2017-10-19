@@ -4,8 +4,6 @@ import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 import org.uengine.persistence.processinstance.ProcessInstanceDAO;
-import org.uengine.social.entity.RoleMappingEntity;
-import org.uengine.social.entity.WorklistEntity;
 import org.uengine.util.dao.AbstractGenericDAO;
 
 import javax.ejb.EJBException;
