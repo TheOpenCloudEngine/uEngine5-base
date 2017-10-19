@@ -295,17 +295,9 @@
             let split = response.data.defId.split('/');
             defId = split[split.length - 1];
 
-            //왼편 instance 트리 구조
-            var name = me.getLastText(response.data.defId).replace('.json', '');
+            //left tree
             var instanceId = me.getLastText(response.data._links.self.href);
-
-            me.trees.push({
-              name: name,
-              id: instanceId
-            });
-
-            me.
-            me.treeStruecture(instanceId);
+            me.findParent(instanceId);
           })
           .then(function () {
             me.$root.codi('definition{/id}').get({id: defId})
@@ -339,11 +331,37 @@
           })
       }
       ,
-      //트리 구조를 위해 subprocess가 있는지 확인한다.
-      //재귀호출 하여 하위 참조 인스턴스가 없을 때까지 찾는다.
-      treeStruecture: function(instanceId) {
+      //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
+      //재귀호출하여 상위 인스턴스가 없을 때까지 찾는다.
+      findParent: function(instanceId) {
         var me = this;
-        this.$root.codi('instances/search/findChild?instId=' + instanceId).get()
+        me.$root.codi('instances{/id}').get({id: instanceId})
+          .then(function (response) {
+            var mainInstId = response.data.mainInstId;
+            var name = me.getLastText(response.data.defId).replace('.json', '');
+            var instanceId = me.getLastText(response.data._links.self.href);
+            if(mainInstId == null) {
+              me.trees.push({
+                name: name,
+                id: instanceId
+              });
+              me.treeStruecture(instanceId);
+              return false;
+            }
+            me.findParent(mainInstId);
+          })
+      }
+      ,
+      //트리 구조를 위해 subprocess가 있는지 확인한다.
+      //재귀호출하여 하위 참조 인스턴스가 없을 때까지 찾는다.
+      treeStruecture: function(instanceId) {
+        //instanceId가 null로 들어오는 경우가 있어 체크함
+        if(instanceId == null) {
+          return;
+        }
+
+        var me = this;
+        me.$root.codi('instances/search/findChild?instId=' + instanceId).get()
           .then(function (response) {
             $.each(response.data, function (key, instances) {
               if(key == '_embedded') {
