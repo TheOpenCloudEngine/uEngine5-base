@@ -13,6 +13,7 @@ import ClassSelector from '@/components/ClassSelector'
 import AvatarUploader from '@/components/AvatarUploader'
 import InstanceList from '@/components/InstanceList'
 import SvgGraph from '@/components/SvgGraph'
+import UserPicker from '@/components/bpm-portal/UserPicker'
 
 
 /**
@@ -20,6 +21,9 @@ import SvgGraph from '@/components/SvgGraph'
  * @type {IAM}
  */
 let iam = new IAM(location.protocol + '//' + location.hostname + ':8080/iam');
+// let iam = new IAM('http://iam.uengine.io:8080');
+// iam.setDefaultClient('e74a9505-a811-407f-b4f6-129b7af1c703','109cf590-ac67-4b8c-912a-913373ada046');
+
 let RouterGuard = require("./RouterGuard.js")(iam);
 Vue.use(Router);
 
@@ -62,7 +66,7 @@ Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
 Vue.component('avatar-uploader', AvatarUploader);
 Vue.component('svg-graph', SvgGraph);
-
+Vue.component('user-picker', UserPicker);
 
 import CloudExample from '../components/example/CloudExample'
 Vue.component('cloud-example', CloudExample);
@@ -131,7 +135,10 @@ export default new Router({
           name: 'instanceMonitor',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
-          props: {monitor: true}
+          props: {
+            monitor: true,
+            iam: iam
+          }
         }
       ]
     },

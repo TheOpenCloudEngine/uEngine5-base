@@ -105,6 +105,10 @@
           </md-button>
         </md-layout>
 
+        <md-layout v-if="monitor">
+          <user-picker :iam="iam" ref="userPicker"></user-picker>
+        </md-layout>
+
       </md-layout>
     </md-layout>
   </div>
@@ -112,7 +116,8 @@
 <script>
   export default {
     props: {
-      monitor: Boolean
+      monitor: Boolean,
+      iam: Object
     },
     data () {
       return {
