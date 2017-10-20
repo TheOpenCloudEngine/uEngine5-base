@@ -1,5 +1,6 @@
 package org.uengine.five;
 
+import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Scope;
@@ -53,8 +54,23 @@ public class JPAProcessInstance extends DefaultProcessInstance {
             this.newInstance = newInstance;
         }
 
+
+    boolean prototype;
+        public boolean isPrototype() {
+            return prototype;
+        }
+        public void setPrototype(boolean prototype) {
+            this.prototype = prototype;
+        }
+
+
     public JPAProcessInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
         super(procDefinition, instanceId, options);
+
+        if (instanceId == null && procDefinition == null){ //return prototype only
+            setPrototype(true);
+            return;
+        }
 
         if(instanceId==null){ //means new Instance, if exists, loading existing instance.
             setNewInstance(true);
@@ -111,6 +127,8 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     @PostConstruct
     public void init() throws Exception {
 
+        if(isPrototype()) return;
+
         if(isNewInstance()) { //if new instance, create one
             processInstanceRepository.save(getProcessInstanceEntity());
 
@@ -158,4 +176,33 @@ public class JPAProcessInstance extends DefaultProcessInstance {
 
     @Autowired
     ResourceManager resourceManager;
+
+    @Override
+    public ProcessInstance getInstance(String instanceId, Map options) throws Exception {
+
+        return MetaworksRemoteService.getInstance().getBeanFactory().getBean(
+                org.uengine.kernel.ProcessInstance.class,
+                new Object[]{
+                        null,
+                        instanceId,
+                        options
+                }
+        );
+    }
+
+
+    @Override
+    public String getRootProcessInstanceId() {
+        return String.valueOf(getProcessInstanceEntity().getRootInstId());
+    }
+
+    @Override
+    public String getMainProcessInstanceId() {
+        return String.valueOf(getProcessInstanceEntity().getMainInstId());
+    }
+
+    @Override
+    public String getMainActivityTracingTag() {
+        return String.valueOf(getProcessInstanceEntity().getMainActTrcTag());
+    }
 }
