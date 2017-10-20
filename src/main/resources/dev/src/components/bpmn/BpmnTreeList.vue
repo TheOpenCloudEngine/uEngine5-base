@@ -1,46 +1,32 @@
 <template>
-    <md-list>
-      <div
-        :class="{bold: isFolder}"
-        @click="toggle">
-        {{model.name}}
-        <span v-if="isFolder">[{{open ? '-' : '+'}}]</span>
+    <li>
+      <div>
+        <a :href="model.id">{{model.name}}</a>
       </div>
-      <md-list-item v-show="open" v-if="isFolder">
+      <ul>
         <bpmn-tree-list
           v-for="model in model.children"
-          :model="model">
+          :model="model"
+          :id="id">
         </bpmn-tree-list>
-      </md-list-item>
-    </md-list>
+      </ul>
+    </li>
 </template>
 
 <script>
   export default {
     name: 'bpmn-tree-list',
     props: {
-      model: Object
+      model: Object,
+      id : ""
     },
     data: function () {
-      return {
-        tree: {
-          name: '',
-          children: []
-        },
-        open: false
-      }
+      return {}
     },
-    computed: {
-      isFolder: function () {
-        return this.tree.children != null
-      }
+    mounted() {
     },
+    computed: {},
     methods: {
-      toggle: function () {
-        if (this.isFolder) {
-          this.open = !this.open
-        }
-      }
     }
   }
 </script>

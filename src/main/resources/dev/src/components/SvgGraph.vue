@@ -69,17 +69,10 @@
     <md-layout>
       <md-layout md-flex="50">
         <md-list v-if="monitor">
-          <md-list-item md-expand-multiple>
-            <md-icon>folder</md-icon>
-            <span class="md-body-1">프로세스 목록</span>
-            <md-list-expand>
-              <md-list>
-                <md-list-item class="md-inset" v-for="tree in trees" :key="tree.name">
-                  {{tree.name}}
-                </md-list-item>
-              </md-list>
-            </md-list-expand>
-          </md-list-item>
+          <bpmn-tree-list
+            :model="treeData"
+            :id="id">
+          </bpmn-tree-list>
         </md-list>
       </md-layout>
       <md-layout md-flex="50">
@@ -192,10 +185,12 @@
             'height': '200'
           }
         ],
-        trees: []
+        trees: [],
+        treeData: {}
       }
     },
-    computed: {},
+    computed: {
+    },
 
     //컴포넌트가 Dom 에 등록되었을 떄(실제 렌더링 되기 위해 활성화 되었을 때.)
     mounted() {
@@ -292,9 +287,8 @@
         //ServiceLocator.vue 는 App.vue (최상단 컴포넌트) 안에 붙어있습니다.
         me.$root.codi('instances{/id}').get({id: me.id})
           .then(function (response) {
-            let split = response.data.defId.split('/');
+            let split = response.data.defName.split('/');
             defId = split[split.length - 1];
-
             //left tree
             var instanceId = me.getLastText(response.data._links.self.href);
             me.findParent(instanceId);
@@ -343,7 +337,9 @@
             if(mainInstId == null) {
               me.trees.push({
                 name: name,
-                id: instanceId
+                id: instanceId,
+                parentId: instanceId,
+                children: null
               });
               me.treeStruecture(instanceId);
               return false;
@@ -366,6 +362,8 @@
             $.each(response.data, function (key, instances) {
               if(key == '_embedded') {
                 if(instances.instances.length == 0) {
+                  var tree = me.listToTree(me.trees);
+                  me.treeData = tree[0];
                   return false;
                 }
                 var name = instances.instances[0]["defId"].replace('/', '');
@@ -373,7 +371,9 @@
                 childId = me.getLastText(childId);
                 me.trees.push({
                   name: name,
-                  id: instanceId
+                  id: childId,
+                  parentId: instanceId,
+                  children: null
                 });
               }
               me.treeStruecture(childId);
@@ -387,6 +387,29 @@
         var lastText = _val.substring(lastSlash, length);
 
         return lastText;
+      }
+      ,
+      listToTree: function (list) {
+        var map = {}, node, roots = [], i;
+        for (i = 0; i < list.length; i += 1) {
+          map[list[i].id] = i;
+          list[i].children = [];
+        }
+        for (i = 0; i < list.length; i += 1) {
+          node = list[i];
+          if (i !== 0) {
+            list[map[node.parentId]].children.push(node);
+          } else {
+            roots.push(node);
+          }
+        }
+        return roots;
+      }
+      ,
+      toggle: function () {
+        if (this.isFolder) {
+          this.open = !this.open
+        }
       }
       ,
       getStatus: function (callback) {
