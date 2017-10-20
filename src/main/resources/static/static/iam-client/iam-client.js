@@ -35,11 +35,11 @@ var IAM = function (host, contextPath) {
 IAM.prototype = {
   logout: function () {
     localStorage.removeItem('uengine-iam-access-token');
-    localStorage.removeItem('uengine-iam-management-id');
-    localStorage.removeItem('uengine-iam-management-key');
-    localStorage.removeItem('uengine-iam-management-secret');
-    localStorage.removeItem('uengine-iam-client-key');
-    localStorage.removeItem('uengine-iam-client-secret');
+    // localStorage.removeItem('uengine-iam-management-id');
+    // localStorage.removeItem('uengine-iam-management-key');
+    // localStorage.removeItem('uengine-iam-management-secret');
+    // localStorage.removeItem('uengine-iam-client-key');
+    // localStorage.removeItem('uengine-iam-client-secret');
   },
   setDefaultManagement: function (id, key, secret) {
     localStorage.setItem('uengine-iam-management-id', id);

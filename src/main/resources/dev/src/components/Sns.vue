@@ -12,7 +12,7 @@
           <md-list-item v-for="(item, index) in items">
             <md-avatar>
               <img
-                :src="location.protocol + '//' + location.hostname + ':8080/iam/rest/v1/avatar?userName=' + item.endpoint"
+                :src="'http://iam.uengine.io:8080/rest/v1/avatar?userName=' + item.endpoint"
                 alt="People">
             </md-avatar>
 
