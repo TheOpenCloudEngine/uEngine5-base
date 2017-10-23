@@ -78,10 +78,18 @@
       <md-layout md-flex="50">
 
         <!--프로세스 아이디-->
-        <md-layout>
+        <md-layout v-if="!monitor">
           <md-input-container>
             <label>Process Name</label>
             <md-input v-model="id" type="text"></md-input>
+          </md-input-container>
+        </md-layout>
+
+        <!--인스턴스 이름-->
+        <md-layout v-if="monitor">
+          <md-input-container>
+            <label>Instance Name</label>
+            <md-input v-model="definitionName" type="text" readonly></md-input>
           </md-input-container>
         </md-layout>
 
@@ -280,7 +288,6 @@
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
-
         var defId;
 
         //이 부분에 대한 것은, ServiceLocator.vue 를 보도록.
@@ -289,6 +296,7 @@
           .then(function (response) {
             let split = response.data.defName.split('/');
             defId = split[split.length - 1];
+            me.definitionName = defId.replace(".json", "");
             //left tree
             var instanceId = me.getLastText(response.data._links.self.href);
             me.findParent(instanceId);
