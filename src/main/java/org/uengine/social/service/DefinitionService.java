@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Created by uengine on 2017. 8. 9..
  *
- * Implementation Principals:
+ * Implementation Principles:
  *  - REST Maturity Level : 2
  *  - Not using old uEngine ProcessManagerBean, this replaces the ProcessManagerBean
  *  - ResourceManager and CachedResourceManager will be used for definition caching (Not to use the old DefinitionFactory)
