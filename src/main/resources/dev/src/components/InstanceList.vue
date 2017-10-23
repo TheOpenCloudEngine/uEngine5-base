@@ -208,7 +208,10 @@
             $.each(response.data._embedded.instances, function (i, instance) {
               let split = instance._links.self.href.split('/');
               instance['instId'] = split[split.length - 1];
-              instances.push(instance);
+              //최상단 인스턴스일 경우에만 보이도록 한다.
+              if(instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
+                instances.push(instance);
+              }
             });
             me.items = instances;
           }
