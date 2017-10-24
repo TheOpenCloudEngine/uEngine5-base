@@ -107,7 +107,7 @@
         </md-layout>
 
         <md-layout v-if="monitor">
-          <user-picker :iam="iam" ref="userPicker"></user-picker>
+          <user-picker :iam="iam" :id="id" ref="userPicker" :definition="definition" v-if="definition"></user-picker>
         </md-layout>
 
       </md-layout>

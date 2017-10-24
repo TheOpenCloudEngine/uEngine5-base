@@ -1,138 +1,113 @@
 <template>
   <md-layout md-gutter>
-    <md-layout md-gutter>
-      <md-layout md-flex="15">
-        <div class="phone-viewport">
-          <md-toolbar md-theme="white">
-            <span class="md-title">프로세스</span>
-          </md-toolbar>
+    <md-layout md-flex="15">
+      <!--<md-toolbar md-theme="white">-->
+        <!--<span class="md-title">인스턴스 검색</span>-->
+      <!--</md-toolbar>-->
+      <md-list>
+        <md-list-item>
+          <md-input-container>
+            <md-select name="status" id="status" v-model="filter.status" @change="setStatus">
+              <md-option value="All">모두</md-option>
+              <md-option value="Running">진행중</md-option>
+              <md-option value="Ready">준비중</md-option>
+              <md-option value="Completed">완료됨</md-option>
+              <md-option value="Stopped">중지됨</md-option>
+              <md-option value="Skipped">건너뜀</md-option>
+              <md-option value="Suspended">일시중지</md-option>
+              <md-option value="Failed">실패함</md-option>
+            </md-select>
+          </md-input-container>
+        </md-list-item>
+        <md-list-item>
+          <md-input-container>
+            <label>인스턴스 아이디</label>
+            <md-input placeholder="Instance ID" v-model="filter.instId"></md-input>
+          </md-input-container>
+        </md-list-item>
+        <md-list-item>
+          <md-input-container>
+            <label>이름</label>
+            <md-input placeholder="name" v-model="filter.defId"></md-input>
+          </md-input-container>
+        </md-list-item>
+        <md-list-item>
+          <md-input-container>
+            <label>시작자</label>
+            <md-input placeholder="starter" v-model="filter.defName"></md-input>
+          </md-input-container>
+          <!--<md-dialog-prompt-->
+          <!--:md-title="prompt.title"-->
+          <!--:md-ok-text="prompt.ok"-->
+          <!--:md-cancel-text="prompt.cancel"-->
+          <!--@open="onOpen"-->
+          <!--@close="onClose"-->
+          <!--ref="dialog6">-->
+          <!--</md-dialog-prompt>-->
 
-          <md-list>
-            <md-list-item md-expand-multiple>
-              <md-icon>folder</md-icon>
-              <span class="md-body-1">프로세스 목록</span>
-              <md-list-expand>
-                <md-list>
-                  <md-list-item class="md-inset" v-for="tree in trees" :key="tree.name">
-                    {{tree.name}}
-                  </md-list-item>
-                </md-list>
-              </md-list-expand>
-            </md-list-item>
-          </md-list>
-          <md-list>
-            <md-list-item md-expand-multiple>
-              <md-icon>folder</md-icon>
-              <span class="md-body-1">인스턴스 검색</span>
-              <md-list-expand>
-                <md-list>
-                  <md-list-item class="md-inset">
-                    <md-input-container>
-                      <md-select name="status" id="status" v-model="filter.status" @change="setStatus">
-                        <md-option value="All">모두</md-option>
-                        <md-option value="Running">진행중</md-option>
-                        <md-option value="Ready">준비중</md-option>
-                        <md-option value="Completed">완료됨</md-option>
-                        <md-option value="Stopped">중지됨</md-option>
-                        <md-option value="Skipped">건너뜀</md-option>
-                        <md-option value="Suspended">일시중지</md-option>
-                        <md-option value="Failed">실패함</md-option>
-                      </md-select>
-                    </md-input-container>
-                  </md-list-item>
-                  <md-list-item class="md-inset">
-                    <md-input-container>
-                      <label>인스턴스 아이디</label>
-                      <md-input placeholder="Instance ID" v-model="filter.instId"></md-input>
-                    </md-input-container>
-                  </md-list-item>
-                  <md-list-item class="md-inset">
-                    <md-input-container>
-                      <label>이름</label>
-                      <md-input placeholder="name" v-model="filter.defId"></md-input>
-                    </md-input-container>
-                  </md-list-item>
-                  <md-list-item class="md-inset">
-                    <md-input-container>
-                      <label>시작자</label>
-                      <md-input placeholder="starter" v-model="filter.defName"></md-input>
-                    </md-input-container>
-                    <!--<md-dialog-prompt-->
-                    <!--:md-title="prompt.title"-->
-                    <!--:md-ok-text="prompt.ok"-->
-                    <!--:md-cancel-text="prompt.cancel"-->
-                    <!--@open="onOpen"-->
-                    <!--@close="onClose"-->
-                    <!--ref="dialog6">-->
-                    <!--</md-dialog-prompt>-->
+          <md-button class="md-icon-button md-raised md-primary" @click.native="openDialog('dialog6')">
+            <md-icon style="color: #ffffff">search</md-icon>
+          </md-button>
+        </md-list-item>
+        <md-list-item>
+          <md-input-container>
+            <label>현담당자</label>
+            <md-input placeholder="current manager" v-model="filter.eventHandler"></md-input>
+          </md-input-container>
+          <!--<md-dialog-prompt-->
+          <!--:md-title="prompt.title"-->
+          <!--:md-ok-text="prompt.ok"-->
+          <!--:md-cancel-text="prompt.cancel"-->
+          <!--@open="onOpen"-->
+          <!--@close="onClose"-->
+          <!--ref="dialog6">-->
+          <!--</md-dialog-prompt>-->
+          <md-button class="md-icon-button md-raised md-primary">
+            <md-icon style="color: #ffffff">search</md-icon>
+          </md-button>
+        </md-list-item>
+        <md-list-item>
+          <md-input-container>
+            <label>시작일</label>
+            <md-input type="date" placeholder="Start Date" v-model="filter.startedDate"></md-input>
+          </md-input-container>
+        </md-list-item>
+        <md-list-item>
+          <md-input-container>
+            <label>종료일</label>
+            <md-input type="date" md-format="yyyy/mm/dd" placeholder="End Date"
+                      v-model="filter.finishedDate"></md-input>
+          </md-input-container>
+        </md-list-item>
+        <md-list-item>
+          <md-button class="md-raised md-primary" v-on:click="search()">Search</md-button>
+        </md-list-item>
+      </md-list>
+    </md-layout>
+    <md-layout md-flex="85">
+      <md-table>
+        <md-table-header>
+          <md-table-row>
+            <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
+          </md-table-row>
+        </md-table-header>
 
-                    <md-button class="md-icon-button md-raised md-primary" @click.native="openDialog('dialog6')">
-                      <md-icon style="color: #ffffff">search</md-icon>
-                    </md-button>
-                  </md-list-item>
-                  <md-list-item class="md-inset">
-                    <md-input-container>
-                      <label>현담당자</label>
-                      <md-input placeholder="current manager" v-model="filter.eventHandler"></md-input>
-                    </md-input-container>
-                    <!--<md-dialog-prompt-->
-                    <!--:md-title="prompt.title"-->
-                    <!--:md-ok-text="prompt.ok"-->
-                    <!--:md-cancel-text="prompt.cancel"-->
-                    <!--@open="onOpen"-->
-                    <!--@close="onClose"-->
-                    <!--ref="dialog6">-->
-                    <!--</md-dialog-prompt>-->
-                    <md-button class="md-icon-button md-raised md-primary">
-                      <md-icon style="color: #ffffff">search</md-icon>
-                    </md-button>
-                  </md-list-item>
-                  <md-list-item class="md-inset">
-                    <md-input-container>
-                      <label>시작일</label>
-                      <md-input type="date" placeholder="Start Date" v-model="filter.startedDate"></md-input>
-                    </md-input-container>
-                  </md-list-item>
-                  <md-list-item class="md-inset">
-                    <md-input-container>
-                      <label>종료일</label>
-                      <md-input type="date" md-format="yyyy/mm/dd" placeholder="End Date" v-model="filter.finishedDate"></md-input>
-                    </md-input-container>
-                  </md-list-item>
-                  <md-list-item class="md-inset">
-                    <md-button class="md-raised md-primary" v-on:click="search()">Search</md-button>
-                  </md-list-item>
-                </md-list>
-              </md-list-expand>
-            </md-list-item>
-          </md-list>
-        </div>
-      </md-layout>
-      <md-layout md-flex="85">
-        <md-table>
-          <md-table-header>
-            <md-table-row>
-              <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
-            </md-table-row>
-          </md-table-header>
-
-          <md-table-body>
-            <md-table-row v-for="item in items" :key="item.defId">
-              <md-table-cell>{{item.status}}</md-table-cell>
-              <md-table-cell>{{item.instId}}</md-table-cell>
-              <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
-              <md-table-cell>{{item.defName}}</md-table-cell>
-              <md-table-cell>{{item.defName}}</md-table-cell>
-              <md-table-cell>{{item.eventHandler}}</md-table-cell>
-              <md-table-cell>{{item.info}}</md-table-cell>
-              <md-table-cell>{{item.startedDate}}</md-table-cell>
-              <md-table-cell>{{item.finishedDate}}</md-table-cell>
-              <md-table-cell>{{item.ext1}}</md-table-cell>
-              <md-table-cell>{{item.instId}}</md-table-cell>
-            </md-table-row>
-          </md-table-body>
-        </md-table>
-      </md-layout>
+        <md-table-body>
+          <md-table-row v-for="item in items" :key="item.defId">
+            <md-table-cell>{{item.status}}</md-table-cell>
+            <md-table-cell>{{item.instId}}</md-table-cell>
+            <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
+            <md-table-cell>{{item.defName}}</md-table-cell>
+            <md-table-cell>{{item.defName}}</md-table-cell>
+            <md-table-cell>{{item.eventHandler}}</md-table-cell>
+            <md-table-cell>{{item.info}}</md-table-cell>
+            <md-table-cell>{{item.startedDate}}</md-table-cell>
+            <md-table-cell>{{item.finishedDate}}</md-table-cell>
+            <md-table-cell>{{item.ext1}}</md-table-cell>
+            <md-table-cell>{{item.instId}}</md-table-cell>
+          </md-table-row>
+        </md-table-body>
+      </md-table>
     </md-layout>
   </md-layout>
 </template>
@@ -209,7 +184,7 @@
               let split = instance._links.self.href.split('/');
               instance['instId'] = split[split.length - 1];
               //최상단 인스턴스일 경우에만 보이도록 한다.
-              if(instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
+              if (instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
                 instances.push(instance);
               }
             });
@@ -238,13 +213,13 @@
       search: function () {
         var item = this;
         var url = 'instances/search/findFilterICanSee?'
-        var filter =  this.filter
-        $.each(this.filter,function(obj,value){
+        var filter = this.filter
+        $.each(this.filter, function (obj, value) {
           if (value != undefined && value != '') {
-            if (url.indexOf("?") != url.length-1) {
-              url = url + "&" + obj +"=" + value;
+            if (url.indexOf("?") != url.length - 1) {
+              url = url + "&" + obj + "=" + value;
             } else {
-              url = url  + obj +"=" + value;
+              url = url + obj + "=" + value;
             }
           }
         })
