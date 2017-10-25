@@ -1,17 +1,15 @@
 <template>
-    <li class="md-list">
-      <div>
-        <md-icon>indeterminate_check_box</md-icon>
-        <a :href="model.id">{{model.name}}</a>
-      </div>
-      <ul class="md-list-item">
+    <md-list-item>
+      <md-list>
+        <!--md-icon>folder</md-icon -->
+        <a :href="model.id">- {{model.name}}</a>
         <bpmn-tree-list
           v-for="model in model.children"
           :model="model"
           :id="id">
         </bpmn-tree-list>
-      </ul>
-    </li>
+      </md-list>
+    </md-list-item>
 </template>
 
 <script>

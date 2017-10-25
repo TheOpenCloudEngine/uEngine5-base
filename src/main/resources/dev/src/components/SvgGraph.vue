@@ -15,69 +15,66 @@
                   :monitor="monitor"
                   v-on:bpmnReady="bindEvents">
         </bpmn-vue>
-
-        <md-card v-if="!monitor" class="tools">
-          <span class="icons bpmn-icon-hand-tool"></span>
-          <span class="icons bpmn-icon-lasso-tool"></span>
-          <span class="icons bpmn-icon-space-tool"></span>
-          <span class="icons bpmn-icon-connection-multi"></span>
-
-          <hr class="separator">
-
-          <span v-for="item in dragItems"
-                class="icons draggable"
-                :class="item.icon"
-                :_component="item.component"
-                :_width="item.width"
-                :_height="item.height"
-          ></span>
-        </md-card>
-
-        <md-card v-if="!monitor" class="import">
-          <md-layout>
-            <md-layout>
-              <span class="icons fa fa-folder-open"></span>
-            </md-layout>
-            <md-layout>
-              <span class="icons fa fa-cloud-upload"></span>
-            </md-layout>
-          </md-layout>
-        </md-card>
-
-        <md-card v-if="!monitor" class="export">
-          <md-layout>
-            <md-layout>
-              <span class="icons fa fa-download"></span>
-            </md-layout>
-            <md-layout>
-              <span class="icons fa fa-picture-o"></span>
-            </md-layout>
-          </md-layout>
-        </md-card>
-
-        <md-card v-if="!monitor" class="history">
-          <md-layout>
-            <md-layout>
-              <span class="icons fa fa-undo" v-on:click="undo"></span>
-            </md-layout>
-            <md-layout>
-              <span class="icons fa fa-repeat" v-on:click="redo"></span>
-            </md-layout>
-          </md-layout>
-        </md-card>
-
-        <md-card v-if="!monitor" class="zoom">
-          <span class="icons fa fa-arrows-alt"></span>
-
-          <hr class="separator">
-
-          <span class="icons fa fa-plus-square-o"></span>
-          <span class="icons fa fa-minus-square-o"></span>
-        </md-card>
-
         <md-layout>
           <md-layout md-flex="50">
+            <md-card v-if="!monitor" class="tools">
+              <span class="icons bpmn-icon-hand-tool"></span>
+              <span class="icons bpmn-icon-lasso-tool"></span>
+              <span class="icons bpmn-icon-space-tool"></span>
+              <span class="icons bpmn-icon-connection-multi"></span>
 
+              <hr class="separator">
+
+              <span v-for="item in dragItems"
+                    class="icons draggable"
+                    :class="item.icon"
+                    :_component="item.component"
+                    :_width="item.width"
+                    :_height="item.height"
+              ></span>
+            </md-card>
+
+            <md-card v-if="!monitor" class="import">
+              <md-layout>
+                <md-layout>
+                  <span class="icons fa fa-folder-open"></span>
+                </md-layout>
+                <md-layout>
+                  <span class="icons fa fa-cloud-upload"></span>
+                </md-layout>
+              </md-layout>
+            </md-card>
+
+            <md-card v-if="!monitor" class="export">
+              <md-layout>
+                <md-layout>
+                  <span class="icons fa fa-download"></span>
+                </md-layout>
+                <md-layout>
+                  <span class="icons fa fa-picture-o"></span>
+                </md-layout>
+              </md-layout>
+            </md-card>
+
+            <md-card v-if="!monitor" class="history">
+              <md-layout>
+                <md-layout>
+                  <span class="icons fa fa-undo" v-on:click="undo"></span>
+                </md-layout>
+                <md-layout>
+                  <span class="icons fa fa-repeat" v-on:click="redo"></span>
+                </md-layout>
+              </md-layout>
+            </md-card>
+
+            <md-card v-if="!monitor" class="zoom">
+              <span class="icons fa fa-arrows-alt"></span>
+
+              <hr class="separator">
+
+              <span class="icons fa fa-plus-square-o"></span>
+              <span class="icons fa fa-minus-square-o"></span>
+            </md-card>
           </md-layout>
           <md-layout md-flex="50">
 
@@ -543,7 +540,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      top: 0px;
+      top: 10%;
       left: 0px;
       overflow: hidden;
     }
