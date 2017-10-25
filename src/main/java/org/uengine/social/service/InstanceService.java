@@ -35,8 +35,9 @@ public class InstanceService {
                 }
         );
 
-
-        return ((DefaultProcessInstance)instance).getVariables();
+        //여기서도 롤매핑이 들어가면 시리얼라이즈 에러가 나옴.
+        Map variables = ((DefaultProcessInstance) instance).getVariables();
+        return variables;
     }
 
     @Autowired

@@ -81,7 +81,7 @@
         me.selectedName = item.name;
         me.total = 1;
         me.$set(me.users, me.role.name, item.userName);
-        var data = {_type:"org.uengine.kernel.RoleMapping",endpoint:item.userName,resourceName:item.name};
+        var data = {_type:"org.uengine.kernel.RoleMapping",endpoint:item.userName};
         console.log(me.id);
         me.$root.codi('instance{/id}/role-mapping{/roleName}').save({id: me.id,roleName:me.role.name },data)
           .then(function (response) {

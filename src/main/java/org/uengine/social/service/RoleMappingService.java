@@ -1,5 +1,6 @@
 package org.uengine.social.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,9 @@ import org.uengine.social.entity.WorklistEntity;
 import org.uengine.social.repository.WorklistRepository;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,18 +45,20 @@ public class RoleMappingService {
         return instance.getRoleMapping(roleName);
     }
 
-    @RequestMapping(value = "/instance/{instId}/role-mapping/{roleName}", method = RequestMethod.POST)
-    public RoleMapping setRoleMapping(@PathVariable("instId") String instId, @PathVariable("roleName") String roleName, @RequestBody RoleMapping roleMapping) throws Exception {
+    //Spring Data rest 에서는 자동객체를 JSON으로 바인딩 해주지만, 원래 스프링에서는 리스폰스에 대해 스프링 프레임웤이 해석할 수 있는 미디어타입을 xml 에 일일히 설정했었음.
+    //produces 의 의미는. 리스폰스 헤더에 콘텐트타입을 설정해줌. 그래야 브라우저가 json 객체로 받아들인다.
+    @RequestMapping(value = "/instance/{instanceId}/role-mapping/{roleName}", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
+    public Object setRoleMapping(@PathVariable("instanceId") String instanceId, @PathVariable("roleName") String roleName, @RequestBody RoleMapping roleMapping) throws Exception {
 
         ProcessInstance instance = applicationContext.getBean(
                 ProcessInstance.class,
                 new Object[]{
                         null,
-                        instId,
+                        instanceId,
                         null
                 }
         );
-
+        //예상에는, 롤매핑도 인스턴스처럼 DB 에 넣고, 튀어나오는 아이디를 roleMapping 객체에 넣은다음 instance.putRoleMapping 을 해야할듯.?
         instance.putRoleMapping(roleName, roleMapping);
 
         roleMapping.setName(roleName);
