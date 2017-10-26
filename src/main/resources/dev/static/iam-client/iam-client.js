@@ -215,7 +215,7 @@ IAM.prototype = {
       resolve: function (response, status, xhr) {
         var total = parseInt(xhr.getResponseHeader('x-uengine-pagination-totalnbrecords'));
         var filtered = parseInt(xhr.getResponseHeader('x-uengine-pagination-maxnbrecords'));
-        console.log(total, filtered);
+        // console.log(total, filtered);
         return {
           data: response,
           total: total,

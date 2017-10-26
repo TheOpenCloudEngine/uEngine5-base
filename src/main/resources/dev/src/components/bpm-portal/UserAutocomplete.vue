@@ -22,8 +22,7 @@
 <script>
   export default {
     props: {
-      iam: Object,
-      role: Object,
+      role: String,
       id: String
     },
 
@@ -37,6 +36,7 @@
         filtered: "",
         selectedName: "",
         users: {},
+        iam:{},
         items: [
           {
             _rev: "",
@@ -57,7 +57,7 @@
     },
     mounted: function () {
       var me = this;
-      me.iam.getUserSearch("", 0, 10)
+      me.$root.$children[0].$children[3].iam.getUserSearch("", 0, 10)
         .then(function (response) {
           me.items = response.data;
           me.filtered = response.filtered;
@@ -67,12 +67,11 @@
     methods: {
       getFilterList: function (list, param) {
         var me = this;
-        me.iam.getUserSearch(param, 0, 10)
+        me.$root.$children[0].$children[3].iam.getUserSearch(param, 0, 10)
           .then(function (response) {
             me.items = response.data;
             me.filtered = response.filtered;
             me.total = response.total;
-            1
           });
         return me.items;
       },
@@ -80,13 +79,8 @@
         var me = this;
         me.selectedName = item.name;
         me.total = 1;
-        me.$set(me.users, me.role.name, item.userName);
-        var data = {_type:"org.uengine.kernel.RoleMapping",endpoint:item.userName};
-        console.log(me.id);
-        me.$root.codi('instance{/id}/role-mapping{/roleName}').save({id: me.id,roleName:me.role.name },data)
-          .then(function (response) {
-            console.log(response);
-          })
+        me.$set(me.$parent.$parent.$parent.$parent.$parent.users, me.role.name, item.userName);
+//        me.$set(me.users, me.role.name, item.userName);
       }
     }
   }

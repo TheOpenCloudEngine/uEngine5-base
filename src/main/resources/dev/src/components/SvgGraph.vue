@@ -108,7 +108,13 @@
             </md-layout>
 
             <md-layout v-if="monitor">
-              <user-picker :iam="iam" :id="id" ref="userPicker" :definition="definition" v-if="definition"></user-picker>
+              <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
+              <user-picker
+                :id="id"
+                ref="userPicker"
+                :roles="definition.roles"
+                v-if="definition"
+                style="min-width: 70%;"></user-picker>
             </md-layout>
 
           </md-layout>
@@ -120,10 +126,9 @@
 <script>
   export default {
     props: {
-      monitor: Boolean,
-      iam: Object
+      monitor: Boolean
     },
-    data () {
+    data() {
       return {
         aaa: 'AAA',
         id: null,
@@ -200,8 +205,7 @@
         treeData: {}
       }
     },
-    computed: {
-    },
+    computed: {},
 
     //컴포넌트가 Dom 에 등록되었을 떄(실제 렌더링 되기 위해 활성화 되었을 때.)
     mounted() {
@@ -292,7 +296,6 @@
         var me = this;
         me.id = this.$route.params.id;
         var defId;
-
         //이 부분에 대한 것은, ServiceLocator.vue 를 보도록.
         //ServiceLocator.vue 는 App.vue (최상단 컴포넌트) 안에 붙어있습니다.
         me.$root.codi('instances{/id}').get({id: me.id})
@@ -307,9 +310,6 @@
           .then(function () {
             me.$root.codi('definition{/id}').get({id: defId})
               .then(function (response) {
-
-
-
                 // definition 이란 것은 디자이너가 도형을 그리는 스펙 정의.
                 // status 를 불러와서 definition 을 손본 후, me.definition 에 등록할 것.
 
@@ -338,14 +338,14 @@
       ,
       //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
       //재귀호출하여 상위 인스턴스가 없을 때까지 찾는다.
-      findParent: function(instanceId) {
+      findParent: function (instanceId) {
         var me = this;
         me.$root.codi('instances{/id}').get({id: instanceId})
           .then(function (response) {
             var mainInstId = response.data.mainInstId;
             var name = me.getLastText(response.data.defId).replace('.json', '');
             var instanceId = me.getLastText(response.data._links.self.href);
-            if(mainInstId == null) {
+            if (mainInstId == null) {
               me.trees.push({
                 name: name,
                 id: instanceId,
@@ -361,9 +361,9 @@
       ,
       //트리 구조를 위해 subprocess가 있는지 확인한다.
       //재귀호출하여 하위 참조 인스턴스가 없을 때까지 찾는다.
-      treeStruecture: function(instanceId) {
+      treeStruecture: function (instanceId) {
         //instanceId가 null로 들어오는 경우가 있어 체크함
-        if(instanceId == null) {
+        if (instanceId == null) {
           return;
         }
 
@@ -371,8 +371,8 @@
         me.$root.codi('instances/search/findChild?instId=' + instanceId).get()
           .then(function (response) {
             $.each(response.data, function (key, instances) {
-              if(key == '_embedded') {
-                if(instances.instances.length == 0) {
+              if (key == '_embedded') {
+                if (instances.instances.length == 0) {
                   var tree = me.listToTree(me.trees);
                   me.treeData = tree[0];
                   return false;
@@ -523,6 +523,9 @@
           );
       }
       ,
+      openUserPicker(ref) {
+        this.$refs['userPicker'].openUserPicker();
+      }
     }
   }
 </script>
