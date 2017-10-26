@@ -81,15 +81,13 @@
               var instanceId = response.data;
               me.$root.$children[0].success('프로세스가 시작되었습니다.');
               me.$router.push({
-                path: '/sns'
+                path: '/instance/' + instanceId
               })
-              console.log(123);
             },
             function (response) {
               me.$root.$children[0].error('프로세스를 시작할 수 없습니다.');
             }
           );
-        console.log(456);
       },
     }
   }
