@@ -26,6 +26,9 @@
             <md-button v-on:click="initiateProcess(card.name)">Activate</md-button>
             <md-button v-on:click="move(card.name)">Edit</md-button>
           </md-card-actions>
+          <md-card-actions>
+            <md-button v-on:click="deleteProcess(card.name)">DELETE</md-button>
+          </md-card-actions>
         </md-card>
       </md-layout>
     </md-layout>
@@ -72,6 +75,22 @@
         this.$router.push({
           path: 'definition/' + name.replace('.json', '')
         })
+      },
+      deleteProcess: function (name) {
+        var me = this;
+        this.$root.codi('definition{/id}').delete({id: name}, {})
+          .then(
+            function (response) {
+              var instanceId = response.data;
+              me.$root.$children[0].success('프로세스가 삭제되었습니다.');
+              me.$router.push({
+                path: '/'
+              })
+            },
+            function (response) {
+              me.$root.$children[0].error('프로세스를 삭제할 수 없습니다.');
+            }
+          );
       },
       initiateProcess: function (name) {
         var me = this;

@@ -168,7 +168,7 @@ public class DefinitionService {
             throw new Exception("unknown resource type: " + definitionPath);
     }
 
-    @RequestMapping(value = "/definition/{defPath}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.DELETE)
     public void deleteDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
