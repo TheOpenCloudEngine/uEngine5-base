@@ -1,6 +1,10 @@
 <template>
   <div>
     <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
+    <md-button class="md-raised md-primary" id="newPackage" @click="openPackage">New Package</md-button>
+    <new-package
+      ref="newPackage"
+      style="min-width: 70%;"></new-package>
 
     <md-layout md-gutter="24">
       <md-layout md-flex-xsmall="100" md-flex-small="50" md-flex-medium="25" md-flex="25"
@@ -49,6 +53,9 @@
       this.getDefinitionList();
     },
     methods: {
+      openPackage(ref) {
+        this.$refs['newPackage'].openPackage();
+      },
       getDefinitionList: function () {
         var me = this;
         this.$root.codi('definitions').get()
