@@ -67,6 +67,23 @@ public class DefinitionService {
         return resourcesList;  //TODO: Need to be changed to HATEOAS _self link instead
     }
 
+
+    @RequestMapping(value = "/definitions/{defPath}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<String> listPackage(@PathVariable("defPath") String definitionPath) throws Exception {
+
+        IContainer resource = new ContainerResource();
+        resource.setPath(resourceRoot + "/" + definitionPath);
+        List<IResource> resources = resourceManager.listFiles(resource);
+
+        List<String> resourcesList = new ArrayList<String>();
+
+        for(IResource resource1 : resources){
+            resourcesList.add(resource1.getPath().substring(resourceRoot.length()));
+        }
+
+        return resourcesList;  //TODO: Need to be changed to HATEOAS _self link instead
+    }
+
     private ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -129,6 +146,28 @@ public class DefinitionService {
         return uEngineProcessJSON;
     }
 
+    @RequestMapping(value = "/definition/{defPackage}/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public Object getDefinitionTree(@PathVariable("defPackage") String definitionPackage, @PathVariable("defPath") String definitionPath) throws Exception {
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPackage + "/" + definitionPath);
+        Object object = resourceManager.getObject(resource);
+
+
+        ObjectMapper objectMapper = createObjectMapper();
+        DefinitionWrapper definitionWrapper = new DefinitionWrapper((Serializable) object);
+        String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
+
+        return uEngineProcessJSON;
+    }
+
+    @RequestMapping(value = "/definition/package/{packPath}", method = RequestMethod.POST)
+    public void putPackage(@PathVariable("packPath") String packagePath) throws Exception {
+        IContainer folderResource = new ContainerResource();
+        folderResource.setPath(resourceRoot + "/" + packagePath);
+
+        resourceManager.createFolder(folderResource);
+    }
+
     /**
      * TODO: need ACL referenced by token
      * @param definitionPath
@@ -168,7 +207,7 @@ public class DefinitionService {
             throw new Exception("unknown resource type: " + definitionPath);
     }
 
-    @RequestMapping(value = "/definition/{defPath}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.DELETE)
     public void deleteDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);

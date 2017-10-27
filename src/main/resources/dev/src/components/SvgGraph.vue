@@ -82,7 +82,7 @@
             <md-layout v-if="!monitor">
               <md-input-container>
                 <label>Process Name</label>
-                <md-input v-model="id" type="text"></md-input>
+                <md-input v-model="definitionName" type="text"></md-input>
               </md-input-container>
             </md-layout>
 
@@ -300,15 +300,15 @@
         //ServiceLocator.vue 는 App.vue (최상단 컴포넌트) 안에 붙어있습니다.
         me.$root.codi('instances{/id}').get({id: me.id})
           .then(function (response) {
-            let split = response.data.defName.split('/');
-            defId = split[split.length - 1];
-            me.definitionName = defId.replace(".json", "");
+            let split = response.data.defId.split('/');
+            defId = split[split.length - 1].replace(".json", "");
+            me.definitionName = response.data.defName;
             //left tree
             var instanceId = me.getLastText(response.data._links.self.href);
             me.findParent(instanceId);
           })
           .then(function () {
-            me.$root.codi('definition{/id}').get({id: defId})
+            me.$root.codi('definition{/id}').get({id: defId + '.json'})
               .then(function (response) {
                 // definition 이란 것은 디자이너가 도형을 그리는 스펙 정의.
                 // status 를 불러와서 definition 을 손본 후, me.definition 에 등록할 것.
@@ -469,6 +469,7 @@
           this.$root.codi('definition{/id}').get({id: me.id + '.json'})
             .then(function (response) {
               me.definition = response.data.definition;
+              me.definitionName = me.definition.name.text;
             })
         }
       }
@@ -480,6 +481,14 @@
 //        definitionToSave.childActivities[1] = [];
 //        definitionToSave.roles = [];
         //definitionToSave.sequenceFlows = [];
+
+        if (me.id == 'new-process-definition') {
+          if(me.definitionName !== null) {
+            me.id = me.definitionName;
+          }
+        }
+
+        definitionToSave.name.text = me.definitionName;
 
         var nullFilter = function (array) {
           return array.filter(function (x) {

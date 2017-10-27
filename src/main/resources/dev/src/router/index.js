@@ -15,7 +15,7 @@ import InstanceList from '@/components/InstanceList'
 import SvgGraph from '@/components/SvgGraph'
 import UserPicker from '@/components/bpm-portal/UserPicker'
 import UserAutocomplete from '@/components/bpm-portal/UserAutocomplete'
-
+import NewPackage from '@/components/bpm-portal/newPackage'
 
 /**
  * Iam && Vue Router
@@ -69,6 +69,7 @@ Vue.component('class-selector', ClassSelector);
 Vue.component('avatar-uploader', AvatarUploader);
 Vue.component('svg-graph', SvgGraph);
 Vue.component('user-picker', UserPicker);
+Vue.component('new-package', NewPackage);
 Vue.component('user-autocomplete', UserAutocomplete);
 
 import CloudExample from '../components/example/CloudExample'

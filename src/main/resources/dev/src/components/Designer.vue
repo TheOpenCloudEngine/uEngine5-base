@@ -1,6 +1,10 @@
 <template>
   <div>
     <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
+    <md-button class="md-raised md-primary" id="newPackage" @click="openPackage">New Package</md-button>
+    <new-package
+      ref="newPackage"
+      style="min-width: 70%;"></new-package>
 
     <md-layout md-gutter="24">
       <md-layout md-flex-xsmall="100" md-flex-small="50" md-flex-medium="25" md-flex="25"
@@ -26,6 +30,9 @@
             <md-button v-on:click="initiateProcess(card.name)">Activate</md-button>
             <md-button v-on:click="move(card.name)">Edit</md-button>
           </md-card-actions>
+          <md-card-actions>
+            <md-button v-on:click="deleteProcess(card.name)">DELETE</md-button>
+          </md-card-actions>
         </md-card>
       </md-layout>
     </md-layout>
@@ -46,6 +53,9 @@
       this.getDefinitionList();
     },
     methods: {
+      openPackage(ref) {
+        this.$refs['newPackage'].openPackage();
+      },
       getDefinitionList: function () {
         var me = this;
         this.$root.codi('definitions').get()
@@ -72,6 +82,22 @@
         this.$router.push({
           path: 'definition/' + name.replace('.json', '')
         })
+      },
+      deleteProcess: function (name) {
+        var me = this;
+        this.$root.codi('definition{/id}').delete({id: name}, {})
+          .then(
+            function (response) {
+              var instanceId = response.data;
+              me.$root.$children[0].success('프로세스가 삭제되었습니다.');
+              me.$router.push({
+                path: '/'
+              })
+            },
+            function (response) {
+              me.$root.$children[0].error('프로세스를 삭제할 수 없습니다.');
+            }
+          );
       },
       initiateProcess: function (name) {
         var me = this;
