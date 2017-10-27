@@ -34,28 +34,44 @@
             </md-input-container>
           </md-list-item>
           <md-list-item>
-            <md-input-container md-clearable>
-              <label>시작자</label>
-              <md-input v-model="filter.defName"></md-input>
-            </md-input-container>
+            <div class="md-list-text-container">
+              <span>시작자</span>
+              <user-autocomplete
+                :role="role"
+                v-if="role"
+                @userSelected:user:role="userSelected"
+              ></user-autocomplete>
+            </div>
+            <!--<md-input-container md-clearable>-->
+            <!--<label>시작자</label>-->
+            <!--<md-input v-model="filter.defName"></md-input>-->
+            <!--</md-input-container>-->
 
-            <md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('starter')">
-              <md-icon style="color: #ffffff">search</md-icon>
-            </md-button>
+            <!--<md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('starter')">-->
+            <!--<md-icon style="color: #ffffff">search</md-icon>-->
+            <!--</md-button>-->
           </md-list-item>
           <md-list-item>
-            <md-input-container md-clearable>
-              <label>현담당자</label>
-              <md-input v-model="filter.endpoint"></md-input>
-            </md-input-container>
-            <md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('endpoint')">
-              <md-icon style="color: #ffffff">search</md-icon>
-            </md-button>
-            <user-picker
-              :roles.sync="roles"
-              :id="id"
-              ref="userPicker"
-              style="min-width: 70%;"></user-picker>
+            <div class="md-list-text-container">
+              <span>현담당자</span>
+              <user-autocomplete
+                :role="role"
+                v-if="role"
+                @userSelected:user:role="userSelected"
+              ></user-autocomplete>
+            </div>
+            <!--<md-input-container md-clearable>-->
+            <!--<label>현담당자</label>-->
+            <!--<md-input v-model="filter.endpoint"></md-input>-->
+            <!--</md-input-container>-->
+            <!--<md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('endpoint')">-->
+            <!--<md-icon style="color: #ffffff">search</md-icon>-->
+            <!--</md-button>-->
+            <!--<user-picker-->
+            <!--:roles.sync="roles"-->
+            <!--:id="id"-->
+            <!--ref="userPicker"-->
+            <!--style="min-width: 70%;"></user-picker>-->
           </md-list-item>
           <md-list-item>
             <div class="md-list-text-container">
@@ -146,11 +162,7 @@
         ],
         id: "",
         users: [],
-        roles: [
-          {
-            name: ""
-          }
-        ],
+        role: "endpoint",
         roleName: "",
         trees: [
           {
@@ -162,6 +174,7 @@
           defName: '',
           defId: '',
           name: '',
+          endpoint:'',
           eventHandler: '',
           startedDate: '',
           finishedDate: ''
@@ -209,8 +222,8 @@
       },
       search: function () {
         var item = this;
-        var url = 'instances/search/findFilterICanSee?'
-        var filter = this.filter
+        var url = 'instances/search/findFilterICanSee?';
+        var filter = this.filter;
         $.each(this.filter, function (obj, value) {
           if (value != undefined && value != '') {
             if (url.indexOf("?") != url.length - 1) {
@@ -232,6 +245,7 @@
                 defId: filteredData.defId,
                 name: filteredData.name,
                 status: filteredData.status,
+                endpoint:filteredData.endpoint,
                 eventHandler: filteredData.eventHandler,
                 isSubProcess: filteredData.isSubProcess,
                 startedDate: filteredData.startedDate,
@@ -252,6 +266,10 @@
         me.roleName = roleName;
         me.roles[0].name = roleName;
         me.$refs['userPicker'].openUserPicker();
+      },
+      userSelected: function (item,role) {
+        this.filter.endpoint = item ;
+        console.log(this.filter);
       }
     }
   }

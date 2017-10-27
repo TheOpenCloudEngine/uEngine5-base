@@ -8,7 +8,7 @@
                      :min-chars="0"
                      :max-height="6"
                      @selected="selectCallback"
-                     :debounce="1000">
+                     :debounce="500">
     </md-autocomplete>
     <!--<md-button class="md-icon-button md-raised md-primary">-->
     <!--<md-icon style="color: #FFFFFF">search</md-icon>-->
@@ -69,9 +69,15 @@
         var me = this;
         me.$root.$children[0].$children[3].iam.getUserSearch(param, 0, 10)
           .then(function (response) {
-            me.items = response.data;
-            me.filtered = response.filtered;
-            me.total = response.total;
+//            console.log(response.data);
+            if (response.data.length > 0 ) {
+              me.items = response.data;
+              me.filtered = response.filtered;
+              me.total = response.total;
+            } else {
+              me.total = "0";
+              me.items =[{userName:""}];
+            }
           });
         return me.items;
       },
@@ -79,8 +85,10 @@
         var me = this;
         me.selectedName = item.name;
         me.total = 1;
-        me.$set(me.$parent.$parent.$parent.$parent.$parent.users, me.role.name, item.userName);
-//        me.$set(me.users, me.role.name, item.userName);
+        //$emit은 자식컴포넌트가 부모컴포넌트에게 값을 전달하기 위한 이벤트 리스너이며 부모 컴포넌트의 v-on이벤트와 매핑된다.
+        // $emit은 부모 Vue의 method를 실행한다.
+//        me.$set(me.$emit('userSelected').users, me.$emit('userSelected').role, item.userName);
+        me.$emit('userSelected:user:role',item.userName,me.role);
       }
     }
   }

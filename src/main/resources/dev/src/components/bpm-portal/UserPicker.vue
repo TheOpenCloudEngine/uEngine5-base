@@ -12,6 +12,7 @@
           <md-layout md-flex="75">
             <user-autocomplete
               :role="role.name"
+              @userSelected:user:role="userSelected"
               ></user-autocomplete>
           </md-layout>
         </md-layout>
@@ -43,7 +44,6 @@
     },
     mounted: function () {
       var me = this;
-      console.log(me.roles);
     },
     methods: {
       closeUserPicker(ref) {
@@ -63,6 +63,9 @@
           }
         })
         this.$refs['userPicker'].close();
+      },
+      userSelected: function (item,role) {
+        this.$set(this.users,role,item);
       }
     }
   }
