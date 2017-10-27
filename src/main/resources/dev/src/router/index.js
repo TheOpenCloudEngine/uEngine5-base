@@ -15,7 +15,8 @@ import InstanceList from '@/components/InstanceList'
 import SvgGraph from '@/components/SvgGraph'
 import UserPicker from '@/components/bpm-portal/UserPicker'
 import UserAutocomplete from '@/components/bpm-portal/UserAutocomplete'
-import NewPackage from '@/components/bpm-portal/newPackage'
+import NewPackage from '@/components/bpm-portal/NewPackage'
+import PackageList from '@/components/bpm-portal/PackageList'
 
 /**
  * Iam && Vue Router
@@ -70,6 +71,7 @@ Vue.component('avatar-uploader', AvatarUploader);
 Vue.component('svg-graph', SvgGraph);
 Vue.component('user-picker', UserPicker);
 Vue.component('new-package', NewPackage);
+Vue.component('package-list', PackageList);
 Vue.component('user-autocomplete', UserAutocomplete);
 
 import CloudExample from '../components/example/CloudExample'
@@ -124,6 +126,12 @@ export default new Router({
         },
         {
           path: 'definition/:id',
+          name: 'graph',
+          component: SvgGraph,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'definition/:path/:id',
           name: 'graph',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,

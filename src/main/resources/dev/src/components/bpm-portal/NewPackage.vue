@@ -29,12 +29,11 @@
     },
 
     data: function () {
-      return {};
+      return {
+        packageName: ""
+      };
     },
-    mounted: function () {
-      var me = this;
-      console.log(me.roles);
-    },
+    mounted: function () {},
     methods: {
       closePackage(ref) {
         this.$refs['newPackage'].close();
