@@ -101,7 +101,7 @@
           })
       },
       getPackageFile: function(_path, _cards) {
-        var src = 'definitions/' + _path; //패키지 내 파일 찾기
+        var src = 'definitions/packages/' + _path + "/processes"; //패키지 내 파일 찾기
         var packageChildren = []; // 좌측 트리에 보여질 패키지 파일 리스트
 
         this.$root.codi(src).get()

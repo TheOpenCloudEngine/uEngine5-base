@@ -43,7 +43,7 @@
       },
       createPackage: function () {
         var me = this;
-        this.$root.codi('definition/package{/id}').save({id: me.packageName}, {})
+        this.$root.codi('definition/packages{/packageName}').save({packageName: me.packageName}, {})
           .then(
             function (response) {
               me.$root.$children[0].success('저장되었습니다.');

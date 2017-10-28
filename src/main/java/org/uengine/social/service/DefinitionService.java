@@ -2,6 +2,7 @@ package org.uengine.social.service;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,7 +21,9 @@ import org.uengine.util.UEngineUtil;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by uengine on 2017. 8. 9..
@@ -53,24 +56,17 @@ public class DefinitionService {
 
     @RequestMapping(value = "/definitions", method = RequestMethod.GET)
     public List<String> listDefinition() throws Exception {
-
-        IContainer resource = new ContainerResource();
-        resource.setPath(resourceRoot + "/");
-        List<IResource> resources = resourceManager.listFiles(resource);
-
-        List<String> resourcesList = new ArrayList<String>();
-
-        for(IResource resource1 : resources){
-            resourcesList.add(resource1.getPath().substring(resourceRoot.length()));
-        }
-
-        return resourcesList;  //TODO: Need to be changed to HATEOAS _self link instead
+        return viewList("");  //TODO: Need to be changed to HATEOAS _self link instead
     }
 
 
-    @RequestMapping(value = "/definitions/{defPath}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public List<String> listPackage(@PathVariable("defPath") String definitionPath) throws Exception {
+    @RequestMapping(value = "/definitions/packages/{packagePath}/processes", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<String> listPackage(@PathVariable("packagePath") String packagePath) throws Exception {
+        return viewList(packagePath);  //TODO: Need to be changed to HATEOAS _self link instead
+    }
 
+
+    private List<String> viewList(String definitionPath) throws Exception {
         IContainer resource = new ContainerResource();
         resource.setPath(resourceRoot + "/" + definitionPath);
         List<IResource> resources = resourceManager.listFiles(resource);
@@ -80,8 +76,64 @@ public class DefinitionService {
         for(IResource resource1 : resources){
             resourcesList.add(resource1.getPath().substring(resourceRoot.length()));
         }
+        return resourcesList;
+    }
 
-        return resourcesList;  //TODO: Need to be changed to HATEOAS _self link instead
+
+    @RequestMapping(value = "/definition/packages/{packagePath}", method = RequestMethod.POST)
+    public void putPackage(@PathVariable("packagePath") String packagePath) throws Exception {
+        IContainer folderResource = new ContainerResource();
+        folderResource.setPath(resourceRoot + "/" + packagePath);
+
+        resourceManager.createFolder(folderResource);
+    }
+
+
+    @RequestMapping(value = "/definitions/packages/{packagePath}/{newName}", method = RequestMethod.POST)
+    public void renamePackage(@PathVariable("packagePath") String packagePath, @PathVariable("newName") String newName) {
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath);
+        newName = resourceRoot + "/" + newName;
+
+        resourceManager.rename(resource, newName);
+    }
+
+
+    @RequestMapping(value = "/definitions/processes/{filePath:.+}", method = RequestMethod.POST)
+    public void moveRootProcess(@PathVariable("filePath") String filePath, @RequestBody String jsonData) throws IOException {
+        moveProcess("", filePath, jsonData);
+    }
+
+
+    @RequestMapping(value = "/definitions/packages/{packagePath}/processes/{filePath:.+}", method = RequestMethod.POST)
+    public void moveProcess(@PathVariable("packagePath") String packagePath, @PathVariable("filePath") String filePath, @RequestBody String jsonData) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> map = new HashMap<String, String>();
+        map = mapper.readValue(jsonData, new TypeReference<Map<String, String>>(){});
+
+        String targetPath = map.get("targetPath");
+
+        if(!packagePath.equals("")) packagePath += "/";
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + filePath);
+        IContainer fileResource = new ContainerResource();
+        fileResource.setPath(resourceRoot + "/" + targetPath);
+
+        resourceManager.move(resource, fileResource);
+    }
+
+
+    @RequestMapping(value = "/definition/{packagePath}/{filePath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public Object getPackageDefinition(@PathVariable("packagePath") String packagePath, @PathVariable("defPath") String filePath) throws Exception {
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + "/" + filePath);
+        Object object = resourceManager.getObject(resource);
+
+
+        ObjectMapper objectMapper = createObjectMapper();
+        DefinitionWrapper definitionWrapper = new DefinitionWrapper((Serializable) object);
+        String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
+
+        return uEngineProcessJSON;
     }
 
     private ObjectMapper createObjectMapper() {
@@ -144,28 +196,6 @@ public class DefinitionService {
 //        //return bpmn;
 
         return uEngineProcessJSON;
-    }
-
-    @RequestMapping(value = "/definition/{defPackage}/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Object getDefinitionTree(@PathVariable("defPackage") String definitionPackage, @PathVariable("defPath") String definitionPath) throws Exception {
-
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPackage + "/" + definitionPath);
-        Object object = resourceManager.getObject(resource);
-
-
-        ObjectMapper objectMapper = createObjectMapper();
-        DefinitionWrapper definitionWrapper = new DefinitionWrapper((Serializable) object);
-        String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
-
-        return uEngineProcessJSON;
-    }
-
-    @RequestMapping(value = "/definition/package/{packPath}", method = RequestMethod.POST)
-    public void putPackage(@PathVariable("packPath") String packagePath) throws Exception {
-        IContainer folderResource = new ContainerResource();
-        folderResource.setPath(resourceRoot + "/" + packagePath);
-
-        resourceManager.createFolder(folderResource);
     }
 
     /**
