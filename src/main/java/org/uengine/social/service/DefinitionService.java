@@ -97,6 +97,13 @@ public class DefinitionService {
         resourceManager.rename(resource, newName);
     }
 
+    @RequestMapping(value = "/definitions/packages/{packagePath}/processes/{filePath:.+}", method = RequestMethod.DELETE)
+    public void deletePackage(@PathVariable("packagePath") String packagePath, @PathVariable("filePath") String filePath) throws Exception {
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + "/" + filePath);
+        resourceManager.delete(resource);
+    }
+
 
     @RequestMapping(value = "/definitions/processes/{filePath:.+}", method = RequestMethod.POST)
     public void moveRootProcess(@PathVariable("filePath") String filePath, @RequestBody String jsonData) throws IOException {
@@ -244,14 +251,21 @@ public class DefinitionService {
         resourceManager.delete(resource);
     }
 
+    @RequestMapping(value = "/definition/{defPath}/instance", method = RequestMethod.POST)
+    public String runRootDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
+        runDefinition("", definitionPath, arguments);
+        return null;
+
+    }
 
     // ----------------- execution services -------------------- //
+    @RequestMapping(value = "/definition/{packagePath}/{filePath}/instance", method = RequestMethod.POST)
+    public String runDefinition(@PathVariable("packagePath") String packagePath, @PathVariable("filePath") String filePath, @RequestBody String arguments) throws Exception {
 
-    @RequestMapping(value = "/definition/{defPath}/instance", method = RequestMethod.POST)
-    public String runDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
+        if(!packagePath.equals("")) packagePath += "/";
 
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
-        Object definition = getDefinitionLocal(definitionPath);
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + filePath);
+        Object definition = getDefinitionLocal(packagePath + filePath);
 
         if(definition instanceof ProcessDefinition){
             ProcessDefinition processDefinition = (ProcessDefinition) definition;
@@ -259,7 +273,7 @@ public class DefinitionService {
             org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
                     org.uengine.kernel.ProcessInstance.class,
                     new Object[]{
-                        processDefinition,
+                            processDefinition,
                             null,
                             null
                     }
@@ -267,9 +281,11 @@ public class DefinitionService {
 
             instance.execute();
 
+            System.out.print("TEST 1 : " + instance.getInstanceId());
+
             return instance.getInstanceId(); //TODO: returns HATEOAS _self link instead.
         }
-
+        System.out.print("TEST 2 : ");
         return null;
 
     }

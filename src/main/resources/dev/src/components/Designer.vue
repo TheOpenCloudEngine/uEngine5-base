@@ -9,9 +9,9 @@
     <md-layout mo-gutter>
       <md-layout md-flex="20">
         <md-list>
-          <package-list
+          <list-package
             :model="treeData">
-          </package-list>
+          </list-package>
         </md-list>
       </md-layout>
       <md-layout md-flex="80">
@@ -36,7 +36,7 @@
               </md-card-area>
 
               <md-card-actions>
-                <md-button v-on:click="initiateProcess(card.name)">Activate</md-button>
+                <md-button v-on:click="initiateProcess(card.name, card.packagePath)">Activate</md-button>
                 <md-button v-on:click="move(card.name)">Edit</md-button>
               </md-card-actions>
               <md-card-actions>
@@ -90,6 +90,7 @@
               if(fileType == "json") {
                 cards.push({
                   name: name,
+                  packagePath: "",
                   desc: name + '...',
                   src: '/static/image/sample.png'
                 })
@@ -110,6 +111,7 @@
               name = name.replace('/', '');
               _cards.push({
                 name: name,
+                packagePath: _path,
                 desc: name + '...',
                 src: '/static/image/sample.png'
               })
@@ -157,9 +159,14 @@
             }
           );
       },
-      initiateProcess: function (name) {
+      initiateProcess: function (name, packagePath) {
         var me = this;
-        this.$root.codi('definition{/id}/instance').save({id: name}, {})
+
+        var length = name.length;
+        var lastSlash = name.lastIndexOf('/') + 1;
+        name  = name.substring(lastSlash, length);
+
+        this.$root.codi('definition{/packagePath}{/fileName}/instance').save({fileName: name, packagePath: packagePath}, {})
           .then(
             function (response) {
               var instanceId = response.data;
