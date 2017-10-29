@@ -253,8 +253,8 @@ public class DefinitionService {
 
     @RequestMapping(value = "/definition/{defPath}/instance", method = RequestMethod.POST)
     public String runRootDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
-        runDefinition("", definitionPath, arguments);
-        return null;
+
+        return runDefinition("", definitionPath, arguments);
 
     }
 
