@@ -16,7 +16,10 @@ import InstanceList from '@/components/InstanceList'
 import SvgGraph from '@/components/SvgGraph'
 import UserPicker from '@/components/bpm-portal/UserPicker'
 import UserAutocomplete from '@/components/bpm-portal/UserAutocomplete'
-import NewPackage from '@/components/bpm-portal/newPackage'
+import NewPackage from '@/components/bpm-portal/NewPackage'
+import RenamePackage from '@/components/bpm-portal/RenamePackage'
+import DeletePackage from '@/components/bpm-portal/DeletePackage'
+import ListPackage from '@/components/bpm-portal/ListPackage'
 
 /**
  * Iam && Vue Router
@@ -72,6 +75,9 @@ Vue.component('iam-avatar', IAMAvatar);
 Vue.component('svg-graph', SvgGraph);
 Vue.component('user-picker', UserPicker);
 Vue.component('new-package', NewPackage);
+Vue.component('rename-package', RenamePackage);
+Vue.component('delete-package', DeletePackage);
+Vue.component('list-package', ListPackage);
 Vue.component('user-autocomplete', UserAutocomplete);
 
 import CloudExample from '../components/example/CloudExample'
@@ -126,6 +132,12 @@ export default new Router({
         },
         {
           path: 'definition/:id',
+          name: 'graph',
+          component: SvgGraph,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'definition/:path/:id',
           name: 'graph',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,

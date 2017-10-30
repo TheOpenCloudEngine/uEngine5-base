@@ -1,19 +1,19 @@
 <template>
   <md-dialog
-    md-open-from="#newPackage" md-close-to="#newPackage" ref="newPackage">
-    <md-dialog-title>New Package</md-dialog-title>
+    md-open-from="#renamePackage" md-close-to="#renamePackage" ref="renamePackage">
+    <md-dialog-title>Rename Package</md-dialog-title>
 
     <md-dialog-content>
       <div>
         <md-input-container>
           <label>Package Name</label>
-          <md-input v-model="packageName" type="text"></md-input>
+          <md-input v-model="packageNewName" type="text"></md-input>
         </md-input-container>
       </div>
     </md-dialog-content>
 
     <md-dialog-actions>
-      <md-button class="md-primary" @click="createPackage">Save</md-button>
+      <md-button class="md-primary" @click="renamePackage">Save</md-button>
       <md-button class="md-primary" @click="closePackage">Close</md-button>
     </md-dialog-actions>
   </md-dialog>
@@ -22,6 +22,7 @@
 <script>
   export default {
     props: {
+      packageName: ""
     },
 
     created: function () {
@@ -29,22 +30,23 @@
     },
 
     data: function () {
-      return {};
+      return {
+        packageNewName: ""
+      };
     },
-    mounted: function () {
-      var me = this;
-      console.log(me.roles);
-    },
+    mounted: function () {},
     methods: {
       closePackage(ref) {
-        this.$refs['newPackage'].close();
+        this.$refs['renamePackage'].close();
       },
       openPackage(ref) {
-        this.$refs['newPackage'].open();
+        this.$refs['renamePackage'].open();
       },
-      createPackage: function () {
+      renamePackage: function () {
         var me = this;
-        this.$root.codi('definition/package{/id}').save({id: me.packageName}, {})
+        var src = 'definitions/packages/' + me.packageName + '/' + me.packageNewName;
+
+        this.$root.codi(src).save()
           .then(
             function (response) {
               me.$root.$children[0].success('저장되었습니다.');
@@ -53,7 +55,7 @@
               me.$root.$children[0].error('저장할 수 없습니다.');
             }
           );
-        this.$refs['newPackage'].close();
+        this.$refs['renamePackage'].close();
       }
     }
   }
