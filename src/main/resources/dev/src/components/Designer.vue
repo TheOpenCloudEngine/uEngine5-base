@@ -1,10 +1,14 @@
 <template>
   <div>
     <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
-    <md-button class="md-raised md-primary" id="newPackage" @click="openPackage">New Package</md-button>
+    <md-button class="md-raised md-primary" id="newPackage" @click="newPackage">New Package</md-button>
     <new-package
       ref="newPackage"
       style="min-width: 70%;"></new-package>
+    <move-package
+      ref="movePackage"
+      :processName="processName"
+      style="min-width: 70%;"></move-package>
 
     <md-layout mo-gutter>
       <md-layout md-flex="20">
@@ -40,7 +44,8 @@
                 <md-button v-on:click="move(card.name)">Edit</md-button>
               </md-card-actions>
               <md-card-actions>
-                <md-button v-on:click="deleteProcess(card.name)">DELETE</md-button>
+                <md-button id="movePackage" @click="movePackage(card.name)">Move</md-button>
+                <md-button v-on:click="deleteProcess(card.name)">Delete</md-button>
               </md-card-actions>
             </md-card>
           </md-layout>
@@ -61,7 +66,8 @@
         treeData: {
           name: 'Package List',
           children: []
-        }
+        },
+        processName: ""
       }
     },
     mounted() {
@@ -72,8 +78,12 @@
       this.getDefinitionList();
     },
     methods: {
-      openPackage(ref) {
+      newPackage(ref) {
         this.$refs['newPackage'].openPackage();
+      },
+      movePackage(ref) {
+        this.processName = ref;
+        this.$refs['movePackage'].openPackage();
       },
       getDefinitionList: function () {
         var me = this;

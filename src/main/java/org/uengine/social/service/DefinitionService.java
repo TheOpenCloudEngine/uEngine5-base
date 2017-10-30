@@ -97,6 +97,7 @@ public class DefinitionService {
         resourceManager.rename(resource, newName);
     }
 
+
     @RequestMapping(value = "/definitions/packages/{packagePath}/processes/{filePath:.+}", method = RequestMethod.DELETE)
     public void deletePackage(@PathVariable("packagePath") String packagePath, @PathVariable("filePath") String filePath) throws Exception {
 
@@ -128,21 +129,6 @@ public class DefinitionService {
         resourceManager.move(resource, fileResource);
     }
 
-
-    @RequestMapping(value = "/definition/{packagePath}/{filePath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Object getPackageDefinition(@PathVariable("packagePath") String packagePath, @PathVariable("defPath") String filePath) throws Exception {
-
-        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + "/" + filePath);
-        Object object = resourceManager.getObject(resource);
-
-
-        ObjectMapper objectMapper = createObjectMapper();
-        DefinitionWrapper definitionWrapper = new DefinitionWrapper((Serializable) object);
-        String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
-
-        return uEngineProcessJSON;
-    }
-
     private ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -160,9 +146,16 @@ public class DefinitionService {
     }
 
     @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Object getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+    public Object getRootDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+        return getDefinition("", definitionPath);
+    }
 
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
+    @RequestMapping(value = "/definition/{packagePath}/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public Object getDefinition(@PathVariable("packagePath") String packagePath, @PathVariable("defPath") String definitionPath) throws Exception {
+
+        if(!packagePath.equals("")) packagePath+= "/";
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + definitionPath);
         Object object = resourceManager.getObject(resource);
 
 
@@ -281,11 +274,8 @@ public class DefinitionService {
 
             instance.execute();
 
-            System.out.print("TEST 1 : " + instance.getInstanceId());
-
             return instance.getInstanceId(); //TODO: returns HATEOAS _self link instead.
         }
-        System.out.print("TEST 2 : ");
         return null;
 
     }

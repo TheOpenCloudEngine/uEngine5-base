@@ -155,17 +155,22 @@
     methods: {
       loadData: function () {
         var me = this;
-        this.$root.codi('definitions').get()
+        var src = 'definitions';
+        this.$root.codi(src).get()
           .then(function (response) {
             me.rowData = response.data;
             var definitions = [];
             $.each(response.data, function (i, definition) {
-              definition = definition.replace('/', '');
-              //확장자명이 무조건 .json으로만 오는가??
-              definition = definition.replace('.json', '');
-              definitions.push({
-                name: definition
-              })
+              var length = definition.length;
+              var lastDot = definition.lastIndexOf('.') + 1;
+              var fileName  = definition.substring(lastDot, length);
+              if(fileName == "json") {
+                definition = definition.replace('/', '');
+                definition = definition.replace('.json', '');
+                definitions.push({
+                  name: definition
+                })
+              }
             });
             me.rowData = definitions;
           })

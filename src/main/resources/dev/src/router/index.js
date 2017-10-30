@@ -20,6 +20,7 @@ import NewPackage from '@/components/bpm-portal/NewPackage'
 import RenamePackage from '@/components/bpm-portal/RenamePackage'
 import DeletePackage from '@/components/bpm-portal/DeletePackage'
 import ListPackage from '@/components/bpm-portal/ListPackage'
+import MovePackage from '@/components/bpm-portal/MovePackage'
 
 /**
  * Iam && Vue Router
@@ -78,6 +79,7 @@ Vue.component('new-package', NewPackage);
 Vue.component('rename-package', RenamePackage);
 Vue.component('delete-package', DeletePackage);
 Vue.component('list-package', ListPackage);
+Vue.component('move-package', MovePackage);
 Vue.component('user-autocomplete', UserAutocomplete);
 
 import CloudExample from '../components/example/CloudExample'
