@@ -4,6 +4,7 @@ import org.metaworks.multitenancy.persistence.MultitenantRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.uengine.social.entity.ProcessInstanceEntity;
 
 import java.util.Date;
@@ -38,6 +39,9 @@ public interface ProcessInstanceRepository extends MultitenantRepository<Process
                                                   @Param("name") String name,
                                                   @Param("startedDate") String startedDate,
                                                   @Param("finishedDate") String finishedDate
+                                                  //Temporal 이 먹지않거나 시작일 검색이 제대로 기능하지않는다면 (String to Date Type error)시 아래 주석해제후 이내용으로 하시면됩니다.
+//                                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)@Param("startedDate") Date startedDate,
+//                                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)@Param("finishedDate") Date finishedDate
                                                   );
 
     @Query("select pi from ProcessInstanceEntity pi where pi.mainInstId = :instId")

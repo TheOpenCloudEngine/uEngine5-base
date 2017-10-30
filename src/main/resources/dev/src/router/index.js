@@ -11,6 +11,7 @@ import ObjectGrid from '@/components/ObjectGrid'
 import ClassEditor from '@/components/ClassEditor'
 import ClassSelector from '@/components/ClassSelector'
 import AvatarUploader from '@/components/AvatarUploader'
+import IAMAvatar from '@/components/IAMAvatar'
 import InstanceList from '@/components/InstanceList'
 import SvgGraph from '@/components/SvgGraph'
 import UserPicker from '@/components/bpm-portal/UserPicker'
@@ -67,6 +68,7 @@ Vue.component('object-form', ObjectForm);
 Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
 Vue.component('avatar-uploader', AvatarUploader);
+Vue.component('iam-avatar', IAMAvatar);
 Vue.component('svg-graph', SvgGraph);
 Vue.component('user-picker', UserPicker);
 Vue.component('new-package', NewPackage);

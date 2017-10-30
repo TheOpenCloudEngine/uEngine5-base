@@ -109,8 +109,8 @@
               <md-table-cell>{{item.instId}}</md-table-cell>
               <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
               <md-table-cell>{{item.defName}}</md-table-cell>
-              <md-table-cell>{{item.defName}}</md-table-cell>
-              <md-table-cell>{{item.eventHandler}}</md-table-cell>
+              <md-table-cell>{{item.endpoint}}</md-table-cell>
+              <md-table-cell>{{item.endpoint}}</md-table-cell>
               <md-table-cell>{{item.info}}</md-table-cell>
               <md-table-cell>{{item.startedDate}}</md-table-cell>
               <md-table-cell>{{item.finishedDate}}</md-table-cell>
