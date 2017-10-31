@@ -295,20 +295,28 @@
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
-        var defId;
+        var urlArr = [];
         //이 부분에 대한 것은, ServiceLocator.vue 를 보도록.
         //ServiceLocator.vue 는 App.vue (최상단 컴포넌트) 안에 붙어있습니다.
         me.$root.codi('instances{/id}').get({id: me.id})
           .then(function (response) {
             let split = response.data.defId.split('/');
-            defId = split[split.length - 1].replace(".json", "");
+            for (var i in split) {
+              if(i == 0) continue;
+              urlArr.push(split[i]);
+            }
             me.definitionName = response.data.defName;
             //left tree
             var instanceId = me.getLastText(response.data._links.self.href);
             me.findParent(instanceId);
           })
           .then(function () {
-            me.$root.codi('definition{/id}').get({id: defId + '.json'})
+            var src = "definition/";
+            for (var i in urlArr) {
+              src = src + urlArr[i] + "/"
+            }
+
+            me.$root.codi(src).get()
               .then(function (response) {
                 // definition 이란 것은 디자이너가 도형을 그리는 스펙 정의.
                 // status 를 불러와서 definition 을 손본 후, me.definition 에 등록할 것.
