@@ -155,7 +155,7 @@
     methods: {
       loadData: function () {
         var me = this;
-        var src = 'definitions';
+        var src = 'definitions/all';
         this.$root.codi(src).get()
           .then(function (response) {
             me.rowData = response.data;
@@ -165,7 +165,6 @@
               var lastDot = definition.lastIndexOf('.') + 1;
               var fileName  = definition.substring(lastDot, length);
               if(fileName == "json") {
-                definition = definition.replace('/', '');
                 definition = definition.replace('.json', '');
                 definitions.push({
                   name: definition
