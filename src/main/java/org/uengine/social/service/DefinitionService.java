@@ -169,6 +169,10 @@ public class DefinitionService {
 
     public void callActivityModify(List<String> oldDefinitionList, String newPackage) throws Exception {
         List<String> allDefinitionList = allListDefinition();
+        List<String> newDefinitionList = viewList(newPackage);
+        for(int idx = 0; idx < newDefinitionList.size(); idx++) {
+            newDefinitionList.set(idx, newDefinitionList.get(idx).substring(newDefinitionList.get(idx).lastIndexOf("/")+1, newDefinitionList.get(idx).length()));
+        }
 
         for (int i = 0; i < allDefinitionList.size(); i++) {
             String definitionName = allDefinitionList.get(i).replace(".json", "");
@@ -182,36 +186,25 @@ public class DefinitionService {
                     //callActivity 요소 찾기
                     if (activity instanceof CallActivity) {
                         CallActivity callActivity = (CallActivity) activity;
-                        callActivityModify(callActivity, oldDefinitionList, targetResource, newPackage);
+                        //변경 되기 전 프로세스 아이디와 현 패키지의 definitionId 비교
+                        for(int j = 0; j < oldDefinitionList.size(); j++) {
+                            String oldDefinitionId = oldDefinitionList.get(j).replace(".json", "");
+                            if(callActivity.getDefinitionId().equals(oldDefinitionId)) {
+                                // 변경 되기 전 프로세스 아이디와 변경 된 프로세스의 definitionId 비교
+                                for(int k = 0; k < newDefinitionList.size(); k++) {
+                                    String newDefinitionId = newDefinitionList.get(k).replace(".json", "");
+                                    oldDefinitionId = oldDefinitionId.substring(oldDefinitionId.lastIndexOf("/")+1, oldDefinitionId.length());
+                                    if(oldDefinitionId.equals(newDefinitionId)) {
+                                        callActivity.setDefinitionId(newPackage + "/" + newDefinitionId);
+                                        resourceManager.save(targetResource, definition);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-
-    public CallActivity callActivityModify(CallActivity callActivity, List<String> oldDefinitionList, IResource targetResource, String newPackage) throws Exception {
-        List<String> newDefinitionList = viewList(newPackage);
-        for(int idx = 0; idx < newDefinitionList.size(); idx++) {
-            newDefinitionList.set(idx, newDefinitionList.get(idx).substring(newDefinitionList.get(idx).lastIndexOf("/")+1, newDefinitionList.get(idx).length()));
-        }
-
-        //변경 되기 전 프로세스 아이디와 현 패키지의 definitionId 비교
-        for(int i = 0; i < oldDefinitionList.size(); i++) {
-            String oldDefinitionId = oldDefinitionList.get(i).replace(".json", "");
-            if(callActivity.getDefinitionId().equals(oldDefinitionId)) {
-                // 변경 되기 전 프로세스 아이디와 변경 된 프로세스의 definitionId 비교
-                for(int j = 0; j < newDefinitionList.size(); j++) {
-                    String newDefinitionId = newDefinitionList.get(j).replace(".json", "");
-                    oldDefinitionId = oldDefinitionId.substring(oldDefinitionId.lastIndexOf("/")+1, oldDefinitionId.length());
-                    if(oldDefinitionId.equals(newDefinitionId)) {
-                        callActivity.setDefinitionId(newPackage + "/" + newDefinitionId);
-                        resourceManager.save(targetResource, callActivity);
-                    }
-                }
-            }
-        }
-
-        return callActivity;
     }
 
     private ObjectMapper createObjectMapper() {
@@ -323,9 +316,19 @@ public class DefinitionService {
     }
 
     @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.DELETE)
-    public void deleteDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+    public void deleteRootDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+        deleteDefinition("", definitionPath);
+    }
 
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
+    @RequestMapping(value = "/definition/{packagePath:.+}/{filePath:.+}", method = RequestMethod.DELETE)
+    public void deleteDefinition(@PathVariable("packagePath") String packagePath,
+                                 @PathVariable("filePath") String filePath) throws Exception {
+
+        if(!packagePath.equals("")) packagePath += "/";
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + filePath);
+        List<String> deleteDefinitionList = new ArrayList<>();
+        deleteDefinitionList.add("/" + packagePath + filePath);
         resourceManager.delete(resource);
     }
 

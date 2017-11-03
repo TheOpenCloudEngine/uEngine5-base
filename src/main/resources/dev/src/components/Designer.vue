@@ -45,7 +45,7 @@
               </md-card-actions>
               <md-card-actions>
                 <md-button id="movePackage" @click="movePackage(card.name)">Move</md-button>
-                <md-button v-on:click="deleteProcess(card.name)">Delete</md-button>
+                <md-button v-on:click="deleteProcess(card.name, card.packagePath)">Delete</md-button>
               </md-card-actions>
             </md-card>
           </md-layout>
@@ -153,9 +153,18 @@
           path: 'definition/' + name.replace('.json', '')
         })
       },
-      deleteProcess: function (name) {
+      deleteProcess: function (name, packagePath) {
         var me = this;
-        this.$root.codi('definition{/id}').delete({id: name}, {})
+
+        var length = name.length;
+        var lastSlash = name.lastIndexOf('/') + 1;
+        name  = name.substring(lastSlash, length);
+
+        var src = "";
+        if(packagePath !== "") packagePath += "/";
+        src = 'definition/' + packagePath + name;
+
+        this.$root.codi(src).delete({id: name}, {})
           .then(
             function (response) {
               var instanceId = response.data;
@@ -176,7 +185,11 @@
         var lastSlash = name.lastIndexOf('/') + 1;
         name  = name.substring(lastSlash, length);
 
-        this.$root.codi('definition{/packagePath}{/fileName}/instance').save({fileName: name, packagePath: packagePath}, {})
+        var src = "";
+        if(packagePath !== "") packagePath += "/";
+        src = 'definition/' + packagePath + name + '/instance';
+
+        this.$root.codi(src).save({})
           .then(
             function (response) {
               var instanceId = response.data;
