@@ -41,7 +41,8 @@
       },
       deletePackage: function () {
         var me = this;
-        this.$root.codi('definition{/id}').delete({id: me.packageName}, {})
+        var src = 'definitions/packages/' + me.packageName;
+        this.$root.codi(src).delete({})
           .then(
             function (response) {
               me.$root.$children[0].success('삭제되었습니다.');

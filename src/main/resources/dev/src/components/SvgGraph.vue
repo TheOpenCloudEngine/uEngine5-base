@@ -311,10 +311,12 @@
             me.findParent(instanceId);
           })
           .then(function () {
-            var src = "definition/";
+            var src = "definition";
             for (var i in urlArr) {
-              src = src + urlArr[i] + "/"
+              src +=  "/" + urlArr[i];
             }
+
+            if(src.lastIndexOf(".json") < 0) src += ".json"; //json 형태로 오지 않는 경우가 있어 처리
 
             me.$root.codi(src).get()
               .then(function (response) {
