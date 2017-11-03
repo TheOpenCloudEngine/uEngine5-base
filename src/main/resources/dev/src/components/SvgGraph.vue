@@ -387,7 +387,7 @@
                   me.treeData = tree[0];
                   return false;
                 }
-                var name = instances.instances[0]["defId"].replace('/', '');
+                var name = instances.instances[0]["defId"].replace('codi/', '');
                 var childId = instances.instances[0]["_links"]["self"]["href"];
                 childId = me.getLastText(childId);
                 me.trees.push({
