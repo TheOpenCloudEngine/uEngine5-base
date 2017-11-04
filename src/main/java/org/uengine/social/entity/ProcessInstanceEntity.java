@@ -34,6 +34,12 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
 
     @Transient
     private List<DummyWorkList> dummyWorkLists;
+    private String initEp;
+    private String initRsNm;
+    private String prevCurrEp;
+    private String prevCurrRsNm;
+    private String currEp;
+    private String currRsNm;
 
     public List<DummyWorkList> getDummyWorkLists() {
         return dummyWorkLists;
@@ -759,4 +765,51 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
 
     }
 
+    public void setInitEp(String initEp) {
+        this.initEp = initEp;
+    }
+
+    public String getInitEp() {
+        return initEp;
+    }
+
+    public void setPrevCurrEp(String prevCurrEp) {
+        this.prevCurrEp = prevCurrEp;
+    }
+
+    public String getPrevCurrEp() {
+        return prevCurrEp;
+    }
+
+    public void setCurrEp(String currEp) {
+        this.currEp = currEp;
+    }
+
+    public String getCurrEp() {
+        return currEp;
+    }
+
+    public String getInitRsNm() {
+        return initRsNm;
+    }
+
+    public void setInitRsNm(String initRsNm) {
+        this.initRsNm = initRsNm;
+    }
+
+    public String getPrevCurrRsNm() {
+        return prevCurrRsNm;
+    }
+
+    public void setPrevCurrRsNm(String prevCurrRsNm) {
+        this.prevCurrRsNm = prevCurrRsNm;
+    }
+
+    public String getCurrRsNm() {
+        return currRsNm;
+    }
+
+    public void setCurrRsNm(String currRsNm) {
+        this.currRsNm = currRsNm;
+    }
 }

@@ -80,6 +80,8 @@ public class WorkItemService {
     }
 
     @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.POST)
+    @org.springframework.transaction.annotation.Transactional
+
     public void putWorkItem(@PathVariable("taskId") String taskId, @RequestBody WorkItem workItem) throws Exception {
         WorklistEntity worklistEntity = worklistRepository.findOne(new Long(taskId));
 

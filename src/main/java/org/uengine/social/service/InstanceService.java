@@ -40,6 +40,22 @@ public class InstanceService {
         return variables;
     }
 
+    @RequestMapping(value = "/instance/{instanceId}/start", method = RequestMethod.GET)
+    public void start(@PathVariable("instanceId") String instanceId) throws Exception {
+
+        ProcessInstance instance = applicationContext.getBean(
+                ProcessInstance.class,
+                new Object[]{
+                        null,
+                        instanceId,
+                        null
+                }
+        );
+
+        if(!instance.isRunning(""))
+            instance.execute();
+    }
+
     @Autowired
     ApplicationContext applicationContext;
 

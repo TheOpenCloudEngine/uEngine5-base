@@ -142,7 +142,7 @@ public class JPAProcessInstance extends DefaultProcessInstance {
             IResource resource = new DefaultResource("instances/" + getInstanceId());
             Map variables = (Map) resourceManager.getObject(resource);
 
-            setVariables(variables); //variable from CGLIB cannot change the base class?
+            setVariables(variables);
         }
 
 
@@ -204,5 +204,15 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     @Override
     public String getMainActivityTracingTag() {
         return String.valueOf(getProcessInstanceEntity().getMainActTrcTag());
+    }
+
+    @Override
+    public RoleMapping getRoleMapping(String roleName) throws Exception {
+        return super.getRoleMapping(roleName);
+    }
+
+    @Override
+    public void putRoleMapping(RoleMapping roleMap) throws Exception {
+        super.putRoleMapping(roleMap);
     }
 }

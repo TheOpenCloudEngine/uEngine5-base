@@ -15,9 +15,11 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.uengine.five.InstanceDataAppendingActivityFilter;
 import org.uengine.five.JPAProcessInstance;
 import org.uengine.five.JPAWorkList;
 import org.uengine.five.ProcessDefinitionFactory;
+import org.uengine.kernel.ActivityFilter;
 import org.uengine.kernel.ProcessDefinition;
 import org.uengine.kernel.ProcessInstance;
 import org.uengine.modeling.resource.CachedResourceManager;
@@ -107,6 +109,11 @@ public class WebConfig extends Metaworks4WebConfig {
     @Scope("prototype")
     public ProcessInstance processInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
         return new JPAProcessInstance(procDefinition, instanceId, options);
+    }
+
+    @Bean
+    public ActivityFilter instanceDataAppendingFilter(){
+        return new InstanceDataAppendingActivityFilter();
     }
 
     @Bean

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.bind.annotation.*;
@@ -181,29 +182,43 @@ public class DefinitionService {
     @RequestMapping(value = "/definition/{defPath}/instance", method = RequestMethod.POST)
     public String runDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
 
+        return _initiateAndRunDefinition(definitionPath, true);
+
+    }
+
+    @RequestMapping(value = "/definition/{defPath}/initiate", method = RequestMethod.POST)
+    @Transactional
+    public String initiateDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
+
+        return _initiateAndRunDefinition(definitionPath, false);
+
+    }
+
+    private String _initiateAndRunDefinition(String definitionPath, boolean start) throws Exception {
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
         Object definition = getDefinitionLocal(definitionPath);
 
         if(definition instanceof ProcessDefinition){
             ProcessDefinition processDefinition = (ProcessDefinition) definition;
 
-            org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
-                    org.uengine.kernel.ProcessInstance.class,
+            ProcessInstance instance = applicationContext.getBean(
+                    ProcessInstance.class,
                     new Object[]{
-                        processDefinition,
+                            processDefinition,
                             null,
                             null
                     }
             );
 
-            instance.execute();
+            if(start)
+                instance.execute();
 
             return instance.getInstanceId(); //TODO: returns HATEOAS _self link instead.
         }
 
         return null;
-
     }
+
 
     public Object getDefinitionLocal(String definitionPath) throws Exception {
 
@@ -233,6 +248,17 @@ public class DefinitionService {
     //TODO: must moved to InstanceService later.
     @TransactionalEventListener(fallbackExecution=true, phase = TransactionPhase.BEFORE_COMMIT)
     public void beforeProcessInstanceCommit(ChangeEvent<ProcessInstance> changeEvent) throws Exception {
+
+        ProcessInstance instance = changeEvent.getObject();
+
+        //TODO: check the instance is dirty
+        IResource resource = new DefaultResource("instances/" + instance.getInstanceId());
+        resourceManager.save(resource, ((DefaultProcessInstance)instance).getVariables());
+    }
+
+    //TODO: must moved to InstanceService later.
+    @TransactionalEventListener(fallbackExecution=true, phase = TransactionPhase.AFTER_COMPLETION)
+    public void afterProcessInstanceCompletion(ChangeEvent<ProcessInstance> changeEvent) throws Exception {
 
         ProcessInstance instance = changeEvent.getObject();
 
