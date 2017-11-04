@@ -11,26 +11,32 @@
 
     <md-sidenav class="md-left" ref="leftSidenav">
       <md-toolbar class="md-account-header">
-        <md-list class="md-transparent">
-          <md-list-item class="md-avatar-list">
-            <md-avatar class="md-large">
-              <img src="https://placeimg.com/64/64/people/8" alt="People">
-            </md-avatar>
+          <iam-avatar :iam="iam"></iam-avatar>
+        <!--<md-list class="md-transparent">-->
+          <!--<md-list-item class="md-avatar-list">-->
+            <!--&lt;!&ndash;avatar iam 으로 변경&ndash;&gt;-->
+            <!--<md-avatar class="md-large">-->
+              <!--&lt;!&ndash;<img src="https://placeimg.com/64/64/people/8" alt="People">&ndash;&gt;-->
+              <!--<img-->
+                  <!--:src="'http://iam.uengine.io:8080/rest/v1/avatar?userName='+ user.username"-->
+                  <!--v-if="user.username"-->
+                  <!--alt="People">-->
+            <!--</md-avatar>-->
 
-            <span style="flex: 1"></span>
-          </md-list-item>
+            <!--<span style="flex: 1"></span>-->
+          <!--</md-list-item>-->
 
-          <md-list-item>
-            <div class="md-list-text-container">
-              <span>John Doe</span>
-              <span>johndoe@email.com</span>
-            </div>
+          <!--<md-list-item>-->
+            <!--<div class="md-list-text-container">-->
+              <!--<span v-if="user.name">{{user.name}}</span>-->
+              <!--<span v-if="user.email">{{user.email}}</span>-->
+            <!--</div>-->
 
-            <md-button class="md-icon-button md-list-action">
-              <md-icon>arrow_drop_down</md-icon>
-            </md-button>
-          </md-list-item>
-        </md-list>
+            <!--<md-button class="md-icon-button md-list-action">-->
+              <!--<md-icon>arrow_drop_down</md-icon>-->
+            <!--</md-button>-->
+          <!--</md-list-item>-->
+        <!--</md-list>-->
       </md-toolbar>
 
       <md-list>
@@ -59,7 +65,7 @@
           {title: 'Designer', icon: 'question_answer', routerPath: '/definition'},
           {title: 'Instances', icon: 'question_answer', routerPath: '/instance'}
         ],
-        mini: false
+        mini: false,
       }
     },
     mounted() {
@@ -101,9 +107,6 @@
       move(routerPath) {
         this.$router.push(routerPath)
       },
-      profile: function () {
-
-      }
     }
   }
 </script>

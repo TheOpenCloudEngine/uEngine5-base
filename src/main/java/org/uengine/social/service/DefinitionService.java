@@ -2,17 +2,18 @@ package org.uengine.social.service;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.bind.annotation.*;
 import org.uengine.five.ChangeEvent;
 import org.uengine.kernel.*;
+import org.uengine.kernel.bpmn.CallActivity;
 import org.uengine.modeling.resource.*;
 import org.uengine.processpublisher.BPMNUtil;
 import org.uengine.uml.model.ClassDefinition;
@@ -21,7 +22,9 @@ import org.uengine.util.UEngineUtil;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by uengine on 2017. 8. 9..
@@ -54,9 +57,43 @@ public class DefinitionService {
 
     @RequestMapping(value = "/definitions", method = RequestMethod.GET)
     public List<String> listDefinition() throws Exception {
+        return viewList("");  //TODO: Need to be changed to HATEOAS _self link instead
+    }
 
+
+    @RequestMapping(value = "/definitions/packages/{packagePath}/processes", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<String> listPackage(@PathVariable("packagePath") String packagePath) throws Exception {
+        return viewList(packagePath);  //TODO: Need to be changed to HATEOAS _self link instead
+    }
+
+    @RequestMapping(value = "/definitions/all", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<String> allListDefinition() throws Exception {
+        List<String> allDefinitionList = new ArrayList<String>();
+        List<String> rootDefinitionList = viewList("");
+        List<String> packageList = new ArrayList<String>();
+
+        for (int i = 0; i < rootDefinitionList.size(); i++) {
+            if(rootDefinitionList.get(i).endsWith(".json")) {
+                allDefinitionList.add(rootDefinitionList.get(i).replace("/", ""));
+            } else {
+                packageList.add(rootDefinitionList.get(i).replace("/", ""));
+            }
+        }
+
+        for (int j = 0; j < packageList.size(); j++) {
+            List<String> definitionList = viewList(packageList.get(j));
+            for(int k = 0; k < definitionList.size(); k++) {
+                allDefinitionList.add(definitionList.get(k).substring(1, definitionList.get(k).length()));
+            }
+        }
+
+        return allDefinitionList;  //TODO: Need to be changed to HATEOAS _self link instead
+    }
+
+
+    private List<String> viewList(String definitionPath) throws Exception {
         IContainer resource = new ContainerResource();
-        resource.setPath(resourceRoot + "/");
+        resource.setPath(resourceRoot + "/" + definitionPath);
         List<IResource> resources = resourceManager.listFiles(resource);
 
         List<String> resourcesList = new ArrayList<String>();
@@ -64,8 +101,147 @@ public class DefinitionService {
         for(IResource resource1 : resources){
             resourcesList.add(resource1.getPath().substring(resourceRoot.length()));
         }
+        return resourcesList;
+    }
 
-        return resourcesList;  //TODO: Need to be changed to HATEOAS _self link instead
+
+    @RequestMapping(value = "/definition/packages/{packagePath}", method = RequestMethod.POST)
+    public void putPackage(@PathVariable("packagePath") String packagePath) throws Exception {
+        IContainer folderResource = new ContainerResource();
+        folderResource.setPath(resourceRoot + "/" + packagePath);
+
+        resourceManager.createFolder(folderResource);
+    }
+
+
+    @RequestMapping(value = "/definitions/packages/{packagePath}/{newName}", method = RequestMethod.POST)
+    public void renamePackage(@PathVariable("packagePath") String packagePath, @PathVariable("newName") String newName) throws Exception {
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath);
+        String newPath = resourceRoot + "/" + newName;
+
+        List<String> oldDefinitionList = allListDefinition();
+
+        resourceManager.rename(resource, newPath);
+
+        callActivityModify(oldDefinitionList, newName);
+    }
+
+
+    @RequestMapping(value = "/definitions/packages/{packagePath}", method = RequestMethod.DELETE)
+    public void deletePackage(@PathVariable("packagePath") String packagePath) throws Exception {
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath);
+        List<String> oldDefinitionList = viewList(packagePath);
+        for(int idx = 0; idx < oldDefinitionList.size(); idx++) {
+            String str = oldDefinitionList.get(idx).substring(1, oldDefinitionList.get(idx).length());
+            oldDefinitionList.set(idx, str);
+        }
+
+        resourceManager.delete(resource);
+
+        callActivityDelete(oldDefinitionList);
+    }
+
+
+    @RequestMapping(value = "/definitions/processes/{filePath:.+}", method = RequestMethod.POST)
+    public void moveRootProcess(@PathVariable("filePath") String filePath, @RequestBody String jsonData) throws Exception {
+        moveProcess("", filePath, jsonData);
+    }
+
+
+    @RequestMapping(value = "/definitions/packages/{packagePath}/processes/{filePath:.+}", method = RequestMethod.POST)
+    public void moveProcess(@PathVariable("packagePath") String packagePath, @PathVariable("filePath") String filePath, @RequestBody String jsonData) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> map = new HashMap<String, String>();
+        map = mapper.readValue(jsonData, new TypeReference<Map<String, String>>(){});
+
+        String targetPath = map.get("targetPath");
+
+        if(!packagePath.equals("")) packagePath += "/";
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + filePath);
+        IContainer fileResource = new ContainerResource();
+        fileResource.setPath(resourceRoot + "/" + targetPath);
+
+        List<String> oldDefinitionList = allListDefinition();
+        String newPackage = targetPath;
+
+        IResource newResource = new DefaultResource(resourceRoot + "/" + newPackage + "/" + filePath);
+
+        if(!resourceManager.exists(newResource)) {
+            resourceManager.move(resource, fileResource);
+            callActivityModify(oldDefinitionList, newPackage);
+        } else
+            throw new Exception("file exist");
+    }
+
+    public void callActivityModify(List<String> oldDefinitionList, String newPackage) throws Exception {
+        List<String> allDefinitionList = allListDefinition();
+        List<String> newDefinitionList = viewList(newPackage);
+        for(int idx = 0; idx < newDefinitionList.size(); idx++) {
+            newDefinitionList.set(idx, newDefinitionList.get(idx).substring(newDefinitionList.get(idx).lastIndexOf("/")+1, newDefinitionList.get(idx).length()));
+        }
+
+        for (int i = 0; i < allDefinitionList.size(); i++) {
+            String definitionName = allDefinitionList.get(i).replace(".json", "");
+            IResource targetResource = new DefaultResource(resourceRoot + "/" + allDefinitionList.get(i));
+            Object definition = getDefinitionLocal(definitionName);
+
+            if (definition instanceof ProcessDefinition) {
+                ProcessDefinition processDefinition = (ProcessDefinition) definition;
+                //getChildActivities 요소 찾기
+                for (Activity activity : processDefinition.getChildActivities()) {
+                    //callActivity 요소 찾기
+                    if (activity instanceof CallActivity) {
+                        CallActivity callActivity = (CallActivity) activity;
+                        //변경 되기 전 프로세스 아이디와 현 패키지의 definitionId 비교
+                        for(int j = 0; j < oldDefinitionList.size(); j++) {
+                            String oldDefinitionId = oldDefinitionList.get(j).replace(".json", "");
+                            if(callActivity.getDefinitionId().equals(oldDefinitionId)) {
+                                // 변경 되기 전 프로세스 아이디와 변경 된 프로세스의 definitionId 비교
+                                for(int k = 0; k < newDefinitionList.size(); k++) {
+                                    String newDefinitionId = newDefinitionList.get(k).replace(".json", "");
+                                    oldDefinitionId = oldDefinitionId.substring(oldDefinitionId.lastIndexOf("/")+1, oldDefinitionId.length());
+                                    if(oldDefinitionId.equals(newDefinitionId)) {
+                                        callActivity.setDefinitionId(newPackage + "/" + newDefinitionId);
+                                        resourceManager.save(targetResource, definition);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void callActivityDelete(List<String> oldDefinitionList) throws Exception {
+        List<String> allDefinitionList = allListDefinition();
+
+        for (int i = 0; i < allDefinitionList.size(); i++) {
+            String definitionName = allDefinitionList.get(i).replace(".json", "");
+            IResource targetResource = new DefaultResource(resourceRoot + "/" + allDefinitionList.get(i));
+            Object definition = getDefinitionLocal(definitionName);
+
+            if (definition instanceof ProcessDefinition) {
+                ProcessDefinition processDefinition = (ProcessDefinition) definition;
+                //getChildActivities 요소 찾기
+                for (Activity activity : processDefinition.getChildActivities()) {
+                    //callActivity 요소 찾기
+                    if (activity instanceof CallActivity) {
+                        CallActivity callActivity = (CallActivity) activity;
+
+                        //변경 되기 전 프로세스 아이디와 현 패키지의 definitionId 비교
+                        for (int j = 0; j < oldDefinitionList.size(); j++) {
+                            String oldDefinitionId = oldDefinitionList.get(j).replace(".json", "");
+                            if (callActivity.getDefinitionId().equals(oldDefinitionId)) {
+                                callActivity.setDefinitionId(""); //reset
+                                resourceManager.save(targetResource, definition);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private ObjectMapper createObjectMapper() {
@@ -85,9 +261,16 @@ public class DefinitionService {
     }
 
     @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Object getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+    public Object getRootDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+        return getDefinition("", definitionPath);
+    }
 
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
+    @RequestMapping(value = "/definition/{packagePath}/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public Object getDefinition(@PathVariable("packagePath") String packagePath, @PathVariable("defPath") String definitionPath) throws Exception {
+
+        if(!packagePath.equals("")) packagePath+= "/";
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + definitionPath);
         Object object = resourceManager.getObject(resource);
 
 
@@ -169,40 +352,46 @@ public class DefinitionService {
             throw new Exception("unknown resource type: " + definitionPath);
     }
 
-    @RequestMapping(value = "/definition/{defPath}", method = RequestMethod.DELETE)
-    public void deleteDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
-
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
-        resourceManager.delete(resource);
+    @RequestMapping(value = "/definition/{defPath:.+}", method = RequestMethod.DELETE)
+    public void deleteRootDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+        deleteDefinition("", definitionPath);
     }
 
+    @RequestMapping(value = "/definition/{packagePath:.+}/{filePath:.+}", method = RequestMethod.DELETE)
+    public void deleteDefinition(@PathVariable("packagePath") String packagePath,
+                                 @PathVariable("filePath") String filePath) throws Exception {
 
-    // ----------------- execution services -------------------- //
+        if(!packagePath.equals("")) packagePath += "/";
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + filePath);
+        List<String> deleteDefinitionList = new ArrayList<>();
+        deleteDefinitionList.add(packagePath + filePath);
+        resourceManager.delete(resource);
+
+        callActivityDelete(deleteDefinitionList);
+    }
 
     @RequestMapping(value = "/definition/{defPath}/instance", method = RequestMethod.POST)
-    public String runDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
+    public String runRootDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
 
-        return _initiateAndRunDefinition(definitionPath, true);
-
-    }
-
-    @RequestMapping(value = "/definition/{defPath}/initiate", method = RequestMethod.POST)
-    @Transactional
-    public String initiateDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
-
-        return _initiateAndRunDefinition(definitionPath, false);
+        return runDefinition("", definitionPath, arguments);
 
     }
 
-    private String _initiateAndRunDefinition(String definitionPath, boolean start) throws Exception {
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
-        Object definition = getDefinitionLocal(definitionPath);
+    // ----------------- execution services -------------------- //
+    @RequestMapping(value = "/definition/{packagePath}/{filePath}/instance", method = RequestMethod.POST)
+    public String runDefinition(@PathVariable("packagePath") String packagePath, @PathVariable("filePath") String filePath, @RequestBody String arguments) throws Exception {
+
+        if(!packagePath.equals("")) packagePath += "/";
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + filePath);
+        Object definition = getDefinitionLocal(packagePath + filePath);
 
         if(definition instanceof ProcessDefinition){
             ProcessDefinition processDefinition = (ProcessDefinition) definition;
 
-            ProcessInstance instance = applicationContext.getBean(
-                    ProcessInstance.class,
+            org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
+                    org.uengine.kernel.ProcessInstance.class,
                     new Object[]{
                             processDefinition,
                             null,
@@ -210,15 +399,13 @@ public class DefinitionService {
                     }
             );
 
-            if(start)
-                instance.execute();
+            instance.execute();
 
             return instance.getInstanceId(); //TODO: returns HATEOAS _self link instead.
         }
-
         return null;
-    }
 
+    }
 
     public Object getDefinitionLocal(String definitionPath) throws Exception {
 
@@ -248,17 +435,6 @@ public class DefinitionService {
     //TODO: must moved to InstanceService later.
     @TransactionalEventListener(fallbackExecution=true, phase = TransactionPhase.BEFORE_COMMIT)
     public void beforeProcessInstanceCommit(ChangeEvent<ProcessInstance> changeEvent) throws Exception {
-
-        ProcessInstance instance = changeEvent.getObject();
-
-        //TODO: check the instance is dirty
-        IResource resource = new DefaultResource("instances/" + instance.getInstanceId());
-        resourceManager.save(resource, ((DefaultProcessInstance)instance).getVariables());
-    }
-
-    //TODO: must moved to InstanceService later.
-    @TransactionalEventListener(fallbackExecution=true, phase = TransactionPhase.AFTER_COMPLETION)
-    public void afterProcessInstanceCompletion(ChangeEvent<ProcessInstance> changeEvent) throws Exception {
 
         ProcessInstance instance = changeEvent.getObject();
 

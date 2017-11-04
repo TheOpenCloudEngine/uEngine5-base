@@ -15,69 +15,66 @@
                   :monitor="monitor"
                   v-on:bpmnReady="bindEvents">
         </bpmn-vue>
-
-        <md-card v-if="!monitor" class="tools">
-          <span class="icons bpmn-icon-hand-tool"></span>
-          <span class="icons bpmn-icon-lasso-tool"></span>
-          <span class="icons bpmn-icon-space-tool"></span>
-          <span class="icons bpmn-icon-connection-multi"></span>
-
-          <hr class="separator">
-
-          <span v-for="item in dragItems"
-                class="icons draggable"
-                :class="item.icon"
-                :_component="item.component"
-                :_width="item.width"
-                :_height="item.height"
-          ></span>
-        </md-card>
-
-        <md-card v-if="!monitor" class="import">
-          <md-layout>
-            <md-layout>
-              <span class="icons fa fa-folder-open"></span>
-            </md-layout>
-            <md-layout>
-              <span class="icons fa fa-cloud-upload"></span>
-            </md-layout>
-          </md-layout>
-        </md-card>
-
-        <md-card v-if="!monitor" class="export">
-          <md-layout>
-            <md-layout>
-              <span class="icons fa fa-download"></span>
-            </md-layout>
-            <md-layout>
-              <span class="icons fa fa-picture-o"></span>
-            </md-layout>
-          </md-layout>
-        </md-card>
-
-        <md-card v-if="!monitor" class="history">
-          <md-layout>
-            <md-layout>
-              <span class="icons fa fa-undo" v-on:click="undo"></span>
-            </md-layout>
-            <md-layout>
-              <span class="icons fa fa-repeat" v-on:click="redo"></span>
-            </md-layout>
-          </md-layout>
-        </md-card>
-
-        <md-card v-if="!monitor" class="zoom">
-          <span class="icons fa fa-arrows-alt"></span>
-
-          <hr class="separator">
-
-          <span class="icons fa fa-plus-square-o"></span>
-          <span class="icons fa fa-minus-square-o"></span>
-        </md-card>
-
         <md-layout>
           <md-layout md-flex="50">
+            <md-card v-if="!monitor" class="tools">
+              <span class="icons bpmn-icon-hand-tool"></span>
+              <span class="icons bpmn-icon-lasso-tool"></span>
+              <span class="icons bpmn-icon-space-tool"></span>
+              <span class="icons bpmn-icon-connection-multi"></span>
 
+              <hr class="separator">
+
+              <span v-for="item in dragItems"
+                    class="icons draggable"
+                    :class="item.icon"
+                    :_component="item.component"
+                    :_width="item.width"
+                    :_height="item.height"
+              ></span>
+            </md-card>
+
+            <md-card v-if="!monitor" class="import">
+              <md-layout>
+                <md-layout>
+                  <span class="icons fa fa-folder-open"></span>
+                </md-layout>
+                <md-layout>
+                  <span class="icons fa fa-cloud-upload"></span>
+                </md-layout>
+              </md-layout>
+            </md-card>
+
+            <md-card v-if="!monitor" class="export">
+              <md-layout>
+                <md-layout>
+                  <span class="icons fa fa-download"></span>
+                </md-layout>
+                <md-layout>
+                  <span class="icons fa fa-picture-o"></span>
+                </md-layout>
+              </md-layout>
+            </md-card>
+
+            <md-card v-if="!monitor" class="history">
+              <md-layout>
+                <md-layout>
+                  <span class="icons fa fa-undo" v-on:click="undo"></span>
+                </md-layout>
+                <md-layout>
+                  <span class="icons fa fa-repeat" v-on:click="redo"></span>
+                </md-layout>
+              </md-layout>
+            </md-card>
+
+            <md-card v-if="!monitor" class="zoom">
+              <span class="icons fa fa-arrows-alt"></span>
+
+              <hr class="separator">
+
+              <span class="icons fa fa-plus-square-o"></span>
+              <span class="icons fa fa-minus-square-o"></span>
+            </md-card>
           </md-layout>
           <md-layout md-flex="50">
 
@@ -85,7 +82,7 @@
             <md-layout v-if="!monitor">
               <md-input-container>
                 <label>Process Name</label>
-                <md-input v-model="id" type="text"></md-input>
+                <md-input v-model="definitionName" type="text"></md-input>
               </md-input-container>
             </md-layout>
 
@@ -111,7 +108,13 @@
             </md-layout>
 
             <md-layout v-if="monitor">
-              <user-picker :iam="iam" :id="id" ref="userPicker" :definition="definition" v-if="definition"></user-picker>
+              <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
+              <user-picker
+                :id="id"
+                ref="userPicker"
+                :roles="definition.roles"
+                v-if="definition"
+                style="min-width: 70%;"></user-picker>
             </md-layout>
 
           </md-layout>
@@ -123,10 +126,9 @@
 <script>
   export default {
     props: {
-      monitor: Boolean,
-      iam: Object
+      monitor: Boolean
     },
-    data () {
+    data() {
       return {
         aaa: 'AAA',
         id: null,
@@ -203,8 +205,7 @@
         treeData: {}
       }
     },
-    computed: {
-    },
+    computed: {},
 
     //컴포넌트가 Dom 에 등록되었을 떄(실제 렌더링 되기 위해 활성화 되었을 때.)
     mounted() {
@@ -294,25 +295,31 @@
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
-        var defId;
-
+        var urlArr = [];
         //이 부분에 대한 것은, ServiceLocator.vue 를 보도록.
         //ServiceLocator.vue 는 App.vue (최상단 컴포넌트) 안에 붙어있습니다.
         me.$root.codi('instances{/id}').get({id: me.id})
           .then(function (response) {
-            let split = response.data.defName.split('/');
-            defId = split[split.length - 1];
-            me.definitionName = defId.replace(".json", "");
+            let split = response.data.defId.split('/');
+            for (var i in split) {
+              if(i == 0) continue;
+              urlArr.push(split[i]);
+            }
+            me.definitionName = response.data.defName;
             //left tree
             var instanceId = me.getLastText(response.data._links.self.href);
             me.findParent(instanceId);
           })
           .then(function () {
-            me.$root.codi('definition{/id}').get({id: defId})
+            var src = "definition";
+            for (var i in urlArr) {
+              src +=  "/" + urlArr[i];
+            }
+
+            if(src.lastIndexOf(".json") < 0) src += ".json"; //json 형태로 오지 않는 경우가 있어 처리
+
+            me.$root.codi(src).get()
               .then(function (response) {
-
-
-
                 // definition 이란 것은 디자이너가 도형을 그리는 스펙 정의.
                 // status 를 불러와서 definition 을 손본 후, me.definition 에 등록할 것.
 
@@ -341,14 +348,14 @@
       ,
       //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
       //재귀호출하여 상위 인스턴스가 없을 때까지 찾는다.
-      findParent: function(instanceId) {
+      findParent: function (instanceId) {
         var me = this;
         me.$root.codi('instances{/id}').get({id: instanceId})
           .then(function (response) {
             var mainInstId = response.data.mainInstId;
             var name = me.getLastText(response.data.defId).replace('.json', '');
             var instanceId = me.getLastText(response.data._links.self.href);
-            if(mainInstId == null) {
+            if (mainInstId == null) {
               me.trees.push({
                 name: name,
                 id: instanceId,
@@ -364,9 +371,9 @@
       ,
       //트리 구조를 위해 subprocess가 있는지 확인한다.
       //재귀호출하여 하위 참조 인스턴스가 없을 때까지 찾는다.
-      treeStruecture: function(instanceId) {
+      treeStruecture: function (instanceId) {
         //instanceId가 null로 들어오는 경우가 있어 체크함
-        if(instanceId == null) {
+        if (instanceId == null) {
           return;
         }
 
@@ -374,13 +381,13 @@
         me.$root.codi('instances/search/findChild?instId=' + instanceId).get()
           .then(function (response) {
             $.each(response.data, function (key, instances) {
-              if(key == '_embedded') {
-                if(instances.instances.length == 0) {
+              if (key == '_embedded') {
+                if (instances.instances.length == 0) {
                   var tree = me.listToTree(me.trees);
                   me.treeData = tree[0];
                   return false;
                 }
-                var name = instances.instances[0]["defId"].replace('/', '');
+                var name = instances.instances[0]["defId"].replace('codi/', '');
                 var childId = instances.instances[0]["_links"]["self"]["href"];
                 childId = me.getLastText(childId);
                 me.trees.push({
@@ -472,6 +479,7 @@
           this.$root.codi('definition{/id}').get({id: me.id + '.json'})
             .then(function (response) {
               me.definition = response.data.definition;
+              me.definitionName = me.definition.name.text;
             })
         }
       }
@@ -483,6 +491,14 @@
 //        definitionToSave.childActivities[1] = [];
 //        definitionToSave.roles = [];
         //definitionToSave.sequenceFlows = [];
+
+        if (me.id == 'new-process-definition') {
+          if(me.definitionName !== null) {
+            me.id = me.definitionName;
+          }
+        }
+
+        definitionToSave.name.text = me.definitionName;
 
         var nullFilter = function (array) {
           return array.filter(function (x) {
@@ -526,6 +542,9 @@
           );
       }
       ,
+      openUserPicker(ref) {
+        this.$refs['userPicker'].openUserPicker();
+      }
     }
   }
 </script>
@@ -543,7 +562,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      top: 0px;
+      top: 10%;
       left: 0px;
       overflow: hidden;
     }

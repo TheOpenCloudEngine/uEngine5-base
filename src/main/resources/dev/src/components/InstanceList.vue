@@ -1,122 +1,137 @@
 <template>
   <md-layout md-gutter>
-    <md-layout md-flex="15">
-      <!--<md-toolbar md-theme="white">-->
+    <md-layout md-gutter>
+      <md-layout md-flex-xsmall="100" md-flex-small="20" md-flex-medium="20" md-flex-large="20">
+        <!--<md-toolbar md-theme="white">-->
         <!--<span class="md-title">인스턴스 검색</span>-->
-      <!--</md-toolbar>-->
-      <md-list>
-        <md-list-item>
-          <md-input-container>
-            <md-select name="status" id="status" v-model="filter.status" @change="setStatus">
-              <md-option value="All">모두</md-option>
-              <md-option value="Running">진행중</md-option>
-              <md-option value="Ready">준비중</md-option>
-              <md-option value="Completed">완료됨</md-option>
-              <md-option value="Stopped">중지됨</md-option>
-              <md-option value="Skipped">건너뜀</md-option>
-              <md-option value="Suspended">일시중지</md-option>
-              <md-option value="Failed">실패함</md-option>
-            </md-select>
-          </md-input-container>
-        </md-list-item>
-        <md-list-item>
-          <md-input-container>
-            <label>인스턴스 아이디</label>
-            <md-input placeholder="Instance ID" v-model="filter.instId"></md-input>
-          </md-input-container>
-        </md-list-item>
-        <md-list-item>
-          <md-input-container>
-            <label>이름</label>
-            <md-input placeholder="name" v-model="filter.defId"></md-input>
-          </md-input-container>
-        </md-list-item>
-        <md-list-item>
-          <md-input-container>
-            <label>시작자</label>
-            <md-input placeholder="starter" v-model="filter.defName"></md-input>
-          </md-input-container>
-          <!--<md-dialog-prompt-->
-          <!--:md-title="prompt.title"-->
-          <!--:md-ok-text="prompt.ok"-->
-          <!--:md-cancel-text="prompt.cancel"-->
-          <!--@open="onOpen"-->
-          <!--@close="onClose"-->
-          <!--ref="dialog6">-->
-          <!--</md-dialog-prompt>-->
+        <!--</md-toolbar>-->
+        <md-list class="md-double-line">
+          <md-list-item>
+            <md-input-container>
+              <label for="status">상태</label>
+              <md-select name="status" id="status" v-model="filter.status" @change="setStatus">
+                <md-option value="All">모두</md-option>
+                <md-option value="Running">진행중</md-option>
+                <md-option value="Ready">준비중</md-option>
+                <md-option value="Completed">완료됨</md-option>
+                <md-option value="Stopped">중지됨</md-option>
+                <md-option value="Skipped">건너뜀</md-option>
+                <md-option value="Suspended">일시중지</md-option>
+                <md-option value="Failed">실패함</md-option>
+              </md-select>
+            </md-input-container>
+          </md-list-item>
+          <md-list-item>
+            <md-input-container md-clearable>
+              <label>인스턴스 아이디</label>
+              <md-input v-model="filter.instId"></md-input>
+            </md-input-container>
+          </md-list-item>
+          <md-list-item>
+            <md-input-container md-clearable>
+              <label>이름</label>
+              <md-input v-model="filter.defId"></md-input>
+            </md-input-container>
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>시작자</span>
+              <user-autocomplete
+                :role="role"
+                v-if="role"
+                @userSelected:user:role="userSelected"
+              ></user-autocomplete>
+            </div>
+            <!--<md-input-container md-clearable>-->
+            <!--<label>시작자</label>-->
+            <!--<md-input v-model="filter.defName"></md-input>-->
+            <!--</md-input-container>-->
 
-          <md-button class="md-icon-button md-raised md-primary" @click.native="openDialog('dialog6')">
-            <md-icon style="color: #ffffff">search</md-icon>
-          </md-button>
-        </md-list-item>
-        <md-list-item>
-          <md-input-container>
-            <label>현담당자</label>
-            <md-input placeholder="current manager" v-model="filter.eventHandler"></md-input>
-          </md-input-container>
-          <!--<md-dialog-prompt-->
-          <!--:md-title="prompt.title"-->
-          <!--:md-ok-text="prompt.ok"-->
-          <!--:md-cancel-text="prompt.cancel"-->
-          <!--@open="onOpen"-->
-          <!--@close="onClose"-->
-          <!--ref="dialog6">-->
-          <!--</md-dialog-prompt>-->
-          <md-button class="md-icon-button md-raised md-primary">
-            <md-icon style="color: #ffffff">search</md-icon>
-          </md-button>
-        </md-list-item>
-        <md-list-item>
-          <md-input-container>
-            <label>시작일</label>
-            <md-input type="date" placeholder="Start Date" v-model="filter.startedDate"></md-input>
-          </md-input-container>
-        </md-list-item>
-        <md-list-item>
-          <md-input-container>
-            <label>종료일</label>
-            <md-input type="date" md-format="yyyy/mm/dd" placeholder="End Date"
-                      v-model="filter.finishedDate"></md-input>
-          </md-input-container>
-        </md-list-item>
-        <md-list-item>
-          <md-button class="md-raised md-primary" v-on:click="search()">Search</md-button>
-        </md-list-item>
-      </md-list>
-    </md-layout>
-    <md-layout md-flex="85">
-      <md-table>
-        <md-table-header>
-          <md-table-row>
-            <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
-          </md-table-row>
-        </md-table-header>
+            <!--<md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('starter')">-->
+            <!--<md-icon style="color: #ffffff">search</md-icon>-->
+            <!--</md-button>-->
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>현담당자</span>
+              <user-autocomplete
+                :role="role"
+                v-if="role"
+                @userSelected:user:role="userSelected"
+              ></user-autocomplete>
+            </div>
+            <!--<md-input-container md-clearable>-->
+            <!--<label>현담당자</label>-->
+            <!--<md-input v-model="filter.endpoint"></md-input>-->
+            <!--</md-input-container>-->
+            <!--<md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('endpoint')">-->
+            <!--<md-icon style="color: #ffffff">search</md-icon>-->
+            <!--</md-button>-->
+            <!--<user-picker-->
+            <!--:roles.sync="roles"-->
+            <!--:id="id"-->
+            <!--ref="userPicker"-->
+            <!--style="min-width: 70%;"></user-picker>-->
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>시작일</span>
+              <md-input-container md-clearable>
+                <md-input type="date" placeholder="Start Date" v-model="filter.startedDate"></md-input>
+              </md-input-container>
+            </div>
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>종료일</span>
+              <md-input-container md-clearable>
+                <md-input type="date" md-format="yyyy/mm/dd" placeholder="End Date"
+                          v-model="filter.finishedDate"></md-input>
+              </md-input-container>
+            </div>
+          </md-list-item>
+          <md-list-item>
+            <md-button class="md-raised md-primary" v-on:click="search()">Search</md-button>
+          </md-list-item>
+        </md-list>
+      </md-layout>
+      <md-layout md-flex-xsmall="100" md-flex-small="80" md-flex-medium="80" md-flex-large="80">
+        <md-table>
+          <md-table-header>
+            <md-table-row>
+              <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
+            </md-table-row>
+          </md-table-header>
 
-        <md-table-body>
-          <md-table-row v-for="item in items" :key="item.defId">
-            <md-table-cell>{{item.status}}</md-table-cell>
-            <md-table-cell>{{item.instId}}</md-table-cell>
-            <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
-            <md-table-cell>{{item.defName}}</md-table-cell>
-            <md-table-cell>{{item.defName}}</md-table-cell>
-            <md-table-cell>{{item.eventHandler}}</md-table-cell>
-            <md-table-cell>{{item.info}}</md-table-cell>
-            <md-table-cell>{{item.startedDate}}</md-table-cell>
-            <md-table-cell>{{item.finishedDate}}</md-table-cell>
-            <md-table-cell>{{item.ext1}}</md-table-cell>
-            <md-table-cell>{{item.instId}}</md-table-cell>
-          </md-table-row>
-        </md-table-body>
-      </md-table>
+          <md-table-body>
+            <md-table-row v-for="item in items" :key="item.defId">
+              <md-table-cell>{{item.status}}</md-table-cell>
+              <md-table-cell>{{item.instId}}</md-table-cell>
+              <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
+              <md-table-cell>{{item.defName}}</md-table-cell>
+              <md-table-cell>{{item.endpoint}}</md-table-cell>
+              <md-table-cell>{{item.endpoint}}</md-table-cell>
+              <md-table-cell>{{item.info}}</md-table-cell>
+              <md-table-cell>{{item.startedDate}}</md-table-cell>
+              <md-table-cell>{{item.finishedDate}}</md-table-cell>
+              <md-table-cell>{{item.ext1}}</md-table-cell>
+              <md-table-cell>{{item.instId}}</md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
+      </md-layout>
     </md-layout>
   </md-layout>
 </template>
 <script>
 
   export default {
+    props: {
+      iam: Object
+    },
     data() {
       return {
-        status: 'all',
+        status: 'All',
         headers: [
           {text: '상태', value: 'status'},
           {text: '아이디', value: 'instId'},
@@ -130,16 +145,6 @@
           {text: 'Ext1', value: 'ext1'},
           {text: '삭제', value: 'instId'}
         ],
-//        prompt: {
-//          title: 'What\'s your name?',
-//          ok: 'Done',
-//          cancel: 'Cancel',
-//          id: 'name',
-//          name: 'name',
-//          placeholder: 'Type your name...',
-//          maxlength: 30,
-//          value: ''
-//        },
         items: [
           {
             instId: 'instId',
@@ -155,6 +160,10 @@
             finishedDate: 'finishedDate'
           }
         ],
+        id: "",
+        users: [],
+        role: "endpoint",
+        roleName: "",
         trees: [
           {
             name: 'name'
@@ -165,6 +174,7 @@
           defName: '',
           defId: '',
           name: '',
+          endpoint:'',
           eventHandler: '',
           startedDate: '',
           finishedDate: ''
@@ -212,8 +222,8 @@
       },
       search: function () {
         var item = this;
-        var url = 'instances/search/findFilterICanSee?'
-        var filter = this.filter
+        var url = 'instances/search/findFilterICanSee?';
+        var filter = this.filter;
         $.each(this.filter, function (obj, value) {
           if (value != undefined && value != '') {
             if (url.indexOf("?") != url.length - 1) {
@@ -235,6 +245,7 @@
                 defId: filteredData.defId,
                 name: filteredData.name,
                 status: filteredData.status,
+                endpoint:filteredData.endpoint,
                 eventHandler: filteredData.eventHandler,
                 isSubProcess: filteredData.isSubProcess,
                 startedDate: filteredData.startedDate,
@@ -250,17 +261,15 @@
       setStatus: function (status) {
         this.status = status;
       },
-      openDialog(ref) {
-        this.$refs[ref].open();
+      openUserPicker(roleName) {
+        var me = this;
+        me.roleName = roleName;
+        me.roles[0].name = roleName;
+        me.$refs['userPicker'].openUserPicker();
       },
-      closeDialog(ref) {
-        this.$refs[ref].close();
-      },
-      onOpen() {
-        console.log('Opened');
-      },
-      onClose(type) {
-        console.log('Closed', type);
+      userSelected: function (item,role) {
+        this.filter.endpoint = item ;
+        console.log(this.filter);
       }
     }
   }

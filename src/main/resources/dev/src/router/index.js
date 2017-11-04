@@ -11,11 +11,16 @@ import ObjectGrid from '@/components/ObjectGrid'
 import ClassEditor from '@/components/ClassEditor'
 import ClassSelector from '@/components/ClassSelector'
 import AvatarUploader from '@/components/AvatarUploader'
+import IAMAvatar from '@/components/IAMAvatar'
 import InstanceList from '@/components/InstanceList'
 import SvgGraph from '@/components/SvgGraph'
 import UserPicker from '@/components/bpm-portal/UserPicker'
 import UserAutocomplete from '@/components/bpm-portal/UserAutocomplete'
-
+import NewPackage from '@/components/bpm-portal/NewPackage'
+import RenamePackage from '@/components/bpm-portal/RenamePackage'
+import DeletePackage from '@/components/bpm-portal/DeletePackage'
+import ListPackage from '@/components/bpm-portal/ListPackage'
+import MovePackage from '@/components/bpm-portal/MovePackage'
 
 /**
  * Iam && Vue Router
@@ -67,8 +72,14 @@ Vue.component('object-form', ObjectForm);
 Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
 Vue.component('avatar-uploader', AvatarUploader);
+Vue.component('iam-avatar', IAMAvatar);
 Vue.component('svg-graph', SvgGraph);
 Vue.component('user-picker', UserPicker);
+Vue.component('new-package', NewPackage);
+Vue.component('rename-package', RenamePackage);
+Vue.component('delete-package', DeletePackage);
+Vue.component('list-package', ListPackage);
+Vue.component('move-package', MovePackage);
 Vue.component('user-autocomplete', UserAutocomplete);
 
 import CloudExample from '../components/example/CloudExample'
@@ -123,6 +134,12 @@ export default new Router({
         },
         {
           path: 'definition/:id',
+          name: 'graph',
+          component: SvgGraph,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'definition/:path/:id',
           name: 'graph',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
