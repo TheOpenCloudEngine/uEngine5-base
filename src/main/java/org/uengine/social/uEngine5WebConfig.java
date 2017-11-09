@@ -35,10 +35,10 @@ import javax.servlet.Filter;
 import java.util.Map;
 
 @EnableWebMvc
-@Configuration
+//@Configuration
 @ComponentScan(basePackageClasses = {DefinitionService.class, ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
 @EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
-public class WebConfig extends Metaworks4WebConfig {
+public class uEngine5WebConfig extends Metaworks4WebConfig {
 
 //    @Override
 //    public void addResourceHandlers(ResourceHandlerRegistry registry) {

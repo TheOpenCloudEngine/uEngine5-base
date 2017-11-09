@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @SpringBootApplication
-public class Application extends Metaworks4BaseApplication {
+public class uEngine5Application extends Metaworks4BaseApplication {
 
     /**
      * @param dataSource
@@ -26,14 +26,14 @@ public class Application extends Metaworks4BaseApplication {
      * @param jtaTransactionManagerProvider
      * @param transactionManagerCustomizers
      */
-    protected Application(DataSource dataSource, JpaProperties properties,
+    protected uEngine5Application(DataSource dataSource, JpaProperties properties,
                           ObjectProvider<JtaTransactionManager> jtaTransactionManagerProvider,
                           ObjectProvider<TransactionManagerCustomizers> transactionManagerCustomizers) {
         super(dataSource, properties, jtaTransactionManagerProvider, transactionManagerCustomizers);
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(uEngine5Application.class, args);
     }
 
 }

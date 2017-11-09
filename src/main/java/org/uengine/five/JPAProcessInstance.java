@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Created by uengine on 2017. 8. 9..
  */
-@Component
+//@Component
 @Transactional
 //@Scope("prototype")
 public class JPAProcessInstance extends DefaultProcessInstance {

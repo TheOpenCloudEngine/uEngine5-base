@@ -364,7 +364,7 @@ public class DefinitionService {
         if(!packagePath.equals("")) packagePath += "/";
 
         IResource resource = new DefaultResource(resourceRoot + "/" + packagePath + filePath);
-        List<String> deleteDefinitionList = new ArrayList<>();
+        List<String> deleteDefinitionList = new ArrayList<String>();
         deleteDefinitionList.add(packagePath + filePath);
         resourceManager.delete(resource);
 
@@ -392,11 +392,11 @@ public class DefinitionService {
 
             org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
                     org.uengine.kernel.ProcessInstance.class,
-                    new Object[]{
+                    //new Object[]{
                             processDefinition,
                             null,
                             null
-                    }
+                    //}
             );
 
             instance.execute();
