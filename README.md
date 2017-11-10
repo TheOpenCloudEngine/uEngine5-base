@@ -1,15 +1,22 @@
-## 백엔드 실행
+This project is a base library for uEngine customization applications.
+
+To run a default uEngine5 BPM backend server, build https://github.com/TheOpenCloudEngine/uEngine5-default rather than this.
+
+
+## Running backend server
 
 
 ```
+git clone https://github.com/TheOpenCloudEngine/uEngine5-default.git
+cd uEngine5-default
 mvn spring-boot:run
 ```
 
-localhost:8080 에 뜸
+go to localhost:8080
 
-## UI 실행
+## Running front-end server
 
-npm 설치가 되어있어야 할 것.
+You need a npm installation on your machine
 
 ```
 cd src/main/resources/dev
@@ -17,5 +24,5 @@ npm install
 npm run dev
 ```
 
-localhost:8081 에 뜸
+go to localhost:8081
 
