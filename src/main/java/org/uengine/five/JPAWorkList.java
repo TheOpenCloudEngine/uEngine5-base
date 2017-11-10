@@ -195,6 +195,8 @@ public class JPAWorkList implements WorkList {
 
             WorklistEntity wl = worklistRepository.findOne(new Long(taskID));
 
+            if(wl==null) return;
+
             wl.setStatus(DefaultWorkList.WORKITEM_STATUS_CANCELLED);
             for(int i=0; i<options.length; i++){
                 KeyedParameter parameter = options[i];

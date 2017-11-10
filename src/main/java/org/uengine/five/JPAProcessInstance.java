@@ -66,7 +66,9 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         }
 
 
+        //Add this instance as transaction listener and register this so that it can be cached.
         ProcessTransactionContext.getThreadLocalInstance().addTransactionListener(this);
+        ProcessTransactionContext.getThreadLocalInstance().registerProcessInstance(this);
 
 
         if(instanceId==null){ //means new Instance, if exists, loading existing instance.

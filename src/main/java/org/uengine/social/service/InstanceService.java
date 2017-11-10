@@ -3,13 +3,8 @@ package org.uengine.social.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
+import org.uengine.five.ProcessTransactionContext;
 import org.uengine.kernel.*;
-import org.uengine.modeling.resource.ResourceManager;
-import org.uengine.processmanager.ProcessTransactionContext;
-import org.uengine.social.entity.WorklistEntity;
-import org.uengine.social.repository.WorklistRepository;
-
-import javax.annotation.PostConstruct;
 import java.util.Map;
 
 /**
@@ -27,31 +22,17 @@ public class InstanceService {
     @RequestMapping(value = "/instance/{instanceId}/variables", method = RequestMethod.GET)
     public Map getProcessVariables(@PathVariable("instanceId") String instanceId) throws Exception {
 
-        ProcessInstance instance = applicationContext.getBean(
-                ProcessInstance.class,
-                new Object[]{
-                        null,
-                        instanceId,
-                        null
-                }
-        );
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
         //여기서도 롤매핑이 들어가면 시리얼라이즈 에러가 나옴.
         Map variables = ((DefaultProcessInstance) instance).getVariables();
         return variables;
     }
 
-    @RequestMapping(value = "/instance/{instanceId}/start", method = RequestMethod.GET)
+    @RequestMapping(value = "/instance/{instanceId}/start", method = RequestMethod.POST)
     public void start(@PathVariable("instanceId") String instanceId) throws Exception {
 
-        ProcessInstance instance = applicationContext.getBean(
-                ProcessInstance.class,
-                new Object[]{
-                        null,
-                        instanceId,
-                        null
-                }
-        );
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
         if(!instance.isRunning(""))
             instance.execute();
