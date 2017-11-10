@@ -3,25 +3,18 @@ package org.uengine.five;
 import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.uengine.kernel.*;
 import org.uengine.modeling.resource.DefaultResource;
 import org.uengine.modeling.resource.IResource;
 import org.uengine.modeling.resource.ResourceManager;
-import org.uengine.persistence.dao.UniqueKeyGenerator;
-import org.uengine.persistence.processinstance.ProcessInstanceDAOType;
 import org.uengine.social.entity.ProcessInstanceEntity;
 import org.uengine.social.repository.ProcessInstanceRepository;
 import org.uengine.social.service.DefinitionService;
-import org.uengine.util.UEngineUtil;
+import org.uengine.social.service.InstanceService;
 import org.uengine.webservices.worklist.WorkList;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -31,7 +24,7 @@ import java.util.Map;
 //@Component
 @Transactional
 //@Scope("prototype")
-public class JPAProcessInstance extends DefaultProcessInstance {
+public class JPAProcessInstance extends DefaultProcessInstance implements ProcessTransactionListener {
 
     ProcessInstanceEntity processInstanceEntity;
         public ProcessInstanceEntity getProcessInstanceEntity() {
@@ -71,6 +64,10 @@ public class JPAProcessInstance extends DefaultProcessInstance {
             setPrototype(true);
             return;
         }
+
+
+        ProcessTransactionContext.getThreadLocalInstance().addTransactionListener(this);
+
 
         if(instanceId==null){ //means new Instance, if exists, loading existing instance.
             setNewInstance(true);
@@ -121,8 +118,8 @@ public class JPAProcessInstance extends DefaultProcessInstance {
         }
     }
 
-    @Autowired
-    ApplicationEventPublisher applicationEventPublisher; //TODO see the DefinitionService.beforeProcessInstanceCommit() and move to here someday
+//    @Autowired
+//    ApplicationEventPublisher applicationEventPublisher; //TODO see the DefinitionService.beforeProcessInstanceCommit() and move to here someday
 
     @PostConstruct
     public void init() throws Exception {
@@ -148,7 +145,7 @@ public class JPAProcessInstance extends DefaultProcessInstance {
 
         setInstanceId(String.valueOf(getProcessInstanceEntity().getInstId()));
 
-        applicationEventPublisher.publishEvent(new ProcessInstanceChangeEvent(this));
+//        applicationEventPublisher.publishEvent(new ProcessInstanceChangeEvent(this));
     }
 
     @Autowired
@@ -180,14 +177,7 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     @Override
     public ProcessInstance getInstance(String instanceId, Map options) throws Exception {
 
-        return MetaworksRemoteService.getInstance().getBeanFactory().getBean(
-                org.uengine.kernel.ProcessInstance.class,
-                new Object[]{
-                        null,
-                        instanceId,
-                        options
-                }
-        );
+        return instanceService.getProcessInstanceLocal(instanceId);
     }
 
 
@@ -214,5 +204,47 @@ public class JPAProcessInstance extends DefaultProcessInstance {
     @Override
     public void putRoleMapping(RoleMapping roleMap) throws Exception {
         super.putRoleMapping(roleMap);
+    }
+
+    @Autowired
+    InstanceService instanceService;
+
+    @Override
+    public ProcessInstance getMainProcessInstance() throws Exception {
+        if(getMainProcessInstanceId() == null) return null;
+
+        return instanceService.getProcessInstanceLocal(getMainProcessInstanceId());
+
+    }
+
+    @Override
+    public ProcessInstance getRootProcessInstance() throws Exception {
+        if(getRootProcessInstanceId() == null) return null;
+
+        return instanceService.getProcessInstanceLocal(getRootProcessInstanceId());
+    }
+
+    @Override
+    public void beforeCommit(ProcessTransactionContext tx) throws Exception {
+
+        processInstanceRepository.save(getProcessInstanceEntity());
+
+        IResource resource = new DefaultResource("instances/" + getInstanceId());
+        resourceManager.save(resource, getVariables());
+    }
+
+    @Override
+    public void beforeRollback(ProcessTransactionContext tx) throws Exception {
+
+    }
+
+    @Override
+    public void afterCommit(ProcessTransactionContext tx) throws Exception {
+
+    }
+
+    @Override
+    public void afterRollback(ProcessTransactionContext tx) throws Exception {
+
     }
 }

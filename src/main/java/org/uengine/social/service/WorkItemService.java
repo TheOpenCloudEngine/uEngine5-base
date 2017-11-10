@@ -3,6 +3,7 @@ package org.uengine.social.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
+import org.uengine.five.ProcessTransactional;
 import org.uengine.kernel.*;
 import org.uengine.modeling.resource.*;
 import org.uengine.social.entity.WorklistEntity;
@@ -81,7 +82,7 @@ public class WorkItemService {
 
     @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.POST)
     @org.springframework.transaction.annotation.Transactional
-
+    @ProcessTransactional //important!
     public void putWorkItem(@PathVariable("taskId") String taskId, @RequestBody WorkItem workItem) throws Exception {
         WorklistEntity worklistEntity = worklistRepository.findOne(new Long(taskId));
 

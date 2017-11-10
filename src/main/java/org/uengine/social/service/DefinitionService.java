@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.bind.annotation.*;
 import org.uengine.five.ChangeEvent;
+import org.uengine.five.ProcessTransactional;
 import org.uengine.kernel.*;
 import org.uengine.kernel.bpmn.CallActivity;
 import org.uengine.modeling.resource.*;
@@ -372,6 +374,9 @@ public class DefinitionService {
     }
 
     @RequestMapping(value = "/definition/{defPath}/instance", method = RequestMethod.POST)
+    @Transactional
+    @ProcessTransactional
+
     public String runRootDefinition(@PathVariable("defPath") String definitionPath, @RequestBody String arguments) throws Exception {
 
         return runDefinition("", definitionPath, arguments);
@@ -380,6 +385,8 @@ public class DefinitionService {
 
     // ----------------- execution services -------------------- //
     @RequestMapping(value = "/definition/{packagePath}/{filePath}/instance", method = RequestMethod.POST)
+    @Transactional
+    @ProcessTransactional
     public String runDefinition(@PathVariable("packagePath") String packagePath, @PathVariable("filePath") String filePath, @RequestBody String arguments) throws Exception {
 
         if(!packagePath.equals("")) packagePath += "/";
@@ -432,17 +439,17 @@ public class DefinitionService {
     }
 
 
-    //TODO: must moved to InstanceService later.
-    @TransactionalEventListener(fallbackExecution=true, phase = TransactionPhase.BEFORE_COMMIT)
-    public void beforeProcessInstanceCommit(ChangeEvent<ProcessInstance> changeEvent) throws Exception {
-
-        ProcessInstance instance = changeEvent.getObject();
-
-        //TODO: check the instance is dirty
-        IResource resource = new DefaultResource("instances/" + instance.getInstanceId());
-        resourceManager.save(resource, ((DefaultProcessInstance)instance).getVariables());
-    }
-
+//    //TODO: must moved to InstanceService later.
+//    @TransactionalEventListener(fallbackExecution=true, phase = TransactionPhase.BEFORE_COMMIT)
+//    public void beforeProcessInstanceCommit(ChangeEvent<ProcessInstance> changeEvent) throws Exception {
+//
+//        ProcessInstance instance = changeEvent.getObject();
+//
+//        //TODO: check the instance is dirty
+//        IResource resource = new DefaultResource("instances/" + instance.getInstanceId());
+//        resourceManager.save(resource, ((DefaultProcessInstance)instance).getVariables());
+//    }
+//
 
     @Autowired
     ApplicationContext applicationContext;

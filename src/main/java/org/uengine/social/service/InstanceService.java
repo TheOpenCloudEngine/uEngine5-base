@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 import org.uengine.kernel.*;
 import org.uengine.modeling.resource.ResourceManager;
+import org.uengine.processmanager.ProcessTransactionContext;
 import org.uengine.social.entity.WorklistEntity;
 import org.uengine.social.repository.WorklistRepository;
 
@@ -55,6 +56,41 @@ public class InstanceService {
         if(!instance.isRunning(""))
             instance.execute();
     }
+
+
+    public ProcessInstance getProcessInstanceLocal(String instanceId){
+
+        //lookup cached one in same transaction
+        ProcessInstance instance = ProcessTransactionContext.getThreadLocalInstance().getProcessInstanceInTransaction(instanceId);
+
+        if(instance!=null) return instance;
+
+        //if not found, create one
+        instance = applicationContext.getBean(
+                ProcessInstance.class,
+                new Object[]{
+                        null,
+                        instanceId,
+                        null
+                }
+        );
+
+        return instance;
+
+    }
+
+//    public ProcessInstance createProcessInstanceLocal(ProcessDefinition processDefinition){
+//
+//        org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
+//                org.uengine.kernel.ProcessInstance.class,
+//                //new Object[]{
+//                processDefinition,
+//                null,
+//                null
+//                //}
+//        );
+//
+//    };
 
     @Autowired
     ApplicationContext applicationContext;
