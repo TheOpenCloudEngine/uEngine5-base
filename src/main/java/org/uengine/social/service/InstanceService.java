@@ -39,6 +39,11 @@ public class InstanceService {
     }
 
 
+    /**
+     * use this rather ProcessManagerRemote.getProcessInstance() method instead
+     * @param instanceId
+     * @return
+     */
     public ProcessInstance getProcessInstanceLocal(String instanceId){
 
         //lookup cached one in same transaction
