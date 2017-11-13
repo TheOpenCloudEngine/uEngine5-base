@@ -240,7 +240,15 @@ public class DefinitionService {
 
             resourceManager.save(resource, processDefinition);
 
-        }else if(definitionPath.endsWith(".class")){
+        }else if(definitionPath.endsWith(".upd")) {
+
+            ByteArrayInputStream bai = new ByteArrayInputStream(definition.getBytes("UTF-8"));
+
+            ProcessDefinition processDefinition = (ProcessDefinition) org.uengine.modeling.resource.Serializer.deserialize(bai);
+
+            resourceManager.save(resource, processDefinition);
+
+        } else if(definitionPath.endsWith(".class")){
 
             ObjectMapper mapper = new ObjectMapper();
             ClassDefinition classDefinition = mapper.readValue(definition, ClassDefinition.class);

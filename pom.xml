@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.3.RELEASE</version>
+        <version>1.5.8.RELEASE</version>
     </parent>
 
     <groupId>org.uengine</groupId>
@@ -80,7 +80,10 @@
             <artifactId>h2</artifactId>
         </dependency>
 
-
+        <!--<dependency>-->
+            <!--<groupId>org.springframework.boot</groupId>-->
+            <!--<artifactId>spring-boot-starter-thymeleaf</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
