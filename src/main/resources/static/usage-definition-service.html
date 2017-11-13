@@ -1,0 +1,91 @@
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="https://unpkg.com/hybind@latest/index.js"></script>
+
+<script src="https://unpkg.com/vue"></script>
+
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/vue-material@0.7.1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.3/require.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/vue-material@0.7.1/dist/vue-material.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+
+
+<script>
+      var backend = hybind("http://localhost:8080");
+      var definitions = [];
+
+      backend.$bind("definition", definitions);
+
+
+      //creating a new folder
+      definitions.$create({name:"new folder", directory: true}).then(function(folder){
+          folder.$load().then(function(thefolder){
+
+              console.log("The folder has been created:", thefolder);
+
+             thefolder.$delete();
+          });
+      });
+
+//      $.post({
+//        url: "http://localhost:8080/definition/folder",
+//        async: false
+//      });
+
+//      $.post({
+//        url: "http://localhost:8080/definition/folder/folder2",
+//        async: false
+//      });
+
+      var process;
+
+      definitions.$load().then(function(definitions){
+
+          if(definitions){
+
+              definitions.forEach(function(definition){
+                console.log(definition.name);
+
+                if(definition.directory){
+
+                  //drill down all the directories only for the first level.
+                  definition.$load().then(function(directory){
+                     console.log(directory);
+                  });
+                }
+
+                if(definition.name == "process.json") process = definition;
+
+              });
+
+              process.raw.$load().then(function(raw_definition){
+                 console.log("definition", raw_definition);
+              });
+
+            //invoke the instantiation:  this invoke the GET: definition (list definition) again.
+            //  it may be a try for adding a list to the first bound variable (definitions).
+            //  maybe there's any sort of option to disable this.
+
+              process.instantiation.$create().then(function(instance, r1, r2, r3){
+
+                  console.log("instance", instance);
+
+                //we need to load again for adding the _links as properties. this looks dummy action.
+                  instance.$load().then(function(instance_detail){
+
+                    instance_detail.variables.$load().then(function(variables){
+                      console.log("variables", variables);
+                    });
+
+                  });
+
+              });
+
+          }
+
+      });
+
+
+</script>

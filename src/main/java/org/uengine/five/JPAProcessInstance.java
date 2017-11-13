@@ -71,7 +71,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         ProcessTransactionContext.getThreadLocalInstance().registerProcessInstance(this);
 
 
-        if(instanceId==null){ //means new Instance, if exists, loading existing instance.
+        if(instanceId==null){ //means new InstanceResource, if exists, loading existing instance.
             setNewInstance(true);
             setProcessInstanceEntity(new ProcessInstanceEntity());
             getProcessInstanceEntity().setName(instanceId);

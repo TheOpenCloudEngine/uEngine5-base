@@ -77,7 +77,7 @@ Initialize nicescroll ALWAYS in (document) ready statement.
         $("html").niceScroll();
     });
     
-    // 2. Instance with object returned:
+    InstanceResource
     var nice = false;
     $(document).ready(function() {  
         nice = $("html").niceScroll();

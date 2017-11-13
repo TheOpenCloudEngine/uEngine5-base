@@ -41,7 +41,7 @@ public class WorkItemService {
     // ---------------- CRUD mappings -------------------- //
 
     @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.GET)
-    public WorkItem getWorkItem(@PathVariable("taskId") String taskId) throws Exception {
+    public WorkItemResource getWorkItem(@PathVariable("taskId") String taskId) throws Exception {
 
         WorklistEntity worklistEntity = worklistRepository.findOne(new Long(taskId));
 
@@ -53,7 +53,7 @@ public class WorkItemService {
         ProcessDefinition definition = (ProcessDefinition) definitionService.getDefinitionLocal(defId);
         HumanActivity activity = (HumanActivity) definition.getActivity(worklistEntity.getTrcTag());
 
-        WorkItem workItem = new WorkItem();
+        WorkItemResource workItem = new WorkItemResource();
         workItem.setActivity(activity);
         workItem.setWorklist(worklistEntity);
 
@@ -83,7 +83,7 @@ public class WorkItemService {
     @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.POST)
     @org.springframework.transaction.annotation.Transactional
     @ProcessTransactional //important!
-    public void putWorkItem(@PathVariable("taskId") String taskId, @RequestBody WorkItem workItem) throws Exception {
+    public void putWorkItem(@PathVariable("taskId") String taskId, @RequestBody WorkItemResource workItem) throws Exception {
         WorklistEntity worklistEntity = worklistRepository.findOne(new Long(taskId));
 
         Long instId = worklistEntity.getInstId();

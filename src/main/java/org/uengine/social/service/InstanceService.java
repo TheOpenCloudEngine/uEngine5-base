@@ -2,6 +2,7 @@ package org.uengine.social.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.uengine.five.ProcessTransactionContext;
 import org.uengine.kernel.*;
@@ -30,13 +31,51 @@ public class InstanceService {
     }
 
     @RequestMapping(value = "/instance/{instanceId}/start", method = RequestMethod.POST)
-    public void start(@PathVariable("instanceId") String instanceId) throws Exception {
+    public InstanceResource start(@PathVariable("instanceId") String instanceId) throws Exception {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
         if(!instance.isRunning(""))
             instance.execute();
+
+        return new InstanceResource(instance);
     }
+
+    @RequestMapping(value = "/instance/{instanceId}/stop", method = RequestMethod.POST)
+    public InstanceResource stop(@PathVariable("instanceId") String instanceId) throws Exception {
+
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
+
+        if(instance.isRunning(""))
+            instance.stop();
+
+        return new InstanceResource(instance);
+    }
+
+    @RequestMapping(value = "/instance/{instanceId}/resume", method = RequestMethod.POST)
+    public InstanceResource resume(@PathVariable("instanceId") String instanceId) throws Exception {
+
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
+
+        if(instance.isRunning("")) {
+            instance.stop();
+
+        }
+
+        return new InstanceResource(instance);
+    }
+
+    @RequestMapping(value = "/instance/{instanceId}", method = RequestMethod.GET)
+    public InstanceResource getInstance(@PathVariable("instanceId") String instanceId) throws Exception {
+
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
+
+        if(instance==null) throw new ResourceNotFoundException(); // make 404 error
+
+
+        return new InstanceResource(instance);
+    }
+
 
 
     /**

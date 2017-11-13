@@ -9,7 +9,7 @@ import java.util.Map;
  * Created by uengine on 2017. 8. 22..
  * It is an "Associate" object that associates entity - ActivityEntity and value object - desiredState and ResultPayload
  */
-public class WorkItem {
+public class WorkItemResource {
 
     WorklistEntity worklist;
         public WorklistEntity getWorklist() {
