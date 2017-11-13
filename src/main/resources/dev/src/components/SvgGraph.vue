@@ -476,7 +476,7 @@
           }
         }
         else {
-          this.$root.codi('definition{/id}').get({id: me.id + '.json'})
+          this.$root.codi('definition/raw/{/id}').get({id: me.id + '.json'})
             .then(function (response) {
               me.definition = response.data.definition;
               me.definitionName = me.definition.name.text;
@@ -531,7 +531,7 @@
         recursiveCheck(definitionToSave, null);
 
         var data = {definition: definitionToSave};
-        this.$root.codi('definition{/id}').save({id: me.id + '.json'}, data)
+        this.$root.codi('definition/raw/{/id}').save({id: me.id + '.json'}, data)
           .then(
             function (response) {
               me.$root.$children[0].success('저장되었습니다.');

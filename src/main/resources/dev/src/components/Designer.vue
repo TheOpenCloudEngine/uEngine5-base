@@ -40,8 +40,8 @@
               </md-card-area>
 
               <md-card-actions>
-                <md-button v-on:click="initiateProcess(card.name, card.packagePath)">Activate</md-button>
-                <md-button v-on:click="move(card.name)">Edit</md-button>
+                <md-button v-on:click="initiateProcess(card)">Activate</md-button>
+                <md-button v-on:click="move(card)">Edit</md-button>
               </md-card-actions>
               <md-card-actions>
                 <md-button id="movePackage" @click="movePackage(card.name)">Move</md-button>
@@ -87,30 +87,41 @@
       },
       getDefinitionList: function () {
         var me = this;
-        this.$root.codi('definitions').get()
-          .then(function (response) {
-            var cards = [];
-            $.each(response.data, function (i, name) {
-              name = name.replace('/', '');
 
-              var length = name.length;
-              var lastSlash = name.lastIndexOf('json');
-              var fileType = name.substring(lastSlash, length);
+        var access_token = localStorage["access_token"];
+        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
 
-              if(fileType == "json") {
-                cards.push({
-                  name: name,
-                  packagePath: "",
-                  desc: name + '...',
-                  src: '/static/image/sample.png'
-                })
-              } else {
-                me.getPackageFile(name, cards);
+        var definitions = [];
+
+        backend.$bind("definition", definitions);
+
+        var cards = [];
+
+
+        definitions.$load().then(function(definitions) {
+
+          if (definitions) {
+
+            definitions.forEach(function (definition) {
+
+              if (definition.directory) {
+              }else{
+
+                cards.push(definition);
+
+                definition.desc=name + '...';
+                definition.src='/static/image/sample.png';
+
               }
+
             });
-            me.cards = cards;
-          })
+
+          }
+        });
+
+        me.cards = cards;
       },
+
       getPackageFile: function(_path, _cards) {
         var src = 'definitions/packages/' + _path + "/processes"; //패키지 내 파일 찾기
         var packageChildren = []; // 좌측 트리에 보여질 패키지 파일 리스트
@@ -125,6 +136,9 @@
                 desc: name + '...',
                 src: '/static/image/sample.png'
               })
+
+              _cards.
+
               packageChildren.push(
                 { name: name,
                   package: false,
@@ -148,51 +162,27 @@
           path: 'definition/new-process-definition'
         })
       },
-      move: function (name) {
+      move: function (card) {
         this.$router.push({
-          path: 'definition/' + name.replace('.json', '')
+          path: 'definition/' + card.name.replace('.json', '')
         })
       },
-      deleteProcess: function (name, packagePath) {
-        var me = this;
+      deleteProcess: function (card) {
 
-        var length = name.length;
-        var lastSlash = name.lastIndexOf('/') + 1;
-        name  = name.substring(lastSlash, length);
+          var me = this;
 
-        var src = "";
-        if(packagePath !== "") packagePath += "/";
-        src = 'definition/' + packagePath + name;
+          card.$delete().then(function(){
+            me.$root.$children[0].success('리소스가 삭제되었습니다.');
+          });
 
-        this.$root.codi(src).delete({id: name}, {})
-          .then(
-            function (response) {
-              var instanceId = response.data;
-              me.$root.$children[0].success('프로세스가 삭제되었습니다.');
-              me.$router.push({
-                path: '/'
-              })
-            },
-            function (response) {
-              me.$root.$children[0].error('프로세스를 삭제할 수 없습니다.');
-            }
-          );
       },
-      initiateProcess: function (name, packagePath) {
+      initiateProcess: function (card) {
         var me = this;
 
-        var length = name.length;
-        var lastSlash = name.lastIndexOf('/') + 1;
-        name  = name.substring(lastSlash, length);
-
-        var src = "";
-        if(packagePath !== "") packagePath += "/";
-        src = 'definition/' + packagePath + name + '/instance';
-
-        this.$root.codi(src).save({})
+        card.instantiation.$create()
           .then(
-            function (response) {
-              var instanceId = response.data;
+            function (instance) {
+              var instanceId = instance.instanceId;
               me.$root.$children[0].success('프로세스가 시작되었습니다.');
               me.$router.push({
                 path: '/instance/' + instanceId
