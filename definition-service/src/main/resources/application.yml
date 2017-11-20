@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: definition
+
+server:
+  port: 8090
+  servletPath: /
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:9090/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+

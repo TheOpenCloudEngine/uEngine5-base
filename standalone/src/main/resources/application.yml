@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: definition
+  profiles:
+    active: standalone
+
+server:
+  port: 8090
+  servletPath: /
