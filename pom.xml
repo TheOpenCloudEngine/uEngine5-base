@@ -28,6 +28,9 @@
         <module>definition-service</module>
         <module>process-service</module>
         <module>standalone</module>
+
+        <module>uengine-proxy-server</module>
+        <module>uengine-registry-server</module>
     </modules>
 
     <dependencyManagement>
@@ -153,20 +156,18 @@
     </dependencies>
 
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.springframework.boot</groupId>-->
+                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
 
-                <configuration>
-                    <addResources>true</addResources>
-                </configuration>
-            </plugin>
-        </plugins>
-
-
-    </build>
+                <!--<configuration>-->
+                    <!--<addResources>true</addResources>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
 
     <repositories>
         <!--<repository>-->

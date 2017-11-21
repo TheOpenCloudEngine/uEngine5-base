@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: zuul-router
+
+
+server:
+  port: 8080
+  servletPath: /
+
+zuul:
+  addProxyHeaders: true
+
+  routes:
+    definition:
+      serviceId: definition
+      path: /definition/**
+      stripPrefix: false
+    instance:
+      serviceId: bpm
+      path: /instance/**
+      stripPrefix: false
+    instance-entity:
+      serviceId: bpm
+      path: /instances
+      stripPrefix: true
+    instance-workitem:
+      serviceId: bpm
+      path: /workitem
+      stripPrefix: true
+
+endpoints:
+  routes:
+    sensitive: false
+
+ribbon:
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1
+  OkToRetryOnAllOperations: true
+  ServerListRefreshInterval: 2000
+  ConnectTimeout: 3000
+  ReadTimeout: 3000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:9090/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
