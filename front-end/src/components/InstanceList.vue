@@ -1,0 +1,282 @@
+<template>
+  <md-layout md-gutter>
+    <md-layout md-gutter>
+      <md-layout md-flex-xsmall="100" md-flex-small="20" md-flex-medium="20" md-flex-large="20">
+        <!--<md-toolbar md-theme="white">-->
+        <!--<span class="md-title">인스턴스 검색</span>-->
+        <!--</md-toolbar>-->
+        <md-list class="md-double-line">
+          <md-list-item>
+            <md-input-container>
+              <label for="status">상태</label>
+              <md-select name="status" id="status" v-model="filter.status" @change="setStatus">
+                <md-option value="All">모두</md-option>
+                <md-option value="Running">진행중</md-option>
+                <md-option value="Ready">준비중</md-option>
+                <md-option value="Completed">완료됨</md-option>
+                <md-option value="Stopped">중지됨</md-option>
+                <md-option value="Skipped">건너뜀</md-option>
+                <md-option value="Suspended">일시중지</md-option>
+                <md-option value="Failed">실패함</md-option>
+              </md-select>
+            </md-input-container>
+          </md-list-item>
+          <md-list-item>
+            <md-input-container md-clearable>
+              <label>인스턴스 아이디</label>
+              <md-input v-model="filter.instId"></md-input>
+            </md-input-container>
+          </md-list-item>
+          <md-list-item>
+            <md-input-container md-clearable>
+              <label>이름</label>
+              <md-input v-model="filter.defId"></md-input>
+            </md-input-container>
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>시작자</span>
+              <user-autocomplete
+                :role="role"
+                v-if="role"
+                @userSelected:user:role="userSelected"
+              ></user-autocomplete>
+            </div>
+            <!--<md-input-container md-clearable>-->
+            <!--<label>시작자</label>-->
+            <!--<md-input v-model="filter.defName"></md-input>-->
+            <!--</md-input-container>-->
+
+            <!--<md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('starter')">-->
+            <!--<md-icon style="color: #ffffff">search</md-icon>-->
+            <!--</md-button>-->
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>현담당자</span>
+              <user-autocomplete
+                :role="role"
+                v-if="role"
+                @userSelected:user:role="userSelected"
+              ></user-autocomplete>
+            </div>
+            <!--<md-input-container md-clearable>-->
+            <!--<label>현담당자</label>-->
+            <!--<md-input v-model="filter.endpoint"></md-input>-->
+            <!--</md-input-container>-->
+            <!--<md-button class="md-icon-button md-raised md-primary" @click="openUserPicker('endpoint')">-->
+            <!--<md-icon style="color: #ffffff">search</md-icon>-->
+            <!--</md-button>-->
+            <!--<user-picker-->
+            <!--:roles.sync="roles"-->
+            <!--:id="id"-->
+            <!--ref="userPicker"-->
+            <!--style="min-width: 70%;"></user-picker>-->
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>시작일</span>
+              <md-input-container md-clearable>
+                <md-input type="date" placeholder="Start Date" v-model="filter.startedDate"></md-input>
+              </md-input-container>
+            </div>
+          </md-list-item>
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span>종료일</span>
+              <md-input-container md-clearable>
+                <md-input type="date" md-format="yyyy/mm/dd" placeholder="End Date"
+                          v-model="filter.finishedDate"></md-input>
+              </md-input-container>
+            </div>
+          </md-list-item>
+          <md-list-item>
+            <md-button class="md-raised md-primary" v-on:click="search()">Search</md-button>
+          </md-list-item>
+        </md-list>
+      </md-layout>
+      <md-layout md-flex-xsmall="100" md-flex-small="80" md-flex-medium="80" md-flex-large="80">
+        <md-table>
+          <md-table-header>
+            <md-table-row>
+              <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
+            </md-table-row>
+          </md-table-header>
+
+          <md-table-body>
+            <md-table-row v-for="item in items" :key="item.defId">
+              <md-table-cell>{{item.status}}</md-table-cell>
+              <md-table-cell>{{item.instId}}</md-table-cell>
+              <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
+              <md-table-cell>{{item.defName}}</md-table-cell>
+              <md-table-cell>{{item.endpoint}}</md-table-cell>
+              <md-table-cell>{{item.endpoint}}</md-table-cell>
+              <md-table-cell>{{item.info}}</md-table-cell>
+              <md-table-cell>{{item.startedDate}}</md-table-cell>
+              <md-table-cell>{{item.finishedDate}}</md-table-cell>
+              <md-table-cell>{{item.ext1}}</md-table-cell>
+              <md-table-cell>{{item.instId}}</md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
+      </md-layout>
+    </md-layout>
+  </md-layout>
+</template>
+<script>
+
+  export default {
+    props: {
+      iam: Object
+    },
+    data() {
+      return {
+        status: 'All',
+        headers: [
+          {text: '상태', value: 'status'},
+          {text: '아이디', value: 'instId'},
+          {text: '인스턴스명', value: 'defId'},
+          {text: '프로세스명', value: 'defName'},
+          {text: '시작자', value: 'defName'},
+          {text: '현담당자', value: 'eventHandler'},
+          {text: '정보', value: 'info'},
+          {text: '시작일', value: 'startedDate'},
+          {text: '종료일', value: 'finishedDate'},
+          {text: 'Ext1', value: 'ext1'},
+          {text: '삭제', value: 'instId'}
+        ],
+        items: [
+          {
+            instId: 'instId',
+            defName: 'defName',
+            defId: 'defId',
+            name: 'name',
+            status: 'status',
+            eventHandler: 'eventHandler',
+            isSubProcess: 'isSubProcess',
+            startedDate: 'startedDate',
+            info: 'info',
+            ext1: 'ext1',
+            finishedDate: 'finishedDate'
+          }
+        ],
+        id: "",
+        users: [],
+        role: "endpoint",
+        roleName: "",
+        trees: [
+          {
+            name: 'name'
+          }
+        ],
+        filter: {
+          instId: '',
+          defName: '',
+          defId: '',
+          name: '',
+          endpoint:'',
+          eventHandler: '',
+          startedDate: '',
+          finishedDate: ''
+        }
+      }
+    },
+    mounted() {
+      var me = this;
+      $('.scroll-inner').slimScroll({
+        height: '100%'
+      });
+      this.$root.codi('instances').get()
+        .then(function (response) {
+          var instances = [];
+          if (response.data._embedded && response.data._embedded.instances && response.data._embedded.instances.length) {
+            $.each(response.data._embedded.instances, function (i, instance) {
+              let split = instance._links.self.href.split('/');
+              instance['instId'] = split[split.length - 1];
+              //최상단 인스턴스일 경우에만 보이도록 한다.
+              if (instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
+                instances.push(instance);
+              }
+            });
+            me.items = instances;
+          }
+        })
+      var tree = this;
+      this.$root.codi('definitions').get()
+        .then(function (response) {
+          var trees = [];
+          $.each(response.data, function (i, definition) {
+            definition = definition.replace('/', '');
+            trees.push({
+              name: definition
+            });
+          });
+          tree.trees = trees;
+        })
+    },
+    methods: {
+      move: function (instId) {
+        this.$router.push({
+          path: 'instance/' + instId
+        })
+      },
+      search: function () {
+        var item = this;
+        var url = 'instances/search/findFilterICanSee?';
+        var filter = this.filter;
+        $.each(this.filter, function (obj, value) {
+          if (value != undefined && value != '') {
+            if (url.indexOf("?") != url.length - 1) {
+              url = url + "&" + obj + "=" + value;
+            } else {
+              url = url + obj + "=" + value;
+            }
+          }
+        })
+        this.$root.codi(url).get()
+          .then(function (response) {
+            var items = [];
+            $.each(response.data._embedded.instances, function (i, filteredData) {
+              let split = filteredData._links.self.href.split('/');
+              items['instId'] = split[split.length - 1];
+              items.push({
+                instId: split[split.length - 1],
+                defName: filteredData.defName,
+                defId: filteredData.defId,
+                name: filteredData.name,
+                status: filteredData.status,
+                endpoint:filteredData.endpoint,
+                eventHandler: filteredData.eventHandler,
+                isSubProcess: filteredData.isSubProcess,
+                startedDate: filteredData.startedDate,
+                info: filteredData.info,
+                ext1: filteredData.ext1,
+                finishedDate: filteredData.finishedDate
+              });
+            });
+            item.items = items;
+          })
+
+      },
+      setStatus: function (status) {
+        this.status = status;
+      },
+      openUserPicker(roleName) {
+        var me = this;
+        me.roleName = roleName;
+        me.roles[0].name = roleName;
+        me.$refs['userPicker'].openUserPicker();
+      },
+      userSelected: function (item,role) {
+        this.filter.endpoint = item ;
+        console.log(this.filter);
+      }
+    }
+  }
+</script>
+
+<style lang="scss" rel="stylesheet/scss">
+  .mt-100 {
+    margin-top: 50px;
+  }
+</style>
