@@ -1,40 +1,43 @@
 <template>
   <div>
 
-    <div v-if="calleeDefinitionId">
+    <!-- definition id 가 없어도 데이터가 있다면 최선을 다하여 출력하자 -->
+    <!--<div v-if="calleeDefinitionId">-->
 
       <md-layout v-for="parameterContext in data.parameterContexts">
         <md-layout md-flex="30">
           <md-input-container>
             <label>피호출측 역할</label>
-            <md-select name="input" id="input" v-model="parameterContext.argument">
+            <md-select v-if="calleeDefinition.loaded" name="input" id="input" v-model="parameterContext.argument">
               <md-option v-for="role in calleeDefinition.roles"
                          :key="role.name"
                          :value="role.name">
                 {{ role.name }}
               </md-option>
             </md-select>
+            <md-input v-else v-model="parameterContext.argument"></md-input>
           </md-input-container>
         </md-layout>
         <md-layout md-flex="30">
           <md-input-container>
             <label>연결 역할</label>
-            <md-select name="input" id="input" v-model="parameterContext.role.name">
+            <md-select v-if="calleeDefinition.loaded" v-model="parameterContext.role.name">
               <md-option v-for="role in definition.roles"
                          :key="role.name"
                          :value="role.name">
                 {{ role.name }}
               </md-option>
             </md-select>
+            <md-input v-else v-model="parameterContext.role.name"></md-input>
           </md-input-container>
         </md-layout>
         <md-layout md-flex="30">
           <md-input-container>
-            <label>연결 변수 방향</label>
+            <label>연결 방향</label>
             <md-select v-model="parameterContext.direction">
-              <md-option value="IN-OUT">IN-OUT</md-option>
-              <md-option value="IN">IN</md-option>
-              <md-option value="OUT">OUT</md-option>
+              <md-option value="in-out">IN-OUT</md-option>
+              <md-option value="in">IN</md-option>
+              <md-option value="out">OUT</md-option>
             </md-select>
           </md-input-container>
         </md-layout>
@@ -54,7 +57,7 @@
 
       <md-button v-on:click.native="add">매핑 추가</md-button>
     </div>
-  </div>
+  <!--</div>-->
 </template>
 
 <script>
@@ -76,6 +79,7 @@
         },
 
         calleeDefinition: {
+            loaded: false,
           roles: [
             {name: '-- not loaded -- '},
           ]
@@ -102,14 +106,24 @@
 
       }
     },
+    created: function(){
+      if(this.data){
+
+        this.data.parameterContexts.forEach(function(parameterContext){
+            if(!parameterContext.role)
+              parameterContext.role = {};
+        });
+
+      }
+    },
     methods: {
 
       refreshCalleeDefinition: function(){
         var me = this;
-        this.$root.codi('definition/' + this.calleeDefinitionId + ".json").get()
-          .then(function (response) {
-            me.calleeDefinition = response.data.definition;
-          })
+//        this.$root.codi('definition/' + this.calleeDefinitionId + ".json").get()
+//          .then(function (response) {
+//            me.calleeDefinition = response.data.definition;
+//          })
 
       },
 
@@ -127,7 +141,7 @@
       remove: function (parameterContext) {
 
         //TODO: find and remove
-        //this.parameterContexts.splice()
+        this.parameterContexts.splice(this.parameterContexts.indexOf(parameterContext), 1);
       }
     }
   }

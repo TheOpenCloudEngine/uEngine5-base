@@ -56,9 +56,11 @@
           <label>연결 프로세스 정의</label>
 
           <!--TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 -->
-          <md-select name="movie" id="movie" v-model="activity.definitionId">
-            <md-option v-for="definition in rowData" :value="definition.name">{{definition.name}}</md-option>
-          </md-select>
+          <md-input v-model="activity.definitionId">
+          </md-input>
+          <!--<md-select name="movie" id="movie" v-model="activity.definitionId">-->
+            <!--<md-option v-for="definition in rowData" :value="definition.name">{{definition.name}}</md-option>-->
+          <!--</md-select>-->
         </md-input-container>
 
 

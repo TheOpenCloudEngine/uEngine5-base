@@ -21,10 +21,7 @@ import org.uengine.util.UEngineUtil;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -227,7 +224,7 @@ public class DefinitionServiceImpl implements DefinitionService {
      * @param definition
      * @throws Exception
      */
-    @RequestMapping(value = DEFINITION_RAW + "/**", method = RequestMethod.POST)
+    @RequestMapping(value = DEFINITION_RAW + "/**", method = {RequestMethod.POST, RequestMethod.PUT})
     public DefinitionResource putRawDefinition(@RequestBody String definition, HttpServletRequest request) throws Exception {
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
@@ -331,26 +328,33 @@ public class DefinitionServiceImpl implements DefinitionService {
 
     public Object getDefinitionLocal(String definitionPath) throws Exception {
 
-        if(definitionPath.indexOf(".")==-1) definitionPath = definitionPath + ".json"; //TODO: check definition id convention
+        try{
+            if(definitionPath.indexOf(".")==-1) definitionPath = definitionPath + ".json"; //TODO: check definition id convention
 
-        IResource resource = new DefaultResource((definitionPath.startsWith(resourceRoot) ? definitionPath : resourceRoot + "/" + definitionPath));
-        Object definition = resourceManager.getObject(resource);
+            IResource resource = new DefaultResource((definitionPath.startsWith(resourceRoot) ? definitionPath : resourceRoot + "/" + definitionPath));
+            Object definition = resourceManager.getObject(resource);
 
-        //TODO: move to framework
-        if(definition instanceof NeedArrangementToSerialize){
-            ((NeedArrangementToSerialize) definition).afterDeserialization();
-        }
-
-        if(definition instanceof ProcessDefinition) {
-            ProcessDefinition processDefinition = (ProcessDefinition) definition;
-            { //TODO: will be moved to afterDeserialize of ProcessDefinition
-                processDefinition.setId(resource.getPath().substring(resourceRoot.length()+1));
-                if (processDefinition.getName() == null)
-                    processDefinition.setName(resource.getPath());
+            //TODO: move to framework
+            if(definition instanceof NeedArrangementToSerialize){
+                ((NeedArrangementToSerialize) definition).afterDeserialization();
             }
+
+            if(definition instanceof ProcessDefinition) {
+                ProcessDefinition processDefinition = (ProcessDefinition) definition;
+                { //TODO: will be moved to afterDeserialize of ProcessDefinition
+                    processDefinition.setId(resource.getPath().substring(resourceRoot.length()+1));
+                    if (processDefinition.getName() == null)
+                        processDefinition.setName(resource.getPath());
+                }
+            }
+
+            return definition;
+
+
+        }catch (Exception e){
+            throw new UEngineException("Error when to load definition: " + definitionPath, e);
         }
 
-        return definition;
     }
 
 

@@ -6,6 +6,7 @@ import org.metaworks.multitenancy.MetadataService;
 import org.metaworks.multitenancy.persistence.MultitenantRepositoryImpl;
 import org.metaworks.multitenancy.tenantawarefilter.TenantAwareFilter;
 import org.metaworks.rest.MetaworksRestService;
+import org.metaworks.springboot.configuration.CorsFilter;
 import org.metaworks.springboot.configuration.Metaworks4WebConfig;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -35,6 +36,14 @@ import java.util.Map;
 @EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
 public class StandaloneWebConfig extends Metaworks4WebConfig{
 
+    /**
+     * Uncomment if this needs a CORS setting by itself
+     * @return
+     */
+    @Bean
+    public CorsFilter corsFilter() {
+        return new CorsFilter();
+    }
 
     @Bean
     public ResourceManager resourceManager() {

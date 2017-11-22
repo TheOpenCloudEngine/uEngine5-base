@@ -14,20 +14,16 @@ module.exports = function (iam) {
     //isAuthenticated ? continue route
     //if not ? will login and come back
     module.isAuthenticated(function (result) {
-
-      next(true);
-      // return true;
-      //
-      // if (result) {
-      //   next(result);
-      // } else {
-      //   next({
-      //     path: '/auth/login',
-      //     query: {
-      //       redirect: to.fullPath
-      //     }
-      //   })
-      // }
+      if (result) {
+        next(result);
+      } else {
+        next({
+          path: '/auth/login',
+          query: {
+            redirect: to.fullPath
+          }
+        })
+      }
     });
   };
   module.isAuthenticated = function (callback) {

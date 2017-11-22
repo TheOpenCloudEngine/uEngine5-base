@@ -129,11 +129,11 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     String initComCd;
 
 
+    @Lob
     byte[] varLob;
         public byte[] getVarLob() {
             return varLob;
         }
-
         public void setVarLob(byte[] varLob) {
             this.varLob = varLob;
         }
