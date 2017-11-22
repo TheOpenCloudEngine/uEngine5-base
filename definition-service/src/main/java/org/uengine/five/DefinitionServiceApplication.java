@@ -14,10 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.uengine.five.service.DefinitionServiceImpl;
-import org.uengine.modeling.resource.CachedResourceManager;
-import org.uengine.modeling.resource.LocalFileStorage;
-import org.uengine.modeling.resource.ResourceManager;
-import org.uengine.modeling.resource.Storage;
+import org.uengine.modeling.resource.*;
 
 import javax.sql.DataSource;
 
@@ -65,7 +62,15 @@ public class DefinitionServiceApplication extends Metaworks4BaseApplication {
      */
     public Storage storage() {
         LocalFileStorage storage = new LocalFileStorage();
-        storage.setBasePath("/oce/repository");
+        storage.setBasePath("/tmp");
+
+        try {
+            System.out.println("-------------------> " + storage.exists(new DefaultResource(".")) + " ---> file system is mounted.");
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new RuntimeException(e);
+        };
 
         return storage;
     }

@@ -1,32 +1,25 @@
 version: "3"
 services:
 
-  process-api:
-    # replace username/repo:tag with your name and image details
-    image: uengine-five-process:latest
-    deploy:
-      replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 256M
-      restart_policy:
-        condition: on-failure
-    ports:
-      - "8089:8080"
-    networks:
-      - webnet
+#  process-api:
+#    image: uengine-five-process:latest
+#    deploy:
+#      replicas: 1
+#      restart_policy:
+#        condition: on-failure
+#    ports:
+#      - "8089:8080"
+#    networks:
+#      - webnet
 
   definition-api:
     image: uengine-five-definition:latest
     deploy:
       replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 256M
       restart_policy:
         condition: on-failure
+    volumes:
+      - /tmp:/tmp
     ports:
       - "8088:8080"
     networks:
@@ -36,10 +29,6 @@ services:
     image: uengine-proxy-server:latest
     deploy:
       replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 256M
       restart_policy:
         condition: on-failure
     ports:
@@ -51,10 +40,6 @@ services:
     image: uengine-registry-server:latest
     deploy:
       replicas: 1
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: 256M
       restart_policy:
         condition: on-failure
     ports:

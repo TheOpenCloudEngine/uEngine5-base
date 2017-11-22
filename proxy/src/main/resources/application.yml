@@ -37,13 +37,14 @@ ribbon:
   MaxAutoRetriesNextServer: 1
   OkToRetryOnAllOperations: true
   ServerListRefreshInterval: 2000
-  ConnectTimeout: 3000
-  ReadTimeout: 3000
+  ConnectTimeout: 10000
+  ReadTimeout: 10000
 
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:9090/eureka/
+      defaultZone: http://192.168.0.47:8761/eureka/
+#      defaultZone: ${eureka_url}
     healthcheck:
       enabled: true
   instance:

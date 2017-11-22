@@ -29,8 +29,8 @@
         <module>process-service</module>
         <module>standalone</module>
 
-        <module>uengine-proxy-server</module>
-        <module>uengine-registry-server</module>
+        <module>proxy</module>
+        <module>registry</module>
     </modules>
 
     <dependencyManagement>
@@ -156,18 +156,6 @@
     </dependencies>
 
 
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>org.springframework.boot</groupId>-->
-                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-
-                <!--<configuration>-->
-                    <!--<addResources>true</addResources>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
 
     <repositories>
         <!--<repository>-->
@@ -234,6 +222,15 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+
+                <configuration>
+                    <addResources>true</addResources>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>

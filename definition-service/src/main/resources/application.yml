@@ -3,8 +3,19 @@ spring:
     name: definition
 
 server:
-  port: 8090
+  port: 8080
   servletPath: /
+
+#eureka:
+#  client:
+#    serviceUrl:
+#      defaultZone: http://192.168.0.47:8761/eureka/
+#    healthcheck:
+#      enabled: true
+#  instance:
+#    statusPageUrlPath: ${server.servletPath}info
+#    healthCheckUrlPath: ${server.servletPath}health
+
 
 eureka:
   client:
@@ -13,5 +24,15 @@ eureka:
     healthcheck:
       enabled: true
   instance:
-    statusPageUrlPath: ${server.servletPath}info
-    healthCheckUrlPath: ${server.servletPath}health
+    hostname: 192.168.0.47
+    nonSecurePort: 8088
+    preferIpAddress: false
+    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
+    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
+    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
+    instanceId: ${eureka.instance.hostname}:${spring.application.name}:${eureka.instance.nonSecurePort}
+#    metadataMap:
+#        project: ${CI_PROJECT_NAME}
+#        commitSha: ${CI_COMMIT_SHA}
+#        image: ${MARATHON_APP_DOCKER_IMAGE}
+#        deployment: ${DEPLOYMENT}
