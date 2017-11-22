@@ -1,17 +1,20 @@
 package org.uengine.five.overriding;
 
+import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.uengine.five.entity.ProcessInstanceEntity;
 import org.uengine.five.framework.ProcessTransactionContext;
 import org.uengine.five.framework.ProcessTransactionListener;
 import org.uengine.five.repository.ProcessInstanceRepository;
+import org.uengine.five.service.DefinitionService;
+import org.uengine.five.service.DefinitionServiceUtil;
+import org.uengine.five.service.InstanceService;
+import org.uengine.five.service.InstanceServiceImpl;
 import org.uengine.kernel.*;
 import org.uengine.modeling.resource.DefaultResource;
 import org.uengine.modeling.resource.IResource;
 import org.uengine.modeling.resource.ResourceManager;
-import org.uengine.five.entity.ProcessInstanceEntity;
-import org.uengine.five.service.DefinitionServiceUtil;
-import org.uengine.five.service.InstanceService;
-import org.uengine.five.service.InstanceServiceImpl;
 import org.uengine.webservices.worklist.WorkList;
 
 import javax.annotation.PostConstruct;
@@ -28,34 +31,34 @@ import java.util.Map;
 public class JPAProcessInstance extends DefaultProcessInstance implements ProcessTransactionListener {
 
     ProcessInstanceEntity processInstanceEntity;
-        public ProcessInstanceEntity getProcessInstanceEntity() {
-            return processInstanceEntity;
-        }
-        public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
-            this.processInstanceEntity = processInstanceEntity;
-        }
+    public ProcessInstanceEntity getProcessInstanceEntity() {
+        return processInstanceEntity;
+    }
+    public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
+        this.processInstanceEntity = processInstanceEntity;
+    }
 
     @Autowired
     ProcessInstanceRepository processInstanceRepository;
 
     boolean newInstance;
 
-        public boolean isNewInstance() {
-            return newInstance;
-        }
+    public boolean isNewInstance() {
+        return newInstance;
+    }
 
-        public void setNewInstance(boolean newInstance) {
-            this.newInstance = newInstance;
-        }
+    public void setNewInstance(boolean newInstance) {
+        this.newInstance = newInstance;
+    }
 
 
     boolean prototype;
-        public boolean isPrototype() {
-            return prototype;
-        }
-        public void setPrototype(boolean prototype) {
-            this.prototype = prototype;
-        }
+    public boolean isPrototype() {
+        return prototype;
+    }
+    public void setPrototype(boolean prototype) {
+        this.prototype = prototype;
+    }
 
 
     public JPAProcessInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
@@ -65,12 +68,6 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
             setPrototype(true);
             return;
         }
-
-
-        //Add this instance as transaction listener and register this so that it can be cached.
-        ProcessTransactionContext.getThreadLocalInstance().addTransactionListener(this);
-        ProcessTransactionContext.getThreadLocalInstance().registerProcessInstance(this);
-
 
         if(instanceId==null){ //means new InstanceResource, if exists, loading existing instance.
             setNewInstance(true);
@@ -139,8 +136,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         }else{ //else, load the instance
             setProcessInstanceEntity(processInstanceRepository.findOne(Long.valueOf(getInstanceId())));
 
-            IResource resource = new DefaultResource("instances/" + getInstanceId());
-            Map variables = (Map) resourceManager.getObject(resource);
+            Map variables = loadVariables();
 
             setVariables(variables);
         }
@@ -148,7 +144,16 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
         setInstanceId(String.valueOf(getProcessInstanceEntity().getInstId()));
 
+        //Add this instance as transaction listener and register this so that it can be cached.
+        ProcessTransactionContext.getThreadLocalInstance().addTransactionListener(this);
+        ProcessTransactionContext.getThreadLocalInstance().registerProcessInstance(this);
+
 //        applicationEventPublisher.publishEvent(new ProcessInstanceChangeEvent(this));
+    }
+
+    protected Map loadVariables() throws Exception {
+        IResource resource = new DefaultResource("instances/" + getInstanceId());
+        return (Map) resourceManager.getObject(resource);
     }
 
     @Autowired
@@ -180,7 +185,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
     @Override
     public ProcessInstance getInstance(String instanceId, Map options) throws Exception {
 
-        return ((InstanceServiceImpl)instanceService).getProcessInstanceLocal(instanceId);
+        return instanceService.getProcessInstanceLocal(instanceId);
     }
 
 
@@ -210,13 +215,13 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
     }
 
     @Autowired
-    InstanceService instanceService;
+    InstanceServiceImpl instanceService;
 
     @Override
     public ProcessInstance getMainProcessInstance() throws Exception {
         if(getMainProcessInstanceId() == null) return null;
 
-        return ((InstanceServiceImpl)instanceService).getProcessInstanceLocal(getMainProcessInstanceId());
+        return instanceService.getProcessInstanceLocal(getMainProcessInstanceId());
 
     }
 
@@ -224,7 +229,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
     public ProcessInstance getRootProcessInstance() throws Exception {
         if(getRootProcessInstanceId() == null) return null;
 
-        return ((InstanceServiceImpl)instanceService).getProcessInstanceLocal(getRootProcessInstanceId());
+        return instanceService.getProcessInstanceLocal(getRootProcessInstanceId());
     }
 
     @Override
@@ -232,6 +237,10 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
         processInstanceRepository.save(getProcessInstanceEntity());
 
+        saveVariables();
+    }
+
+    protected void saveVariables() throws Exception {
         IResource resource = new DefaultResource("instances/" + getInstanceId());
         resourceManager.save(resource, getVariables());
     }

@@ -295,22 +295,37 @@
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
+        var urlArr = [];
+        //이 부분에 대한 것은, ServiceLocator.vue 를 보도록.
+        //ServiceLocator.vue 는 App.vue (최상단 컴포넌트) 안에 붙어있습니다.
+        me.$root.codi('instances{/id}').get({id: me.id})
+          .then(function (response) {
+            let split = response.data.defId.split('/');
+            for (var i in split) {
+              if(i == 0) continue;
+              urlArr.push(split[i]);
+            }
+            me.definitionName = response.data.defName;
+            //left tree
+            var instanceId = me.getLastText(response.data._links.self.href);
+            me.findParent(instanceId);
+          })
+          .then(function () {
+            var src = "definition";
+            for (var i in urlArr) {
+              src +=  "/" + urlArr[i];
+            }
 
-        var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+            if(src.lastIndexOf(".json") < 0) src += ".json"; //json 형태로 오지 않는 경우가 있어 처리
 
-        var instance = {};
-        backend.$bind("instance/" + me.id, instance);
+            me.$root.codi(src).get()
+              .then(function (response) {
+                // definition 이란 것은 디자이너가 도형을 그리는 스펙 정의.
+                // status 를 불러와서 definition 을 손본 후, me.definition 에 등록할 것.
 
-        instance.$load().then(function(){
+                var definition = response.data.definition;
 
-            instance.definition.$load().then(function(definition){
-              me.definitionName = definition.name;
-
-              definition.raw.$load().then(function(raw_definition){
                 me.getStatus(function (result) {
-
-                    var definition = raw_definition.definition;
 
                   for (var key in definition.childActivities[1]) {
 
@@ -325,12 +340,10 @@
 
                 });
 
-              });
 
-            });
-
-        });
-
+                //me.getStatus();
+              })
+          })
       }
       ,
       //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
@@ -358,7 +371,7 @@
       ,
       //트리 구조를 위해 subprocess가 있는지 확인한다.
       //재귀호출하여 하위 참조 인스턴스가 없을 때까지 찾는다.
-      treeStructure: function (instanceId) {
+      treeStruecture: function (instanceId) {
         //instanceId가 null로 들어오는 경우가 있어 체크함
         if (instanceId == null) {
           return;
@@ -384,7 +397,7 @@
                   children: null
                 });
               }
-              me.treeStructure(childId);
+              me.treeStruecture(childId);
             });
           })
       }
@@ -463,7 +476,10 @@
           }
         }
         else {
-          this.$root.codi('definition/raw/{/id}').get({id: me.id + '.json'})
+          //ytkim
+          //이거 다른방법 고민해봐야함.(.upd로 들어가는 문자열 있을수 있음)
+          this.$root.codi('definition/raw/{/id}').get({id: me.id.indexOf(".upd") > 0 ? me.id : me.id+'.json' })
+          //this.$root.codi('definition/raw/{/id}').get({id: me.id + '.json'})
             .then(function (response) {
               me.definition = response.data.definition;
               me.definitionName = me.definition.name.text;

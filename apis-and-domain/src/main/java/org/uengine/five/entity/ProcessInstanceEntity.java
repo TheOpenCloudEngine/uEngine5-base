@@ -128,6 +128,17 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
 
     String initComCd;
 
+
+    byte[] varLob;
+        public byte[] getVarLob() {
+            return varLob;
+        }
+
+        public void setVarLob(byte[] varLob) {
+            this.varLob = varLob;
+        }
+
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "processInstance")
     List<WorklistEntity> workLists;
 
@@ -814,4 +825,5 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     public void setCurrRsNm(String currRsNm) {
         this.currRsNm = currRsNm;
     }
+
 }
