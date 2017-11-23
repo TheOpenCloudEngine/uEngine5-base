@@ -96,18 +96,17 @@
         </md-list>
       </md-layout>
       <md-layout md-flex-xsmall="100" md-flex-small="80" md-flex-medium="80" md-flex-large="80">
-        <md-table>
+        <md-table @select="onSelect">
           <md-table-header>
             <md-table-row>
               <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
             </md-table-row>
           </md-table-header>
-
-          <md-table-body>
-            <md-table-row v-for="item in items" :key="item.defId">
+          <md-table-body v-if="items.length > 0">
+            <md-table-row v-for="item in items" :key="item.defId" :md-item="item" md-auto-select md-selection>
               <md-table-cell>{{item.status}}</md-table-cell>
               <md-table-cell>{{item.instId}}</md-table-cell>
-              <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
+              <md-table-cell>{{item.defId}}</md-table-cell>
               <md-table-cell>{{item.defName}}</md-table-cell>
               <md-table-cell>{{item.endpoint}}</md-table-cell>
               <md-table-cell>{{item.endpoint}}</md-table-cell>
@@ -116,6 +115,11 @@
               <md-table-cell>{{item.finishedDate}}</md-table-cell>
               <md-table-cell>{{item.ext1}}</md-table-cell>
               <md-table-cell>{{item.instId}}</md-table-cell>
+            </md-table-row>
+          </md-table-body>
+          <md-table-body v-if="items.length == 0">
+            <md-table-row>
+              <md-table-cell colspan="11">인스턴스 목록이 존재하지 않습니다.</md-table-cell>
             </md-table-row>
           </md-table-body>
         </md-table>
@@ -146,19 +150,6 @@
           {text: '삭제', value: 'instId'}
         ],
         items: [
-          {
-            instId: 'instId',
-            defName: 'defName',
-            defId: 'defId',
-            name: 'name',
-            status: 'status',
-            eventHandler: 'eventHandler',
-            isSubProcess: 'isSubProcess',
-            startedDate: 'startedDate',
-            info: 'info',
-            ext1: 'ext1',
-            finishedDate: 'finishedDate'
-          }
         ],
         id: "",
         users: [],
@@ -215,11 +206,6 @@
         })
     },
     methods: {
-      move: function (instId) {
-        this.$router.push({
-          path: 'instance/' + instId
-        })
-      },
       search: function () {
         var item = this;
         var url = 'instances/search/findFilterICanSee?';
@@ -270,6 +256,12 @@
       userSelected: function (item,role) {
         this.filter.endpoint = item ;
         console.log(this.filter);
+      },
+      onSelect: function (item) {
+        //selected instance list move page
+        this.$router.push({
+          path: 'instance/' + item[0].instId
+        })
       }
     }
   }
@@ -279,4 +271,6 @@
   .mt-100 {
     margin-top: 50px;
   }
+  td { text-align: center; }
+  .md-checkbox { display:none;}
 </style>
