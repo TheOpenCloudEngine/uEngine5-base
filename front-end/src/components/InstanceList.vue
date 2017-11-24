@@ -91,7 +91,7 @@
             </div>
           </md-list-item>
           <md-list-item>
-            <md-button class="md-raised md-primary" v-on:click="search()">Search</md-button>
+            <md-button class="md-raised md-primary" v-on:click="search(1, 10)">Search</md-button>
           </md-list-item>
         </md-list>
       </md-layout>
@@ -104,7 +104,7 @@
               </md-table-row>
             </md-table-header>
             <md-table-body v-if="items.length > 0">
-              <md-table-row v-for="item in items" :key="item.defId" :md-item="item" md-auto-select md-selection>
+              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection>
                 <md-table-cell>{{item.status}}</md-table-cell>
                 <md-table-cell>{{item.instId}}</md-table-cell>
                 <md-table-cell>{{item.defId}}</md-table-cell>
@@ -165,6 +165,7 @@
           rowTotal: 0,
           rowStart: 0
         },
+        listMode : 'default',
         id: "",
         users: [],
         role: "endpoint",
@@ -219,7 +220,7 @@
             }
           })
       },
-      search: function () {
+      search(_page, _size) {
         var item = this;
         var url = 'instances/search/findFilterICanSee?';
         var filter = this.filter;
@@ -232,7 +233,10 @@
             }
           }
         })
-        console.log('url test : ', url);
+        var page = _page - 1;
+        url += '&page=' + page + '&size=' + _size + '&sort=instId,desc';
+        item.listMode = 'select';
+        item.items = [];
         this.$root.codi(url).get()
           .then(function (response) {
             var items = [];
@@ -254,6 +258,11 @@
                 finishedDate: filteredData.finishedDate
               });
             });
+            item.paging = {
+              rowSize : _size,
+              rowTotal : response.data.page.totalElements,
+              rowStart : _page
+            };
             item.items = items;
           })
 
@@ -278,7 +287,11 @@
         })
       },
       onPagination(e) {
-          this.listData(e.page, e.size);
+          if(this.listMode == 'select') {
+            this.search(e.page, e.size);
+          } else {
+            this.listData(e.page, e.size);
+          }
       }
     }
   }
