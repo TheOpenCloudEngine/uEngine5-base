@@ -112,6 +112,7 @@
                 <md-table-cell>{{item.endpoint}}</md-table-cell>
                 <md-table-cell>{{item.endpoint}}</md-table-cell>
                 <md-table-cell>{{item.info}}</md-table-cell>
+                <md-table-cell>{{item.startedDate}}</md-table-cell>
                 <md-table-cell>{{item.finishedDate}}</md-table-cell>
                 <md-table-cell>{{item.ext1}}</md-table-cell>
                 <md-table-cell>{{item.instId}}</md-table-cell>
