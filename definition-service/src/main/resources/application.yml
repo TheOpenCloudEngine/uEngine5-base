@@ -20,17 +20,20 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://192.168.0.47:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
     healthcheck:
       enabled: true
   instance:
-    hostname: 192.168.0.47
+    hostname: localhost
     nonSecurePort: 8088
     preferIpAddress: false
     statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
     healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
     homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
     instanceId: ${eureka.instance.hostname}:${spring.application.name}:${eureka.instance.nonSecurePort}
+    metadataMap:
+      deployment: ${DEPLOYMENT}
+
 #    metadataMap:
 #        project: ${CI_PROJECT_NAME}
 #        commitSha: ${CI_COMMIT_SHA}
