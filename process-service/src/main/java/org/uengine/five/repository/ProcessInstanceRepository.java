@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.uengine.five.entity.ProcessInstanceEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -29,14 +31,15 @@ public interface ProcessInstanceRepository extends MultitenantRepository<Process
             "and (:name is null or pi.name like CONCAT('%',:name,'%') )" +
             "and (:startedDate is null or pi.startedDate >= :startedDate)" +
             "and (:finishedDate is null or :finishedDate >= pi.finishedDate )")
-    List<ProcessInstanceEntity> findFilterICanSee(
+    Page<ProcessInstanceEntity> findFilterICanSee(
                                                   @Param("defId") String defId,
                                                   @Param("instId") Long instId,
                                                   @Param("status") String status,
                                                   @Param("eventHandler") String eventHandler,
                                                   @Param("name") String name,
                                                   @Param("startedDate") String startedDate,
-                                                  @Param("finishedDate") String finishedDate
+                                                  @Param("finishedDate") String finishedDate,
+                                                  Pageable pageable
                                                   //Temporal 이 먹지않거나 시작일 검색이 제대로 기능하지않는다면 (String to Date Type error)시 아래 주석해제후 이내용으로 하시면됩니다.
 //                                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)@Param("startedDate") Date startedDate,
 //                                                  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)@Param("finishedDate") Date finishedDate

@@ -2,6 +2,7 @@ package org.uengine.five;
 
 import org.metaworks.springboot.configuration.Metaworks4BaseApplication;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -12,8 +13,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.jta.JtaTransactionManager;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.uengine.five.service.DefinitionServiceImpl;
+import org.uengine.five.service.HomeService;
 import org.uengine.modeling.resource.*;
 
 import javax.sql.DataSource;
@@ -74,5 +77,18 @@ public class DefinitionServiceApplication extends Metaworks4BaseApplication {
 
         return storage;
     }
+
+
+    //-------------------------------
+    @Autowired
+    HomeService homeService;
+
+
+    @RequestMapping("/home")
+    public String home() throws Exception {
+        return homeService.getHome();
+    }
+
+
 
 }

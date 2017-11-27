@@ -91,34 +91,48 @@
             </div>
           </md-list-item>
           <md-list-item>
-            <md-button class="md-raised md-primary" v-on:click="search()">Search</md-button>
+            <md-button class="md-raised md-primary" v-on:click="search(1, 10)">Search</md-button>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout md-flex-xsmall="100" md-flex-small="80" md-flex-medium="80" md-flex-large="80">
-        <md-table>
-          <md-table-header>
-            <md-table-row>
-              <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
-            </md-table-row>
-          </md-table-header>
-
-          <md-table-body>
-            <md-table-row v-for="item in items" :key="item.defId">
-              <md-table-cell>{{item.status}}</md-table-cell>
-              <md-table-cell>{{item.instId}}</md-table-cell>
-              <md-table-cell><a href="#" v-on:click="move(item.instId)">{{item.defId}}</a></md-table-cell>
-              <md-table-cell>{{item.defName}}</md-table-cell>
-              <md-table-cell>{{item.endpoint}}</md-table-cell>
-              <md-table-cell>{{item.endpoint}}</md-table-cell>
-              <md-table-cell>{{item.info}}</md-table-cell>
-              <md-table-cell>{{item.startedDate}}</md-table-cell>
-              <md-table-cell>{{item.finishedDate}}</md-table-cell>
-              <md-table-cell>{{item.ext1}}</md-table-cell>
-              <md-table-cell>{{item.instId}}</md-table-cell>
-            </md-table-row>
-          </md-table-body>
-        </md-table>
+        <md-table-card>
+          <md-table @select="onSelect">
+            <md-table-header>
+              <md-table-row>
+                <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
+              </md-table-row>
+            </md-table-header>
+            <md-table-body v-if="items.length > 0">
+              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection>
+                <md-table-cell>{{item.status}}</md-table-cell>
+                <md-table-cell>{{item.instId}}</md-table-cell>
+                <md-table-cell>{{item.defId}}</md-table-cell>
+                <md-table-cell>{{item.defName}}</md-table-cell>
+                <md-table-cell>{{item.endpoint}}</md-table-cell>
+                <md-table-cell>{{item.endpoint}}</md-table-cell>
+                <md-table-cell>{{item.info}}</md-table-cell>
+                <md-table-cell>{{item.startedDate}}</md-table-cell>
+                <md-table-cell>{{item.finishedDate}}</md-table-cell>
+                <md-table-cell>{{item.ext1}}</md-table-cell>
+                <md-table-cell>{{item.instId}}</md-table-cell>
+              </md-table-row>
+            </md-table-body>
+            <md-table-body v-if="items.length == 0">
+              <md-table-row>
+                <md-table-cell colspan="11">not exists instance list</md-table-cell>
+              </md-table-row>
+            </md-table-body>
+          </md-table>
+          <md-table-pagination
+            :md-size="paging.rowSize"
+            :md-total="paging.rowTotal"
+            :md-page="paging.rowStart"
+            md-label="Rows"
+            md-separator="of"
+            :md-page-options="[5, 10, 20]"
+            @pagination="onPagination($event)"></md-table-pagination>
+        </md-table-card>
       </md-layout>
     </md-layout>
   </md-layout>
@@ -146,20 +160,13 @@
           {text: '삭제', value: 'instId'}
         ],
         items: [
-          {
-            instId: 'instId',
-            defName: 'defName',
-            defId: 'defId',
-            name: 'name',
-            status: 'status',
-            eventHandler: 'eventHandler',
-            isSubProcess: 'isSubProcess',
-            startedDate: 'startedDate',
-            info: 'info',
-            ext1: 'ext1',
-            finishedDate: 'finishedDate'
-          }
         ],
+        paging : {
+          rowSize: 0,
+          rowTotal: 0,
+          rowStart: 0
+        },
+        listMode : 'default',
         id: "",
         users: [],
         role: "endpoint",
@@ -182,45 +189,39 @@
       }
     },
     mounted() {
-      var me = this;
       $('.scroll-inner').slimScroll({
         height: '100%'
       });
-      this.$root.codi('instances').get()
-        .then(function (response) {
-          var instances = [];
-          if (response.data._embedded && response.data._embedded.instances && response.data._embedded.instances.length) {
-            $.each(response.data._embedded.instances, function (i, instance) {
-              let split = instance._links.self.href.split('/');
-              instance['instId'] = split[split.length - 1];
-              //최상단 인스턴스일 경우에만 보이도록 한다.
-              if (instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
-                instances.push(instance);
-              }
-            });
-            me.items = instances;
-          }
-        })
-      var tree = this;
-      this.$root.codi('definitions').get()
-        .then(function (response) {
-          var trees = [];
-          $.each(response.data, function (i, definition) {
-            definition = definition.replace('/', '');
-            trees.push({
-              name: definition
-            });
-          });
-          tree.trees = trees;
-        })
+      this.listData(1, 10);
     },
     methods: {
-      move: function (instId) {
-        this.$router.push({
-          path: 'instance/' + instId
-        })
+      listData(_page, _size) {
+        var me = this;
+        var url = 'instances?'
+        var page = _page - 1;
+        url += 'page=' + page + '&size=' + _size + '&sort=instId,desc';
+        this.$root.codi(url).get()
+          .then(function (response) {
+            var instances = [];
+            if (response.data._embedded && response.data._embedded.instances && response.data._embedded.instances.length) {
+              $.each(response.data._embedded.instances, function (i, instance) {
+                let split = instance._links.self.href.split('/');
+                instance['instId'] = split[split.length - 1];
+                //최상단 인스턴스일 경우에만 보이도록 한다.
+                if (instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
+                  instances.push(instance);
+                }
+              });
+              me.paging = {
+                rowSize : _size,
+                rowTotal : response.data.page.totalElements,
+                rowStart : _page
+              };
+              me.items = instances;
+            }
+          })
       },
-      search: function () {
+      search(_page, _size) {
         var item = this;
         var url = 'instances/search/findFilterICanSee?';
         var filter = this.filter;
@@ -233,6 +234,10 @@
             }
           }
         })
+        var page = _page - 1;
+        url += '&page=' + page + '&size=' + _size + '&sort=instId,desc';
+        item.listMode = 'select';
+        item.items = [];
         this.$root.codi(url).get()
           .then(function (response) {
             var items = [];
@@ -254,6 +259,11 @@
                 finishedDate: filteredData.finishedDate
               });
             });
+            item.paging = {
+              rowSize : _size,
+              rowTotal : response.data.page.totalElements,
+              rowStart : _page
+            };
             item.items = items;
           })
 
@@ -270,6 +280,19 @@
       userSelected: function (item,role) {
         this.filter.endpoint = item ;
         console.log(this.filter);
+      },
+      onSelect: function (item) {
+        //selected instance list move page
+        this.$router.push({
+          path: 'instance/' + item[0].instId
+        })
+      },
+      onPagination(e) {
+          if(this.listMode == 'select') {
+            this.search(e.page, e.size);
+          } else {
+            this.listData(e.page, e.size);
+          }
       }
     }
   }
@@ -279,4 +302,6 @@
   .mt-100 {
     margin-top: 50px;
   }
+  td { text-align: center; }
+  .md-checkbox { display:none;}
 </style>
