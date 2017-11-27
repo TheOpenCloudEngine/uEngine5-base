@@ -231,7 +231,7 @@ public class DefinitionServiceImpl implements DefinitionService {
 
         String definitionPath = path.substring(DEFINITION_RAW.length());
 
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
+        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath );
 
         if(definitionPath.endsWith(".process")) {
 
@@ -244,6 +244,9 @@ public class DefinitionServiceImpl implements DefinitionService {
             resourceManager.save(resource, processDefinition);
 
         }else if(definitionPath.endsWith(".upd")) {
+
+            //upd 파일의 경우 json으로 확장자 변경
+            resource = new DefaultResource(resourceRoot + "/" + definitionPath.replace(".upd", ".json"));
 
             ByteArrayInputStream bai = new ByteArrayInputStream(definition.getBytes("UTF-8"));
 
@@ -281,7 +284,7 @@ public class DefinitionServiceImpl implements DefinitionService {
     }
 
 
-    @RequestMapping(value= DEFINITION_RAW + "/{defPath:.+}", method = RequestMethod.GET)
+    @RequestMapping(value= DEFINITION_RAW + "/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Object getRawDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
         Serializable definition = (Serializable) getDefinitionLocal(definitionPath);
