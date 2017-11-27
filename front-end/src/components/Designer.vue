@@ -1,68 +1,95 @@
 <template>
   <div>
-    <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
-    <md-button class="md-raised md-primary" id="newPackage" @click="newPackage">New Package</md-button>
-    <new-package
-      ref="newPackage"
-      style="min-width: 70%;"></new-package>
-    <move-package
-      ref="movePackage"
-      :processName="processName"
-      style="min-width: 70%;"></move-package>
+    <md-layout>
+      <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
+      <md-button class="md-raised md-primary" id="newPackage" @click="newPackage">New Package</md-button>
+      <new-package
+        ref="newPackage"
+        :currentPath="current"
+        style="min-width: 70%;"></new-package>
+      <move-package
+        ref="movePackage"
+        :processName="processName"
+        style="min-width: 70%;"></move-package>
+    </md-layout>
+    <md-layout>
+      <ul class="breadcrumb">
+        <li v-for="item in breadcrumb" v-on:click="selectedNavigation(item.link, item.seq)">{{item.name}}</li>
+      </ul>
+    </md-layout>
+    <md-layout v-if="directory.length > 0">
+      Folder
+    </md-layout>
+    <md-layout>
+      <md-layout md-gutter="24">
+        <md-layout md-flex-xsmall="100" md-flex-small="50" md-flex-medium="25" md-flex="25"
+                   v-for="item in directory"
+        >
+          <md-card  @click.native="selectedFolder(item.name)">
+            <md-card-header>
+              <md-card-header-text>
+                <md-avatar class="md-avatar-icon md-primary">
+                  <md-icon>folder</md-icon>
+                </md-avatar> {{ item.name }}
+              </md-card-header-text>
+            </md-card-header>
+          </md-card>
 
-    <md-layout mo-gutter>
-      <md-layout md-flex="20">
-        <md-list>
-          <list-package
-            :model="treeData">
-          </list-package>
-        </md-list>
-      </md-layout>
-      <md-layout md-flex="80">
-        <md-layout md-gutter="24">
-          <md-layout md-flex-xsmall="100" md-flex-small="50" md-flex-medium="25" md-flex="25"
-                     v-for="card in cards"
-                     :key="card.name"
-          >
-            <md-card md-with-hover>
-              <md-card-area>
-                <md-card-media>
-                  <img :src="card.src">
-                </md-card-media>
-
-                <md-card-header>
-                  <div class="md-title">{{card.name}}</div>
-                </md-card-header>
-
-                <md-card-content>
-                  {{card.desc}}
-                </md-card-content>
-              </md-card-area>
-
-              <md-card-actions>
-                <md-button v-on:click="initiateProcess(card)">Activate</md-button>
-                <md-button v-on:click="move(card)">Edit</md-button>
-              </md-card-actions>
-              <md-card-actions>
-                <md-button id="movePackage" @click="movePackage(card.name)">Move</md-button>
-                <md-button v-on:click="deleteProcess(card.name, card.packagePath)">Delete</md-button>
-              </md-card-actions>
-            </md-card>
-          </md-layout>
         </md-layout>
       </md-layout>
+    </md-layout>
+    <md-layout v-if="cards.length > 0">
+      File
+    </md-layout>
+    <md-layout mo-gutter>
+      <md-layout md-gutter="24">
+        <md-layout md-flex-xsmall="100" md-flex-small="50" md-flex-medium="25" md-flex="25"
+                   v-for="card in cards"
+                   :key="card.name"
+        >
+          <md-card md-with-hover>
+            <md-card-area>
+              <md-card-media>
+                <img :src="card.src">
+              </md-card-media>
 
+              <md-card-header>
+                <div class="md-title">{{card.name}}</div>
+              </md-card-header>
+
+              <md-card-content>
+                {{card.desc}}
+              </md-card-content>
+            </md-card-area>
+
+            <md-card-actions>
+              <md-button v-on:click="initiateProcess(card)">Activate</md-button>
+              <md-button v-on:click="move(card)">Edit</md-button>
+            </md-card-actions>
+            <md-card-actions>
+              <md-button id="movePackage" @click="movePackage(card.name)">Move</md-button>
+              <md-button v-on:click="deleteProcess(card.name, card.packagePath)">Delete</md-button>
+            </md-card-actions>
+          </md-card>
+        </md-layout>
+      </md-layout>
     </md-layout>
   </div>
 </template>
 <script>
-  import MdListItem from "vue-material/src/components/mdList/mdListItemDefault";
-
   export default {
-    components: {MdListItem},
     data () {
       return {
         cards: [],
+        directory: [],
+        breadcrumb: [
+          {
+            seq: 1,
+            name: 'Home',
+            link: ''
+          }
+        ],
+        current: '',
         treeData: {
           name: 'Package List',
           children: []
@@ -75,7 +102,7 @@
       $('.scroll-inner').slimScroll({
         height: '100%'
       });
-      this.getDefinitionList();
+      this.getDefinitionList('');
     },
     methods: {
       newPackage(ref) {
@@ -85,26 +112,50 @@
         this.processName = ref;
         this.$refs['movePackage'].openPackage();
       },
-      getDefinitionList: function () {
+      selectedFolder: function (_folder) {
+        this.current += '/' + _folder;
+        this.getDefinitionList(this.current);
+        var seq = this.breadcrumb.length + 1;
+
+        this.breadcrumb.push({
+          seq: seq,
+          name: _folder,
+          link: this.current
+        });
+      },
+      selectedNavigation: function (_link, _seq) {
+        this.current = _link;
+        this.getDefinitionList(_link);
+
+        var breadcrumbs = [];
+
+        for(var i = 0; i < _seq; i ++) {
+          breadcrumbs.push(this.breadcrumb[i]);
+        }
+
+        this.breadcrumb = breadcrumbs;
+      },
+      getDefinitionList: function (_folder) {
         var me = this;
 
         var access_token = localStorage["access_token"];
         var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
 
         var definitions = [];
+        var url = "definition" + _folder;
 
-        backend.$bind("definition", definitions);
+        backend.$bind(url, definitions);
 
         var cards = [];
-
+        var folders = [];
 
         definitions.$load().then(function(definitions) {
 
           if (definitions) {
 
             definitions.forEach(function (definition) {
-
               if (definition.directory) {
+                folders.push(definition);
               }else{
 
                 cards.push(definition);
@@ -119,6 +170,7 @@
           }
         });
 
+        me.directory = folders;
         me.cards = cards;
       },
 
@@ -136,9 +188,6 @@
                 desc: name + '...',
                 src: '/static/image/sample.png'
               })
-
-              _cards.
-
               packageChildren.push(
                 { name: name,
                   package: false,
@@ -158,22 +207,28 @@
         );
       },
       newProcess: function () {
+        var path = this.current.replace(/\//g, "_");
+        path = path.substring(1, path.length);
+        if(path !== "") path += "/";
         this.$router.push({
-          path: 'definition/new-process-definition'
+          path: 'definition/' + path  + 'new-process-definition'
         })
       },
       move: function (card) {
+        var path = this.current.replace(/\//g, "_");
+        path = path.substring(1, path.length);
+        if(path !== "") path += "/";
         this.$router.push({
-          path: 'definition/' + card.name.replace('.json', '')
+          path: 'definition/' + path + card.name.replace('.json', '')
         })
       },
       deleteProcess: function (card) {
 
-          var me = this;
+        var me = this;
 
-          card.$delete().then(function(){
-            me.$root.$children[0].success('리소스가 삭제되었습니다.');
-          });
+        card.$delete().then(function(){
+          me.$root.$children[0].success('리소스가 삭제되었습니다.');
+        });
 
       },
       initiateProcess: function (card) {
@@ -200,5 +255,42 @@
 <style lang="scss" rel="stylesheet/scss">
   .mt-100 {
     margin-top: 50px;
+  }
+  .md-layout {
+    margin-bottom: 5px;
+    margin-top: 5px;
+  }
+
+  /*** Breadcrumbs ***/
+  /* Style the list */
+  ul.breadcrumb {
+    padding: 10px 16px;
+    list-style: none;
+    background-color: #eee;
+  }
+
+  /* Display list items side by side */
+  ul.breadcrumb li {
+    display: inline;
+    font-size: 14px;
+  }
+
+  /* Add a slash symbol (/) before/behind each list item */
+  ul.breadcrumb li+li:before {
+    padding: 8px;
+    color: black;
+    content: "/\00a0";
+  }
+
+  /* Add a color to all links inside the list */
+  ul.breadcrumb li a {
+    color: #0275d8;
+    text-decoration: none;
+  }
+
+  /* Add a color on mouse-over */
+  ul.breadcrumb li a:hover {
+    color: #01447e;
+    text-decoration: underline;
   }
 </style>

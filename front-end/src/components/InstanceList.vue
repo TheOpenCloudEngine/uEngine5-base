@@ -303,5 +303,5 @@
     margin-top: 50px;
   }
   td { text-align: center; }
-  .md-checkbox { display:none;}
+  .md-table-selection {display:none;}
 </style>

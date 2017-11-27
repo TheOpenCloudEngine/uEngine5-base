@@ -142,9 +142,9 @@ public class DefinitionServiceImpl implements DefinitionService {
 
 
     @RequestMapping(value = DEFINITION+"/**", method = {RequestMethod.POST, RequestMethod.PUT})
-    public DefinitionResource createFolder(@RequestBody ResourceSupport newResource_, HttpServletRequest request) throws Exception {
+    public DefinitionResource createFolder(@RequestBody DefinitionResource newResource_, HttpServletRequest request) throws Exception {
 
-        DefinitionResource newResource = (DefinitionResource) newResource_;
+        DefinitionResource newResource = newResource_;
 
         String path = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);

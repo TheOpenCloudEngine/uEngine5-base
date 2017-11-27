@@ -22,6 +22,7 @@
 <script>
   export default {
     props: {
+      currentPath : String
     },
 
     created: function () {
@@ -43,8 +44,11 @@
       },
       createPackage: function () {
         var me = this;
-        this.$root.codi('definition/packages{/packageName}').save({packageName: me.packageName}, {})
-          .then(
+        var path = me.currentPath;
+        if(path !== "") path += "/";
+        this.$root.codi('definition').save({"name" : path + me.packageName,
+          "directory" : true
+        }).then(
             function (response) {
               me.$root.$children[0].success('저장되었습니다.');
             },

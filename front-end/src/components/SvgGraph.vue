@@ -132,6 +132,7 @@
       return {
         aaa: 'AAA',
         id: null,
+        path: '',
         definition: null,
         definitionName: null,
         processVariables: [],
@@ -448,7 +449,13 @@
       ,
       getDefinition: function () {
         var me = this;
-        me.id = this.$route.params.id;
+        me.id = me.$route.params.id;
+        if(me.$route.params.path) {
+          var pathSplit = me.$route.params.path.split('_');
+          for (var i = 0; i < pathSplit.length; i++) {
+            me.path += pathSplit[i] + "/";
+          }
+        }
         //신규 생성
         if (me.id == 'new-process-definition') {
           me.definition = {
@@ -463,8 +470,8 @@
           }
         }
         else {
-          this.$root.codi('definition/raw/{/id}').get({id: me.id + '.json'})
-            .then(function (response) {
+          var url = 'definition/raw/' + me.path + me.id + '.json';
+          this.$root.codi(url).get().then(function (response) {
               me.definition = response.data.definition;
               me.definitionName = me.definition.name.text;
             })
@@ -521,7 +528,7 @@
         var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
 
         var definition = {};
-        backend.$bind("definition/raw/" + me.id + '.json', definition);
+        backend.$bind("definition/raw/" + me.path + me.id + '.json', definition);
         definition.definition = definitionToSave;
         definition.$save().then(
           function (response) {
