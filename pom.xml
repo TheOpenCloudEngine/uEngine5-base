@@ -30,7 +30,7 @@
         <module>standalone</module>
 
         <module>proxy</module>
-        <module>registry</module>
+        <module>service-registry</module>
     </modules>
 
     <dependencyManagement>
