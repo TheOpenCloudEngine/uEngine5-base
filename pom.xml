@@ -27,10 +27,9 @@
         <module>apis-and-domain</module>
         <module>definition-service</module>
         <module>process-service</module>
-        <module>standalone</module>
-
         <module>proxy</module>
         <module>service-registry</module>
+        <!--<module>standalone</module>-->
     </modules>
 
     <dependencyManagement>
