@@ -15,7 +15,7 @@ services:
   definition-api:
     image: uengine-five-definition:latest
     deploy:
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: on-failure
     volumes:
@@ -24,6 +24,9 @@ services:
       - "8088:8080"
     networks:
       - webnet
+#    depends-on:
+#      - registry
+#      - webnet
 
   proxy:
     image: uengine-proxy-server:latest
