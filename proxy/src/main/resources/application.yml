@@ -12,20 +12,20 @@ zuul:
 
   routes:
     definition:
-      serviceId: definition
       path: /definition/**
+      serviceId: definition
       stripPrefix: false
     instance:
-      serviceId: bpm
       path: /instance/**
+      serviceId: bpm
       stripPrefix: false
     instance-entity:
-      serviceId: bpm
       path: /instances
+      serviceId: bpm
       stripPrefix: true
     instance-workitem:
-      serviceId: bpm
       path: /workitem
+      serviceId: bpm
       stripPrefix: true
 
 endpoints:
@@ -43,7 +43,7 @@ ribbon:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://192.168.0.47:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
 #      defaultZone: ${eureka_url}
     healthcheck:
       enabled: true

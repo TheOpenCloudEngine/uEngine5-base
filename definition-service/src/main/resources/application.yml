@@ -1,9 +1,11 @@
 spring:
   application:
     name: definition
+  profiles:
+    active: msa
 
 server:
-  port: 8080
+  port: 8088
   servletPath: /
 
 #eureka:
@@ -20,7 +22,7 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://192.168.43.93:8761/eureka/
     healthcheck:
       enabled: true
   instance:
