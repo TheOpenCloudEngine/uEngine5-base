@@ -96,7 +96,7 @@
         </md-list>
       </md-layout>
       <md-layout md-flex-xsmall="100" md-flex-small="80" md-flex-medium="80" md-flex-large="80">
-        <md-table-card>
+        <md-table-card class="instance-select">
           <md-table @select="onSelect">
             <md-table-header>
               <md-table-row>
@@ -104,7 +104,7 @@
               </md-table-row>
             </md-table-header>
             <md-table-body v-if="items.length > 0">
-              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection class="instance-select" style="cursor:pointer">
+              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection style="cursor:pointer">
                 <md-table-cell>{{item.status}}</md-table-cell>
                 <md-table-cell>{{item.instId}}</md-table-cell>
                 <md-table-cell>{{item.defId}}</md-table-cell>
