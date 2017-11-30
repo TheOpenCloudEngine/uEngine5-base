@@ -104,7 +104,7 @@
               </md-table-row>
             </md-table-header>
             <md-table-body v-if="items.length > 0">
-              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection>
+              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection class="instance-select" style="cursor:pointer">
                 <md-table-cell>{{item.status}}</md-table-cell>
                 <md-table-cell>{{item.instId}}</md-table-cell>
                 <md-table-cell>{{item.defId}}</md-table-cell>
@@ -202,6 +202,7 @@
         url += 'page=' + page + '&size=' + _size + '&sort=instId,desc';
         this.$root.codi(url).get()
           .then(function (response) {
+              console.log('response', response);
             var instances = [];
             if (response.data._embedded && response.data._embedded.instances && response.data._embedded.instances.length) {
               $.each(response.data._embedded.instances, function (i, instance) {
@@ -303,5 +304,7 @@
     margin-top: 50px;
   }
   td { text-align: center; }
-  .md-table-selection {display:none;}
+  .instance-select .md-table-selection {
+    display:none;
+  }
 </style>

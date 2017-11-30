@@ -21,7 +21,10 @@
 <script>
   export default {
     props: {
-      packageName: ""
+      packageName: String,
+      directory: Array,
+      cards: Array,
+      currentPath: String
     },
 
     created: function () {
@@ -31,7 +34,8 @@
     data: function () {
       return {};
     },
-    mounted: function () {},
+    mounted: function () {
+    },
     methods: {
       closePackage(ref) {
         this.$refs['deletePackage'].close();
@@ -41,17 +45,58 @@
       },
       deletePackage: function () {
         var me = this;
-        var src = 'definitions/packages/' + me.packageName;
+        var src = 'definition/' + me.packageName;
         this.$root.codi(src).delete({})
           .then(
             function (response) {
               me.$root.$children[0].success('삭제되었습니다.');
+              var current = me.currentPath;
+              current=current.substring(0, current.length-1);
+              me.getDefinitionList(current);
             },
             function (response) {
               me.$root.$children[0].error('삭제할 수 없습니다.');
             }
           );
         this.$refs['deletePackage'].close();
+      },
+      getDefinitionList: function (_folder) {
+        var me = this;
+
+        var access_token = localStorage["access_token"];
+        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+
+        var definitions = [];
+        var url = "definition/" + _folder;
+
+        backend.$bind(url, definitions);
+
+        var cards = [];
+        var folders = [];
+
+        definitions.$load().then(function(definitions) {
+
+          if (definitions) {
+
+            definitions.forEach(function (definition) {
+              if (definition.directory) {
+                folders.push(definition);
+              }else{
+
+                cards.push(definition);
+
+                definition.desc=name + '...';
+                definition.src='/static/image/sample.png';
+
+              }
+
+            });
+
+          }
+        });
+
+        this.$emit('update:directory', folders);
+        this.$emit('update:cards',cards);
       }
     }
   }

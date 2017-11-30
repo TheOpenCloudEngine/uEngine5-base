@@ -22,7 +22,9 @@
 <script>
   export default {
     props: {
-      currentPath : String
+      currentPath : String,
+      directory: Array,
+      cards: Array
     },
 
     created: function () {
@@ -51,12 +53,53 @@
         }).then(
             function (response) {
               me.$root.$children[0].success('저장되었습니다.');
+              var current = me.currentPath;
+              current=current.substring(0, current.length-1);
+              me.getDefinitionList(current);
             },
             function (response) {
               me.$root.$children[0].error('저장할 수 없습니다.');
             }
           );
         this.$refs['newPackage'].close();
+      },
+      getDefinitionList: function (_folder) {
+        var me = this;
+
+        var access_token = localStorage["access_token"];
+        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+
+        var definitions = [];
+        var url = "definition/" + _folder;
+
+        backend.$bind(url, definitions);
+
+        var cards = [];
+        var folders = [];
+
+        definitions.$load().then(function(definitions) {
+
+          if (definitions) {
+
+            definitions.forEach(function (definition) {
+              if (definition.directory) {
+                folders.push(definition);
+              }else{
+
+                cards.push(definition);
+
+                definition.desc=name + '...';
+                definition.src='/static/image/sample.png';
+
+              }
+
+            });
+
+          }
+        });
+
+        this.$emit('update:directory', folders);
+        this.$emit('update:cards',cards);
       }
     }
   }

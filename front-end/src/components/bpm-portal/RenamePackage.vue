@@ -7,7 +7,7 @@
       <div>
         <md-input-container>
           <label>Package Name</label>
-          <md-input v-model="packageNewName" type="text"></md-input>
+          <md-input v-model="packageName" type="text"></md-input>
         </md-input-container>
       </div>
     </md-dialog-content>
@@ -22,18 +22,16 @@
 <script>
   export default {
     props: {
-      packageName: ""
+      packageName: String,
+      packagePath: String,
+      directory: Array,
+      cards: Array,
+      currentPath: String
     },
 
     created: function () {
-
     },
 
-    data: function () {
-      return {
-        packageNewName: ""
-      };
-    },
     mounted: function () {},
     methods: {
       closePackage(ref) {
@@ -44,18 +42,68 @@
       },
       renamePackage: function () {
         var me = this;
-        var src = 'definitions/packages/' + me.packageName + '/' + me.packageNewName;
+        var src = 'definition/' + me.packagePath;
+        var split = me.packagePath.split('/');
+        var path = "";
 
-        this.$root.codi(src).save()
-          .then(
-            function (response) {
+        for(var i = 0; i < split.length; i++) {
+            if(i+1 == split.length) {
+              path += me.packageName;
+            } else {
+              path += split[i] + "/";
+            }
+        }
+
+        this.$root.codi(src).update({ path : path })
+          .then(function (response) {
               me.$root.$children[0].success('저장되었습니다.');
+              var current = me.currentPath;
+              current=current.substring(0, current.length-1);
+              me.getDefinitionList(current);
             },
             function (response) {
               me.$root.$children[0].error('저장할 수 없습니다.');
             }
           );
         this.$refs['renamePackage'].close();
+      },
+      getDefinitionList: function (_folder) {
+        var me = this;
+
+        var access_token = localStorage["access_token"];
+        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+
+        var definitions = [];
+        var url = "definition/" + _folder;
+
+        backend.$bind(url, definitions);
+
+        var cards = [];
+        var folders = [];
+
+        definitions.$load().then(function(definitions) {
+
+          if (definitions) {
+
+            definitions.forEach(function (definition) {
+              if (definition.directory) {
+                folders.push(definition);
+              }else{
+
+                cards.push(definition);
+
+                definition.desc=name + '...';
+                definition.src='/static/image/sample.png';
+
+              }
+
+            });
+
+          }
+        });
+
+        this.$emit('update:directory', folders);
+        this.$emit('update:cards',cards);
       }
     }
   }

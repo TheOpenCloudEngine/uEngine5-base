@@ -116,10 +116,10 @@ public class DefinitionServiceImpl implements DefinitionService {
      * TODO: need ACL referenced by token
      * @throws Exception
      */
-    @RequestMapping(value = DEFINITION+"/**", method = RequestMethod.PATCH)
-    public DefinitionResource renameOrMove(@RequestBody ResourceSupport definition_, HttpServletRequest request) throws Exception {
+    @RequestMapping(value = DEFINITION+"/**", method = RequestMethod.PUT)
+    public DefinitionResource renameOrMove(@RequestBody DefinitionResource definition_, HttpServletRequest request) throws Exception {
 
-        DefinitionResource definition = (DefinitionResource) definition_;
+        DefinitionResource definition = definition_;
 
 
         String path = (String) request.getAttribute(
@@ -141,7 +141,7 @@ public class DefinitionServiceImpl implements DefinitionService {
     }
 
 
-    @RequestMapping(value = DEFINITION+"/**", method = {RequestMethod.POST, RequestMethod.PUT})
+    @RequestMapping(value = DEFINITION+"/**", method = {RequestMethod.POST})
     public DefinitionResource createFolder(@RequestBody DefinitionResource newResource_, HttpServletRequest request) throws Exception {
 
         DefinitionResource newResource = newResource_;
