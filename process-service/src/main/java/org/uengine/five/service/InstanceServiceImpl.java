@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import org.uengine.five.framework.ProcessTransactionContext;
 import org.uengine.five.framework.ProcessTransactional;
 import org.uengine.kernel.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,6 +115,37 @@ public class InstanceServiceImpl implements InstanceService {
         return new InstanceResource(instance);
     }
 
+    @RequestMapping(value = "/instance/{instanceId}/activity/{tracingTag}/backToHere", method = RequestMethod.POST)
+    @Transactional
+    @ProcessTransactional
+    public InstanceResource backToHere(@PathVariable("instanceId") String instanceId, @PathVariable("tracingTag") String tracingTag) throws Exception {
+
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
+        ProcessDefinition definition = instance.getProcessDefinition();
+        List<Activity> list = new ArrayList<Activity>();
+
+        Activity returningActivity = definition.getActivity(tracingTag);
+        definition.gatherPropagatedActivitiesOf(instance, returningActivity, list);
+        Activity proActiviy;
+        for(int i=0; i<list.size(); i++){
+            proActiviy = list.get(i);
+            //compensate
+            proActiviy.compensate(instance);
+        }
+
+        returningActivity.resume(instance);
+/*
+        ProcessDefinition extends FlowActivity 상속하고 있기 때문에,
+        List list = new ArrayList();
+        definition.gatherPropagatedActivitiesOf(instance, definition.getWholeChildActivity(tracingTag), list);
+
+        list 를 역순으로 하여 발견된 각 activity 들에 대해 compensate() 호출
+*/
+
+
+
+        return new InstanceResource(instance);
+    }
 
 
     /**
@@ -122,12 +156,12 @@ public class InstanceServiceImpl implements InstanceService {
     public ProcessInstance getProcessInstanceLocal(String instanceId){
 
         //lookup cached one in same transaction
-        ProcessInstance instance = ProcessTransactionContext.getThreadLocalInstance().getProcessInstanceInTransaction(instanceId);
+        //ProcessInstance instance = ProcessTransactionContext.getThreadLocalInstance().getProcessInstanceInTransaction(instanceId);
 
-        if(instance!=null) return instance;
+        //if(instance!=null) return instance;
 
         //if not found, create one
-        instance = applicationContext.getBean(
+        ProcessInstance instance = applicationContext.getBean(
                 ProcessInstance.class,
                 new Object[]{
                         null,
