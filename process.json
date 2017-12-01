@@ -1,0 +1,323 @@
+{
+    "definition": {
+        "_type": "org.uengine.kernel.ProcessDefinition", 
+        "adhoc": true, 
+        "archive": true, 
+        "childActivities": [
+            "java.util.ArrayList", 
+            [
+                {
+                    "_type": "org.uengine.kernel.bpmn.StartEvent", 
+                    "description": {}, 
+                    "dynamicChangeAllowed": true, 
+                    "elementView": {
+                        "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                        "height": 30.0, 
+                        "id": "2", 
+                        "parent": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                        "shapeId": "OG.shape.bpmn.A_Task", 
+                        "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"white\",\"fill-opacity\":0,\"label-position\":\"bottom\",\"stroke-width\":1.5,\"cursor\":\"move\"}", 
+                        "width": 30.0, 
+                        "x": 263.0, 
+                        "y": 187.0
+                    }, 
+                    "isDynamicChangeAllowed": true, 
+                    "name": {}, 
+                    "retryDelay": 60, 
+                    "tracingTag": "2"
+                }, 
+                {
+                    "_type": "org.uengine.kernel.bpmn.EndEvent", 
+                    "description": {}, 
+                    "dynamicChangeAllowed": true, 
+                    "elementView": {
+                        "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                        "height": 30.0, 
+                        "id": "3", 
+                        "parent": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                        "shapeId": "OG.shape.bpmn.A_Task", 
+                        "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"white\",\"fill-opacity\":0,\"label-position\":\"bottom\",\"stroke-width\":3,\"cursor\":\"move\"}", 
+                        "width": 30.0, 
+                        "x": 767.0, 
+                        "y": 188.0
+                    }, 
+                    "isDynamicChangeAllowed": true, 
+                    "name": {}, 
+                    "retryDelay": 60, 
+                    "tracingTag": "3"
+                }, 
+                {
+                    "_type": "org.uengine.kernel.bpmn.CallActivity", 
+                    "definitionId": "new-process-definition4", 
+                    "description": {}, 
+                    "dynamicChangeAllowed": true, 
+                    "elementView": {
+                        "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                        "height": 100.0, 
+                        "id": "6", 
+                        "parent": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                        "shapeId": "OG.shape.bpmn.A_Task", 
+                        "style": "{\"stroke\":\"black\",\"fill-r\":1,\"fill-cx\":0.1,\"fill-cy\":0.1,\"fill\":\"#FFFFFF\",\"fill-opacity\":0,\"label-position\":\"center\",\"stroke-width\":3,\"r\":\"10\",\"cursor\":\"move\"}", 
+                        "width": 100.0, 
+                        "x": 531.0, 
+                        "y": 371.0
+                    }, 
+                    "instanceId": "<%=Instance.Name%>", 
+                    "isDynamicChangeAllowed": true, 
+                    "multipleInstanceLabel": {}, 
+                    "name": {
+                        "text": "????"
+                    }, 
+                    "retryDelay": 60, 
+                    "roleBindings": [
+                        {
+                            "argument": "role1", 
+                            "direction": "IN-OUT", 
+                            "role": {
+                                "askWhenInit": true, 
+                                "displayName": {}, 
+                                "name": "role1"
+                            }
+                        }, 
+                        {
+                            "argument": "role2", 
+                            "direction": "IN-OUT", 
+                            "role": {
+                                "askWhenInit": true, 
+                                "displayName": {}, 
+                                "name": "role2"
+                            }
+                        }
+                    ], 
+                    "tracingTag": "6", 
+                    "variableBindings": [
+                        {
+                            "argument": {
+                                "text": "aaa"
+                            }, 
+                            "direction": "IN-OUT", 
+                            "variable": {
+                                "defaultValue": "", 
+                                "displayName": {}, 
+                                "name": "aaa", 
+                                "type": "java.lang.String", 
+                                "typeClassName": "java.lang.String"
+                            }
+                        }, 
+                        {
+                            "argument": {
+                                "text": "bbb"
+                            }, 
+                            "direction": "IN-OUT", 
+                            "variable": {
+                                "defaultValue": "", 
+                                "displayName": {}, 
+                                "name": "bbb", 
+                                "type": "java.lang.String", 
+                                "typeClassName": "java.lang.String"
+                            }
+                        }
+                    ]
+                }, 
+                {
+                    "_type": "org.uengine.kernel.HumanActivity", 
+                    "allowAnonymous": true, 
+                    "description": {}, 
+                    "duration": 5, 
+                    "dynamicChangeAllowed": true, 
+                    "elementView": {
+                        "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                        "height": 100.0, 
+                        "id": "4", 
+                        "parent": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                        "shapeId": "OG.shape.bpmn.A_Task", 
+                        "style": "{\"stroke\":\"black\",\"fill-r\":1,\"fill-cx\":0.1,\"fill-cy\":0.1,\"fill\":\"#FFFFFF\",\"fill-opacity\":0,\"label-position\":\"center\",\"stroke-width\":1.2,\"r\":\"10\",\"cursor\":\"move\"}", 
+                        "width": 100.0, 
+                        "x": 431.0, 
+                        "y": 187.0
+                    }, 
+                    "instruction": {}, 
+                    "isAllowAnonymous": true, 
+                    "isDynamicChangeAllowed": true, 
+                    "isSendEmailWorkitem": true, 
+                    "keyword": {}, 
+                    "name": {
+                        "text": "??2"
+                    }, 
+                    "parameters": [
+                        {
+                            "argument": {
+                                "text": "arg"
+                            }, 
+                            "direction": "OUT", 
+                            "multipleInput": true, 
+                            "variable": {
+                                "defaultValue": "", 
+                                "displayName": {}, 
+                                "name": "aaa", 
+                                "type": "java.lang.String", 
+                                "typeClassName": "java.lang.String"
+                            }
+                        }, 
+                        {
+                            "argument": {
+                                "text": "arg2"
+                            }, 
+                            "direction": "OUT", 
+                            "variable": {
+                                "defaultValue": "", 
+                                "displayName": {}, 
+                                "name": "bbb", 
+                                "type": "java.lang.String", 
+                                "typeClassName": "java.lang.String"
+                            }
+                        }
+                    ], 
+                    "retryDelay": 60, 
+                    "role": {
+                        "askWhenInit": true, 
+                        "displayName": {}, 
+                        "elementView": {
+                            "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                            "height": 218.0, 
+                            "id": "OG_3580_88", 
+                            "parent": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                            "shapeId": "OG.shape.bpmn.A_Task", 
+                            "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"#ffffff\",\"fill-opacity\":0,\"label-position\":\"center\",\"label-direction\":\"vertical\",\"vertical-align\":\"top\",\"cursor\":\"move\"}", 
+                            "width": 690.0, 
+                            "x": 528.0, 
+                            "y": 187.0
+                        }, 
+                        "name": "role1"
+                    }, 
+                    "sendEmailWorkitem": true, 
+                    "tool": "defaultHandler", 
+                    "tracingTag": "4"
+                }
+            ]
+        ], 
+        "defaultFlowchartViewOption": "vertical", 
+        "defaultFlowchartViewType": "swimlane", 
+        "duration": 10, 
+        "dynamicChangeAllowed": true, 
+        "id": "codi/new-process-definition4.json", 
+        "initiateByFirstWorkitem": true, 
+        "isAdhoc": true, 
+        "isDynamicChangeAllowed": true, 
+        "name": {
+            "text": "codi/new-process-definition4.json"
+        }, 
+        "processVariableDescriptors": [
+            {
+                "defaultValue": "", 
+                "displayName": {}, 
+                "name": "aaa", 
+                "type": "java.lang.String", 
+                "typeClassName": "java.lang.String"
+            }, 
+            {
+                "defaultValue": "", 
+                "displayName": {}, 
+                "name": "bbb", 
+                "type": "java.lang.String", 
+                "typeClassName": "java.lang.String"
+            }
+        ], 
+        "retryDelay": 60, 
+        "roles": [
+            {
+                "askWhenInit": true, 
+                "displayName": {}, 
+                "elementView": {
+                    "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                    "height": 370.0, 
+                    "id": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                    "shapeId": "OG.shape.bpmn.A_Task", 
+                    "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"#ffffff\",\"fill-opacity\":0,\"label-position\":\"center\",\"label-direction\":\"vertical\",\"vertical-align\":\"top\",\"cursor\":\"move\"}", 
+                    "width": 710.0, 
+                    "x": 518.0, 
+                    "y": 263.0
+                }, 
+                "name": "team"
+            }, 
+            {
+                "askWhenInit": true, 
+                "displayName": {}, 
+                "elementView": {
+                    "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                    "height": 218.0, 
+                    "id": "OG_3580_88", 
+                    "parent": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                    "shapeId": "OG.shape.bpmn.A_Task", 
+                    "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"#ffffff\",\"fill-opacity\":0,\"label-position\":\"center\",\"label-direction\":\"vertical\",\"vertical-align\":\"top\",\"cursor\":\"move\"}", 
+                    "width": 690.0, 
+                    "x": 528.0, 
+                    "y": 187.0
+                }, 
+                "name": "role1"
+            }, 
+            {
+                "askWhenInit": true, 
+                "displayName": {}, 
+                "elementView": {
+                    "_type": "org.uengine.kernel.view.DefaultActivityView", 
+                    "height": 152.0, 
+                    "id": "OG_3580_92", 
+                    "parent": "d2852bad-5291-5ca4-aaf5-b61eac1d3aa7", 
+                    "shapeId": "OG.shape.bpmn.A_Task", 
+                    "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"#ffffff\",\"fill-opacity\":0,\"label-position\":\"center\",\"label-direction\":\"vertical\",\"vertical-align\":\"top\",\"cursor\":\"move\"}", 
+                    "width": 690.0, 
+                    "x": 528.0, 
+                    "y": 372.0
+                }, 
+                "name": "role2"
+            }
+        ], 
+        "sequenceFlows": [
+            {
+                "condition": {
+                    "_type": "org.uengine.kernel.ExpressionEvaluateCondition", 
+                    "description": {}
+                }, 
+                "relationView": {
+                    "TERMINAL_IN_OUT": "_TERMINAL_C_INOUT_0", 
+                    "shapeId": "OG.shape.bpmn.C_Flow", 
+                    "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"none\",\"fill-opacity\":0,\"label-position\":\"center\",\"stroke-width\":1.5,\"stroke-opacity\":1,\"edge-type\":\"plain\",\"arrow-start\":\"none\",\"arrow-end\":\"block\",\"stroke-dasharray\":\"\",\"stroke-linejoin\":\"round\",\"cursor\":\"pointer\"}", 
+                    "value": "[[278,188],[381,188]]"
+                }, 
+                "sourceRef": "2", 
+                "targetRef": "4"
+            }, 
+            {
+                "condition": {
+                    "_type": "org.uengine.kernel.ExpressionEvaluateCondition", 
+                    "description": {}
+                }, 
+                "relationView": {
+                    "TERMINAL_IN_OUT": "_TERMINAL_C_INOUT_0", 
+                    "shapeId": "OG.shape.bpmn.C_Flow", 
+                    "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"none\",\"fill-opacity\":0,\"label-position\":\"center\",\"stroke-width\":1.5,\"stroke-opacity\":1,\"edge-type\":\"plain\",\"arrow-start\":\"none\",\"arrow-end\":\"block\",\"stroke-dasharray\":\"\",\"stroke-linejoin\":\"round\",\"cursor\":\"pointer\"}", 
+                    "value": "[[432,237],[432,268],[532,268],[532,321]]"
+                }, 
+                "sourceRef": "4", 
+                "targetRef": "6"
+            }, 
+            {
+                "condition": {
+                    "_type": "org.uengine.kernel.ExpressionEvaluateCondition", 
+                    "description": {}
+                }, 
+                "relationView": {
+                    "TERMINAL_IN_OUT": "_TERMINAL_C_INOUT_0", 
+                    "shapeId": "OG.shape.bpmn.C_Flow", 
+                    "style": "{\"stroke\":\"black\",\"fill-r\":\".5\",\"fill-cx\":\".5\",\"fill-cy\":\".5\",\"fill\":\"none\",\"fill-opacity\":0,\"label-position\":\"center\",\"stroke-width\":1.5,\"stroke-opacity\":1,\"edge-type\":\"plain\",\"arrow-start\":\"none\",\"arrow-end\":\"block\",\"stroke-dasharray\":\"\",\"stroke-linejoin\":\"round\",\"cursor\":\"pointer\"}", 
+                    "value": "[[581,372],[668,372],[668,188],[752,188]]"
+                }, 
+                "sourceRef": "6", 
+                "targetRef": "3"
+            }
+        ], 
+        "simulationInputFrequency": 10, 
+        "simulationInstanceCount": 10
+    }
+}
