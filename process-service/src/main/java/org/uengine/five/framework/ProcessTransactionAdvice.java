@@ -1,5 +1,6 @@
 package org.uengine.five.framework;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -13,16 +14,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProcessTransactionAdvice {
 
-    @Before("@annotation(org.uengine.five.framework.ProcessTransactional)")
-    public void initiateTransaction() throws Exception {
+    @Before("@annotation(processTransactional)")
+    public void initiateTransaction(JoinPoint joinPoint, ProcessTransactional processTransactional) throws Exception {
         System.out.println("start tx");
+
         new ProcessTransactionContext();
+        ProcessTransactionContext.getThreadLocalInstance().setCommitable(!processTransactional.readOnly());
     }
 
-    @AfterReturning("@annotation(org.uengine.five.framework.ProcessTransactional)")
-    public void commitTransaction() throws Exception {
+    @AfterReturning("@annotation(processTransactional)")
+    public void commitTransaction(JoinPoint joinPoint, ProcessTransactional processTransactional) throws Exception {
         System.out.println("commit");
-        ProcessTransactionContext.getThreadLocalInstance().commit();
+
+        if(!processTransactional.readOnly())
+            ProcessTransactionContext.getThreadLocalInstance().commit(); //save
     }
 
     @AfterThrowing("@annotation(org.uengine.five.framework.ProcessTransactional)")

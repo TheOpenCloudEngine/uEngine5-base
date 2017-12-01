@@ -59,6 +59,7 @@ public class InstanceServiceImpl implements InstanceService {
 
 
     @RequestMapping(value = "/instance/{instanceId}/variables", method = RequestMethod.GET)
+    @ProcessTransactional(readOnly = true)
     public Map getProcessVariables(@PathVariable("instanceId") String instanceId) throws Exception {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
@@ -70,6 +71,7 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @RequestMapping(value = "/instance/{instanceId}/start", method = RequestMethod.POST)
+    @ProcessTransactional
     public InstanceResource start(@PathVariable("instanceId") String instanceId) throws Exception {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
@@ -81,6 +83,7 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @RequestMapping(value = "/instance/{instanceId}/stop", method = RequestMethod.POST)
+    @ProcessTransactional
     public InstanceResource stop(@PathVariable("instanceId") String instanceId) throws Exception {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
@@ -92,6 +95,7 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @RequestMapping(value = "/instance/{instanceId}/resume", method = RequestMethod.POST)
+    @ProcessTransactional
     public InstanceResource resume(@PathVariable("instanceId") String instanceId) throws Exception {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
@@ -105,6 +109,7 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @RequestMapping(value = "/instance/{instanceId}", method = RequestMethod.GET)
+    @ProcessTransactional(readOnly = true)
     public InstanceResource getInstance(@PathVariable("instanceId") String instanceId) throws Exception {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
@@ -116,7 +121,6 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @RequestMapping(value = "/instance/{instanceId}/activity/{tracingTag}/backToHere", method = RequestMethod.POST)
-    @Transactional
     @ProcessTransactional
     public InstanceResource backToHere(@PathVariable("instanceId") String instanceId, @PathVariable("tracingTag") String tracingTag) throws Exception {
 
@@ -156,12 +160,13 @@ public class InstanceServiceImpl implements InstanceService {
     public ProcessInstance getProcessInstanceLocal(String instanceId){
 
         //lookup cached one in same transaction
-        //ProcessInstance instance = ProcessTransactionContext.getThreadLocalInstance().getProcessInstanceInTransaction(instanceId);
+        ProcessInstance instance = ProcessTransactionContext.getThreadLocalInstance().getProcessInstanceInTransaction(instanceId);
 
-        //if(instance!=null) return instance;
+        if(instance!=null) return instance;
 
         //if not found, create one
-        ProcessInstance instance = applicationContext.getBean(
+        //ProcessInstance
+        instance = applicationContext.getBean(
                 ProcessInstance.class,
                 new Object[]{
                         null,
