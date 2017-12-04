@@ -48,7 +48,7 @@ public class DefinitionServiceApplication extends Metaworks4BaseApplication {
 
     @Bean
     public ResourceManager resourceManager() {
-        ResourceManager resourceManager = new CachedResourceManager();
+        ResourceManager resourceManager = new ResourceManager();
         resourceManager.setStorage(storage());
         return resourceManager;
     }

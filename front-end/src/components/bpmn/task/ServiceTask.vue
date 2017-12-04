@@ -98,6 +98,10 @@
             :parameter-contexts="activity.outputMapping"
             :definition="definition"
           ></bpmn-parameter-contexts>
+
+          <md-checkbox
+                    v-model.number="activity.skipIfNotFound">리소스 없을 경우 (404) 오류 처리 하지 않음</md-checkbox>
+
         <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
@@ -129,7 +133,7 @@
         return 'Task'
       },
       className(){
-        return 'org.uengine.activity.RestCallActivity'
+        return 'org.uengine.kernel.bpmn.ServiceTask'
       },
       createNew(newTracingTag, x, y, width, height){
         return {
