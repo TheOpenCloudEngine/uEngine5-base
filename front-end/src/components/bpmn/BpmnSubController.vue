@@ -155,9 +155,11 @@
           var width = opengraphComponent.width;
           var height = opengraphComponent.height;
 
-          var pageX = x + canvasEl.offset().left - canvasEl[0].scrollLeft;
-          var pageY = y + canvasEl.offset().top - canvasEl[0].scrollTop;
-          var top = pageY - 50;
+          var pageX = x * this.bpmnVue.canvas.getScale() + canvasEl.offset().left - canvasEl[0].scrollLeft;
+          var pageY = y * this.bpmnVue.canvas.getScale() + canvasEl.offset().top - canvasEl[0].scrollTop;
+//          var pageX = x + canvasEl.offset().left - canvasEl[0].scrollLeft;
+//          var pageY = y + canvasEl.offset().top - canvasEl[0].scrollTop;
+          var top = pageY - 70;
           var left = pageX + (width / 2 + 10);
           this.bpmnComponent.openComponentChanger(top, left);
         }
