@@ -38,6 +38,8 @@ public class ProcessTransactionContext {
 
     List transactionListeners = new ArrayList();
     public void addTransactionListener(ProcessTransactionListener tl){
+
+        //TODO: prohibit duplicated listener
         transactionListeners.add(tl);
     }
     public List getTransactionListeners(){
