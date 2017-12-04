@@ -259,6 +259,18 @@
         recursiveCheck(me.data.definition);
         return selected;
       },
+      getWhereRoleAmIByTracingTag: function (id) {
+        var me = this;
+        var selected;
+        var roleName = null;
+        var element = me.canvas.getElementById(id);
+        var frontestGroupElement = me.canvas.getRenderer().getFrontForBoundary(me.canvas.getBoundary(element));
+        //console.log('frontForBoundary' , frontForBoundary.shape);
+        if (frontestGroupElement && me.canvas.getRenderer().isLane(frontestGroupElement)) {
+          roleName = frontestGroupElement.shape.label;
+        }
+        return roleName;
+      },
       /**
        * 오픈그래프 아이디로 부모 서브프로세스를 찾는다. 부모가 데피니션일 경우 null 리턴.
        **/

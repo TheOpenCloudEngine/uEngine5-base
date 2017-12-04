@@ -30637,14 +30637,41 @@ OG.handler.EventHandler.prototype = {
 
         $(rootEle).bind('mousewheel DOMMouseScroll', function (event) {
             if (me._CONFIG.WHEEL_SCALABLE) {
-                event.preventDefault();
-                event.stopPropagation();
-                if (event.originalEvent.wheelDelta > 0 || event.deltaY > 0) {
-                    // scroll up
-                    updateScale(event, true);
+
+                //터치패드 이벤트와 마우스 휠 스피드의 차이는 매우 크다.
+                //터치패드 0~10, 마우스 휠 400 이상.
+
+                var deltaX = 0;
+                var deltaY = 0;
+                deltaX = event.originalEvent.wheelDeltaX || event.deltaX || 0;
+                deltaY = event.originalEvent.wheelDeltaY || event.deltaY || 0;
+                var isTrackPad = false;
+                if (Math.abs(deltaX) < 120 && Math.abs(deltaY) < 120) {
+                    isTrackPad = true;
                 }
-                else {
-                    updateScale(event, false);
+                if (isTrackPad) {
+                    //chrome pinch-to-zoom
+                    if (event.ctrlKey) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if (event.originalEvent.wheelDeltaY > 0 || event.deltaY > 0) {
+                            // scroll up
+                            updateScale(event, true);
+                        }
+                        else {
+                            updateScale(event, false);
+                        }
+                    }
+                } else {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (event.originalEvent.wheelDeltaY > 0 || event.deltaY > 0) {
+                        // scroll up
+                        updateScale(event, true);
+                    }
+                    else {
+                        updateScale(event, false);
+                    }
                 }
             }
         });
