@@ -298,37 +298,37 @@
         me.id = this.$route.params.id;
 
         var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+        var backend = hybind("http://localhost:8080", {headers: {'access_token': access_token}});
 
         var instance = {};
         backend.$bind("instance/" + me.id, instance);
 
-        instance.$load().then(function(){
+        instance.$load().then(function () {
 
-            instance.definition.$load().then(function(definition){
-              me.definitionName = definition.name;
+          instance.definition.$load().then(function (definition) {
+            me.definitionName = definition.name;
 
-              definition.raw.$load().then(function(raw_definition){
-                me.getStatus(function (result) {
+            definition.raw.$load().then(function (raw_definition) {
+              me.getStatus(function (result) {
 
-                    var definition = raw_definition.definition;
+                var definition = raw_definition.definition;
 
-                  for (var key in definition.childActivities[1]) {
+                for (var key in definition.childActivities[1]) {
 
-                    //데이터 꾸미기 status 로 definition 바꾸기.
-                    if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
-                      definition.childActivities[1][key]["status"] = result.status;
-                    }
-                    definition.status = result.status;
-                    me.definition = definition;
-
+                  //데이터 꾸미기 status 로 definition 바꾸기.
+                  if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
+                    definition.childActivities[1][key]["status"] = result.status;
                   }
+                  definition.status = result.status;
+                  me.definition = definition;
 
-                });
+                }
 
               });
 
             });
+
+          });
 
         });
 
@@ -450,7 +450,7 @@
       getDefinition: function () {
         var me = this;
         me.id = me.$route.params.id;
-        if(me.$route.params.path) {
+        if (me.$route.params.path) {
           var pathSplit = me.$route.params.path.split('_');
           for (var i = 0; i < pathSplit.length; i++) {
             me.path += pathSplit[i] + "/";
@@ -472,9 +472,9 @@
         else {
           var url = 'definition/raw/' + me.path + me.id + '.json';
           this.$root.codi(url).get().then(function (response) {
-              me.definition = response.data.definition;
-              me.definitionName = me.definition.name.text;
-            })
+            me.definition = response.data.definition;
+            me.definitionName = me.definition.name.text;
+          })
         }
       }
       ,
@@ -482,12 +482,9 @@
         var me = this;
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
         var definitionToSave = JSON.parse(JSON.stringify(me.definition));
-//        definitionToSave.childActivities[1] = [];
-//        definitionToSave.roles = [];
-        //definitionToSave.sequenceFlows = [];
 
         if (me.id == 'new-process-definition') {
-          if(me.definitionName !== null) {
+          if (me.definitionName !== null) {
             me.id = me.definitionName;
           }
         }
@@ -517,15 +514,25 @@
           if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
             activity.childActivities[1] = nullFilter(activity.childActivities[1]);
             $.each(activity.childActivities[1], function (i, child) {
+              //롤 배정
+              if (child._type == 'org.uengine.kernel.HumanActivity') {
+                child.role.name =
+                  me.$refs['bpmn-vue'].getWhereRoleAmIByTracingTag(child.tracingTag);
+                console.log('HumanActivity ' + child.name.text + ' saved role as ' + child.role.name);
+              }
               recursiveCheck(child);
             })
           }
         }
-        //액티비티, 릴레이션 널 체크
+        //액티비티, 릴레이션 널 체크, 휴먼 액티비티 롤 배정 (bpmn 패널을 더블클릭하면 배정되나, 안열어보고 배치한 것을 위해 설정)
         recursiveCheck(definitionToSave, null);
 
+        //휴먼 액티비티 롤 배정 (bpmn 패널을 더블클릭하면 배정되나, 안열어보고 배치한 것을 위해 설정)
+//        this.activity.role.name =
+//          this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
+
         var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+        var backend = hybind("http://localhost:8080", {headers: {'access_token': access_token}});
 
         var definition = {};
         backend.$bind("definition/raw/" + me.path + me.id + '.json', definition);
@@ -538,17 +545,6 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
-
-//        var data = {definition: definitionToSave};
-//        this.$root.codi('definition/raw/{/id}').save({id: me.id + '.json'}, data)
-//          .then(
-//            function (response) {
-//              me.$root.$children[0].success('저장되었습니다.');
-//            },
-//            function (response) {
-//              me.$root.$children[0].error('저장할 수 없습니다.');
-//            }
-//          );
       }
       ,
       openUserPicker(ref) {

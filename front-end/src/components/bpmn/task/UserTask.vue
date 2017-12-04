@@ -61,20 +61,22 @@
                     v-model="activity.name.text"></md-input>
         </md-input-container>
         <md-input-container>
-          <label>역할 (추후 레인에서 자동설정)</label>
-          <md-select v-model="activity.role.name">
-            <md-option v-for="role in definition.roles"
-                       :key="role.name"
-                       :value="role.name">
-              {{ role.name }}
-            </md-option>
-          </md-select>
+          <label>역할</label>
+          <!--<md-select v-model="activity.role.name">-->
+          <!--<md-option v-for="role in definition.roles"-->
+          <!--:key="role.name"-->
+          <!--:value="role.name">-->
+          <!--{{ role.name }}-->
+          <!--</md-option>-->
+          <!--</md-select>-->
+          <md-input type="text" readonly
+                    v-model="activity.role.name"></md-input>
         </md-input-container>
         <p>파라미터</p>
-          <bpmn-parameter-contexts
-            :parameter-contexts="activity.parameters"
-            :definition="definition"
-          ></bpmn-parameter-contexts>
+        <bpmn-parameter-contexts
+          :parameter-contexts="activity.parameters"
+          :definition="definition"
+        ></bpmn-parameter-contexts>
         <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
@@ -94,9 +96,9 @@
     mixins: [IBpmn],
     name: 'bpmn-user-task',
     props: {},
-    created: function(){
-      if(!this.activity.role)
-          this.activity.role = {name:''};
+    created: function () {
+      if (!this.activity.role)
+        this.activity.role = {name: ''};
     },
     computed: {
       defaultStyle(){
@@ -134,7 +136,14 @@
     data: function () {
       return {};
     },
-    watch: {},
+    watch: {
+      drawer: function (opened) {
+        if (opened) {
+          this.activity.role.name =
+            this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
+        }
+      }
+    },
     mounted: function () {
 
     },
