@@ -34,7 +34,7 @@ public interface DefinitionService {
 //    public DefinitionWrapper getRawDefinition(@PathVariable("defPath") String definitionPath) throws Exception;
 
 
-    @RequestMapping(value = DEFINITION + "/xml/{defPath}", method = RequestMethod.GET)
+    @RequestMapping(value = DEFINITION + "/xml/{defPath}", method = RequestMethod.GET, produces = "application/xml;charset=UTF-8")
     public String getXMLDefinition(@PathVariable("defPath") String definitionPath) throws Exception;
 
 }

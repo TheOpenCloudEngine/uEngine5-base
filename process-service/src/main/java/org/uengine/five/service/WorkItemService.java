@@ -40,7 +40,7 @@ public class WorkItemService {
 
     // ---------------- CRUD mappings -------------------- //
 
-    @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public WorkItemResource getWorkItem(@PathVariable("taskId") String taskId) throws Exception {
 
         WorklistEntity worklistEntity = worklistRepository.findOne(new Long(taskId));

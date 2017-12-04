@@ -69,7 +69,10 @@
               for (var idx in me.workItem.activity.parameters) {
                 var parameter = me.workItem.activity.parameters[idx];
 
-                if (parameter.argument && parameter.argument.text && parameter.variable && parameter.variable.typeClassName) {
+                if (parameter.argument && parameter.argument.text && parameter.variable) {
+
+                    if(!parameter.variable.typeClassName) //TODO: it looks hard code
+                        parameter.variable.typeClassName = "java.lang.String";
 
                     if(parameter.multipleInput){
 

@@ -297,7 +297,7 @@ public class DefinitionServiceImpl implements DefinitionService {
         return uEngineProcessJSON;
     }
 
-    @RequestMapping(value= DEFINITION_RAW + "/**", method = RequestMethod.GET)
+    @RequestMapping(value= DEFINITION_RAW + "/**", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Object getRawDefinition(HttpServletRequest request) throws Exception {
 
         String path = (String) request.getAttribute(
@@ -308,7 +308,7 @@ public class DefinitionServiceImpl implements DefinitionService {
         return getRawDefinition(definitionPath);
     }
 
-    @RequestMapping(value= DEFINITION + "/xml/{defPath:.+}", method = RequestMethod.GET)
+    @RequestMapping(value= DEFINITION + "/xml/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public String getXMLDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
         Serializable definition = (Serializable) getDefinitionLocal(definitionPath);
@@ -318,7 +318,7 @@ public class DefinitionServiceImpl implements DefinitionService {
         return uEngineProcessXML;
     }
 
-    @RequestMapping(value= DEFINITION + "/xml/**", method = RequestMethod.GET)
+    @RequestMapping(value= DEFINITION + "/xml/**", method = RequestMethod.GET, produces = "application/xml;charset=UTF-8")
     public String getXMLDefinition(HttpServletRequest request) throws Exception {
 
         String path = (String) request.getAttribute(

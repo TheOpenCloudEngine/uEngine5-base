@@ -17,7 +17,7 @@ public interface WorkItemService {
 
     // ---------------- CRUD mappings -------------------- //
 
-    @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public ResourceSupport getWorkItem(@PathVariable("taskId") String taskId) throws Exception;
 
     @RequestMapping(value = "/work-item/{taskId}", method = RequestMethod.POST)

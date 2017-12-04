@@ -20,13 +20,21 @@ zuul:
       serviceId: bpm
       stripPrefix: false
     instance-entity:
-      path: /instances
+      path: /instances/**
       serviceId: bpm
-      stripPrefix: true
+      stripPrefix: false
+    worklist-entity:
+      path: /worklist/**
+      serviceId: bpm
+      stripPrefix: false
     instance-workitem:
-      path: /workitem
+      path: /work-item/**
       serviceId: bpm
-      stripPrefix: true
+      stripPrefix: false
+    metadata:
+      path: /classdefinition/**
+      serviceId: bpm
+      stripPrefix: false
 
 endpoints:
   routes:
