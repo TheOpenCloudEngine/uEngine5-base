@@ -34,7 +34,6 @@
 
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -42,46 +41,45 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
         </dependencies>
-
     </dependencyManagement>
 
-
-
     <dependencies>
-
+        <!-- spring boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-legacy</artifactId>
+            <version>1.1.0.RELEASE</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-eureka</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-ribbon</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-feign</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.netflix.hystrix</groupId>
             <artifactId>hystrix-javanica</artifactId>
         </dependency>
-
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -101,53 +99,46 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-actuator</artifactId>
         </dependency>
-
-
-
+        
+        <!-- uengine -->
         <dependency>
             <groupId>org.uengine.metaworks</groupId>
             <artifactId>metaworks4</artifactId>
             <version>1.0.1-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.uengine</groupId>
             <artifactId>uengine-resource-manager</artifactId>
             <version>4.1.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.uengine</groupId>
             <artifactId>uengine-bpmn-modeler</artifactId>
             <version>4.1.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.uengine</groupId>
             <artifactId>uengine-persistence-couchbase</artifactId>
             <version>4.1.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.uengine</groupId>
             <artifactId>bpmn-model</artifactId>
             <version>4.1.0-SNAPSHOT</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.uengine</groupId>
             <artifactId>uengine-five-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+                
+        <!-- 3rd party -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
 
     </dependencies>
-
-
 
     <repositories>
         <!--<repository>-->
@@ -163,8 +154,6 @@
         </repository>
     </repositories>
 
-
-
     <pluginRepositories>
         <pluginRepository>
             <id>spring-releases</id>
@@ -172,7 +161,7 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <profiles>
+    <!-- <profiles>
         <profile>
             <id>war</id>
             <properties>
@@ -205,24 +194,30 @@
                             </execution>
                         </executions>
                     </plugin>
-
-
                 </plugins>
             </build>
         </profile>
-    </profiles>
+    </profiles> -->
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-
                 <configuration>
                     <addResources>true</addResources>
+                    <classifier>exec</classifier>
+                </configuration>
+            </plugin>            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
@@ -239,10 +234,8 @@
                     </resources>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
-
 
     <distributionManagement>
         <repository>
@@ -254,4 +247,5 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+    
 </project>
