@@ -3,6 +3,9 @@ package org.uengine.five.entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import java.util.Date;
 
 /**
@@ -18,7 +21,9 @@ public class ProcessDefinitionVersionEntity{// implements ProcessDefinitionVersi
     String defName;
     Long ver;
     String filePath;
+    @Temporal(TemporalType.DATE)
     Date modDate;
+    @Temporal(TemporalType.DATE)
     Date prodStartDate;
     boolean deleted;
 
