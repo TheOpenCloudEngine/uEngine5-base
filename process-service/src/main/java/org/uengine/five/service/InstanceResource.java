@@ -1,16 +1,16 @@
 package org.uengine.five.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
-import org.uengine.five.service.*;
-import org.uengine.kernel.ProcessInstance;
 import org.uengine.five.entity.ProcessInstanceEntity;
+import org.uengine.kernel.ProcessInstance;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Created by uengine on 2017. 11. 11..
@@ -50,7 +50,7 @@ public class InstanceResource extends ResourceSupport {
 
         add(
                 linkTo(
-                        methodOn(org.uengine.five.service.RoleMappingService.class).getRoleMapping(processInstance.getInstanceId(), null)
+                        methodOn(org.uengine.five.service.RoleMappingServiceImpl.class).getRoleMapping(processInstance.getInstanceId(), "")
                 ).withRel("role-mapping")
         );
 

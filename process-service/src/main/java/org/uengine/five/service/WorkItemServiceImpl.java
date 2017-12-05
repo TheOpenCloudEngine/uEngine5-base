@@ -23,7 +23,7 @@ import java.util.Map;
  *  - json must be Typed JSON to enable object polymorphism - need to change the jackson engine. TODO: accept? typed json is sometimes hard to read
  */
 @RestController
-public class WorkItemService {
+public class WorkItemServiceImpl {
 
     @Autowired
     ResourceManager resourceManager;

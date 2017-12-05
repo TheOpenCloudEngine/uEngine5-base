@@ -1,17 +1,24 @@
 package org.uengine.five.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.uengine.five.framework.ProcessTransactionContext;
 import org.uengine.five.framework.ProcessTransactional;
-import org.uengine.kernel.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.uengine.kernel.Activity;
+import org.uengine.kernel.DefaultProcessInstance;
+import org.uengine.kernel.ProcessDefinition;
+import org.uengine.kernel.ProcessInstance;
 
 /**
  * Created by uengine on 2017. 8. 9..
@@ -31,7 +38,7 @@ public class InstanceServiceImpl implements InstanceService {
 
     // ----------------- execution services -------------------- //
     @RequestMapping(value = "/instance", method = {RequestMethod.POST, RequestMethod.PUT})
-    @Transactional
+    @Transactional(rollbackFor={Exception.class})
     @ProcessTransactional
     public InstanceResource runDefinition(@RequestParam("defPath") String filePath) throws Exception {
 
