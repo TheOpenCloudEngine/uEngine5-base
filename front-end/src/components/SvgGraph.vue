@@ -298,6 +298,7 @@
         me.id = this.$route.params.id;
 
         var access_token = localStorage["access_token"];
+        var serviceLocator = this.$root.$children[0].$refs['backend'];
         var backend = hybind("http://localhost:8080", {headers: {'access_token': access_token}});
 
         var instance = {};
@@ -532,7 +533,8 @@
 //          this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
 
         var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers: {'access_token': access_token}});
+        var serviceLocator = this.$root.$children[0].$refs['backend'];
+        var backend = hybind(serviceLocator.getServiceHost(), {headers: {'access_token': access_token}});
 
         var definition = {};
         backend.$bind("definition/raw/" + me.path + me.id + '.json', definition);
