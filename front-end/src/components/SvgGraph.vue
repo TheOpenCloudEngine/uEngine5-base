@@ -299,7 +299,7 @@
 
         var access_token = localStorage["access_token"];
         var serviceLocator = this.$root.$children[0].$refs['backend'];
-        var backend = hybind("http://localhost:8080", {headers: {'access_token': access_token}});
+        var backend = hybind(serviceLocator.getServiceHost(), {headers: {'access_token': access_token}});
 
         var instance = {};
         backend.$bind("instance/" + me.id, instance);
