@@ -470,7 +470,7 @@
           }
         }
         else {
-          var url = 'definition/raw/' + me.path + me.id + '.json';
+          var url = 'definition/raw/' + me.path + me.id.replace('.xml','.json');
           this.$root.codi(url).get().then(function (response) {
             me.definition = response.data.definition;
             me.definitionName = me.definition.name.text;

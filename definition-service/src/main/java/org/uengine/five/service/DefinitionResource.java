@@ -6,6 +6,7 @@ import org.springframework.hateoas.core.Relation;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.uengine.modeling.resource.IContainer;
 import org.uengine.modeling.resource.IResource;
+import org.uengine.util.UEngineUtil;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -44,7 +45,7 @@ public class DefinitionResource extends ResourceSupport {
                     linkTo(
                             methodOn(DefinitionServiceImpl.class)
                                     .getRawDefinition(
-                                            relativePath
+                                            UEngineUtil.getNamedExtFile(relativePath, "json")
                                     )
                     ).withRel("raw")
             );

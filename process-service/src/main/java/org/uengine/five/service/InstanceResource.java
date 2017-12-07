@@ -8,6 +8,7 @@ import org.springframework.hateoas.core.Relation;
 import org.uengine.five.service.*;
 import org.uengine.kernel.ProcessInstance;
 import org.uengine.five.entity.ProcessInstanceEntity;
+import org.uengine.util.UEngineUtil;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -56,7 +57,7 @@ public class InstanceResource extends ResourceSupport {
 
         add(
                 linkTo(
-                        methodOn(DefinitionService.class).getDefinition(processInstance.getProcessDefinition().getId())
+                        methodOn(DefinitionService.class).getDefinition(UEngineUtil.getNamedExtFile(processInstance.getProcessDefinition().getId(), "json"))
                 ).withRel("definition")
         );
 

@@ -84,7 +84,10 @@ public class DefinitionServiceImpl implements DefinitionService {
     @RequestMapping(value = DEFINITION+"/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @Override
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
-        IResource resource = new DefaultResource(resourceRoot + "/" +definitionPath);
+        definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
+
+        IResource resource = new DefaultResource(definitionPath);
+
 
         if(!resourceManager.exists(resource))
             throw new ResourceNotFoundException(); // make 404 error
@@ -231,10 +234,26 @@ public class DefinitionServiceImpl implements DefinitionService {
 
         String definitionPath = path.substring(DEFINITION_RAW.length());
 
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath );
+        if(definitionPath.indexOf(".") == -1){ //it is a package (directory)
 
-        if(definitionPath.endsWith(".process")) {
+            IContainer container = new ContainerResource();
+            container.setPath(resourceRoot + "/" + definitionPath);
 
+            resourceManager.createFolder(container);
+
+            return new DefinitionResource(container);
+
+        }
+
+        String fileExt = UEngineUtil.getFileExt(definitionPath);
+
+        definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
+
+        //무조건 xml 파일로 결국 저장됨.
+        DefaultResource resource = new DefaultResource(definitionPath);
+
+
+        if(fileExt.endsWith("bpmn")) {
             //TODO [severe] BPMNUtil.importAdapt(InputStream) must be available. using temp file will arise a multi-thread problem.
             ByteArrayInputStream bai = new ByteArrayInputStream(definition.getBytes("UTF-8"));
 
@@ -243,38 +262,25 @@ public class DefinitionServiceImpl implements DefinitionService {
 
             resourceManager.save(resource, processDefinition);
 
-        }else if(definitionPath.endsWith(".upd")) {
-
-            //upd 파일의 경우 json으로 확장자 변경
-            resource = new DefaultResource(resourceRoot + "/" + definitionPath.replace(".upd", ".json"));
-
+        }else if(fileExt.endsWith("upd")) {
             ByteArrayInputStream bai = new ByteArrayInputStream(definition.getBytes("UTF-8"));
 
             ProcessDefinition processDefinition = (ProcessDefinition) org.uengine.modeling.resource.Serializer.deserialize(bai);
 
             resourceManager.save(resource, processDefinition);
 
-        } else if(definitionPath.endsWith(".class")){
+        } else if(fileExt.endsWith("class")){
 
             ClassDefinition classDefinition = objectMapper.readValue(definition, ClassDefinition.class);
 
             resourceManager.save(resource, classDefinition);
-        }else if(definitionPath.endsWith(".json")){
+        }else if(fileExt.endsWith("json")){
 
             DefinitionWrapper definitionWrapper = objectMapper.readValue(definition, DefinitionWrapper.class);
 
             if(definitionWrapper.getDefinition()==null) throw new Exception("DefinitionResource is corrupt.");
 
             resourceManager.save(resource, definitionWrapper.getDefinition());
-
-        }else if(definitionPath.indexOf(".") == -1){ //it is a package (directory)
-
-            IContainer container = new ContainerResource();
-            container.setPath(resourceRoot + "/" + definitionPath);
-
-            resourceManager.createFolder(container);
-
-            return new DefinitionResource(container);
 
         }else
             throw new Exception("unknown resource type: " + definitionPath);
@@ -287,7 +293,13 @@ public class DefinitionServiceImpl implements DefinitionService {
     @RequestMapping(value= DEFINITION_RAW + "/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Object getRawDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
-        Serializable definition = (Serializable) getDefinitionLocal(definitionPath);
+//        String fileExt = UEngineUtil.getFileExt(definitionPath);
+        definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
+
+        //무조건 xml 파일로 결국 저장됨.
+        DefaultResource resource = new DefaultResource(definitionPath);
+
+        Serializable definition = (Serializable) getDefinitionLocal(resource.getPath());
 
         DefinitionWrapper definitionWrapper = new DefinitionWrapper( definition);
 
@@ -310,6 +322,8 @@ public class DefinitionServiceImpl implements DefinitionService {
 
     @RequestMapping(value= DEFINITION + "/xml/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public String getXMLDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+
+        definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
 
         Serializable definition = (Serializable) getDefinitionLocal(definitionPath);
 
