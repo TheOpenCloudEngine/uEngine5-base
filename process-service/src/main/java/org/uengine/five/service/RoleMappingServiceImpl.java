@@ -15,7 +15,7 @@ import org.uengine.kernel.*;
  *  - json must be Typed JSON to enable object polymorphism - need to change the jackson engine. TODO: accept? typed json is sometimes hard to read
  */
 @RestController
-public class RoleMappingService {
+public class RoleMappingServiceImpl {
 
     // ---------------- CRUD mappings -------------------- //
 

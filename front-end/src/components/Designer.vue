@@ -199,7 +199,8 @@
         var me = this;
 
         var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+        var serviceLocator = this.$root.$children[0].$refs['backend'];
+        var backend = hybind(serviceLocator.getServiceHost(), {headers:{'access_token': access_token}});
 
         var definitions = [];
         var url = "definition/" + _folder;
@@ -295,7 +296,8 @@
         var me = this;
 
         var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+        var serviceLocator = this.$root.$children[0].$refs['backend'];
+        var backend = hybind(serviceLocator.getServiceHost(), {headers:{'access_token': access_token}});
 
         var definitions = [];
         var url = "definition" + me.current + "/" + card;

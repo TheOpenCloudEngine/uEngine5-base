@@ -48,16 +48,28 @@ public class WorklistEntity {//implements WorkListDAO {
     String tool;
     String parameter;
     Number priority;
+    
+    @Temporal(TemporalType.DATE)
     Date startDate;
+    
+    @Temporal(TemporalType.DATE)
     Date endDate;
+    
+    @Temporal(TemporalType.DATE)
     Date saveDate;
+    
+    @Temporal(TemporalType.DATE)
     Date dueDate;
+    
     String status;
     int dispatchOption;
     String dispatchParam1;
     String prevUserName;
     Number rootInstId;
+    
+    @Temporal(TemporalType.DATE)    
     Date readDate;
+    
     String actType;
     String absTrcTag;
     Boolean delegated;
