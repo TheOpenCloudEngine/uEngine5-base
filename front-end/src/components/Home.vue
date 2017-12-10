@@ -4,7 +4,7 @@
       <md-button class="md-icon-button" @click="toggleLeftSidenav">
         <md-icon>menu</md-icon>
       </md-button>
-      <h2 class="md-title">Process Codi</h2>
+      <h2 class="md-title">uEngine5</h2>
       <md-button class="md-raised md-primary" @click="logout">로그 아웃</md-button>
       <avatar-uploader :iam="iam"></avatar-uploader>
     </md-toolbar>
@@ -61,7 +61,7 @@
       return {
         drawer: null,
         items: [
-          {title: 'Sns', icon: 'question_answer', routerPath: '/sns'},
+          {title: 'Workspace', icon: 'question_answer', routerPath: '/sns'},
           {title: 'Designer', icon: 'question_answer', routerPath: '/definition'},
           {title: 'Instances', icon: 'question_answer', routerPath: '/instance'}
         ],

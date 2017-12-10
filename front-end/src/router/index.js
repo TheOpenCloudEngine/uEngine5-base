@@ -122,7 +122,7 @@ export default new Router({
         },
         {
           path: 'sns',
-          name: 'sns',
+          name: 'Workspace',
           component: Sns,
           beforeEnter: RouterGuard.requireUser,
         },

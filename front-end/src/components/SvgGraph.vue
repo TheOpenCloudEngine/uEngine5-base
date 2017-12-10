@@ -537,7 +537,7 @@
         var backend = hybind(serviceLocator.getServiceHost(), {headers: {'access_token': access_token}});
 
         var definition = {};
-        backend.$bind("definition/raw/" + me.path + me.id + '.json', definition);
+        backend.$bind("definition/raw/" + me.path + me.id.replace('.xml', '.json'), definition);
         definition.definition = definitionToSave;
         definition.$save().then(
           function (response) {

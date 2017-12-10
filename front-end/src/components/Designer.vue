@@ -1,15 +1,27 @@
 <template>
   <div>
-    <md-layout>
-      <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
-      <md-button class="md-raised md-primary" id="newPackage" @click="newPackage">New Package</md-button>
-      <new-package
-        ref="newPackage"
-        :currentPath="current"
-        :directory.sync="directory"
-        :cards.sync="cards"
-        style="min-width: 70%;"></new-package>
-    </md-layout>
+    <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
+      <md-button class="md-fab" md-fab-trigger>
+        <md-icon md-icon-morph>ondemand_video</md-icon>
+        <md-icon>add</md-icon>
+      </md-button>
+
+      <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newProcess">
+        <md-icon>ondemand_video</md-icon>
+      </md-button>
+
+      <md-button class="md-fab md-primary md-mini md-clean" @click="newPackage">
+        <md-icon>folder</md-icon>
+      </md-button>
+    </md-speed-dial>
+
+    <new-package
+      ref="newPackage"
+      :currentPath="current"
+      :directory.sync="directory"
+      :cards.sync="cards"
+      style="min-width: 70%;"></new-package>
+
     <div class="side-margin">
       <md-layout>
         <ul class="breadcrumb">
