@@ -86,10 +86,8 @@ public class DefinitionServiceImpl implements DefinitionService {
     @Override
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
-        definitionPath = resourceRoot + "/" + definitionPath;
 
-        IResource resource = new DefaultResource(definitionPath);
-
+        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
 
         if(!resourceManager.exists(resource))
             throw new ResourceNotFoundException(); // make 404 error
@@ -99,7 +97,7 @@ public class DefinitionServiceImpl implements DefinitionService {
             return listDefinition(definitionPath);
 
         }else {
-            definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
+            definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
 
             resource = new DefaultResource(definitionPath);
 
