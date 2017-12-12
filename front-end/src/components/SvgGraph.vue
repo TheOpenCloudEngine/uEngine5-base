@@ -9,7 +9,7 @@
           </bpmn-tree-list>
         </md-list>
       </md-layout>
-      <md-layout md-flex="80">
+      <md-layout md-flex="80" @contextmenu.native="openMenu" @mousedown.native="closeMenu">
         <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
                   :definition.sync="definition"
                   :monitor="monitor"
@@ -18,10 +18,18 @@
         <md-layout>
           <md-layout md-flex="50">
             <md-card v-if="!monitor" class="tools">
-              <span class="icons bpmn-icon-hand-tool"></span>
-              <span class="icons bpmn-icon-lasso-tool"></span>
-              <span class="icons bpmn-icon-space-tool"></span>
-              <span class="icons bpmn-icon-connection-multi"></span>
+              <span class="icons bpmn-icon-hand-tool">
+                <md-tooltip md-direction="right">hand</md-tooltip>
+              </span>
+              <span class="icons bpmn-icon-lasso-tool">
+                <md-tooltip md-direction="right">lasso</md-tooltip>
+              </span>
+              <span class="icons bpmn-icon-space-tool">
+                <md-tooltip md-direction="right">space</md-tooltip>
+              </span>
+              <span class="icons bpmn-icon-connection-multi">
+                <md-tooltip md-direction="right">connection multi</md-tooltip>
+              </span>
 
               <hr class="separator">
 
@@ -30,8 +38,9 @@
                     :class="item.icon"
                     :_component="item.component"
                     :_width="item.width"
-                    :_height="item.height"
-              ></span>
+                    :_height="item.height">
+                <md-tooltip md-direction="right">{{item.label}}</md-tooltip>
+              </span>
             </md-card>
 
             <md-card v-if="!monitor" class="import">
@@ -123,12 +132,18 @@
         </md-layout>
       </md-layout>
     </md-layout>
+    <!--Back to Here Menu Start -->
+    <ul class='custom-menu'>
+      <li data-action="backToHere">Back To Here</li>
+    </ul>
+    <!--Back to Here Menu End -->
   </div>
 </template>
 <script>
   export default {
     props: {
-      monitor: Boolean
+      monitor: Boolean,
+      backend: Object
     },
     data() {
       return {
@@ -205,7 +220,8 @@
           }
         ],
         trees: [],
-        treeData: {}
+        treeData: {},
+        bthTracingTag: ""
       }
     },
     computed: {},
@@ -214,6 +230,21 @@
     mounted() {
       var me = this;
       me.setMode();
+
+      // If the menu element is clicked
+      $(".custom-menu li").click(function(){
+        // This is the triggered action name
+        switch($(this).attr("data-action")) {
+
+          // A case for each action. Your actions here
+          case "backToHere":
+            me.onBackToHere();
+            break;
+        }
+
+        // Hide it AFTER the action was triggered
+        $(".custom-menu").hide(0);
+      });
     },
 
     //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
@@ -302,12 +333,8 @@
         var me = this;
         me.id = this.$route.params.id;
 
-        var access_token = localStorage["access_token"];
-        var serviceLocator = this.$root.$children[0].$refs['backend'];
-        var backend = hybind(serviceLocator.getServiceHost(), {headers: {'access_token': access_token}});
-
         var instance = {};
-        backend.$bind("instance/" + me.id, instance);
+        me.backend.$bind("instance/" + me.id, instance);
 
         instance.$load().then(function () {
 
@@ -504,10 +531,14 @@
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
         var definitionToSave = JSON.parse(JSON.stringify(me.definition));
 
+        //save 시 확장자는 .json이어야 한다.
+        //확장자가 존재하지 않으면 폴더로 인식한다.
         if (me.id == 'new-process-definition') {
           if (me.definitionName !== null) {
-            me.id = me.definitionName;
+            me.id = me.definitionName + ".json";
           }
+        } else {
+          me.id = me.id.replace('.xml', '.json');
         }
 
         definitionToSave.name.text = me.definitionName;
@@ -552,12 +583,8 @@
 //        this.activity.role.name =
 //          this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
 
-        var access_token = localStorage["access_token"];
-        var serviceLocator = this.$root.$children[0].$refs['backend'];
-        var backend = hybind(serviceLocator.getServiceHost(), {headers: {'access_token': access_token}});
-
         var definition = {};
-        backend.$bind("definition/raw/" + me.path + me.id.replace('.xml', '.json'), definition);
+        me.backend.$bind("definition/raw/" + me.path + me.id, definition);
         definition.definition = definitionToSave;
         definition.$save().then(
           function (response) {
@@ -571,6 +598,58 @@
       ,
       openUserPicker(ref) {
         this.$refs['userPicker'].openUserPicker();
+      },
+      openMenu(event) {
+        var me = this;
+        //인스턴스일 경우에만 오른쪽 버튼 막기
+        if (me.monitor) {
+          me.instanceOpenMenu(event);
+        }
+      },
+      instanceOpenMenu(event) {
+        event.preventDefault(); //오른쪽 버튼 막기
+        var me = this;
+        var childActivities = me.definition.childActivities[1];
+        var _type = "";
+        var _status = "";
+        for (var key in childActivities) {
+          if (childActivities[key].tracingTag == event.toElement.parentNode.id) {
+            _type = childActivities[key]._type;
+            _status = childActivities[key].status;
+            me.bthTracingTag = childActivities[key].tracingTag;
+          }
+        }
+        _type = _type.substring(_type.lastIndexOf('.') + 1, _type.length); // 타입만 나오도록 수정
+
+        //Activity일 경우에 오른쪽 버튼 이벤트 시작
+        if (_type == 'Task' || _type == 'SendTask' || _type == 'ReceiveTask' || _type == 'UserTask' || _type == 'ManualTask' ||
+          _type == 'BusinessTask' || _type == 'ServiceTask' || _type == 'ScriptTask' || _type == 'HumanActivity' || _type == 'DefaultActivity') {
+          //Status가 Completed 일 경우에만 Back To Here 버튼 나오게 수정
+          if (_status == 'Completed') {
+            // Show contextmenu
+            $(".custom-menu").finish().show(0).// In the right position (the mouse)
+            css({
+              top: event.offsetY + "px",
+              left: event.offsetX + "px"
+            });
+          }
+        }
+      },
+      closeMenu() {
+        if (!$(event.target).parents(".custom-menu").length > 0) {
+          // Hide it
+          $(".custom-menu").hide(0);
+        }
+      },
+      onBackToHere() {
+        var me = this;
+        var url = "instance/" + me.id + "/activity/" + me.bthTracingTag + "/backToHere";
+        var instance = {};
+        me.backend.$bind(url, instance);
+        instance.$create().then(function() {
+          me.$root.$children[0].success('작업 내역을 선택한 위치로 되돌렸습니다.');
+          me.getStatus();
+        });
       }
     }
   }
@@ -646,6 +725,34 @@
       left: 280px;
       bottom: 20px;
     }
+  }
+
+  /* The whole thing */
+  .custom-menu {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    font-family: sans-serif;
+    background: #FFF;
+    color: #333;
+    border-radius: 5px;
+    padding: 0;
+  }
+
+  /* Each of the items in the list */
+  .custom-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+    list-style-type: none;
+    transition: all .3s ease;
+    user-select: none;
+  }
+
+  .custom-menu li:hover {
+    background-color: #DEF;
   }
 </style>
 

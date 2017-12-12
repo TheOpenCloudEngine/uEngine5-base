@@ -104,7 +104,8 @@
               </md-table-row>
             </md-table-header>
             <md-table-body v-if="items.length > 0">
-              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection style="cursor:pointer" @click.native="onClickList(item.instId)">
+              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection style="cursor:pointer"
+                            @click.native="onClickList(item.instId)">
                 <md-table-cell>{{item.status}}</md-table-cell>
                 <md-table-cell>{{item.instId}}</md-table-cell>
                 <md-table-cell>{{item.defId}}</md-table-cell>
@@ -141,7 +142,8 @@
 
   export default {
     props: {
-      iam: Object
+      iam: Object,
+      backend: Object
     },
     data() {
       return {
@@ -159,14 +161,13 @@
           {text: 'Ext1', value: 'ext1'},
           {text: '삭제', value: 'instId'}
         ],
-        items: [
-        ],
-        paging : {
+        items: [],
+        paging: {
           rowSize: 0,
           rowTotal: 0,
           rowStart: 0
         },
-        listMode : 'default',
+        listMode: 'default',
         id: "",
         users: [],
         role: "endpoint",
@@ -181,7 +182,7 @@
           defName: '',
           defId: '',
           name: '',
-          endpoint:'',
+          endpoint: '',
           eventHandler: '',
           startedDate: '',
           finishedDate: ''
@@ -200,30 +201,29 @@
         var url = 'instances?'
         var page = _page - 1;
         url += 'page=' + page + '&size=' + _size + '&sort=instId,desc';
-        this.$root.codi(url).get()
-          .then(function (response) {
-              console.log('response', response);
-            var instances = [];
-            if (response.data._embedded && response.data._embedded.instances && response.data._embedded.instances.length) {
-              $.each(response.data._embedded.instances, function (i, instance) {
-                let split = instance._links.self.href.split('/');
-                instance['instId'] = split[split.length - 1];
-                //최상단 인스턴스일 경우에만 보이도록 한다.
-                if (instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
-                  instances.push(instance);
-                }
-              });
-              me.paging = {
-                rowSize : _size,
-                rowTotal : response.data.page.totalElements,
-                rowStart : _page
-              };
-              me.items = instances;
+        var instance = {};
+        me.backend.$bind(url, instance);
+        instance.$load().then(function () {
+          var instances = [];
+          var resource = instance.$resource;
+          $.each(instance, function (i, instance) {
+            let split = instance.$bind.self.split('/');
+            instance['instId'] = split[split.length - 1];
+            //최상단 인스턴스일 경우에만 보이도록 한다.
+            if (instance['instId'] == instance.rootInstId || instance.rootInstId == null) {
+              instances.push(instance);
             }
-          })
+          });
+          me.paging = {
+            rowSize: _size,
+            rowTotal: resource.page.totalElements,
+            rowStart: _page
+          };
+          me.items = instances;
+        });
       },
       search(_page, _size) {
-        var item = this;
+        var me = this;
         var url = 'instances/search/findFilterICanSee?';
         var filter = this.filter;
         $.each(this.filter, function (obj, value) {
@@ -237,36 +237,38 @@
         })
         var page = _page - 1;
         url += '&page=' + page + '&size=' + _size + '&sort=instId,desc';
-        item.listMode = 'select';
-        item.items = [];
-        this.$root.codi(url).get()
-          .then(function (response) {
-            var items = [];
-            $.each(response.data._embedded.instances, function (i, filteredData) {
-              let split = filteredData._links.self.href.split('/');
-              items['instId'] = split[split.length - 1];
-              items.push({
-                instId: split[split.length - 1],
-                defName: filteredData.defName,
-                defId: filteredData.defId,
-                name: filteredData.name,
-                status: filteredData.status,
-                endpoint:filteredData.endpoint,
-                eventHandler: filteredData.eventHandler,
-                isSubProcess: filteredData.isSubProcess,
-                startedDate: filteredData.startedDate,
-                info: filteredData.info,
-                ext1: filteredData.ext1,
-                finishedDate: filteredData.finishedDate
-              });
+        me.listMode = 'select';
+        me.items = [];
+        var instance = {};
+        me.backend.$bind(url, instance);
+        instance.$load().then(function () {
+          var items = [];
+          var resource = instance.$resource;
+          $.each(instance, function (i, filteredData) {
+            let split = filteredData.$bind.self.split('/');
+            items['instId'] = split[split.length - 1];
+            items.push({
+              instId: split[split.length - 1],
+              defName: filteredData.defName,
+              defId: filteredData.defId,
+              name: filteredData.name,
+              status: filteredData.status,
+              endpoint: filteredData.endpoint,
+              eventHandler: filteredData.eventHandler,
+              isSubProcess: filteredData.isSubProcess,
+              startedDate: filteredData.startedDate,
+              info: filteredData.info,
+              ext1: filteredData.ext1,
+              finishedDate: filteredData.finishedDate
             });
-            item.paging = {
-              rowSize : _size,
-              rowTotal : response.data.page.totalElements,
-              rowStart : _page
-            };
-            item.items = items;
-          })
+          });
+          me.paging = {
+            rowSize: _size,
+            rowTotal: resource.page.totalElements,
+            rowStart: _page
+          };
+          me.items = items;
+        });
 
       },
       setStatus: function (status) {
@@ -278,8 +280,8 @@
         me.roles[0].name = roleName;
         me.$refs['userPicker'].openUserPicker();
       },
-      userSelected: function (item,role) {
-        this.filter.endpoint = item ;
+      userSelected: function (item, role) {
+        this.filter.endpoint = item;
         console.log(this.filter);
       },
       onSelect: function (item) {
@@ -292,11 +294,11 @@
         })
       },
       onPagination(e) {
-          if(this.listMode == 'select') {
-            this.search(e.page, e.size);
-          } else {
-            this.listData(e.page, e.size);
-          }
+        if (this.listMode == 'select') {
+          this.search(e.page, e.size);
+        } else {
+          this.listData(e.page, e.size);
+        }
       }
     }
   }
@@ -306,5 +308,8 @@
   .mt-100 {
     margin-top: 50px;
   }
-  td { text-align: center; }
+
+  td {
+    text-align: center;
+  }
 </style>
