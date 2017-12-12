@@ -502,7 +502,7 @@
             processVariableDescriptors: [
                 {
                   _type: 'org.uengine.kernel.ProcessVariable',
-                  name: 'Var1'
+                  name: 'Var1',
               },
 
             ],

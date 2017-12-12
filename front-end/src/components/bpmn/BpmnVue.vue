@@ -42,7 +42,7 @@
 
       <!--릴레이션은 액티비티간 연결선(흐름)-->
       <div v-for="relation in data.definition.sequenceFlows">
-        <bpmn-relation v-if="relation != null" :relation.sync="relation"></bpmn-relation>
+        <bpmn-relation v-if="relation != null" :relation.sync="relation" :definition="data.definition"></bpmn-relation>
       </div>
     </opengraph>
     <bpmn-component-changer
