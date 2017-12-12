@@ -105,6 +105,8 @@
             <md-layout v-if="!monitor">
               <md-button class="md-raised" id="processVariables" @click="openProcessVariables">ProcessVariable
               </md-button>
+              <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings
+              </md-button>
             </md-layout>
 
             <md-layout v-if="monitor">
@@ -228,6 +230,9 @@
     methods: {
       openProcessVariables() {
         this.$refs['bpmn-vue'].openProcessVariables();
+      },
+      openDefinitionSettings() {
+        this.$refs['bpmn-vue'].openDefinitionSettings();
       },
       bindEvents: function (opengraph) {
         //this.$el
@@ -462,13 +467,28 @@
           me.definition = {
             _type: 'org.uengine.kernel.ProcessDefinition',
             name: {},
+            shortDescription: '',
             childActivities: [
               'java.util.ArrayList',
               []
             ],
-            'roles': [],
+            processVariableDescriptors: [
+                {
+                  _type: 'org.uengine.kernel.ProcessVariable',
+                  name: 'Var1'
+              },
+
+            ],
+            'roles': [{
+                _type: 'org.uengine.kernel.Role',
+                name: 'initiator'
+            }],
             'sequenceFlows': []
           }
+
+          //ajax call to load process varaible list.
+
+          $.ajax('processvariables')
         }
         else {
           var url = 'definition/raw/' + me.path + me.id.replace('.xml','.json');

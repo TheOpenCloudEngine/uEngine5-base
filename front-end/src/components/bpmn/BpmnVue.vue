@@ -66,6 +66,26 @@
         <md-button class="md-primary" @click="closeProcessVariables">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
+
+    <md-dialog
+      v-if="data.definition"
+      md-open-from="#definitionSettings" md-close-to="#definitionSettings" ref="definitionSettings">
+      <md-dialog-title>Definition Settings</md-dialog-title>
+
+      <md-dialog-content>
+        <form novalidate @submit.stop.prevent="submit">
+          <md-input-container>
+            <label>짧은 설명</label>
+            <md-input v-model="definition.shortDescription"></md-input>
+          </md-input-container>
+          <md-checkbox v-model="definition.initiateByFirstWorkitem">첫 휴먼-액티비티으로 시작</md-checkbox>
+        </form>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="closeDefinitionSettings">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
   </div>
 </template>
 
@@ -198,6 +218,17 @@
       },
       closeProcessVariables(ref) {
         this.$refs['processVariables'].close();
+      },
+
+      openDefinitionSettings(ref) {
+          if(!this.definition.shortDescription){
+            this.definition.shortDescription = '';
+          }
+
+        this.$refs['definitionSettings'].open();
+      },
+      closeDefinitionSettings(ref) {
+        this.$refs['definitionSettings'].close();
       },
 
       getRelativeFlowsByOpengraphId: function (id) {

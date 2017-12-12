@@ -84,7 +84,8 @@ public class DefinitionServiceImpl implements DefinitionService {
     @RequestMapping(value = DEFINITION+"/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @Override
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
-        definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
+
+        definitionPath = resourceRoot + "/" + definitionPath;
 
         IResource resource = new DefaultResource(definitionPath);
 
@@ -97,6 +98,9 @@ public class DefinitionServiceImpl implements DefinitionService {
             return listDefinition(definitionPath);
 
         }else {
+            definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
+
+            resource = new DefaultResource(definitionPath);
 
             DefinitionResource halDefinition = new DefinitionResource(resource);
 
