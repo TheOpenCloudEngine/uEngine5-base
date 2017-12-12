@@ -22,6 +22,9 @@ import DeletePackage from '@/components/bpm-portal/DeletePackage'
 import ListPackage from '@/components/bpm-portal/ListPackage'
 import MovePackage from '@/components/bpm-portal/MovePackage'
 
+
+//import CustomizedSvgGraph from '@/components/CustomizedSvgGraph'
+
 /**
  * Iam && Vue Router
  * @type {IAM}
@@ -96,6 +99,12 @@ Vue.component('element-list-example', ElementListExample);
 
 import ChartExample from '../components/example/ChartExample'
 Vue.component('chart-example', ChartExample);
+
+
+//--------- customized components here -------
+
+
+//Vue.component('svg-graph', CustomizedSVGGraph);
 
 
 export default new Router({

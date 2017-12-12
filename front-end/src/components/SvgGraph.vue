@@ -18,18 +18,18 @@
         <md-layout>
           <md-layout md-flex="50">
             <md-card v-if="!monitor" class="tools">
-              <span class="icons bpmn-icon-hand-tool">
-                <md-tooltip md-direction="right">hand</md-tooltip>
-              </span>
-              <span class="icons bpmn-icon-lasso-tool">
-                <md-tooltip md-direction="right">lasso</md-tooltip>
-              </span>
-              <span class="icons bpmn-icon-space-tool">
-                <md-tooltip md-direction="right">space</md-tooltip>
-              </span>
-              <span class="icons bpmn-icon-connection-multi">
-                <md-tooltip md-direction="right">connection multi</md-tooltip>
-              </span>
+              <!--<span class="icons bpmn-icon-hand-tool">-->
+                <!--<md-tooltip md-direction="right">hand</md-tooltip>-->
+              <!--</span>-->
+              <!--<span class="icons bpmn-icon-lasso-tool">-->
+                <!--<md-tooltip md-direction="right">lasso</md-tooltip>-->
+              <!--</span>-->
+              <!--<span class="icons bpmn-icon-space-tool">-->
+                <!--<md-tooltip md-direction="right">space</md-tooltip>-->
+              <!--</span>-->
+              <!--<span class="icons bpmn-icon-connection-multi">-->
+                <!--<md-tooltip md-direction="right">connection multi</md-tooltip>-->
+              <!--</span>-->
 
               <hr class="separator">
 
@@ -112,7 +112,11 @@
 
             <!--프로세스 변수-->
             <md-layout v-if="!monitor">
-              <md-button class="md-raised" id="processVariables" @click="openProcessVariables">ProcessVariable
+              <md-select v-model="definition._selectedLocale" @change="changeLocale">Locale
+                <md-option value="en">English</md-option>
+                <md-option value="ko">Korean</md-option>
+              </md-select>
+              <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable
               </md-button>
               <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings
               </md-button>
@@ -510,7 +514,12 @@
                 _type: 'org.uengine.kernel.Role',
                 name: 'initiator'
             }],
-            'sequenceFlows': []
+            'sequenceFlows': [],
+
+              ///
+            _selectedLocale: 'ko',
+            _changedByLocaleSelector: false,
+
           }
 
           //ajax call to load process varaible list.
@@ -522,6 +531,10 @@
           this.$root.codi(url).get().then(function (response) {
             me.definition = response.data.definition;
             me.definitionName = me.definition.name.text;
+
+            me._selectedLocale = 'ko';
+            me._changedByLocaleSelector =false;
+
           })
         }
       }
@@ -650,7 +663,22 @@
           me.$root.$children[0].success('작업 내역을 선택한 위치로 되돌렸습니다.');
           me.getStatus();
         });
+      },
+      changeLocale(){
+        this.definition._changedByLocaleSelector = true;
+
+        //TODO: 현재 locale 로
+
+        var me = this;
+        this.definition.childActivities[1].forEach(function(activity){
+
+            if(activity && activity.name && activity.name.localedTexts)
+              activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
+
+        });
+
       }
+
     }
   }
 </script>
