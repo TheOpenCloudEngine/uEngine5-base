@@ -10,7 +10,9 @@
         <md-icon>ondemand_video</md-icon>
       </md-button>
 
-      <md-button class="md-fab md-primary md-mini md-clean" @click="newPackage">
+      <md-button class="md-fab md-primary md-mini md-clean"
+                 id="newPackage"
+                 @click.native="selectedPackge = {}; $refs['create'].open()">
         <md-icon>folder</md-icon>
       </md-button>
     </md-speed-dial>
@@ -21,11 +23,19 @@
       :directory.sync="directory"
       :cards.sync="cards"
       style="min-width: 70%;"></new-package>
-
+    <!--    <md-layout>
+          <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
+          <md-button class="md-raised md-primary" id="newPackage"
+                     @click.native="selectedPackge = {}; $refs['create'].open()">
+            New Package
+          </md-button>
+        </md-layout>-->
     <div class="side-margin">
       <md-layout>
         <ul class="breadcrumb">
-          <li v-for="item in breadcrumb" @dragover.prevent @drop="drop(item)">
+          <li v-for="item in breadcrumb" @dragover.prevent @drop="drop(item)"
+              @dragleave="onDragLeave(item, 'navigation')"
+              @dragenter="onDragenter(item, 'navigation')">
             <a v-on:click="selectedNavigation(item.path, item.seq)" style="cursor:pointer">{{item.name}}</a>
           </li>
         </ul>
@@ -40,8 +50,10 @@
                      draggable="true"
                      @dragstart.native="dragover(item)"
                      @drop.native="drop(item)"
+                     @dragleave.native="onDragLeave(item, 'folder')"
+                     @dragenter.native="onDragenter(item, 'folder')"
           >
-            <md-card class="folder-card" @dblclick.native="selectedFolder(item.name)" style="cursor:pointer">
+            <md-card class="folder-card" @dblclick.native="selectedFolder(item.name)" :class="{ 'folder-hover' : item.name == folderName }">
               <md-card-header>
                 <md-card-header-text class="ellipsis">
                   <md-icon class="folder-icon">folder</md-icon>
@@ -49,12 +61,14 @@
                   <md-menu md-direction="bottom-end">
                     <md-icon class="folder-menu" md-menu-trigger>more_vert</md-icon>
                     <md-menu-content>
-                      <md-menu-item id="renamePackage" @click.native="doChange(item.path, item.name)">
-                        <span>rename</span>
+                      <md-menu-item id="renamePackage"
+                                    @click.native="selectedPackge = {'name' : item.name, 'path' : item.path}; $refs['update'].open()">
+                        <span>Rename</span>
                         <md-icon>edit</md-icon>
                       </md-menu-item>
 
-                      <md-menu-item id="deletePackage" @click.native="doDelete(item.path)">
+                      <md-menu-item id="deletePackage"
+                                    @click.native="selectedPackge = item; $refs['delete'].open()">
                         <span>Delete</span>
                         <md-icon>delete</md-icon>
                       </md-menu-item>
@@ -65,21 +79,6 @@
             </md-card>
 
           </md-layout>
-          <rename-package
-            ref="renamePackage"
-            :packageName="changeName"
-            :packagePath="changePath"
-            :currentPath="current"
-            :directory.sync="directory"
-            :cards.sync="cards"
-            style="min-width: 70%;"></rename-package>
-          <delete-package
-            ref="deletePackage"
-            :packageName="deletePath"
-            :currentPath="current"
-            :directory.sync="directory"
-            :cards.sync="cards"
-            style="min-width: 70%;"></delete-package>
         </md-layout>
       </md-layout>
       <md-layout v-if="cards.length > 0">
@@ -121,10 +120,51 @@
         </md-layout>
       </md-layout>
     </div>
+
+    <!-- Insert Form -->
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="create">
+      <md-dialog-title>New Package</md-dialog-title>
+      <md-dialog-content>
+        <md-input-container>
+          <label>Package Name</label>
+          <md-input v-model="selectedPackge.name" type="text"></md-input>
+        </md-input-container>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click.native="InsertClose(); $refs['create'].close()">Create</md-button>
+        <md-button class="md-primary" @click.native="$refs['create'].close()">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <!-- Update Form -->
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="update">
+      <md-dialog-title>Rename Package</md-dialog-title>
+      <md-dialog-content>
+        <md-input-container>
+          <label>Package Name</label>
+          <md-input v-model="selectedPackge.name" type="text"></md-input>
+        </md-input-container>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click.native="updateClose(); $refs['update'].close()">Rename</md-button>
+        <md-button class="md-primary" @click.native="$refs['update'].close()">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <!-- Delete Confirm -->
+    <md-dialog-confirm
+      :md-title="dc.title"
+      :md-content-html="dc.contentHtml"
+      :md-ok-text="dc.ok"
+      :md-cancel-text="dc.cancel"
+      @close="deleteClose"
+      ref="delete">
+    </md-dialog-confirm>
   </div>
 </template>
 <script>
   export default {
+    props: {
+      backend: Object
+    },
     data () {
       return {
         cards: [],
@@ -142,11 +182,18 @@
           children: []
         },
         processName: "",
-        changePath: "",
-        changeName: "",
-        deletePath: "",
-        draggableItem: ""
+        draggableItem: "",
+        selectedPackge: "",
+        folderName: ""
       }
+    },
+    created: function () {
+      this.dc = {
+        title: 'Delete Package',
+        contentHtml: '패키지를 삭제하면 패키지에 속한 프로세스도 함께 삭제됩니다. \<br /\> 패지키를 삭제하시겠습니까?',
+        cancel: 'Close',
+        ok: 'Delete',
+      };
     },
     mounted() {
       var me = this;
@@ -161,21 +208,42 @@
         me.draggableItem = [];
         me.draggableItem = item;
       },
-      drop: function(item) {
+      onDragenter: function (item, type) {
+        var me = this;
+        if(type == "folder") {
+          me.folderName = item.name;
+        } else if (type == "navigation") {
+          console.log("onDragenter : ", this);
+        }
+      },
+      onDragLeave: function (item, type) {
+        var me = this;
+        if(type == "folder") {
+          var parent = event.fromElement.parentElement.className;
+          if(parent.match("md-layout") != null) {
+            me.folderName = "";
+          }
+        }
+      },
+      drop: function (item) {
         var me = this;
         //드래그 앤 드롭으로 패키지 및 프로세스를 이동시킨다.
         var me = this;
         var src = 'definition/' + me.draggableItem.path;
         var path = item.path + "/" + me.draggableItem.name;
-        this.$root.codi(src).update({ path : path })
-          .then(function (response) {
-              me.$root.$children[0].success('이동되었습니다.');
-              me.getDefinitionList(me.current);
-            },
-            function (response) {
-              me.$root.$children[0].error('이동할 수 없습니다.');
-            }
-          );
+
+        var packages = {path: path};
+        me.backend.$bind(src, packages);
+        packages.$save().then(
+          function (response) {
+            me.$root.$children[0].success('이동되었습니다.');
+            me.getDefinitionList(me.current);
+            me.folderName = "";
+          },
+          function (response) {
+            me.$root.$children[0].error('이동할 수 없습니다.');
+          }
+        );
       },
       newPackage(ref) {
         this.$refs['newPackage'].openPackage();
@@ -210,14 +278,10 @@
       getDefinitionList: function (_folder) {
         var me = this;
 
-        var access_token = localStorage["access_token"];
-        var serviceLocator = this.$root.$children[0].$refs['backend'];
-        var backend = hybind(serviceLocator.getServiceHost(), {headers:{'access_token': access_token}});
-
         var definitions = [];
         var url = "definition/" + _folder;
 
-        backend.$bind(url, definitions);
+        me.backend.$bind(url, definitions);
 
         var cards = [];
         var folders = [];
@@ -233,8 +297,8 @@
 
                 cards.push(definition);
 
-                definition.desc=name + '...';
-                definition.src='/static/image/sample.png';
+                definition.desc = name + '...';
+                definition.src = '/static/image/sample.png';
 
               }
 
@@ -246,18 +310,7 @@
         me.directory = folders;
         me.cards = cards;
       },
-      doChange: function (_link, _name) {
-        var me = this;
-        me.changePath = _link;
-        me.changeName = _name;
-        me.$refs['renamePackage'].openPackage();
-      },
-      doDelete: function (_link) {
-        var me = this;
-        me.deletePath = _link;
-        me.$refs['deletePackage'].openPackage();
-      },
-      getPackageFile: function(_path, _cards) {
+      getPackageFile: function (_path, _cards) {
         var src = 'definitions/packages/' + _path + "/processes"; //패키지 내 파일 찾기
         var packageChildren = []; // 좌측 트리에 보여질 패키지 파일 리스트
 
@@ -272,7 +325,8 @@
                 src: '/static/image/sample.png'
               })
               packageChildren.push(
-                { name: name,
+                {
+                  name: name,
                   package: false,
                   children: []
                 }
@@ -283,7 +337,8 @@
         //this.treeData.children 안에 집어 넣어준다.
         //패키지 내에 파일이 존재한다면 좌측에 뿌려진다.
         this.treeData.children.push(
-          { name: _path,
+          {
+            name: _path,
             package: true,
             children: packageChildren
           }
@@ -291,14 +346,14 @@
       },
       newProcess: function () {
         var path = this.current.replace(/\//g, "_");
-        if(path !== "") path += "/";
+        if (path !== "") path += "/";
         this.$router.push({
-          path: 'definition/' + path  + 'new-process-definition'
+          path: 'definition/' + path + 'new-process-definition'
         })
       },
       move: function (card) {
         var path = this.current.replace(/\//g, "_");
-        if(path !== "") path += "/";
+        if (path !== "") path += "/";
         this.$router.push({
           path: 'definition/' + path + card.name.replace('.json', '')
         })
@@ -307,13 +362,9 @@
 
         var me = this;
 
-        var access_token = localStorage["access_token"];
-        var serviceLocator = this.$root.$children[0].$refs['backend'];
-        var backend = hybind(serviceLocator.getServiceHost(), {headers:{'access_token': access_token}});
-
         var definitions = [];
         var url = "definition" + me.current + "/" + card;
-        backend.$bind(url, definitions);
+        me.backend.$bind(url, definitions);
 
         definitions.$delete().then(function(){
           me.$root.$children[0].success('리소스가 삭제되었습니다.');
@@ -338,6 +389,71 @@
             }
           );
       },
+      InsertClose: function () {
+        var me = this;
+        var path = me.current;
+        if (path !== "") path += "/";
+        var packages = [];
+        me.backend.$bind('definition', packages);
+        packages.$create({
+          name: path + me.selectedPackge.name,
+          directory: true
+        }).then(
+          function (response) {
+            me.$root.$children[0].success('저장되었습니다.');
+            me.getDefinitionList(me.current);
+          },
+          function (response) {
+            me.$root.$children[0].error('저장할 수 없습니다.');
+          }
+        );
+      },
+      updateClose: function () {
+        var me = this;
+        var oldPath = me.selectedPackge.path;
+        var rename = me.selectedPackge.name;
+        var src = 'definition/' + oldPath;
+        var split = oldPath.split('/');
+        var newPath = "";
+
+        for (var i = 0; i < split.length; i++) {
+          if (i + 1 == split.length) {
+            newPath += rename;
+          } else {
+            newPath += split[i] + "/";
+          }
+        }
+        var packages = {path: newPath};
+        me.backend.$bind(src, packages);
+        packages.$save().then(
+          function (response) {
+
+            me.$root.$children[0].success('변경되었습니다.');
+            me.getDefinitionList(me.current);
+          },
+          function (response) {
+            console.log('test ', response);
+            me.$root.$children[0].error('변경할 수 없습니다.');
+          }
+        );
+      },
+      deleteClose: function (type) {
+        if (type == 'ok') {
+          var me = this;
+          var src = 'definition/' + me.selectedPackge.path;
+          var packages = [];
+          me.backend.$bind(src, packages);
+          packages.$delete().then(
+            function (response) {
+              me.$root.$children[0].success('삭제되었습니다.');
+              me.getDefinitionList(me.current);
+            },
+            function (response) {
+              me.$root.$children[0].error('삭제할 수 없습니다.');
+            }
+          );
+        }
+      },
     }
   }
 </script>
@@ -359,6 +475,22 @@
   .md-theme-default .folder-card {
     width: 500px;
     height: 80%;
+    cursor:pointer
+  }
+
+  .md-theme-default .folder-hover{
+    background-color: #3f51b5;
+    color: #ffffff;
+    .folder-icon {
+      color: #ffffff;
+    }
+    .md-menu .folder-menu {
+      align: right;
+      color: #ffffff;
+      position: absolute;
+      top: 15px;
+      right: 0px;
+    }
   }
 
   .ellipsis {

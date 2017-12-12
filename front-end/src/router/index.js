@@ -62,6 +62,12 @@ Vue.http.interceptors.push(function (request, next) {
   next();
 });
 
+/**
+ * Hybind
+ */
+var access_token = localStorage["access_token"];
+var backend = hybind(ServiceLocator.methods.getServiceHost(), {headers:{'access_token': access_token}});
+
 
 /**
  * Others
@@ -125,30 +131,45 @@ export default new Router({
           name: 'Workspace',
           component: Sns,
           beforeEnter: RouterGuard.requireUser,
+          props: {
+            backend: backend
+          },
         },
         {
           path: 'definition',
           name: 'definition',
           component: Designer,
           beforeEnter: RouterGuard.requireUser,
+          props: {
+            backend: backend
+          },
         },
         {
           path: 'definition/:id',
           name: 'graph',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
+          props: {
+            backend: backend
+          },
         },
         {
           path: 'definition/:path/:id',
           name: 'graph',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
+          props: {
+            backend: backend
+          },
         },
         {
           path: 'instance',
           name: 'instance',
           component: InstanceList,
           beforeEnter: RouterGuard.requireUser,
+          props: {
+            backend: backend
+          },
         },
         {
           path: 'instance/:id',
@@ -157,7 +178,8 @@ export default new Router({
           beforeEnter: RouterGuard.requireUser,
           props: {
             monitor: true,
-            iam: iam
+            iam: iam,
+            backend: backend
           }
         }
       ]

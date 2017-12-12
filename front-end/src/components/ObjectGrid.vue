@@ -65,8 +65,7 @@
 
         <md-table-body v-else>
 
-          <md-table-row v-for="(entry, rowIndex) in rowData" :key="rowIndex" :md-item="entry" md-selection>
-
+          <md-table-row v-for="(entry, rowIndex) in rowData" :key="rowIndex" :md-item="entry" @dblclick.native="onDoubleClick(entry, rowIndex)" md-selection>
             <md-table-cell v-for="key in columns">
               <span v-if="!options_.editable">{{ showValue(key, entry) }}</span>
 
@@ -76,6 +75,25 @@
               <input v-if="options_.editable && !key.component" v-model="entry[key.name]"></input>
             </md-table-cell>
           </md-table-row>
+          <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog2">
+            <md-dialog-title>Change</md-dialog-title>
+
+            <md-dialog-content>
+              <object-form ref="object-form"
+                           :java="java"
+                           :data="formData"
+                           :event-listeners="['grid']"
+              >
+              </object-form>
+            </md-dialog-content>
+
+            <md-dialog-actions>
+              <md-button class="md-primary" @click.native="changeObject($refs['object-form'].data); $refs['dialog2'].close()">
+                변경
+              </md-button>
+              <md-button class="md-primary" @click.native="$refs['dialog2'].close()">닫기</md-button>
+            </md-dialog-actions>
+          </md-dialog>
         </md-table-body>
       </md-table>
 
@@ -100,7 +118,7 @@
         <md-dialog-content>
           <object-form ref="object-form"
                        :java="java"
-                       :data="{}"
+                       :data="formData"
                        :event-listeners="['grid']"
           >
           </object-form>
@@ -140,6 +158,8 @@
 
     data: function () {
       let initGrid = this.initGrid();
+      initGrid.formData = {};
+      initGrid.selectedIndex = 0;
       initGrid.rowData = this.data;
       if(!initGrid.rowData){
         initGrid.rowData = [];
@@ -154,13 +174,13 @@
         this.metadata = initProps.metadata;
       },
       data: function(){
-          this.rowData = this.data;
+        this.rowData = this.data;
       },
       rowData: {
-          handler: function(){
-            this.$emit('update:data', this.rowData);
-          },
-          deep: true
+        handler: function(){
+          this.$emit('update:data', this.rowData);
+        },
+        deep: true
       }
     },
 
@@ -174,6 +194,11 @@
       this.loadData();
     },
     computed: {
+      changedData: function() {
+        this.$emit('update:data', []);
+        this.$emit('update:data', this.rowData);
+      },
+
       filteredData: function () {
 
         //var data = this.rowData
@@ -182,10 +207,10 @@
 
       primitiveType: function(){
 
-          if(this.java && this.java.indexOf("java.lang.") == 0)
-              return true;
+        if(this.java && this.java.indexOf("java.lang.") == 0)
+          return true;
 
-          return false;
+        return false;
       }
     },
     filters: {
@@ -370,7 +395,7 @@
       addRow: function (aRow) {
         if (!this.rowData) this.rowData = [];
         this.rowData.push(aRow);
-       /// this.$emit('update:data', this.rowData);
+        /// this.$emit('update:data', this.rowData);
       },
 
       showValue: function (key, entry) {
@@ -386,11 +411,24 @@
         }
       },
       addObject: function (aRow) {
-
-          if(this.primitiveType) aRow = aRow.value; //TODO: not a good manner
-
-        if (!this.rowData) this.rowData = [];
-        this.rowData.push(aRow);
+        if(this.primitiveType) aRow = aRow.value; //TODO: not a good manner
+        //Variables 안에 추가하는 변수와 같은 이름이 있는지 체크한다.
+        var rowData = this.rowData;
+        var changed = false;
+        for(var i=0; i < rowData.length; i++) {
+          if(aRow.name == rowData[i].name) {
+            rowData[i] = aRow;
+            changed = true;
+          }
+        }
+        if (!changed) { //동일 변수 없음 -> 추가
+          if (!this.rowData) this.rowData = [];
+          this.rowData.push(aRow);
+        } else { //동일 변수 있음 -> 수정
+          this.rowData = [];
+          this.rowData = rowData;
+          this.changedData;
+        }
         //this.$emit('update:data', this.rowData);
       },
       submit_for_delete: function (uri, num) {
@@ -404,6 +442,17 @@
           console.log(xhr);
         };
         xhr.send();
+      },
+
+      changeObject: function (aRow) {
+        var idx = this.selectedIndex;
+        var rowData = this.rowData;
+        rowData[idx] = aRow;
+
+        // 배열 속성 변경이 정상적으로 이루어지지 않아 초기화하고 다시 세팅한다.
+        this.rowData = [];
+        this.rowData = rowData;
+        this.changedData;
       },
 
       openDialog: function (ref) {
@@ -429,6 +478,20 @@
         this.selected = selected;
       },
 
+      onDoubleClick: function (entry, rowIndex) {
+        this.formData = {
+          name: entry.name,
+          displayName: entry.displayName,
+          type: entry.type,
+          global: entry.global,
+          typeClassName: entry.typeClassName,
+          defaultValue: entry.defaultValue,
+          defaultValueInString: entry.defaultValueInString
+        };
+        this.selectedIndex = rowIndex;
+        this.$refs['dialog2'].open();
+      },
+
       deleteSubmit: function () {
         for (var i in this.selected) {
           //var primaryKey = (this.selected[i][this.metadata.keyFieldDescriptor.name]);
@@ -450,7 +513,9 @@
       },
 
       newForm: function () {
-        this.$refs['object-form'].data = {};
+        this.formData = {
+          "typeClassName" : "java.lang.String"
+        };
         this.$refs['dialog'].open();
 
       }
