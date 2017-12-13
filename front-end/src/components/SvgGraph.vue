@@ -527,7 +527,7 @@
           $.ajax('processvariables')
         }
         else {
-          var url = 'definition/raw/' + me.path + me.id.replace('.xml','.json');
+          var url = 'definition/raw/' + me.path + me.id + '.json';
           this.$root.codi(url).get().then(function (response) {
             me.definition = response.data.definition;
             me.definitionName = me.definition.name.text;
@@ -543,16 +543,16 @@
         var me = this;
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
         var definitionToSave = JSON.parse(JSON.stringify(me.definition));
+        var fileName = me.id;
 
         //save 시 확장자는 .json이어야 한다.
         //확장자가 존재하지 않으면 폴더로 인식한다.
-        if (me.id == 'new-process-definition') {
+        if (fileName == 'new-process-definition') {
           if (me.definitionName !== null) {
-            me.id = me.definitionName + ".json";
+            fileName = me.definitionName;
           }
-        } else {
-          me.id = me.id.replace('.xml', '.json');
         }
+        fileName = fileName + ".json";
 
         definitionToSave.name.text = me.definitionName;
 
@@ -597,7 +597,7 @@
 //          this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
 
         var definition = {};
-        me.backend.$bind("definition/raw/" + me.path + me.id, definition);
+        me.backend.$bind("definition/raw/" + me.path + fileName, definition);
         definition.definition = definitionToSave;
         definition.$save().then(
           function (response) {

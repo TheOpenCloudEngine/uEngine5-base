@@ -355,7 +355,7 @@
         var path = this.current.replace(/\//g, "_");
         if (path !== "") path += "/";
         this.$router.push({
-          path: 'definition/' + path + card.name.replace('.json', '')
+          path: 'definition/' + path + card.name.replace('.xml', '')
         })
       },
       deleteProcess: function (card) {
