@@ -122,7 +122,7 @@ public class DefinitionServiceImpl implements DefinitionService {
      * TODO: need ACL referenced by token
      * @throws Exception
      */
-    @RequestMapping(value = DEFINITION+"/**", method = RequestMethod.PUT)
+    @RequestMapping(value = DEFINITION+"/**", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
     public DefinitionResource renameOrMove(@RequestBody DefinitionResource definition_, HttpServletRequest request) throws Exception {
 
         DefinitionResource definition = definition_;
@@ -140,6 +140,9 @@ public class DefinitionServiceImpl implements DefinitionService {
 
             resourceManager.rename(resource, newPath);
 
+            if (definitionPath.indexOf(".") == -1){
+                return new DefinitionResource(new ContainerResource(newPath));
+            }
             return new DefinitionResource(new DefaultResource(newPath));
         }
 
