@@ -232,6 +232,8 @@
         var src = 'definition/' + me.draggableItem.path;
         var path = item.path + "/" + me.draggableItem.name;
 
+        if(path.indexOf("/") <= 0) path = path.substring(1, path.length);
+
         var packages = {path: path};
         me.backend.$bind(src, packages);
         packages.$save().then(
@@ -253,7 +255,7 @@
         this.$refs['movePackage'].openPackage();
       },
       selectedFolder: function (_folder) {
-        this.current += _folder + "/";
+        this.current += "/" + _folder;
         this.getDefinitionList(this.current);
         var seq = this.breadcrumb.length + 1;
 
@@ -279,7 +281,7 @@
         var me = this;
 
         var definitions = [];
-        var url = "definition/" + _folder;
+        var url = "definition" + _folder;
 
         me.backend.$bind(url, definitions);
 
@@ -345,14 +347,16 @@
         );
       },
       newProcess: function () {
-        var path = this.current.replace(/\//g, "_");
+        var path = this.current.replace(/\//g, "-");
+        path = path.substring(1, path.length);
         if (path !== "") path += "/";
         this.$router.push({
           path: 'definition/' + path + 'new-process-definition'
         })
       },
       move: function (card) {
-        var path = this.current.replace(/\//g, "_");
+        var path = this.current.replace(/\//g, "-");
+        path = path.substring(1, path.length);
         if (path !== "") path += "/";
         this.$router.push({
           path: 'definition/' + path + card.name.replace('.xml', '')

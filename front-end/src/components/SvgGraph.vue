@@ -488,7 +488,7 @@
         var me = this;
         me.id = me.$route.params.id;
         if (me.$route.params.path) {
-          var pathSplit = me.$route.params.path.split('_');
+          var pathSplit = me.$route.params.path.split('-');
           for (var i = 0; i < pathSplit.length; i++) {
             me.path += pathSplit[i] + "/";
           }

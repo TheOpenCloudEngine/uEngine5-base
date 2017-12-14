@@ -45,7 +45,7 @@ public class DefinitionResource extends ResourceSupport {
                     linkTo(
                             methodOn(DefinitionServiceImpl.class)
                                     .getRawDefinition(
-                                            UEngineUtil.getNamedExtFile(relativePath, "json")
+                                            UEngineUtil.getNamedExtFile(relativePath, "xml")
                                     )
                     ).withRel("raw")
             );
