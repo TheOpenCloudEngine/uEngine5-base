@@ -144,15 +144,14 @@
   export default {
     props: {
       data: Array,
-      // columns: Array,
       filterKey: String,
       java: String,
       columnChanger: Object,
       fullFledged: Boolean,
       online: Boolean,
       options: Object,
-      serviceLocator: Object,
-      dataLabel: String
+      dataLabel: String,
+      backend: Object
     },
 
 
@@ -220,40 +219,28 @@
     },
     methods: {
       initGrid: function () {
-
-        var xhr = new XMLHttpRequest();
-        var columns = [];
-        var self = this;
-        var metadata;
+        var columns = {};
+        var metadata = {};
         var thisOptions = this.options;
         if (!thisOptions) {
           thisOptions = {};
         }
-        xhr.open('GET', this.getServiceHost() + "/classdefinition?className=" + this.java, false);
-        xhr.setRequestHeader("access_token", localStorage['access_token']);
-        xhr.onload = function () {
-          metadata = JSON.parse(xhr.responseText)
-
-          columns = metadata.fieldDescriptors;
-
+        this.backend.$bind("classdefinition?className=" + this.java, metadata);
+        metadata.$load().then(function() {
+          var columns = metadata.fieldDescriptors;
           for (var i = 0; i < columns.length; i++) {
-            var fd = columns[i];
-
-            if(!fd.displayName) fd.displayName = fd.name;
-
+            var fd = columns[i];    
+            if (!fd.displayName) fd.displayName = fd.name;
             if (fd.options && fd.values) {
               fd.optionMap = {};
               for (var keyIdx in fd.options) {
                 var key = fd.options[keyIdx];
                 fd.optionMap[key] = fd.values[keyIdx];
               }
-
               thisOptions[fd.name] = fd.optionMap;
             } else {
               thisOptions[fd.name] = {};
             }
-
-
             if (fd.attributes && fd.attributes['hidden']) {
               columns.splice(i, 1);
               i--;
@@ -266,26 +253,19 @@
             } else if (fd.className.indexOf('[L') == 0 && fd.className.indexOf(";") > 1) {
               fd.component = "object-grid"
               fd.elemClassName = fd.className.substring(2, fd.className.length - 1);
-
               thisOptions[fd.name]['editable'] = true;
-
             } else if (fd.collectionClass) {
               fd.component = "object-grid"
               fd.elemClassName = fd.collectionClass;
-
               thisOptions[fd.name]['editable'] = true;
-
             }
           }
           if (self.columnChanger) {
             self.columnChanger(columns);
           }
-        };
-        xhr.send();
-
+        });        
 
         return {
-          //rowData: this.data,
           columns: columns,
           metadata: metadata,
           options_: (thisOptions ? thisOptions : {}),
@@ -298,12 +278,8 @@
       },
 
       onPagination: function (pagination) {
-        //console.log(pagination);
-
         this.pagination = pagination;
-        //this.infoExtraction(pagination);
         this.loadData();
-
       },
 
       onSort: function (sort) {
@@ -311,79 +287,43 @@
         this.loadData();
       },
 
-      getServiceHost: function () {
-        if (this.serviceLocator) {
-          if (this.serviceLocator.host) {
-            return this.serviceLocator.host;
-          } else if (this.$root.$refs[this.serviceLocator]) {
-            return this.$root.$refs[this.serviceLocator].host;
-          } else {
-            return this.serviceLocator;
-          }
-
-        } else {
-          return "http://127.0.0.1:8080"
-        }
-      },
-
       loadData: function () {
-        if (this.online) {
+        if (this.online) {          
           var page = this.pagination.page;
           var size = this.pagination.size;
-
           var pathElements = this.java.split(".");
           var path = pathElements[pathElements.length - 1].toLowerCase();
-          var xhr = new XMLHttpRequest()
-          var self = this
-
-
-          xhr.open('GET', this.getServiceHost() + "/" + path + "?page=" + (page - 1) + "&size=" + size + (this.sort ? "&sort=" + this.sort.name + "," + this.sort.type : ""), false);
-          xhr.setRequestHeader("access_token", localStorage['access_token']);
-          xhr.onload = function () {
-            var jsonData = JSON.parse(xhr.responseText);
-            self.rowData = jsonData._embedded[path];
-
+          var self = this;
+          this.backend.$bind(path + "?page=" + (page - 1) + "&size=" + size + (this.sort ? "&sort=" + this.sort.name + "," + this.sort.type : ""), self.rowData);
+          self.rowData.$load().then(function() {
             for (var i in self.rowData) {
-
               var row = self.rowData[i];
-
-              //load tenant properties as well
               if (row && row._links && row._links.tenantProperties) {
                 var tenantPropertiesURI = row._links.tenantProperties.href;
-
                 var xhr_ = new XMLHttpRequest()
                 xhr_.open('GET', tenantPropertiesURI, true);
                 xhr_.setRequestHeader("access_token", localStorage['access_token']);
                 xhr_.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
                 xhr_.onload = function () {
                   if (xhr_.responseText && xhr_.responseText.trim().length > 0) {
-
                     var jsonData = JSON.parse(xhr_.responseText);
-
                     if (jsonData.json) { //TODO: couchbase specific
                       jsonData = jsonData.json;
                     }
-
                     if (jsonData && self.metadata) {
                       for (var j in self.metadata.fieldDescriptors) {
                         var fd = self.metadata.fieldDescriptors[j];
-
                         if (fd.attributes && fd.attributes.extended) {
                           Vue.set(row, fd.name, jsonData[fd.name]);
                         }
-
                       }
-
                     }
                   }
                 }
                 xhr_.send(); //TODO: must be reduced for only the tenant properties
-
               }
-
             }
-          }
-          xhr.send();
+          });
         }
       },
 

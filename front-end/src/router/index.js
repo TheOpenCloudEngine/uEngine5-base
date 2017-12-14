@@ -69,7 +69,8 @@ Vue.http.interceptors.push(function (request, next) {
  * Hybind
  */
 var access_token = localStorage["access_token"];
-var backend = hybind(ServiceLocator.methods.getServiceHost(), {headers:{'access_token': access_token}});
+//var backend = hybind(ServiceLocator.methods.getServiceHost(), {headers:{'access_token': access_token}});
+var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
 
 
 /**

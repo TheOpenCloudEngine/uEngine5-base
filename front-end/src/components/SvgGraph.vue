@@ -9,130 +9,129 @@
           </bpmn-tree-list>
         </md-list>
       </md-layout>
-      <md-layout md-flex="80" @contextmenu.native="openMenu" @mousedown.native="closeMenu">
+      <md-layout @contextmenu.native="openMenu" @mousedown.native="closeMenu">
+      
         <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
                   :definition.sync="definition"
                   :monitor="monitor"
+                  :backend="backend"
                   v-on:bpmnReady="bindEvents">
         </bpmn-vue>
+        
+        <md-card v-if="!monitor" class="tools" style="top:100px;">
+          <span v-for="item in dragItems"
+                class="icons draggable"
+                :class="item.icon"
+                :_component="item.component"
+                :_width="item.width"
+                :_height="item.height">
+            <md-tooltip md-direction="right">{{item.label}}</md-tooltip>
+          </span>
+        </md-card>
+        <md-card v-if="!monitor" class="tools" style="top:362px;">
+          <span class="icons fa fa-undo" v-on:click="undo" style="margin-left:7px;">
+            <md-tooltip md-direction="right">Undo</md-tooltip>
+          </span>
+          <span class="icons fa fa-repeat" v-on:click="redo" style="margin-left:7px;">
+            <md-tooltip md-direction="right">Redo</md-tooltip>
+          </span>          
+        </md-card>
+        
+        <!--md-card v-if="!monitor" class="import">
+          <md-layout>
+            <md-layout>
+              <span class="icons fa fa-folder-open"></span>
+            </md-layout>
+            <md-layout>
+              <span class="icons fa fa-cloud-upload"></span>
+            </md-layout>
+          </md-layout>
+        </md-card-->
+  
+        <!--md-card v-if="!monitor" class="export">
+          <md-layout>
+            <md-layout>
+              <span class="icons fa fa-download"></span>
+            </md-layout>
+            <md-layout>
+              <span class="icons fa fa-picture-o"></span>
+            </md-layout>
+          </md-layout>
+        </md-card-->
+  
+        <!--md-card v-if="!monitor" class="history">
+          <md-layout>
+            <md-layout>
+              <span class="icons fa fa-undo" v-on:click="undo"></span>
+            </md-layout>
+            <md-layout>
+              <span class="icons fa fa-repeat" v-on:click="redo"></span>
+            </md-layout>
+          </md-layout>
+        </md-card-->
+  
+        <!--md-card v-if="!monitor" class="zoom">
+          <span class="icons fa fa-arrows-alt"></span>
+          <hr class="separator">
+          <span class="icons fa fa-plus-square-o"></span>
+          <span class="icons fa fa-minus-square-o"></span>
+        </md-card-->        
+        
         <md-layout>
-          <md-layout md-flex="50">
-            <md-card v-if="!monitor" class="tools">
-              <!--<span class="icons bpmn-icon-hand-tool">-->
-                <!--<md-tooltip md-direction="right">hand</md-tooltip>-->
-              <!--</span>-->
-              <!--<span class="icons bpmn-icon-lasso-tool">-->
-                <!--<md-tooltip md-direction="right">lasso</md-tooltip>-->
-              <!--</span>-->
-              <!--<span class="icons bpmn-icon-space-tool">-->
-                <!--<md-tooltip md-direction="right">space</md-tooltip>-->
-              <!--</span>-->
-              <!--<span class="icons bpmn-icon-connection-multi">-->
-                <!--<md-tooltip md-direction="right">connection multi</md-tooltip>-->
-              <!--</span>-->
 
-              <hr class="separator">
-
-              <span v-for="item in dragItems"
-                    class="icons draggable"
-                    :class="item.icon"
-                    :_component="item.component"
-                    :_width="item.width"
-                    :_height="item.height">
-                <md-tooltip md-direction="right">{{item.label}}</md-tooltip>
-              </span>
-            </md-card>
-
-            <md-card v-if="!monitor" class="import">
-              <md-layout>
-                <md-layout>
-                  <span class="icons fa fa-folder-open"></span>
-                </md-layout>
-                <md-layout>
-                  <span class="icons fa fa-cloud-upload"></span>
-                </md-layout>
-              </md-layout>
-            </md-card>
-
-            <md-card v-if="!monitor" class="export">
-              <md-layout>
-                <md-layout>
-                  <span class="icons fa fa-download"></span>
-                </md-layout>
-                <md-layout>
-                  <span class="icons fa fa-picture-o"></span>
-                </md-layout>
-              </md-layout>
-            </md-card>
-
-            <md-card v-if="!monitor" class="history">
-              <md-layout>
-                <md-layout>
-                  <span class="icons fa fa-undo" v-on:click="undo"></span>
-                </md-layout>
-                <md-layout>
-                  <span class="icons fa fa-repeat" v-on:click="redo"></span>
-                </md-layout>
-              </md-layout>
-            </md-card>
-
-            <md-card v-if="!monitor" class="zoom">
-              <span class="icons fa fa-arrows-alt"></span>
-
-              <hr class="separator">
-
-              <span class="icons fa fa-plus-square-o"></span>
-              <span class="icons fa fa-minus-square-o"></span>
-            </md-card>
+          <!--프로세스 아이디-->
+          <md-layout v-if="!monitor">
+            <md-input-container>
+              <label>Process Name</label>
+              <md-input v-model="definitionName" type="text"></md-input>
+            </md-input-container>
           </md-layout>
-          <md-layout md-flex="50">
 
-            <!--프로세스 아이디-->
-            <md-layout v-if="!monitor">
-              <md-input-container>
-                <label>Process Name</label>
-                <md-input v-model="definitionName" type="text"></md-input>
-              </md-input-container>
-            </md-layout>
+          <!--프로세스 세이브-->
+          <md-layout v-if="!monitor">
+            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
+              <md-icon>save</md-icon>
+            </md-button>
+          </md-layout>
 
-            <!--인스턴스 이름-->
-            <md-layout v-if="monitor">
-              <md-input-container>
-                <label>Instance Name</label>
-                <md-input v-model="definitionName" type="text" readonly></md-input>
-              </md-input-container>
-            </md-layout>
-
-            <!--프로세스 세이브-->
-            <md-layout v-if="!monitor">
-              <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
-                <md-icon>save</md-icon>
-              </md-button>
-            </md-layout>
-
-            <!--프로세스 변수-->
-            <md-layout v-if="!monitor">
-              <md-select v-model="definition._selectedLocale" @change="changeLocale">Locale
+          <!--프로세스 변수-->
+          <md-layout v-if="!monitor">
+            <md-input-container>
+              <label>Language</label>
+              <md-select v-model="selectedLocale" @change="changeLocale">
+                <md-option value="ko">Korean</md-option>              
                 <md-option value="en">English</md-option>
-                <md-option value="ko">Korean</md-option>
               </md-select>
-              <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable
-              </md-button>
-              <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings
-              </md-button>
-            </md-layout>
-
-            <md-layout v-if="monitor">
-              <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
-              <user-picker
-                :id="id"
-                ref="userPicker"
-                :roles="definition.roles"
-                v-if="definition"
-                style="min-width: 70%;"></user-picker>
-            </md-layout>
-
+            </md-input-container>
           </md-layout>
+          
+          <md-layout v-if="!monitor">              
+            <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings</md-button>
+          </md-layout>
+          <md-layout v-if="!monitor">
+            <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable</md-button>
+          </md-layout>
+          
+          <!--인스턴스 이름-->
+          <md-layout v-if="monitor">
+            <md-input-container>
+              <label>Instance Name</label>
+              <md-input v-model="definitionName" type="text" readonly></md-input>
+            </md-input-container>
+          </md-layout>
+          
+          <md-layout v-if="monitor">
+            <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
+            <user-picker
+              :id="id"
+              ref="userPicker"
+              :roles="definition.roles"
+              v-if="definition"
+              style="min-width: 70%;"></user-picker>
+          </md-layout>
+          
+          <md-layout></md-layout>
+          
         </md-layout>
       </md-layout>
     </md-layout>
@@ -151,10 +150,9 @@
     },
     data() {
       return {
-        aaa: 'AAA',
         id: null,
         path: '',
-        definition: null,
+        definition: null,        
         definitionName: null,
         processVariables: [],
         dialog: false,
@@ -165,67 +163,74 @@
           {
             'icon': 'bpmn-icon-start-event-none',
             'component': 'bpmn-start-event',
+            'label': 'Start Event',
             'width': '30',
             'height': '30'
           },
           {
             'icon': 'bpmn-icon-intermediate-event-none',
             'component': 'bpmn-intermediate-event',
+            'label': 'Intermediate Event',
             'width': '30',
             'height': '30'
           },
           {
             'icon': 'bpmn-icon-end-event-none',
             'component': 'bpmn-end-event',
+            'label': 'End Event',
             'width': '30',
             'height': '30'
           },
           {
             'icon': 'bpmn-icon-gateway-xor',
             'component': 'bpmn-exclusive-gateway',
+            'label': 'Gateway',
             'width': '40',
             'height': '40'
           },
           {
             'icon': 'bpmn-icon-task',
             'component': 'bpmn-task',
+            'label': 'Task',
             'width': '100',
             'height': '100'
           },
-          {
-            'icon': 'bpmn-icon-subprocess-expanded',
-            'component': 'bpmn-subprocess',
-            'width': '200',
-            'height': '150'
-          },
-          {
-            'icon': 'bpmn-icon-data-object',
-            'component': 'bpmn-data-object',
-            'width': '50',
-            'height': '50'
-          },
-          {
-            'icon': 'bpmn-icon-data-store',
-            'component': 'bpmn-data-store',
-            'width': '50',
-            'height': '50'
-          },
-          {
-            'icon': 'bpmn-icon-lane',
-            'component': 'bpmn-pool',
-            'width': '300',
-            'height': '300'
-          },
+//          {
+//            'icon': 'bpmn-icon-subprocess-expanded',
+//            'component': 'bpmn-subprocess',
+//            'width': '200',
+//            'height': '150'
+//          },
+//          {
+//            'icon': 'bpmn-icon-data-object',
+//            'component': 'bpmn-data-object',
+//            'width': '50',
+//            'height': '50'
+//          },
+//          {
+//            'icon': 'bpmn-icon-data-store',
+//            'component': 'bpmn-data-store',
+//            'width': '50',
+//            'height': '50'
+//          },
+//          {
+//            'icon': 'bpmn-icon-lane',
+//            'component': 'bpmn-pool',
+//            'width': '300',
+//            'height': '300'
+//          },
           {
             'icon': 'bpmn-icon-participant',
             'component': 'bpmn-role',
+            'label': 'Role Lane',
             'width': '400',
             'height': '200'
           }
         ],
         trees: [],
         treeData: {},
-        bthTracingTag: ""
+        bthTracingTag: "",
+        selectedLocale: ""        
       }
     },
     computed: {},
@@ -234,30 +239,22 @@
     mounted() {
       var me = this;
       me.setMode();
-
       // If the menu element is clicked
       $(".custom-menu li").click(function(){
         // This is the triggered action name
         switch($(this).attr("data-action")) {
-
           // A case for each action. Your actions here
           case "backToHere":
             me.onBackToHere();
             break;
         }
-
         // Hide it AFTER the action was triggered
         $(".custom-menu").hide(0);
-      });
+      });   
     },
 
     //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
     watch: {
-      aaa: function (after, before) {
-        //after => 바뀐 후 값
-        //before => 바뀌기 전.
-        console.log('after,before', after, before);
-      },
       '$route'(to, from) {
         this.setMode();
       }
@@ -330,45 +327,31 @@
         } else {
           me.getDefinition();
         }
-      }
-      ,
+      },
 
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
-
         var instance = {};
         me.backend.$bind("instance/" + me.id, instance);
-
         instance.$load().then(function () {
-
           instance.definition.$load().then(function (definition) {
             me.definitionName = definition.name;
-
             definition.raw.$load().then(function (raw_definition) {
               me.getStatus(function (result) {
-
                 var definition = raw_definition.definition;
-
                 for (var key in definition.childActivities[1]) {
-
                   //데이터 꾸미기 status 로 definition 바꾸기.
                   if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
                     definition.childActivities[1][key]["status"] = result.status;
                   }
                   definition.status = result.status;
                   me.definition = definition;
-
                 }
-
               });
-
             });
-
           });
-
         });
-
       }
       ,
       //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
@@ -503,40 +486,32 @@
               'java.util.ArrayList',
               []
             ],
-            processVariableDescriptors: [
-                {
-                  _type: 'org.uengine.kernel.ProcessVariable',
-                  name: 'Var1',
-              },
-
-            ],
-            'roles': [{
-                _type: 'org.uengine.kernel.Role',
-                name: 'initiator'
-            }],
+//            processVariableDescriptors: [{
+//              _type: 'org.uengine.kernel.ProcessVariable',
+//              name: 'Var1',
+//            }],
+//            'roles': [{
+//                _type: 'org.uengine.kernel.Role',
+//                name: 'initiator'
+//            }],
             'sequenceFlows': [],
-
-              ///
-            _selectedLocale: 'ko',
-            _changedByLocaleSelector: false,
-
+            _selectedLocale: '',
+            _changedByLocaleSelector: false            
           }
-
-          //ajax call to load process varaible list.
-
-          $.ajax('processvariables')
+          me.selectedLocale = 'ko';
+          me.changeLocale();            
         }
         else {
           var url = 'definition/raw/' + me.path + me.id + '.json';
           this.$root.codi(url).get().then(function (response) {
             me.definition = response.data.definition;
+            me.definition._selectedLocale = '';
+            me.definition._changedByLocaleSelector = false;
             me.definitionName = me.definition.name.text;
-
-            me._selectedLocale = 'ko';
-            me._changedByLocaleSelector =false;
-
+            me.selectedLocale = 'en';
+            me.changeLocale();
           })
-        }
+        }      
       }
       ,
       save: function () {
@@ -664,21 +639,18 @@
           me.getStatus();
         });
       },
-      changeLocale(){
-        this.definition._changedByLocaleSelector = true;
-
-        //TODO: 현재 locale 로
-
+      changeLocale() {
         var me = this;
-        this.definition.childActivities[1].forEach(function(activity){
-
-            if(activity && activity.name && activity.name.localedTexts)
-              activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
-
+        me.definition._selectedLocale = me.selectedLocale;
+        me.definition._changedByLocaleSelector = true;
+        me.definition.childActivities[1].forEach(function(activity) {
+          if (activity && activity.name && activity.name.localedTexts) {
+            if (activity.name.localedTexts[me.selectedLocale]) {
+              activity.name.text = activity.name.localedTexts[me.selectedLocale];
+            }
+          }
         });
-
       }
-
     }
   }
 </script>
