@@ -514,7 +514,7 @@
   }
 
   .md-theme-default .folder-card {
-    width: 500px;
+    width: 100%;
     height: 80%;
     cursor:pointer
   }
