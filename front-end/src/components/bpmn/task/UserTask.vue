@@ -145,17 +145,15 @@
       },
 
       activity: {
-        handler: function(newVal){
-            if(!this.definition._changedByLocaleSelector) {
-
-                if(!this.activity.name.localedTexts)
-                    this.activity.name.localedTexts={
-                      _type: 'java.util.HashMap'
-                    };
-
-                this.activity.name.localedTexts[this.definition._selectedLocale] = this.activity.name.text;
+        handler: function(newVal) {
+          if (!this.definition._changedByLocaleSelector) {
+            if (!this.activity.name.localedTexts) {
+              this.activity.name.localedTexts = {
+                _type: 'java.util.HashMap'
+              };
             }
-
+            this.activity.name.localedTexts[this.definition._selectedLocale] = this.activity.name.text;
+          }
           this.definition._changedByLocaleSelector = false;
         },
         deep: true
