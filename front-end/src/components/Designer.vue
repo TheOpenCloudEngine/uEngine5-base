@@ -1,5 +1,6 @@
 <template>
   <div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
       <md-button class="md-fab" md-fab-trigger>
         <md-icon md-icon-morph>ondemand_video</md-icon>
@@ -11,25 +12,10 @@
       </md-button>
 
       <md-button class="md-fab md-primary md-mini md-clean"
-                 id="newPackage"
                  @click.native="selectedPackge = {}; $refs['create'].open()">
         <md-icon>folder</md-icon>
       </md-button>
     </md-speed-dial>
-
-    <new-package
-      ref="newPackage"
-      :currentPath="current"
-      :directory.sync="directory"
-      :cards.sync="cards"
-      style="min-width: 70%;"></new-package>
-    <!--    <md-layout>
-          <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
-          <md-button class="md-raised md-primary" id="newPackage"
-                     @click.native="selectedPackge = {}; $refs['create'].open()">
-            New Package
-          </md-button>
-        </md-layout>-->
     <div class="side-margin">
       <md-layout>
         <ul class="breadcrumb">
@@ -61,14 +47,16 @@
                   <md-menu md-direction="bottom-end">
                     <md-icon class="folder-menu" md-menu-trigger>more_vert</md-icon>
                     <md-menu-content>
-                      <md-menu-item id="renamePackage"
-                                    @click.native="selectedPackge = {'name' : item.name, 'path' : item.path}; $refs['update'].open()">
+                      <md-menu-item
+                        @click.native="selectedPackge = {'name' : item.name, 'path' : item.path}; $refs['update'].open()">
                         <span>Rename</span>
                         <md-icon>edit</md-icon>
                       </md-menu-item>
-
-                      <md-menu-item id="deletePackage"
-                                    @click.native="selectedPackge = item; $refs['delete'].open()">
+                      <md-menu-item @click.native="originPackage = item.path; $refs['move'].open();">
+                        <span>Move</span>
+                        <md-icon>folder_open</md-icon>
+                      </md-menu-item>
+                      <md-menu-item @click.native="selectedPackge = item; $refs['delete'].open()">
                         <span>Delete</span>
                         <md-icon>delete</md-icon>
                       </md-menu-item>
@@ -112,7 +100,10 @@
                 <md-button v-on:click="move(card)">Edit</md-button>
               </md-card-actions>
               <md-card-actions>
-                <md-button id="movePackage" @click="movePackage(card.name)">Move</md-button>
+                <md-button
+                  @click.native="originPackage = card.path; $refs['move'].open();">
+                  Move
+                </md-button>
                 <md-button v-on:click="deleteProcess(card.name, card.packagePath)">Delete</md-button>
               </md-card-actions>
             </md-card>
@@ -120,18 +111,45 @@
         </md-layout>
       </md-layout>
     </div>
-
+    <!-- Move Form -->
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="move">
+      <md-dialog-title>Move Pacakge</md-dialog-title>
+      <md-dialog-content>
+        <md-input-container>
+          <label>Move Package List</label>
+          <md-select v-model="selectedPackge" class="select-option">
+            <md-option v-if="current !== package.path"
+                       v-for="package in breadcrumb" :value="package.path">
+              <span class="package-name">{{package.name}}</span>
+            </md-option>
+            <md-subheader v-if="current == ''" class="package-title">Home</md-subheader>
+            <md-subheader v-if="current !== ''" class="package-title">
+              {{current.substring(current.lastIndexOf("/")+1, current.length)}}
+            </md-subheader>
+            <md-option v-for="package in directory" :value="package.path">
+              <md-icon class="fa fa-angle-right"></md-icon>
+              <span class="package-name">{{package.name}}</span>
+            </md-option>
+          </md-select>
+        </md-input-container>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click.native="moveClose(); $refs['move'].close()">Move</md-button>
+        <md-button class="md-primary" @click.native="$refs['move'].close()">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <!-- Update Form -->
     <!-- Insert Form -->
     <md-dialog md-open-from="#fab" md-close-to="#fab" ref="create">
       <md-dialog-title>New Package</md-dialog-title>
       <md-dialog-content>
         <md-input-container>
           <label>Package Name</label>
-          <md-input v-model="selectedPackge.name" type="text"></md-input>
+          <md-input v-model="selectedPackge.name" type="text" ></md-input>
         </md-input-container>
       </md-dialog-content>
       <md-dialog-actions>
-        <md-button class="md-primary" @click.native="InsertClose(); $refs['create'].close()">Create</md-button>
+        <md-button class="md-primary" @click.native="insertClose(); $refs['create'].close()">Create</md-button>
         <md-button class="md-primary" @click.native="$refs['create'].close()">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
@@ -184,7 +202,8 @@
         processName: "",
         draggableItem: "",
         selectedPackge: "",
-        folderName: ""
+        folderName: "",
+        originPackage: {}
       }
     },
     created: function () {
@@ -212,8 +231,6 @@
         var me = this;
         if(type == "folder") {
           me.folderName = item.name;
-        } else if (type == "navigation") {
-          console.log("onDragenter : ", this);
         }
       },
       onDragLeave: function (item, type) {
@@ -226,7 +243,6 @@
         }
       },
       drop: function (item) {
-        var me = this;
         //드래그 앤 드롭으로 패키지 및 프로세스를 이동시킨다.
         var me = this;
         var src = 'definition/' + me.draggableItem.path;
@@ -235,24 +251,26 @@
         if(path.indexOf("/") <= 0) path = path.substring(1, path.length);
 
         var packages = {path: path};
+        this.onMove(src, packages);
+      },
+      onMove: function(src, packages) {
+        src = src.replace(".xml", ".json");
+
+        var me = this;
         me.backend.$bind(src, packages);
         packages.$save().then(
           function (response) {
             me.$root.$children[0].success('이동되었습니다.');
             me.getDefinitionList(me.current);
             me.folderName = "";
+            me.selectedPackge = "";
           },
           function (response) {
             me.$root.$children[0].error('이동할 수 없습니다.');
+            me.folderName = "";
+            me.selectedPackge = "";
           }
         );
-      },
-      newPackage(ref) {
-        this.$refs['newPackage'].openPackage();
-      },
-      movePackage(ref) {
-        this.processName = ref;
-        this.$refs['movePackage'].openPackage();
       },
       selectedFolder: function (_folder) {
         this.current += "/" + _folder;
@@ -393,7 +411,23 @@
             }
           );
       },
-      InsertClose: function () {
+      moveClose: function () {
+        var me = this;
+        var src = "definition/" + me.originPackage;
+        var path = me.selectedPackge;
+        var fileName = src.substring(src.lastIndexOf("/"), src.length);
+        path = path + fileName;
+
+        //path 값의 앞에 / 가 붙을 경우 uengine5에서 제공하는 API에 어긋나는 path 값이 들어가게 된다.
+        //따라서, /의 위치를 확인하고 맨 앞에 올 시 잘라내줘야 한다.
+        if(path.indexOf("/") == 0) {
+          path = path.substring(1, path.length);
+        }
+
+        var packages = {path: path};
+        this.onMove(src, packages);
+      },
+      insertClose: function () {
         var me = this;
         var path = me.current;
         if (path !== "") path += "/";
@@ -436,7 +470,6 @@
             me.getDefinitionList(me.current);
           },
           function (response) {
-            console.log('test ', response);
             me.$root.$children[0].error('변경할 수 없습니다.');
           }
         );
@@ -463,8 +496,12 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-  .mt-100 {
-    margin-top: 50px;
+  .package-name {
+    font-size: 15px;
+  }
+
+  .package-title {
+    font-size: 15px;
   }
 
   .md-layout {
@@ -556,6 +593,11 @@
     color: #01447e;
     background-color: #dadada;
     text-decoration: none;
+  }
+
+  /** move select box */
+  .select-option {
+    width: 250px;
   }
 
 </style>
