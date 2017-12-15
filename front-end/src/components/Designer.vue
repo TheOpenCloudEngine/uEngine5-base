@@ -233,7 +233,9 @@
         me.folderName = "";
         me.navigationName = "";
         me.selectedPackge = "";
-        console.log('focus is fade out', me.folderName);
+        //해당 콘솔을 지워버리면 folder 상태가 hover 상태에서 풀리지 않습니다.
+        //콘솔을 지우지 말아주세요.
+        console.log('focus was fade out', me.folderName);
       },
     },
     methods: {
