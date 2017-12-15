@@ -16,16 +16,21 @@
         <md-icon>folder</md-icon>
       </md-button>
     </md-speed-dial>
+    <md-layout>
+      <ul class="breadcrumb">
+        <li v-for="item in breadcrumb" @dragover.prevent @drop="drop(item)">
+            <span v-on:click="selectedNavigation(item.path, item.seq)"
+                  @dragleave="onDragLeave()"
+                  @dragenter="onDragenter(item)"
+                  @mouseover="navigationName = item.name" @mouseout="navigationName = ''"
+                  class="breadcrumb-list"
+                  :class="{ 'breadcrumb-list-hover' : item.name == navigationName}">
+              {{item.name}}
+            </span>
+        </li>
+      </ul>
+    </md-layout>
     <div class="side-margin">
-      <md-layout>
-        <ul class="breadcrumb">
-          <li v-for="item in breadcrumb" @dragover.prevent @drop="drop(item)"
-              @dragleave="onDragLeave(item, 'navigation')"
-              @dragenter="onDragenter(item, 'navigation')">
-            <a v-on:click="selectedNavigation(item.path, item.seq)" style="cursor:pointer">{{item.name}}</a>
-          </li>
-        </ul>
-      </md-layout>
       <md-layout v-if="directory.length > 0">
         Package
       </md-layout>
@@ -36,8 +41,8 @@
                      draggable="true"
                      @dragstart.native="dragover(item)"
                      @drop.native="drop(item)"
-                     @dragleave.native="onDragLeave(item, 'folder')"
-                     @dragenter.native="onDragenter(item, 'folder')"
+                     @dragleave.native="onDragLeave()"
+                     @dragenter.native="onDragenter(item)"
           >
             <md-card class="folder-card" @dblclick.native="selectedFolder(item.name)" :class="{ 'folder-hover' : item.name == folderName }">
               <md-card-header>
@@ -203,6 +208,7 @@
         draggableItem: "",
         selectedPackge: "",
         folderName: "",
+        navigationName: "",
         originPackage: {}
       }
     },
@@ -221,26 +227,33 @@
       });
       this.getDefinitionList('');
     },
+    computed: {
+      unHover: function () {
+        var me = this;
+        me.folderName = "";
+        me.navigationName = "";
+        me.selectedPackge = "";
+        console.log('focus is fade out', me.folderName);
+      },
+    },
     methods: {
       dragover: function (item) {
         var me = this;
         me.draggableItem = [];
         me.draggableItem = item;
       },
-      onDragenter: function (item, type) {
+      onDragenter: function (item) {
         var me = this;
-        if(type == "folder") {
-          me.folderName = item.name;
-        }
+        me.folderName = item.name;
+        me.navigationName = item.name;
       },
-      onDragLeave: function (item, type) {
+      onDragLeave: function () {
         var me = this;
-        if(type == "folder") {
-          var parent = event.fromElement.parentElement.className;
-          if(parent.match("md-layout") != null) {
-            me.folderName = "";
-          }
+        var parent = event.fromElement.parentElement.className;
+        if(parent.match("md-layout") != null) {
+          me.folderName = "";
         }
+        me.navigationName = "";
       },
       drop: function (item) {
         //드래그 앤 드롭으로 패키지 및 프로세스를 이동시킨다.
@@ -262,13 +275,11 @@
           function (response) {
             me.$root.$children[0].success('이동되었습니다.');
             me.getDefinitionList(me.current);
-            me.folderName = "";
-            me.selectedPackge = "";
+            me.unHover;
           },
           function (response) {
             me.$root.$children[0].error('이동할 수 없습니다.');
-            me.folderName = "";
-            me.selectedPackge = "";
+            me.unHover;
           }
         );
       },
@@ -510,7 +521,7 @@
   }
 
   .side-margin {
-    margin: 10px;
+    margin: 15px;
   }
 
   .md-theme-default .folder-card {
@@ -559,40 +570,37 @@
   /*** Breadcrumbs ***/
   /* Style the list */
   ul.breadcrumb {
-    padding: 0px 0px;
+    padding: 0px;
+    margin-bottom: 10px;
     list-style: none;
   }
 
   /* Display list items side by side */
   ul.breadcrumb li {
-    display: inline-block;
+    display: inline;
     font-size: 14px;
   }
 
   /* Add a slash symbol (/) before/behind each list item */
   ul.breadcrumb li+li:before {
-    padding: 8px;
     color: black;
     content: ">\00a0";
   }
 
   ul.breadcrumb li:last-child {
-    padding: 8px;
     color: black;
     font-weight: bolder;
   }
 
   /* Add a color to all links inside the list */
-  ul.breadcrumb li a {
-    color: #0275d8;
-    text-decoration: none;
+  ul.breadcrumb li .breadcrumb-list {
+    cursor:pointer;
+    padding:15px;
   }
-
-  /* Add a color on mouse-over */
-  ul.breadcrumb li a:hover {
-    color: #01447e;
-    background-color: #dadada;
-    text-decoration: none;
+  ul.breadcrumb li .breadcrumb-list-hover {
+    color: #ffffff;
+    background-color: #3f51b5;
+    border-radius: 10px;
   }
 
   /** move select box */
