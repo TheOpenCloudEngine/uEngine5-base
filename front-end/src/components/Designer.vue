@@ -1,6 +1,6 @@
 <template>
   <div>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/external/font-awesome.min.css">
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
       <md-button class="md-fab" md-fab-trigger>
         <md-icon md-icon-morph>ondemand_video</md-icon>
