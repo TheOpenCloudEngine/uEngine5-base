@@ -508,7 +508,7 @@
             me.definition._selectedLocale = '';
             me.definition._changedByLocaleSelector = false;
             me.definitionName = me.definition.name.text;
-            me.selectedLocale = 'en';
+            me.selectedLocale = 'ko';
             me.changeLocale();
           })
         }      
