@@ -9,131 +9,150 @@
           </bpmn-tree-list>
         </md-list>
       </md-layout>
-      <md-layout md-flex="80">
+      <md-layout @contextmenu.native="openMenu" @mousedown.native="closeMenu">
+      
         <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
                   :definition.sync="definition"
                   :monitor="monitor"
+                  :backend="backend"
                   v-on:bpmnReady="bindEvents">
         </bpmn-vue>
+        
+        <md-card v-if="!monitor" class="tools" style="top:100px;">
+          <span v-for="item in dragItems"
+                class="icons draggable"
+                :class="item.icon"
+                :_component="item.component"
+                :_width="item.width"
+                :_height="item.height">
+            <md-tooltip md-direction="right">{{item.label}}</md-tooltip>
+          </span>
+        </md-card>
+        <md-card v-if="!monitor" class="tools" style="top:362px;">
+          <span class="icons fa fa-undo" v-on:click="undo" style="margin-left:7px;">
+            <md-tooltip md-direction="right">Undo</md-tooltip>
+          </span>
+          <span class="icons fa fa-repeat" v-on:click="redo" style="margin-left:7px;">
+            <md-tooltip md-direction="right">Redo</md-tooltip>
+          </span>          
+        </md-card>
+        
+        <!--md-card v-if="!monitor" class="import">
+          <md-layout>
+            <md-layout>
+              <span class="icons fa fa-folder-open"></span>
+            </md-layout>
+            <md-layout>
+              <span class="icons fa fa-cloud-upload"></span>
+            </md-layout>
+          </md-layout>
+        </md-card-->
+  
+        <!--md-card v-if="!monitor" class="export">
+          <md-layout>
+            <md-layout>
+              <span class="icons fa fa-download"></span>
+            </md-layout>
+            <md-layout>
+              <span class="icons fa fa-picture-o"></span>
+            </md-layout>
+          </md-layout>
+        </md-card-->
+  
+        <!--md-card v-if="!monitor" class="history">
+          <md-layout>
+            <md-layout>
+              <span class="icons fa fa-undo" v-on:click="undo"></span>
+            </md-layout>
+            <md-layout>
+              <span class="icons fa fa-repeat" v-on:click="redo"></span>
+            </md-layout>
+          </md-layout>
+        </md-card-->
+  
+        <!--md-card v-if="!monitor" class="zoom">
+          <span class="icons fa fa-arrows-alt"></span>
+          <hr class="separator">
+          <span class="icons fa fa-plus-square-o"></span>
+          <span class="icons fa fa-minus-square-o"></span>
+        </md-card-->        
+        
         <md-layout>
-          <md-layout md-flex="50">
-            <md-card v-if="!monitor" class="tools">
-              <span class="icons bpmn-icon-hand-tool"></span>
-              <span class="icons bpmn-icon-lasso-tool"></span>
-              <span class="icons bpmn-icon-space-tool"></span>
-              <span class="icons bpmn-icon-connection-multi"></span>
 
-              <hr class="separator">
-
-              <span v-for="item in dragItems"
-                    class="icons draggable"
-                    :class="item.icon"
-                    :_component="item.component"
-                    :_width="item.width"
-                    :_height="item.height"
-              ></span>
-            </md-card>
-
-            <md-card v-if="!monitor" class="import">
-              <md-layout>
-                <md-layout>
-                  <span class="icons fa fa-folder-open"></span>
-                </md-layout>
-                <md-layout>
-                  <span class="icons fa fa-cloud-upload"></span>
-                </md-layout>
-              </md-layout>
-            </md-card>
-
-            <md-card v-if="!monitor" class="export">
-              <md-layout>
-                <md-layout>
-                  <span class="icons fa fa-download"></span>
-                </md-layout>
-                <md-layout>
-                  <span class="icons fa fa-picture-o"></span>
-                </md-layout>
-              </md-layout>
-            </md-card>
-
-            <md-card v-if="!monitor" class="history">
-              <md-layout>
-                <md-layout>
-                  <span class="icons fa fa-undo" v-on:click="undo"></span>
-                </md-layout>
-                <md-layout>
-                  <span class="icons fa fa-repeat" v-on:click="redo"></span>
-                </md-layout>
-              </md-layout>
-            </md-card>
-
-            <md-card v-if="!monitor" class="zoom">
-              <span class="icons fa fa-arrows-alt"></span>
-
-              <hr class="separator">
-
-              <span class="icons fa fa-plus-square-o"></span>
-              <span class="icons fa fa-minus-square-o"></span>
-            </md-card>
+          <!--프로세스 아이디-->
+          <md-layout v-if="!monitor">
+            <md-input-container>
+              <label>Process Name</label>
+              <md-input v-model="definitionName" type="text"></md-input>
+            </md-input-container>
           </md-layout>
-          <md-layout md-flex="50">
 
-            <!--프로세스 아이디-->
-            <md-layout v-if="!monitor">
-              <md-input-container>
-                <label>Process Name</label>
-                <md-input v-model="definitionName" type="text"></md-input>
-              </md-input-container>
-            </md-layout>
-
-            <!--인스턴스 이름-->
-            <md-layout v-if="monitor">
-              <md-input-container>
-                <label>Instance Name</label>
-                <md-input v-model="definitionName" type="text" readonly></md-input>
-              </md-input-container>
-            </md-layout>
-
-            <!--프로세스 세이브-->
-            <md-layout v-if="!monitor">
-              <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
-                <md-icon>save</md-icon>
-              </md-button>
-            </md-layout>
-
-            <!--프로세스 변수-->
-            <md-layout v-if="!monitor">
-              <md-button class="md-raised" id="processVariables" @click="openProcessVariables">ProcessVariable
-              </md-button>
-            </md-layout>
-
-            <md-layout v-if="monitor">
-              <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
-              <user-picker
-                :id="id"
-                ref="userPicker"
-                :roles="definition.roles"
-                v-if="definition"
-                style="min-width: 70%;"></user-picker>
-            </md-layout>
-
+          <!--프로세스 세이브-->
+          <md-layout v-if="!monitor">
+            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
+              <md-icon>save</md-icon>
+            </md-button>
           </md-layout>
+
+          <!--프로세스 변수-->
+          <md-layout v-if="!monitor">
+            <md-input-container>
+              <label>Language</label>
+              <md-select v-model="selectedLocale" @change="changeLocale">
+                <md-option value="ko">Korean</md-option>              
+                <md-option value="en">English</md-option>
+              </md-select>
+            </md-input-container>
+          </md-layout>
+          
+          <md-layout v-if="!monitor">              
+            <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings</md-button>
+          </md-layout>
+          <md-layout v-if="!monitor">
+            <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable</md-button>
+          </md-layout>
+          
+          <!--인스턴스 이름-->
+          <md-layout v-if="monitor">
+            <md-input-container>
+              <label>Instance Name</label>
+              <md-input v-model="definitionName" type="text" readonly></md-input>
+            </md-input-container>
+          </md-layout>
+          
+          <md-layout v-if="monitor">
+            <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
+            <user-picker
+              :id="id"
+              ref="userPicker"
+              :roles="definition.roles"
+              v-if="definition"
+              style="min-width: 70%;"></user-picker>
+          </md-layout>
+          
+          <md-layout></md-layout>
+          
         </md-layout>
       </md-layout>
     </md-layout>
+    <!--Back to Here Menu Start -->
+    <ul class='custom-menu'>
+      <li data-action="backToHere">Back To Here</li>
+    </ul>
+    <!--Back to Here Menu End -->
   </div>
 </template>
 <script>
   export default {
     props: {
-      monitor: Boolean
+      monitor: Boolean,
+      backend: Object
     },
     data() {
       return {
-        aaa: 'AAA',
         id: null,
         path: '',
-        definition: null,
+        definition: null,        
         definitionName: null,
         processVariables: [],
         dialog: false,
@@ -144,66 +163,74 @@
           {
             'icon': 'bpmn-icon-start-event-none',
             'component': 'bpmn-start-event',
+            'label': 'Start Event',
             'width': '30',
             'height': '30'
           },
           {
             'icon': 'bpmn-icon-intermediate-event-none',
             'component': 'bpmn-intermediate-event',
+            'label': 'Intermediate Event',
             'width': '30',
             'height': '30'
           },
           {
             'icon': 'bpmn-icon-end-event-none',
             'component': 'bpmn-end-event',
+            'label': 'End Event',
             'width': '30',
             'height': '30'
           },
           {
             'icon': 'bpmn-icon-gateway-xor',
             'component': 'bpmn-exclusive-gateway',
+            'label': 'Gateway',
             'width': '40',
             'height': '40'
           },
           {
             'icon': 'bpmn-icon-task',
             'component': 'bpmn-task',
+            'label': 'Task',
             'width': '100',
             'height': '100'
           },
-          {
-            'icon': 'bpmn-icon-subprocess-expanded',
-            'component': 'bpmn-subprocess',
-            'width': '200',
-            'height': '150'
-          },
-          {
-            'icon': 'bpmn-icon-data-object',
-            'component': 'bpmn-data-object',
-            'width': '50',
-            'height': '50'
-          },
-          {
-            'icon': 'bpmn-icon-data-store',
-            'component': 'bpmn-data-store',
-            'width': '50',
-            'height': '50'
-          },
-          {
-            'icon': 'bpmn-icon-lane',
-            'component': 'bpmn-pool',
-            'width': '300',
-            'height': '300'
-          },
+//          {
+//            'icon': 'bpmn-icon-subprocess-expanded',
+//            'component': 'bpmn-subprocess',
+//            'width': '200',
+//            'height': '150'
+//          },
+//          {
+//            'icon': 'bpmn-icon-data-object',
+//            'component': 'bpmn-data-object',
+//            'width': '50',
+//            'height': '50'
+//          },
+//          {
+//            'icon': 'bpmn-icon-data-store',
+//            'component': 'bpmn-data-store',
+//            'width': '50',
+//            'height': '50'
+//          },
+//          {
+//            'icon': 'bpmn-icon-lane',
+//            'component': 'bpmn-pool',
+//            'width': '300',
+//            'height': '300'
+//          },
           {
             'icon': 'bpmn-icon-participant',
             'component': 'bpmn-role',
+            'label': 'Role Lane',
             'width': '400',
             'height': '200'
           }
         ],
         trees: [],
-        treeData: {}
+        treeData: {},
+        bthTracingTag: "",
+        selectedLocale: ""        
       }
     },
     computed: {},
@@ -212,15 +239,22 @@
     mounted() {
       var me = this;
       me.setMode();
+      // If the menu element is clicked
+      $(".custom-menu li").click(function(){
+        // This is the triggered action name
+        switch($(this).attr("data-action")) {
+          // A case for each action. Your actions here
+          case "backToHere":
+            me.onBackToHere();
+            break;
+        }
+        // Hide it AFTER the action was triggered
+        $(".custom-menu").hide(0);
+      });   
     },
 
     //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
     watch: {
-      aaa: function (after, before) {
-        //after => 바뀐 후 값
-        //before => 바뀌기 전.
-        console.log('after,before', after, before);
-      },
       '$route'(to, from) {
         this.setMode();
       }
@@ -228,6 +262,9 @@
     methods: {
       openProcessVariables() {
         this.$refs['bpmn-vue'].openProcessVariables();
+      },
+      openDefinitionSettings() {
+        this.$refs['bpmn-vue'].openDefinitionSettings();
       },
       bindEvents: function (opengraph) {
         //this.$el
@@ -290,48 +327,31 @@
         } else {
           me.getDefinition();
         }
-      }
-      ,
+      },
 
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
-
-        var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
-
         var instance = {};
-        backend.$bind("instance/" + me.id, instance);
-
-        instance.$load().then(function(){
-
-            instance.definition.$load().then(function(definition){
-              me.definitionName = definition.name;
-
-              definition.raw.$load().then(function(raw_definition){
-                me.getStatus(function (result) {
-
-                    var definition = raw_definition.definition;
-
-                  for (var key in definition.childActivities[1]) {
-
-                    //데이터 꾸미기 status 로 definition 바꾸기.
-                    if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
-                      definition.childActivities[1][key]["status"] = result.status;
-                    }
-                    definition.status = result.status;
-                    me.definition = definition;
-
+        me.backend.$bind("instance/" + me.id, instance);
+        instance.$load().then(function () {
+          instance.definition.$load().then(function (definition) {
+            me.definitionName = definition.name;
+            definition.raw.$load().then(function (raw_definition) {
+              me.getStatus(function (result) {
+                var definition = raw_definition.definition;
+                for (var key in definition.childActivities[1]) {
+                  //데이터 꾸미기 status 로 definition 바꾸기.
+                  if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
+                    definition.childActivities[1][key]["status"] = result.status;
                   }
-
-                });
-
+                  definition.status = result.status;
+                  me.definition = definition;
+                }
               });
-
             });
-
+          });
         });
-
       }
       ,
       //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
@@ -450,8 +470,8 @@
       getDefinition: function () {
         var me = this;
         me.id = me.$route.params.id;
-        if(me.$route.params.path) {
-          var pathSplit = me.$route.params.path.split('_');
+        if (me.$route.params.path) {
+          var pathSplit = me.$route.params.path.split('-');
           for (var i = 0; i < pathSplit.length; i++) {
             me.path += pathSplit[i] + "/";
           }
@@ -461,36 +481,53 @@
           me.definition = {
             _type: 'org.uengine.kernel.ProcessDefinition',
             name: {},
+            shortDescription: '',
             childActivities: [
               'java.util.ArrayList',
               []
             ],
-            'roles': [],
-            'sequenceFlows': []
+//            processVariableDescriptors: [{
+//              _type: 'org.uengine.kernel.ProcessVariable',
+//              name: 'Var1',
+//            }],
+//            'roles': [{
+//                _type: 'org.uengine.kernel.Role',
+//                name: 'initiator'
+//            }],
+            'sequenceFlows': [],
+            _selectedLocale: '',
+            _changedByLocaleSelector: false            
           }
+          me.selectedLocale = 'ko';
+          me.changeLocale();            
         }
         else {
           var url = 'definition/raw/' + me.path + me.id + '.json';
           this.$root.codi(url).get().then(function (response) {
-              me.definition = response.data.definition;
-              me.definitionName = me.definition.name.text;
-            })
-        }
+            me.definition = response.data.definition;
+            me.definition._selectedLocale = '';
+            me.definition._changedByLocaleSelector = false;
+            me.definitionName = me.definition.name.text;
+            me.selectedLocale = 'ko';
+            me.changeLocale();
+          })
+        }      
       }
       ,
       save: function () {
         var me = this;
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
         var definitionToSave = JSON.parse(JSON.stringify(me.definition));
-//        definitionToSave.childActivities[1] = [];
-//        definitionToSave.roles = [];
-        //definitionToSave.sequenceFlows = [];
+        var fileName = me.id;
 
-        if (me.id == 'new-process-definition') {
-          if(me.definitionName !== null) {
-            me.id = me.definitionName;
+        //save 시 확장자는 .json이어야 한다.
+        //확장자가 존재하지 않으면 폴더로 인식한다.
+        if (fileName == 'new-process-definition') {
+          if (me.definitionName !== null) {
+            fileName = me.definitionName;
           }
         }
+        fileName = fileName + ".json";
 
         definitionToSave.name.text = me.definitionName;
 
@@ -517,18 +554,25 @@
           if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
             activity.childActivities[1] = nullFilter(activity.childActivities[1]);
             $.each(activity.childActivities[1], function (i, child) {
+              //롤 배정
+              if (child._type == 'org.uengine.kernel.HumanActivity') {
+                child.role.name =
+                  me.$refs['bpmn-vue'].getWhereRoleAmIByTracingTag(child.tracingTag);
+                console.log('HumanActivity ' + child.name.text + ' saved role as ' + child.role.name);
+              }
               recursiveCheck(child);
             })
           }
         }
-        //액티비티, 릴레이션 널 체크
+        //액티비티, 릴레이션 널 체크, 휴먼 액티비티 롤 배정 (bpmn 패널을 더블클릭하면 배정되나, 안열어보고 배치한 것을 위해 설정)
         recursiveCheck(definitionToSave, null);
 
-        var access_token = localStorage["access_token"];
-        var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
+        //휴먼 액티비티 롤 배정 (bpmn 패널을 더블클릭하면 배정되나, 안열어보고 배치한 것을 위해 설정)
+//        this.activity.role.name =
+//          this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
 
         var definition = {};
-        backend.$bind("definition/raw/" + me.path + me.id + '.json', definition);
+        me.backend.$bind("definition/raw/" + me.path + fileName, definition);
         definition.definition = definitionToSave;
         definition.$save().then(
           function (response) {
@@ -538,21 +582,74 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
-
-//        var data = {definition: definitionToSave};
-//        this.$root.codi('definition/raw/{/id}').save({id: me.id + '.json'}, data)
-//          .then(
-//            function (response) {
-//              me.$root.$children[0].success('저장되었습니다.');
-//            },
-//            function (response) {
-//              me.$root.$children[0].error('저장할 수 없습니다.');
-//            }
-//          );
       }
       ,
       openUserPicker(ref) {
         this.$refs['userPicker'].openUserPicker();
+      },
+      openMenu(event) {
+        var me = this;
+        //인스턴스일 경우에만 오른쪽 버튼 막기
+        if (me.monitor) {
+          me.instanceOpenMenu(event);
+        }
+      },
+      instanceOpenMenu(event) {
+        event.preventDefault(); //오른쪽 버튼 막기
+        var me = this;
+        var childActivities = me.definition.childActivities[1];
+        var _type = "";
+        var _status = "";
+        for (var key in childActivities) {
+          if (childActivities[key].tracingTag == event.toElement.parentNode.id) {
+            _type = childActivities[key]._type;
+            _status = childActivities[key].status;
+            me.bthTracingTag = childActivities[key].tracingTag;
+          }
+        }
+        _type = _type.substring(_type.lastIndexOf('.') + 1, _type.length); // 타입만 나오도록 수정
+
+        //Activity일 경우에 오른쪽 버튼 이벤트 시작
+        if (_type == 'Task' || _type == 'SendTask' || _type == 'ReceiveTask' || _type == 'UserTask' || _type == 'ManualTask' ||
+          _type == 'BusinessTask' || _type == 'ServiceTask' || _type == 'ScriptTask' || _type == 'HumanActivity' || _type == 'DefaultActivity') {
+          //Status가 Completed 일 경우에만 Back To Here 버튼 나오게 수정
+          if (_status == 'Completed') {
+            // Show contextmenu
+            $(".custom-menu").finish().show(0).// In the right position (the mouse)
+            css({
+              top: event.offsetY + "px",
+              left: event.offsetX + "px"
+            });
+          }
+        }
+      },
+      closeMenu() {
+        if (!$(event.target).parents(".custom-menu").length > 0) {
+          // Hide it
+          $(".custom-menu").hide(0);
+        }
+      },
+      onBackToHere() {
+        var me = this;
+        var url = "instance/" + me.id + "/activity/" + me.bthTracingTag + "/backToHere";
+        var instance = {};
+        me.backend.$bind(url, instance);
+        instance.$create().then(function() {
+          me.$root.$children[0].success('작업 내역을 선택한 위치로 되돌렸습니다.');
+          me.getStatus();
+        });
+      },
+      changeLocale() {
+        var me = this;
+        me.definition._selectedLocale = me.selectedLocale;
+        me.definition._changedByLocaleSelector = true;
+        me.definition.childActivities[1].forEach(function(activity) {
+          if (activity && activity.name && activity.name.localedTexts) {
+            if (activity.name.localedTexts[me.selectedLocale]) {
+              activity.name.text = activity.name.localedTexts[me.selectedLocale];
+            }
+          }
+        });
       }
     }
   }
@@ -628,6 +725,34 @@
       left: 280px;
       bottom: 20px;
     }
+  }
+
+  /* The whole thing */
+  .custom-menu {
+    display: none;
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    font-family: sans-serif;
+    background: #FFF;
+    color: #333;
+    border-radius: 5px;
+    padding: 0;
+  }
+
+  /* Each of the items in the list */
+  .custom-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+    list-style-type: none;
+    transition: all .3s ease;
+    user-select: none;
+  }
+
+  .custom-menu li:hover {
+    background-color: #DEF;
   }
 </style>
 

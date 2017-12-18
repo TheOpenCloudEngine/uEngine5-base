@@ -1,5 +1,6 @@
 <template>
   <div>
+    <link rel="stylesheet" href="/static/external/font-awesome.min.css">
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
       <md-button class="md-fab" md-fab-trigger>
         <md-icon md-icon-morph>ondemand_video</md-icon>
@@ -11,35 +12,25 @@
       </md-button>
 
       <md-button class="md-fab md-primary md-mini md-clean"
-                 id="newPackage"
                  @click.native="selectedPackge = {}; $refs['create'].open()">
         <md-icon>folder</md-icon>
       </md-button>
     </md-speed-dial>
-
-    <new-package
-      ref="newPackage"
-      :currentPath="current"
-      :directory.sync="directory"
-      :cards.sync="cards"
-      style="min-width: 70%;"></new-package>
-    <!--    <md-layout>
-          <md-button class="md-raised md-primary" v-on:click="newProcess">New Process</md-button>
-          <md-button class="md-raised md-primary" id="newPackage"
-                     @click.native="selectedPackge = {}; $refs['create'].open()">
-            New Package
-          </md-button>
-        </md-layout>-->
+    <md-layout>
+      <ul class="breadcrumb">
+        <li v-for="item in breadcrumb" @dragover.prevent @drop="drop(item)">
+            <span v-on:click="selectedNavigation(item.path, item.seq)"
+                  @dragleave="onDragLeave()"
+                  @dragenter="onDragenter(item)"
+                  @mouseover="navigationName = item.name" @mouseout="navigationName = ''"
+                  class="breadcrumb-list"
+                  :class="{ 'breadcrumb-list-hover' : item.name == navigationName}">
+              {{item.name}}
+            </span>
+        </li>
+      </ul>
+    </md-layout>
     <div class="side-margin">
-      <md-layout>
-        <ul class="breadcrumb">
-          <li v-for="item in breadcrumb" @dragover.prevent @drop="drop(item)"
-              @dragleave="onDragLeave(item, 'navigation')"
-              @dragenter="onDragenter(item, 'navigation')">
-            <a v-on:click="selectedNavigation(item.path, item.seq)" style="cursor:pointer">{{item.name}}</a>
-          </li>
-        </ul>
-      </md-layout>
       <md-layout v-if="directory.length > 0">
         Package
       </md-layout>
@@ -50,8 +41,8 @@
                      draggable="true"
                      @dragstart.native="dragover(item)"
                      @drop.native="drop(item)"
-                     @dragleave.native="onDragLeave(item, 'folder')"
-                     @dragenter.native="onDragenter(item, 'folder')"
+                     @dragleave.native="onDragLeave()"
+                     @dragenter.native="onDragenter(item)"
           >
             <md-card class="folder-card" @dblclick.native="selectedFolder(item.name)" :class="{ 'folder-hover' : item.name == folderName }">
               <md-card-header>
@@ -61,14 +52,16 @@
                   <md-menu md-direction="bottom-end">
                     <md-icon class="folder-menu" md-menu-trigger>more_vert</md-icon>
                     <md-menu-content>
-                      <md-menu-item id="renamePackage"
-                                    @click.native="selectedPackge = {'name' : item.name, 'path' : item.path}; $refs['update'].open()">
+                      <md-menu-item
+                        @click.native="selectedPackge = {'name' : item.name, 'path' : item.path}; $refs['update'].open()">
                         <span>Rename</span>
                         <md-icon>edit</md-icon>
                       </md-menu-item>
-
-                      <md-menu-item id="deletePackage"
-                                    @click.native="selectedPackge = item; $refs['delete'].open()">
+                      <md-menu-item @click.native="originPackage = item.path; $refs['move'].open();">
+                        <span>Move</span>
+                        <md-icon>folder_open</md-icon>
+                      </md-menu-item>
+                      <md-menu-item @click.native="selectedPackge = item; $refs['delete'].open()">
                         <span>Delete</span>
                         <md-icon>delete</md-icon>
                       </md-menu-item>
@@ -112,7 +105,10 @@
                 <md-button v-on:click="move(card)">Edit</md-button>
               </md-card-actions>
               <md-card-actions>
-                <md-button id="movePackage" @click="movePackage(card.name)">Move</md-button>
+                <md-button
+                  @click.native="originPackage = card.path; $refs['move'].open();">
+                  Move
+                </md-button>
                 <md-button v-on:click="deleteProcess(card.name, card.packagePath)">Delete</md-button>
               </md-card-actions>
             </md-card>
@@ -120,18 +116,45 @@
         </md-layout>
       </md-layout>
     </div>
-
+    <!-- Move Form -->
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="move">
+      <md-dialog-title>Move Pacakge</md-dialog-title>
+      <md-dialog-content>
+        <md-input-container>
+          <label>Move Package List</label>
+          <md-select v-model="selectedPackge" class="select-option">
+            <md-option v-if="current !== package.path"
+                       v-for="package in breadcrumb" :value="package.path">
+              <span class="package-name">{{package.name}}</span>
+            </md-option>
+            <md-subheader v-if="current == ''" class="package-title">Home</md-subheader>
+            <md-subheader v-if="current !== ''" class="package-title">
+              {{current.substring(current.lastIndexOf("/")+1, current.length)}}
+            </md-subheader>
+            <md-option v-for="package in directory" :value="package.path">
+              <md-icon class="fa fa-angle-right"></md-icon>
+              <span class="package-name">{{package.name}}</span>
+            </md-option>
+          </md-select>
+        </md-input-container>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click.native="moveClose(); $refs['move'].close()">Move</md-button>
+        <md-button class="md-primary" @click.native="$refs['move'].close()">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <!-- Update Form -->
     <!-- Insert Form -->
     <md-dialog md-open-from="#fab" md-close-to="#fab" ref="create">
       <md-dialog-title>New Package</md-dialog-title>
       <md-dialog-content>
         <md-input-container>
           <label>Package Name</label>
-          <md-input v-model="selectedPackge.name" type="text"></md-input>
+          <md-input v-model="selectedPackge.name" type="text" ></md-input>
         </md-input-container>
       </md-dialog-content>
       <md-dialog-actions>
-        <md-button class="md-primary" @click.native="InsertClose(); $refs['create'].close()">Create</md-button>
+        <md-button class="md-primary" @click.native="insertClose(); $refs['create'].close()">Create</md-button>
         <md-button class="md-primary" @click.native="$refs['create'].close()">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
@@ -184,7 +207,9 @@
         processName: "",
         draggableItem: "",
         selectedPackge: "",
-        folderName: ""
+        folderName: "",
+        navigationName: "",
+        originPackage: {}
       }
     },
     created: function () {
@@ -202,31 +227,37 @@
       });
       this.getDefinitionList('');
     },
+    computed: {
+      unHover: function () {
+        var me = this;
+        me.folderName = "";
+        me.navigationName = "";
+        me.selectedPackge = "";
+        //해당 콘솔을 지워버리면 folder 상태가 hover 상태에서 풀리지 않습니다.
+        //콘솔을 지우지 말아주세요.
+        console.log('focus was fade out', me.folderName);
+      },
+    },
     methods: {
       dragover: function (item) {
         var me = this;
         me.draggableItem = [];
         me.draggableItem = item;
       },
-      onDragenter: function (item, type) {
+      onDragenter: function (item) {
         var me = this;
-        if(type == "folder") {
-          me.folderName = item.name;
-        } else if (type == "navigation") {
-          console.log("onDragenter : ", this);
-        }
+        me.folderName = item.name;
+        me.navigationName = item.name;
       },
-      onDragLeave: function (item, type) {
+      onDragLeave: function () {
         var me = this;
-        if(type == "folder") {
-          var parent = event.fromElement.parentElement.className;
-          if(parent.match("md-layout") != null) {
-            me.folderName = "";
-          }
+        var parent = event.fromElement.parentElement.className;
+        if(parent.match("md-layout") != null) {
+          me.folderName = "";
         }
+        me.navigationName = "";
       },
       drop: function (item) {
-        var me = this;
         //드래그 앤 드롭으로 패키지 및 프로세스를 이동시킨다.
         var me = this;
         var src = 'definition/' + me.draggableItem.path;
@@ -235,24 +266,24 @@
         if(path.indexOf("/") <= 0) path = path.substring(1, path.length);
 
         var packages = {path: path};
+        this.onMove(src, packages);
+      },
+      onMove: function(src, packages) {
+        src = src.replace(".xml", ".json");
+
+        var me = this;
         me.backend.$bind(src, packages);
         packages.$save().then(
           function (response) {
             me.$root.$children[0].success('이동되었습니다.');
             me.getDefinitionList(me.current);
-            me.folderName = "";
+            me.unHover;
           },
           function (response) {
             me.$root.$children[0].error('이동할 수 없습니다.');
+            me.unHover;
           }
         );
-      },
-      newPackage(ref) {
-        this.$refs['newPackage'].openPackage();
-      },
-      movePackage(ref) {
-        this.processName = ref;
-        this.$refs['movePackage'].openPackage();
       },
       selectedFolder: function (_folder) {
         this.current += "/" + _folder;
@@ -393,7 +424,23 @@
             }
           );
       },
-      InsertClose: function () {
+      moveClose: function () {
+        var me = this;
+        var src = "definition/" + me.originPackage;
+        var path = me.selectedPackge;
+        var fileName = src.substring(src.lastIndexOf("/"), src.length);
+        path = path + fileName;
+
+        //path 값의 앞에 / 가 붙을 경우 uengine5에서 제공하는 API에 어긋나는 path 값이 들어가게 된다.
+        //따라서, /의 위치를 확인하고 맨 앞에 올 시 잘라내줘야 한다.
+        if(path.indexOf("/") == 0) {
+          path = path.substring(1, path.length);
+        }
+
+        var packages = {path: path};
+        this.onMove(src, packages);
+      },
+      insertClose: function () {
         var me = this;
         var path = me.current;
         if (path !== "") path += "/";
@@ -436,7 +483,6 @@
             me.getDefinitionList(me.current);
           },
           function (response) {
-            console.log('test ', response);
             me.$root.$children[0].error('변경할 수 없습니다.');
           }
         );
@@ -463,8 +509,12 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-  .mt-100 {
-    margin-top: 50px;
+  .package-name {
+    font-size: 15px;
+  }
+
+  .package-title {
+    font-size: 15px;
   }
 
   .md-layout {
@@ -473,11 +523,11 @@
   }
 
   .side-margin {
-    margin: 10px;
+    margin: 15px;
   }
 
   .md-theme-default .folder-card {
-    width: 500px;
+    width: 100%;
     height: 80%;
     cursor:pointer
   }
@@ -522,40 +572,42 @@
   /*** Breadcrumbs ***/
   /* Style the list */
   ul.breadcrumb {
-    padding: 0px 0px;
+    padding: 0px;
+    margin-bottom: 10px;
     list-style: none;
   }
 
   /* Display list items side by side */
   ul.breadcrumb li {
-    display: inline-block;
+    display: inline;
     font-size: 14px;
   }
 
   /* Add a slash symbol (/) before/behind each list item */
   ul.breadcrumb li+li:before {
-    padding: 8px;
     color: black;
     content: ">\00a0";
   }
 
   ul.breadcrumb li:last-child {
-    padding: 8px;
     color: black;
     font-weight: bolder;
   }
 
   /* Add a color to all links inside the list */
-  ul.breadcrumb li a {
-    color: #0275d8;
-    text-decoration: none;
+  ul.breadcrumb li .breadcrumb-list {
+    cursor:pointer;
+    padding:15px;
+  }
+  ul.breadcrumb li .breadcrumb-list-hover {
+    color: #ffffff;
+    background-color: #3f51b5;
+    border-radius: 10px;
   }
 
-  /* Add a color on mouse-over */
-  ul.breadcrumb li a:hover {
-    color: #01447e;
-    background-color: #dadada;
-    text-decoration: none;
+  /** move select box */
+  .select-option {
+    width: 250px;
   }
 
 </style>
