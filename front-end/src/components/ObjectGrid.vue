@@ -351,6 +351,7 @@
           this.addRow(data);
         }
       },
+      
       addObject: function (aRow) {
         if(this.primitiveType) aRow = aRow.value; //TODO: not a good manner
         //Variables 안에 추가하는 변수와 같은 이름이 있는지 체크한다.
@@ -372,6 +373,7 @@
         }
         //this.$emit('update:data', this.rowData);
       },
+      
       submit_for_delete: function (uri, num) {
         var path = 'product';
         var xhr = new XMLHttpRequest()
@@ -398,14 +400,16 @@
       openDialog: function (ref) {
         this.$refs[ref].open();
       },
+      
       closeDialog: function (ref) {
         this.$refs[ref].close();
       },
+      
       onOpen: function () {
         console.log('Opened');
       },
+      
       onClose: function (type) {
-
         if (type == 'ok' && this.online) {
           this.deleteSubmit();
         } else {
