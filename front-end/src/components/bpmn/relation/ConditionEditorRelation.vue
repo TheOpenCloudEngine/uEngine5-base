@@ -52,7 +52,7 @@
   import IBpmn from '../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-relation-condition-editor',
+    name: 'bpmn-relation',
     props: {},
     created: function(){
         console.log('xxx');
