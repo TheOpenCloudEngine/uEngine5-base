@@ -122,7 +122,7 @@ public class DefinitionServiceImpl implements DefinitionService {
      * TODO: need ACL referenced by token
      * @throws Exception
      */
-    @RequestMapping(value = DEFINITION+"/**", method = RequestMethod.PUT)
+    @RequestMapping(value = DEFINITION+"/**", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
     public DefinitionResource renameOrMove(@RequestBody DefinitionResource definition_, HttpServletRequest request) throws Exception {
 
         DefinitionResource definition = definition_;
@@ -132,7 +132,9 @@ public class DefinitionServiceImpl implements DefinitionService {
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 
         String definitionPath = path.substring(DEFINITION.length());
-
+        if (definitionPath.indexOf(".") != -1){
+            definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
+        }
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
 
         if (!definition.getPath().equals(definitionPath)){
@@ -140,7 +142,7 @@ public class DefinitionServiceImpl implements DefinitionService {
 
             resourceManager.rename(resource, newPath);
 
-            return new DefinitionResource(new DefaultResource(newPath));
+            return new DefinitionResource(new ContainerResource(newPath));
         }
 
         return new DefinitionResource(resource);

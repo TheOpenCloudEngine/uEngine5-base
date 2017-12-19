@@ -58,7 +58,7 @@
 
       <md-dialog-content>
         <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
-                     :full-fledged="true">
+                     :full-fledged="true" :backend="backend">
         </object-grid>
       </md-dialog-content>
 
@@ -97,7 +97,8 @@
     name: 'bpmn-vue',
     props: {
       definition: Object,
-      monitor: Boolean
+      monitor: Boolean,
+      backend: Object
     },
     mounted: function () {
       this.id = this.uuid();
