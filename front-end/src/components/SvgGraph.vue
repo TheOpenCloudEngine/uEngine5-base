@@ -10,14 +10,14 @@
         </md-list>
       </md-layout>
       <md-layout @contextmenu.native="openMenu" @mousedown.native="closeMenu">
-      
+
         <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
                   :definition.sync="definition"
                   :monitor="monitor"
                   :backend="backend"
                   v-on:bpmnReady="bindEvents">
         </bpmn-vue>
-        
+
         <md-card v-if="!monitor" class="tools" style="top:100px;">
           <span v-for="item in dragItems"
                 class="icons draggable"
@@ -34,9 +34,9 @@
           </span>
           <span class="icons fa fa-repeat" v-on:click="redo" style="margin-left:7px;">
             <md-tooltip md-direction="right">Redo</md-tooltip>
-          </span>          
+          </span>
         </md-card>
-        
+
         <!--md-card v-if="!monitor" class="import">
           <md-layout>
             <md-layout>
@@ -47,7 +47,7 @@
             </md-layout>
           </md-layout>
         </md-card-->
-  
+
         <!--md-card v-if="!monitor" class="export">
           <md-layout>
             <md-layout>
@@ -58,7 +58,7 @@
             </md-layout>
           </md-layout>
         </md-card-->
-  
+
         <!--md-card v-if="!monitor" class="history">
           <md-layout>
             <md-layout>
@@ -69,14 +69,14 @@
             </md-layout>
           </md-layout>
         </md-card-->
-  
+
         <!--md-card v-if="!monitor" class="zoom">
           <span class="icons fa fa-arrows-alt"></span>
           <hr class="separator">
           <span class="icons fa fa-plus-square-o"></span>
           <span class="icons fa fa-minus-square-o"></span>
-        </md-card-->        
-        
+        </md-card-->
+
         <md-layout>
 
           <!--프로세스 아이디-->
@@ -99,19 +99,19 @@
             <md-input-container>
               <label>Language</label>
               <md-select v-model="selectedLocale" @change="changeLocale">
-                <md-option value="ko">Korean</md-option>              
+                <md-option value="ko">Korean</md-option>
                 <md-option value="en">English</md-option>
               </md-select>
             </md-input-container>
           </md-layout>
-          
-          <md-layout v-if="!monitor">              
+
+          <md-layout v-if="!monitor">
             <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings</md-button>
           </md-layout>
           <md-layout v-if="!monitor">
             <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable</md-button>
           </md-layout>
-          
+
           <!--인스턴스 이름-->
           <md-layout v-if="monitor">
             <md-input-container>
@@ -119,7 +119,7 @@
               <md-input v-model="definitionName" type="text" readonly></md-input>
             </md-input-container>
           </md-layout>
-          
+
           <md-layout v-if="monitor">
             <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
             <user-picker
@@ -129,17 +129,19 @@
               v-if="definition"
               style="min-width: 70%;"></user-picker>
           </md-layout>
-          
+
           <md-layout></md-layout>
-          
+
         </md-layout>
       </md-layout>
     </md-layout>
+
     <!--Back to Here Menu Start -->
-    <ul class='custom-menu'>
+    <ul class='custom-menu' v-if="contextMenuActivated">
       <li data-action="backToHere">Back To Here</li>
     </ul>
     <!--Back to Here Menu End -->
+
   </div>
 </template>
 <script>
@@ -150,9 +152,10 @@
     },
     data() {
       return {
+        contextMenuActivated: false,
         id: null,
         path: '',
-        definition: null,        
+        definition: null,
         definitionName: null,
         processVariables: [],
         dialog: false,
@@ -230,7 +233,7 @@
         trees: [],
         treeData: {},
         bthTracingTag: "",
-        selectedLocale: ""        
+        selectedLocale: ""
       }
     },
     computed: {},
@@ -239,7 +242,9 @@
     mounted() {
       var me = this;
       me.setMode();
-      // If the menu element is clicked
+
+
+      // If the menu element is clicked //TODO - vue js 방식으로 전환, IE - 9
       $(".custom-menu li").click(function(){
         // This is the triggered action name
         switch($(this).attr("data-action")) {
@@ -250,7 +255,9 @@
         }
         // Hide it AFTER the action was triggered
         $(".custom-menu").hide(0);
-      });   
+      });
+
+
     },
 
     //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
@@ -496,10 +503,10 @@
 //            }],
             'sequenceFlows': [],
             _selectedLocale: '',
-            _changedByLocaleSelector: false            
+            _changedByLocaleSelector: false
           }
           me.selectedLocale = 'ko';
-          me.changeLocale();            
+          me.changeLocale();
         }
         else {
           var url = 'definition/raw/' + me.path + me.id + '.json';
@@ -511,7 +518,7 @@
             me.selectedLocale = 'ko';
             me.changeLocale();
           })
-        }      
+        }
       }
       ,
       save: function () {
