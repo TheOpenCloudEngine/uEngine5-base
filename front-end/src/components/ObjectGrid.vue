@@ -1,5 +1,7 @@
 <template>
   <div>
+  
+    <!-- 삭제 확인 팝업 -->
     <md-dialog-confirm
       :md-title="dc.title"
       :md-content-html="dc.contentHtml"
@@ -9,33 +11,37 @@
       @close="onClose"
       ref="dialog5">
     </md-dialog-confirm>
+    
     <md-table-card>
+    
+      <!-- Toolbar -->
       <md-toolbar v-if="options_.toolbar">
         <h1 class="md-title">{{metadata.displayName}}</h1>
         <md-button class="md-icon-button">
           <md-icon>filter_list</md-icon>
         </md-button>
-
         <md-button class="md-icon-button">
           <md-icon>search</md-icon>
         </md-button>
       </md-toolbar>
 
+      <!-- header -->
       <md-table-alternate-header md-selected-label="selected">
         <md-button class="md-icon-button" @click.native="openDialog('dialog5')">
           <md-icon>delete</md-icon>
         </md-button>
-
-        <md-button class="md-icon-button" @click.native="$refs['dialog'].open()">
+        <!-- <md-button class="md-icon-button" @click.native="$refs['dialog'].open()">
           <md-icon>update</md-icon>
-        </md-button>
-
-        <md-button class="md-icon-button">
+        </md-button> -->
+        <!-- <md-button class="md-icon-button">
           <md-icon>more_vert</md-icon>
-        </md-button>
+        </md-button> -->
       </md-table-alternate-header>
 
+      <!-- 목록 -->
       <md-table md-sort="dessert" md-sort-type="desc" @select="onSelect" @sort="onSort">
+      
+        <!-- table header -->
         <md-table-header v-if="primitiveType">
           <md-table-row>
             <md-table-head>
@@ -45,17 +51,14 @@
         </md-table-header>
         <md-table-header v-else>
           <md-table-row>
-            <md-table-head v-for="key in columns"
-                           :md-sort-by="key.name">
+            <md-table-head v-for="key in columns" :md-sort-by="key.name">
               {{ key.displayName | capitalize }}
             </md-table-head>
           </md-table-row>
         </md-table-header>
 
         <md-table-body v-if="primitiveType">
-
           <md-table-row v-for="(entry, rowIndex) in rowData" :key="rowIndex" :md-item="entry" md-selection>
-
             <md-table-cell>
               <span v-if="!options_.editable">{{ rowData[rowIndex] }}</span>
               <input v-if="options_.editable" v-model="rowData[rowIndex]"></input>
@@ -64,20 +67,16 @@
         </md-table-body>
 
         <md-table-body v-else>
-
           <md-table-row v-for="(entry, rowIndex) in rowData" :key="rowIndex" :md-item="entry" @dblclick.native="onDoubleClick(entry, rowIndex)" md-selection>
             <md-table-cell v-for="key in columns">
               <span v-if="!options_.editable">{{ showValue(key, entry) }}</span>
-
               <component v-if="options_.editable && key.component" :is="key.component" :data="entry[key.name]"
                          :java="key.elemClassName" :full-fledged="true" :options="options[key.name]"></component>
-
               <input v-if="options_.editable && !key.component" v-model="entry[key.name]"></input>
             </md-table-cell>
           </md-table-row>
           <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog2">
             <md-dialog-title>Change</md-dialog-title>
-
             <md-dialog-content>
               <object-form ref="object-form"
                            :java="java"
@@ -86,15 +85,13 @@
               >
               </object-form>
             </md-dialog-content>
-
             <md-dialog-actions>
-              <md-button class="md-primary" @click.native="changeObject($refs['object-form'].data); $refs['dialog2'].close()">
-                변경
-              </md-button>
+              <md-button class="md-primary" @click.native="changeObject($refs['object-form'].data); $refs['dialog2'].close()">변경</md-button>
               <md-button class="md-primary" @click.native="$refs['dialog2'].close()">닫기</md-button>
             </md-dialog-actions>
           </md-dialog>
         </md-table-body>
+        
       </md-table>
 
       <md-table-pagination
@@ -105,16 +102,15 @@
         md-label="Rows"
         md-separator="of"
         :md-page-options="[5, 10, 25, 50]"
-        @pagination="onPagination"></md-table-pagination>
+        @pagination="onPagination">
+      </md-table-pagination>
+      
     </md-table-card>
-
 
     <div v-if="fullFledged">
       <md-button class="md-primary" @click.native="newForm">추가</md-button>
-
       <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog">
         <md-dialog-title>New</md-dialog-title>
-
         <md-dialog-content>
           <object-form ref="object-form"
                        :java="java"
@@ -123,21 +119,16 @@
           >
           </object-form>
         </md-dialog-content>
-
         <md-dialog-actions>
-          <md-button class="md-primary" @click.native="addObject($refs['object-form'].data); $refs['dialog'].close()">
-            추가
-          </md-button>
+          <md-button class="md-primary" @click.native="addObject($refs['object-form'].data); $refs['dialog'].close()">추가</md-button>
           <md-button class="md-primary" @click.native="$refs['dialog'].close()">닫기</md-button>
         </md-dialog-actions>
       </md-dialog>
-
     </div>
 
-
   </div>
+  
 </template>
-
 
 <script>
 
@@ -154,13 +145,12 @@
       backend: Object
     },
 
-
     data: function () {
       let initGrid = this.initGrid();
       initGrid.formData = {};
       initGrid.selectedIndex = 0;
       initGrid.rowData = this.data;
-      if(!initGrid.rowData){
+      if (!initGrid.rowData) {
         initGrid.rowData = [];
       }
       return initGrid;
@@ -192,45 +182,50 @@
       };
       this.loadData();
     },
+    
     computed: {
       changedData: function() {
         this.$emit('update:data', []);
         this.$emit('update:data', this.rowData);
       },
-
       filteredData: function () {
-
         //var data = this.rowData
         return this.rowData
       },
-
-      primitiveType: function(){
-
-        if(this.java && this.java.indexOf("java.lang.") == 0)
+      primitiveType: function() {
+        if(this.java && this.java.indexOf("java.lang.") == 0) {
           return true;
-
+        }
         return false;
       }
     },
+    
     filters: {
       capitalize: function (str) {
         return str.charAt(0).toUpperCase() + str.slice(1)
       }
     },
+    
     methods: {
       initGrid: function () {
-        var columns = {};
-        var metadata = {};
+        var xhr = new XMLHttpRequest();
+        var columns = [];
+        var self = this;
+        var metadata;
         var thisOptions = this.options;
         if (!thisOptions) {
           thisOptions = {};
         }
-        this.backend.$bind("classdefinition?className=" + this.java, metadata);
-        metadata.$load().then(function() {
-          var columns = metadata.fieldDescriptors;
+        xhr.open('GET', this.backend.$bind.ref + "/classdefinition?className=" + this.java, false);
+        xhr.setRequestHeader("access_token", localStorage['access_token']);
+        xhr.onload = function () {
+          metadata = JSON.parse(xhr.responseText)
+          columns = metadata.fieldDescriptors;
           for (var i = 0; i < columns.length; i++) {
-            var fd = columns[i];    
-            if (!fd.displayName) fd.displayName = fd.name;
+            var fd = columns[i];
+            if (!fd.displayName) {
+              fd.displayName = fd.name;
+            }
             if (fd.options && fd.values) {
               fd.optionMap = {};
               for (var keyIdx in fd.options) {
@@ -263,7 +258,8 @@
           if (self.columnChanger) {
             self.columnChanger(columns);
           }
-        });        
+        };
+        xhr.send();
 
         return {
           columns: columns,
@@ -288,14 +284,18 @@
       },
 
       loadData: function () {
-        if (this.online) {          
+        if (this.online) {
           var page = this.pagination.page;
           var size = this.pagination.size;
           var pathElements = this.java.split(".");
           var path = pathElements[pathElements.length - 1].toLowerCase();
-          var self = this;
-          this.backend.$bind(path + "?page=" + (page - 1) + "&size=" + size + (this.sort ? "&sort=" + this.sort.name + "," + this.sort.type : ""), self.rowData);
-          self.rowData.$load().then(function() {
+          var xhr = new XMLHttpRequest()
+          var self = this
+          xhr.open('GET', this.backend.$bind.ref + "/" + path + "?page=" + (page - 1) + "&size=" + size + (this.sort ? "&sort=" + this.sort.name + "," + this.sort.type : ""), false);
+          xhr.setRequestHeader("access_token", localStorage['access_token']);
+          xhr.onload = function () {
+            var jsonData = JSON.parse(xhr.responseText);
+            self.rowData = jsonData._embedded[path];
             for (var i in self.rowData) {
               var row = self.rowData[i];
               if (row && row._links && row._links.tenantProperties) {
@@ -323,7 +323,8 @@
                 xhr_.send(); //TODO: must be reduced for only the tenant properties
               }
             }
-          });
+          }
+          xhr.send();
         }
       },
 
@@ -350,6 +351,7 @@
           this.addRow(data);
         }
       },
+      
       addObject: function (aRow) {
         if(this.primitiveType) aRow = aRow.value; //TODO: not a good manner
         //Variables 안에 추가하는 변수와 같은 이름이 있는지 체크한다.
@@ -371,11 +373,11 @@
         }
         //this.$emit('update:data', this.rowData);
       },
+      
       submit_for_delete: function (uri, num) {
         var path = 'product';
         var xhr = new XMLHttpRequest()
         var self = this
-        //var uri = this.getServiceHost() + "/" + path + "/"+key
         xhr.open('DELETE', uri, false);
         xhr.setRequestHeader("access_token", localStorage['access_token']);
         xhr.onload = function () {
@@ -398,14 +400,16 @@
       openDialog: function (ref) {
         this.$refs[ref].open();
       },
+      
       closeDialog: function (ref) {
         this.$refs[ref].close();
       },
+      
       onOpen: function () {
         console.log('Opened');
       },
+      
       onClose: function (type) {
-
         if (type == 'ok' && this.online) {
           this.deleteSubmit();
         } else {

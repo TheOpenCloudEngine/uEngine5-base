@@ -94,20 +94,23 @@
             </md-button>
           </md-layout>
 
-          <!--프로세스 변수-->
-          <md-layout v-if="!monitor">
+          <!--로케일-->
+          <md-layout v-if="!monitor && definition">
             <md-input-container>
               <label>Language</label>
-              <md-select v-model="selectedLocale" @change="changeLocale">
+              <md-select v-model="definition._selectedLocale" @change="changeLocale">
                 <md-option value="ko">Korean</md-option>              
                 <md-option value="en">English</md-option>
               </md-select>
             </md-input-container>
           </md-layout>
           
+          <!--프로세스 정의-->
           <md-layout v-if="!monitor">              
             <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings</md-button>
           </md-layout>
+          
+          <!--프로세스 변수-->
           <md-layout v-if="!monitor">
             <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable</md-button>
           </md-layout>
@@ -136,7 +139,7 @@
       </md-layout>
     </md-layout>
     <!--Back to Here Menu Start -->
-    <ul class='custom-menu'>
+    <ul class='custom-menu' v-if="contextMenuActivated">
       <li data-action="backToHere">Back To Here</li>
     </ul>
     <!--Back to Here Menu End -->
@@ -150,6 +153,7 @@
     },
     data() {
       return {
+        contextMenuActivated: false,
         id: null,
         path: '',
         definition: null,        
@@ -229,8 +233,7 @@
         ],
         trees: [],
         treeData: {},
-        bthTracingTag: "",
-        selectedLocale: ""        
+        bthTracingTag: ""        
       }
     },
     computed: {},
@@ -239,7 +242,8 @@
     mounted() {
       var me = this;
       me.setMode();
-      // If the menu element is clicked
+      
+      // If the menu element is clicked //TODO - vue js 방식으로 전환, IE - 9
       $(".custom-menu li").click(function(){
         // This is the triggered action name
         switch($(this).attr("data-action")) {
@@ -250,7 +254,8 @@
         }
         // Hide it AFTER the action was triggered
         $(".custom-menu").hide(0);
-      });   
+      });
+       
     },
 
     //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
@@ -313,12 +318,10 @@
       },
       undo: function () {
         this.$refs['bpmn-vue'].undo();
-      }
-      ,
+      },
       redo: function () {
         this.$refs['bpmn-vue'].redo();
-      }
-      ,
+      },
       //여기서는, 라우터에서 전달해준 monitor prop 를 가지고 디자이너 모드인지, 모니터 모드인지 판별함.
       setMode: function () {
         var me = this;
@@ -328,7 +331,6 @@
           me.getDefinition();
         }
       },
-
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
@@ -352,8 +354,7 @@
             });
           });
         });
-      }
-      ,
+      },
       //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
       //재귀호출하여 상위 인스턴스가 없을 때까지 찾는다.
       findParent: function (instanceId) {
@@ -375,8 +376,7 @@
             }
             me.findParent(mainInstId);
           })
-      }
-      ,
+      },
       //트리 구조를 위해 subprocess가 있는지 확인한다.
       //재귀호출하여 하위 참조 인스턴스가 없을 때까지 찾는다.
       treeStructure: function (instanceId) {
@@ -408,16 +408,14 @@
               me.treeStructure(childId);
             });
           })
-      }
-      ,
+      },
       getLastText: function (_val) {
         var length = _val.length;
         var lastSlash = _val.lastIndexOf('/') + 1;
         var lastText = _val.substring(lastSlash, length);
 
         return lastText;
-      }
-      ,
+      },
       listToTree: function (list) {
         var map = {}, node, roots = [], i;
         for (i = 0; i < list.length; i += 1) {
@@ -433,14 +431,12 @@
           }
         }
         return roots;
-      }
-      ,
+      },
       toggle: function () {
         if (this.isFolder) {
           this.open = !this.open
         }
-      }
-      ,
+      },
       getStatus: function (callback) {
         var me = this;
         me.$root.codi('instance{/id}/variables').get({id: me.id})
@@ -456,8 +452,7 @@
               }
             }
           })
-      }
-      ,
+      },
       updateElementStatus: function (elementId, status) {
 //        var me = this;
 //        let element = me.canvas.getElementById(elementId);
@@ -465,8 +460,7 @@
 //          element.shape.status = status;
 //          me.canvas.getRenderer().redrawShape(element);
 //        }
-      }
-      ,
+      },
       getDefinition: function () {
         var me = this;
         me.id = me.$route.params.id;
@@ -476,7 +470,7 @@
             me.path += pathSplit[i] + "/";
           }
         }
-        //신규 생성
+        // 신규 생성
         if (me.id == 'new-process-definition') {
           me.definition = {
             _type: 'org.uengine.kernel.ProcessDefinition',
@@ -495,25 +489,22 @@
 //                name: 'initiator'
 //            }],
             'sequenceFlows': [],
-            _selectedLocale: '',
+            _selectedLocale: 'ko',
             _changedByLocaleSelector: false            
           }
-          me.selectedLocale = 'ko';
           me.changeLocale();            
-        }
-        else {
+        } else {
           var url = 'definition/raw/' + me.path + me.id + '.json';
           this.$root.codi(url).get().then(function (response) {
-            me.definition = response.data.definition;
-            me.definition._selectedLocale = '';
-            me.definition._changedByLocaleSelector = false;
+            var definition = response.data.definition;
+            definition._selectedLocale = 'ko';
+            definition._changedByLocaleSelector = false;               
+            me.definition = definition;
             me.definitionName = me.definition.name.text;
-            me.selectedLocale = 'ko';
-            me.changeLocale();
+            me.changeLocale();            
           })
-        }      
-      }
-      ,
+        }     
+      },
       save: function () {
         var me = this;
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
@@ -582,8 +573,7 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
-      }
-      ,
+      },
       openUserPicker(ref) {
         this.$refs['userPicker'].openUserPicker();
       },
@@ -641,12 +631,11 @@
       },
       changeLocale() {
         var me = this;
-        me.definition._selectedLocale = me.selectedLocale;
         me.definition._changedByLocaleSelector = true;
         me.definition.childActivities[1].forEach(function(activity) {
           if (activity && activity.name && activity.name.localedTexts) {
-            if (activity.name.localedTexts[me.selectedLocale]) {
-              activity.name.text = activity.name.localedTexts[me.selectedLocale];
+            if (activity.name.localedTexts[me.definition._selectedLocale]) {
+              activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
             }
           }
         });

@@ -54,7 +54,7 @@
     <md-dialog
       v-if="data.definition"
       md-open-from="#processVariables" md-close-to="#processVariables" ref="processVariables">
-      <md-dialog-title>Process Variables</md-dialog-title>
+      <!-- <md-dialog-title>Process Variables</md-dialog-title> -->
 
       <md-dialog-content>
         <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
@@ -100,21 +100,26 @@
       monitor: Boolean,
       backend: Object
     },
+    
     mounted: function () {
       this.id = this.uuid();
       this.data.definition = this.validateDefinition(this.definition);
+      this.preLocale = this.data.definition._selectedLocale;
       var processVariables = this.data.definition.processVariableDescriptors;
       if (processVariables && processVariables.length) {
         var copy = JSON.parse(JSON.stringify(processVariables));
+        var me = this;        
         $.each(copy, function (i, variable) {
           if (variable.displayName) {
-            variable.displayName = variable.displayName.text;
+            if (variable.displayName.localedTexts && variable.displayName.localedTexts[me.data.definition._selectedLocale]) {
+              variable.displayName = variable.displayName.localedTexts[me.data.definition._selectedLocale];              
+            } else {
+              variable.displayName = variable.displayName.text;
+            }
           }
         });
         this.processVariables = copy;
       }
-
-
       this.history = [JSON.parse(JSON.stringify(this.data.definition))];
       this.$nextTick(function () {
         //$nextTick delays the callback function until Vue has updated the DOM
@@ -123,8 +128,8 @@
         this.canvas._CONFIG.FAST_LOADING = false;
         this.canvas.updateSlider();
       })
-    }
-    ,
+    },
+    
     data: function () {
       return {
         enableHistoryAdd: false,
@@ -141,7 +146,8 @@
         canvas: null,
         propertyEditing: false,
         componentChangerData: null,
-        preventEvent: false
+        preventEvent: false,
+        preLocale: null
       };
     },
 
@@ -150,13 +156,26 @@
         handler: function (after, before) {
           console.log('processVariables update!!', after);
           if (after && after.length) {
+            var me = this;
+            var processVariables = me.data.definition.processVariableDescriptors;
             var copy = JSON.parse(JSON.stringify(after));
-            $.each(copy, function (i, variable) {
-              if (variable.displayName) {
-                variable.displayName = {
-                  text: variable.displayName
+            $.each(copy, function (i, c) {
+              var localedTexts;
+              $.each(processVariables, function (j, p) {
+                if (c.name == p.name) {
+                  localedTexts = p.displayName.localedTexts;
                 }
+              });
+              if (!localedTexts) {
+                localedTexts = {
+                    _type: 'java.util.HashMap'
+                };                    
               }
+              localedTexts[me.data.definition._selectedLocale] = c.displayName;
+              c.displayName = {
+                  text: c.displayName,
+                  localedTexts: localedTexts
+              }              
             });
             this.data.definition.processVariableDescriptors = copy;
           }
@@ -176,6 +195,21 @@
             if (this.enableHistoryAdd) {
               this.enableHistoryAdd = false;
             } else {
+              if (this.preLocale != after.definition._selectedLocale) {
+                // locale change시 processVariable locale 변경                
+                var copy = JSON.parse(JSON.stringify(after.definition.processVariableDescriptors));
+                $.each(copy, function (i, variable) {
+                  if (variable.displayName) {
+                    if (variable.displayName.localedTexts && variable.displayName.localedTexts[after.definition._selectedLocale]) {
+                      variable.displayName = variable.displayName.localedTexts[after.definition._selectedLocale];              
+                    } else {
+                      variable.displayName = variable.displayName.text;
+                    }
+                  }
+                });
+                this.processVariables = copy;
+                this.preLocale = after.definition._selectedLocale;
+              }              
               console.log('definition updated, but not allow add history.');
               return;
             }
@@ -211,8 +245,8 @@
       bpmnRole: function () {
         return 'bpmn-vue';
       }
-    }
-    ,
+    },
+    
     methods: {
       openProcessVariables(ref) {
         this.$refs['processVariables'].open();
@@ -220,18 +254,15 @@
       closeProcessVariables(ref) {
         this.$refs['processVariables'].close();
       },
-
       openDefinitionSettings(ref) {
-          if(!this.definition.shortDescription){
-            this.definition.shortDescription = '';
-          }
-
+        if(!this.definition.shortDescription){
+          this.definition.shortDescription = '';
+        }
         this.$refs['definitionSettings'].open();
       },
       closeDefinitionSettings(ref) {
         this.$refs['definitionSettings'].close();
       },
-
       getRelativeFlowsByOpengraphId: function (id) {
         var me = this;
         var relations = [];
@@ -239,7 +270,6 @@
           if (!activity) {
             return;
           }
-
           if (activity.sequenceFlows && activity.sequenceFlows.length) {
             $.each(activity.sequenceFlows, function (i, relation) {
               if (relation && (relation.sourceRef == id || relation.targetRef == id)) {
@@ -247,7 +277,6 @@
               }
             })
           }
-
           if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
             $.each(activity.childActivities[1], function (i, child) {
               recursiveCheck(child);
@@ -271,7 +300,6 @@
           if (activity.tracingTag && activity.tracingTag == id) {
             selected = activity;
           }
-
           if (activity.sequenceFlows && activity.sequenceFlows.length) {
             $.each(activity.sequenceFlows, function (i, relation) {
               if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
@@ -279,7 +307,6 @@
               }
             })
           }
-
           if (!selected) {
             if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
               $.each(activity.childActivities[1], function (i, child) {
@@ -291,18 +318,19 @@
         recursiveCheck(me.data.definition);
         return selected;
       },
+      
       getWhereRoleAmIByTracingTag: function (id) {
         var me = this;
         var selected;
         var roleName = null;
         var element = me.canvas.getElementById(id);
         var frontestGroupElement = me.canvas.getRenderer().getFrontForBoundary(me.canvas.getBoundary(element));
-        //console.log('frontForBoundary' , frontForBoundary.shape);
         if (frontestGroupElement && me.canvas.getRenderer().isLane(frontestGroupElement)) {
           roleName = frontestGroupElement.shape.label;
         }
         return roleName;
       },
+      
       /**
        * 오픈그래프 아이디로 부모 서브프로세스를 찾는다. 부모가 데피니션일 경우 null 리턴.
        **/
@@ -323,7 +351,6 @@
               }
             })
           }
-
           if (!selected) {
             if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
               $.each(activity.childActivities[1], function (i, child) {
@@ -333,13 +360,13 @@
           }
         }
         recursiveCheck(me.data.definition, null);
-
         if (selected._type && selected._type == 'org.uengine.kernel.ProcessDefinition') {
           return null;
         } else {
           return selected;
         }
       },
+      
       onBeforeDestroyElement: function (opengraphComponent, callback) {
         var id = opengraphComponent.id;
 
@@ -355,6 +382,7 @@
           callback(false);
         }
       },
+      
       addChild: function (child, parent, isRelation) {
         if (isRelation) {
           if (parent) {
@@ -383,6 +411,7 @@
           }
         }
       },
+      
       /**
        * 주어진 액티비티를 이동시킨다.
        * targetTracingTag 이 없다면 데피니션으로 이동시킨다.
@@ -400,7 +429,6 @@
         me.removeComponentByOpenGraphComponentId(sourceTracingTag);
         this.addChild(copy, parent);
         //연결선 공식 만들기.
-
 
         var relations = this.getRelativeFlowsByOpengraphId(sourceTracingTag);
         $.each(relations, function (i, relation) {
@@ -609,13 +637,10 @@
           if (isComponent) {
             me.canvas.removeShape(edgeElement, true);
             this.removeComponentByOpenGraphComponentId(edgeElement.id);
-
             //기존 컴포넌트가 있는 경우 originalData 와 함께 생성
             this.addComponenet(componentInfo, null, JSON.parse(JSON.stringify(originalData)));
-          }
-          else {
+          } else {
             me.canvas.removeShape(edgeElement, true);
-
             //기존 컴포넌트가 없는 경우 신규 생성
             this.addComponenet(componentInfo);
           }
@@ -743,8 +768,8 @@
             this.addChild(additionalData, null);
           }
         }
-      }
-      ,
+      },
+      
       /**
        * 자바 클래스로 Bpmn 컴포넌트를 가져온다.
        **/
@@ -757,6 +782,7 @@
         });
         return componentByClassName;
       },
+      
       /**
        * 컴포넌트 이름으로 Bpmn 컴포넌트를 가져온다.
        **/
@@ -768,8 +794,8 @@
           }
         });
         return componentByName;
-      }
-      ,
+      },
+      
       undo: function () {
         if (this.canUndo) {
           this.canvas._CONFIG.FAST_LOADING = true;
@@ -778,14 +804,13 @@
           this.undoed = true;
           this.data.definition = this.history[this.historyIndex];
           console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.data.definition);
-
           this.$nextTick(function () {
             this.canvas._CONFIG.FAST_LOADING = false;
             this.canvas.updateSlider();
           })
         }
-      }
-      ,
+      },
+      
       redo: function () {
         if (this.canRedo) {
           this.canvas._CONFIG.FAST_LOADING = true;
@@ -794,14 +819,13 @@
           this.undoed = true;
           this.data.definition = this.history[this.historyIndex]
           console.log('length: ' + this.history.length, ' historyIndex : ', this.historyIndex, this.data.definition);
-
           this.$nextTick(function () {
             this.canvas._CONFIG.FAST_LOADING = false;
             this.canvas.updateSlider();
           })
         }
-      }
-      ,
+      },
+      
       /**
        * 새로운 트레이싱 태그를 생성한다.
        **/
@@ -833,8 +857,8 @@
           })
         }
         return maxTracingTag + 1 + '';
-      }
-      ,
+      },
+      
       /**
        * 데피니션에 트레이싱 태그가 있는지 확인한다.
        **/
@@ -857,8 +881,7 @@
           recursiveCheck(me.data.definition);
         }
         return isExist;
-      }
-      ,
+      },
 
       /**
        * 오픈그래프 컴포넌트 아이디에 해당하는 Bpmn 컴포넌트를 삭제한다.
@@ -903,8 +926,8 @@
 
         //릴레이션, 액티비티 삭제
         recursiveRemove(me.data.definition);
-      }
-      ,
+      },
+      
       /**
        * 무작위 랜덤 아이디 생성
        * @returns {string} 랜덤 아이디
@@ -923,8 +946,5 @@
   }
 </script>
 
-
 <style lang="scss" rel="stylesheet/scss">
-
 </style>
-
