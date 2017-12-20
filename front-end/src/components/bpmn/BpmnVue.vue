@@ -904,6 +904,7 @@
           //액티비티 삭제
           if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
             $.each(activity.childActivities[1], function (i, child) {
+              console.log('child.elementView.id' ,child.elementView.id);
               if (child && child.elementView && child.elementView.id == id) {
                 console.log('** remove activitiy', id);
                 activity.childActivities[1][i] = undefined;

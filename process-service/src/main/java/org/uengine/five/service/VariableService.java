@@ -28,24 +28,16 @@ public class VariableService {
     @RequestMapping(value = "/instance/{instId}/variable/{varName}", method = RequestMethod.GET)
     @ProcessTransactional(readOnly = true)
     public Serializable getVariable(@PathVariable("instId") String instId, @PathVariable("varName") String varName) throws Exception {
-
         ProcessInstance instance = instanceService.getProcessInstanceLocal(instId);
-        /*ProcessVariable processVariable = (ProcessVariable) instance.get("",varName);
-        if ( processVariable == null){
-            processVariable =  instance.getProcessDefinition().getProcessVariable(varName);
-        }*/
-
         return instance.get("",varName);
     }
 
     @RequestMapping(value = "/instance/{instanceId}/variable/{varName}", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
     @ProcessTransactional
-    public Object setVariable(@PathVariable("instanceId") String instanceId, @PathVariable("varName") String varName, @RequestBody  Object varValue) throws Exception {
+    public void setVariable(@PathVariable("instanceId") String instanceId, @PathVariable("varName") String varName, @RequestParam("varValue") String varValue) throws Exception {
         ProcessInstance instance = instanceService.getProcessInstanceLocal(instanceId);
-        instance.set("",varName, (Serializable)varValue);
-        return varValue;
+        instance.set("",varName, (Serializable) varValue);
     }
-
 
     @Autowired
     ApplicationContext applicationContext;

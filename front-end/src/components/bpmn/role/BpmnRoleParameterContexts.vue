@@ -21,14 +21,13 @@
         <md-layout md-flex="30">
           <md-input-container>
             <label>연결 역할</label>
-            <md-select v-if="calleeDefinition.loaded" v-model="parameterContext.role.name">
+            <md-select v-model="parameterContext.role.name">
               <md-option v-for="role in definition.roles"
                          :key="role.name"
                          :value="role.name">
                 {{ role.name }}
               </md-option>
             </md-select>
-            <md-input v-else v-model="parameterContext.role.name"></md-input>
           </md-input-container>
         </md-layout>
         <md-layout md-flex="30">
