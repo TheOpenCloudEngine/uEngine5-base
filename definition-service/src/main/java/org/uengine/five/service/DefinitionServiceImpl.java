@@ -85,20 +85,24 @@ public class DefinitionServiceImpl implements DefinitionService {
     @RequestMapping(value = DEFINITION+"/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @Override
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
-        
-        definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
-        
-        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);        
-        if (!resourceManager.exists(resource)) {
+
+
+        IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
+
+        if(!resourceManager.exists(resource))
             throw new ResourceNotFoundException(); // make 404 error
-        }
-        
-        if (definitionPath.indexOf(".") == -1) { //is a folder
+
+        if(definitionPath.indexOf(".")==-1){ //is a folder
+
             return listDefinition(definitionPath);
-        } else {
-            definitionPath = resourceRoot + "/" + definitionPath;
+
+        }else {
+            definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
+
             resource = new DefaultResource(definitionPath);
+
             DefinitionResource halDefinition = new DefinitionResource(resource);
+
             return halDefinition;
         }
     }
