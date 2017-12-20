@@ -86,23 +86,19 @@ public class DefinitionServiceImpl implements DefinitionService {
     @Override
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
+        definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
-
-        if(!resourceManager.exists(resource))
+        if (!resourceManager.exists(resource)) {
             throw new ResourceNotFoundException(); // make 404 error
+        }
 
-        if(definitionPath.indexOf(".")==-1){ //is a folder
-
+        if (definitionPath.indexOf(".") == -1) { //is a folder
             return listDefinition(definitionPath);
-
-        }else {
-            definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
-
+        } else {
+            definitionPath = resourceRoot + "/" + definitionPath;
             resource = new DefaultResource(definitionPath);
-
             DefinitionResource halDefinition = new DefinitionResource(resource);
-
             return halDefinition;
         }
     }
@@ -331,7 +327,8 @@ public class DefinitionServiceImpl implements DefinitionService {
     @RequestMapping(value= DEFINITION + "/xml/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public String getXMLDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
-        definitionPath = UEngineUtil.getNamedExtFile(resourceRoot + "/" + definitionPath, "xml");
+        definitionPath = definitionPath.startsWith(resourceRoot) ? definitionPath.replace(resourceRoot, "") : definitionPath;
+        definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
 
         Serializable definition = (Serializable) getDefinitionLocal(definitionPath);
 
