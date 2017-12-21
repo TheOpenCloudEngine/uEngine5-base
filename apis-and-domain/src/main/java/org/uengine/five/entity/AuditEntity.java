@@ -14,6 +14,7 @@ public class AuditEntity {
     @JoinColumn(name="rootInstId")
     ProcessInstanceEntity rootProcessInstance;
 
+    @Id
     Long auditId;
 
     String fullTracingTag;
