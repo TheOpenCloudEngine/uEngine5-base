@@ -100,7 +100,7 @@
       monitor: Boolean,
       backend: Object
     },
-    
+
     mounted: function () {
       this.id = this.uuid();
       this.data.definition = this.validateDefinition(this.definition);
@@ -108,11 +108,11 @@
       var processVariables = this.data.definition.processVariableDescriptors;
       if (processVariables && processVariables.length) {
         var copy = JSON.parse(JSON.stringify(processVariables));
-        var me = this;        
+        var me = this;
         $.each(copy, function (i, variable) {
           if (variable.displayName) {
             if (variable.displayName.localedTexts && variable.displayName.localedTexts[me.data.definition._selectedLocale]) {
-              variable.displayName = variable.displayName.localedTexts[me.data.definition._selectedLocale];              
+              variable.displayName = variable.displayName.localedTexts[me.data.definition._selectedLocale];
             } else {
               variable.displayName = variable.displayName.text;
             }
@@ -129,7 +129,7 @@
         this.canvas.updateSlider();
       })
     },
-    
+
     data: function () {
       return {
         enableHistoryAdd: false,
@@ -169,13 +169,13 @@
               if (!localedTexts) {
                 localedTexts = {
                     _type: 'java.util.HashMap'
-                };                    
+                };
               }
               localedTexts[me.data.definition._selectedLocale] = c.displayName;
               c.displayName = {
                   text: c.displayName,
                   localedTexts: localedTexts
-              }              
+              }
             });
             this.data.definition.processVariableDescriptors = copy;
           }
@@ -196,12 +196,12 @@
               this.enableHistoryAdd = false;
             } else {
               if (this.preLocale != after.definition._selectedLocale) {
-                // locale change시 processVariable locale 변경                
+                // locale change시 processVariable locale 변경
                 var copy = JSON.parse(JSON.stringify(after.definition.processVariableDescriptors));
                 $.each(copy, function (i, variable) {
                   if (variable.displayName) {
                     if (variable.displayName.localedTexts && variable.displayName.localedTexts[after.definition._selectedLocale]) {
-                      variable.displayName = variable.displayName.localedTexts[after.definition._selectedLocale];              
+                      variable.displayName = variable.displayName.localedTexts[after.definition._selectedLocale];
                     } else {
                       variable.displayName = variable.displayName.text;
                     }
@@ -209,7 +209,7 @@
                 });
                 this.processVariables = copy;
                 this.preLocale = after.definition._selectedLocale;
-              }              
+              }
               console.log('definition updated, but not allow add history.');
               return;
             }
@@ -246,7 +246,7 @@
         return 'bpmn-vue';
       }
     },
-    
+
     methods: {
       openProcessVariables(ref) {
         this.$refs['processVariables'].open();
@@ -318,7 +318,7 @@
         recursiveCheck(me.data.definition);
         return selected;
       },
-      
+
       getWhereRoleAmIByTracingTag: function (id) {
         var me = this;
         var selected;
@@ -330,7 +330,7 @@
         }
         return roleName;
       },
-      
+
       /**
        * 오픈그래프 아이디로 부모 서브프로세스를 찾는다. 부모가 데피니션일 경우 null 리턴.
        **/
@@ -366,7 +366,7 @@
           return selected;
         }
       },
-      
+
       onBeforeDestroyElement: function (opengraphComponent, callback) {
         var id = opengraphComponent.id;
 
@@ -382,7 +382,7 @@
           callback(false);
         }
       },
-      
+
       addChild: function (child, parent, isRelation) {
         if (isRelation) {
           if (parent) {
@@ -411,7 +411,7 @@
           }
         }
       },
-      
+
       /**
        * 주어진 액티비티를 이동시킨다.
        * targetTracingTag 이 없다면 데피니션으로 이동시킨다.
@@ -769,7 +769,7 @@
           }
         }
       },
-      
+
       /**
        * 자바 클래스로 Bpmn 컴포넌트를 가져온다.
        **/
@@ -782,7 +782,7 @@
         });
         return componentByClassName;
       },
-      
+
       /**
        * 컴포넌트 이름으로 Bpmn 컴포넌트를 가져온다.
        **/
@@ -795,7 +795,7 @@
         });
         return componentByName;
       },
-      
+
       undo: function () {
         if (this.canUndo) {
           this.canvas._CONFIG.FAST_LOADING = true;
@@ -810,7 +810,7 @@
           })
         }
       },
-      
+
       redo: function () {
         if (this.canRedo) {
           this.canvas._CONFIG.FAST_LOADING = true;
@@ -825,7 +825,7 @@
           })
         }
       },
-      
+
       /**
        * 새로운 트레이싱 태그를 생성한다.
        **/
@@ -858,7 +858,7 @@
         }
         return maxTracingTag + 1 + '';
       },
-      
+
       /**
        * 데피니션에 트레이싱 태그가 있는지 확인한다.
        **/
@@ -904,9 +904,7 @@
           //액티비티 삭제
           if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
             $.each(activity.childActivities[1], function (i, child) {
-              console.log('child.elementView.id' ,child.elementView.id);
               if (child && child.elementView && child.elementView.id == id) {
-                console.log('** remove activitiy', id);
                 activity.childActivities[1][i] = undefined;
               } else {
                 //재귀호출
@@ -927,7 +925,7 @@
         //릴레이션, 액티비티 삭제
         recursiveRemove(me.data.definition);
       },
-      
+
       /**
        * 무작위 랜덤 아이디 생성
        * @returns {string} 랜덤 아이디

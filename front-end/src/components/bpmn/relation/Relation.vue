@@ -49,7 +49,7 @@
   import IBpmn from '../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-relation-without-condition-editor',
+    name: 'bpmn-relation',
     props: {},
     computed: {
       defaultStyle(){
