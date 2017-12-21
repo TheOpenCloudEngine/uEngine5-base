@@ -37,7 +37,7 @@
 
 
         <org-uengine-kernel-Or v-if="complexCondition" :data="relation.condition"></org-uengine-kernel-Or>
-        <org-uengine-kernel-Evaluate v-else :data="relation.condition"></org-uengine-kernel-Evaluate>
+        <org-uengine-kernel-Evaluate v-else :data="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
       </template>
 
 
@@ -52,7 +52,7 @@
   import IBpmn from '../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-relation-condition-editor',
+    name: 'bpmn-relation',
     props: {},
     created: function(){
         console.log('xxx');

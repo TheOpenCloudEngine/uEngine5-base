@@ -1,26 +1,21 @@
-<template>
-
-  <ul>
-    <div v-for="childCondition in data.conditionsVt">
-
-      <component :is="childCondition._type.replace('.', '-')" :data="childCondition"></component>
-
-    </div>
-  </ul>
-
-
-</template>
 
 <script>
 
+  import Or from './OrgUengineKernelOr'
   export default {
-      name: 'org-uengine-kernel-And',
+    mixins: [Or],
+    name: 'org-uengine-kernel-And',
 
-      props: {
+    data: function(){
 
-          data: Object
-      }
+        return {
+            myConditionType: 'And',
 
+
+
+        }
+
+    }
   }
 
 </script>

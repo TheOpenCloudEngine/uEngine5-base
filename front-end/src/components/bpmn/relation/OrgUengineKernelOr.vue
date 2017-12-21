@@ -2,7 +2,7 @@
 
   <div>
 
-    Or (
+    {{myConditionType}} (
     <ul>
       <div v-for="childCondition in data.conditionsVt">
 
@@ -36,7 +36,8 @@
       data: function(){
 
           return {
-              conditionType: 'org.uengine.kernel.Or'
+              conditionType: 'org.uengine.kernel.Or',
+            myConditionType:'Or'
           };
       },
 
