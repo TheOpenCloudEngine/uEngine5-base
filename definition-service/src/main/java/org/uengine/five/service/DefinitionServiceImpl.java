@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by uengine on 2017. 8. 9..
@@ -256,6 +258,7 @@ public class DefinitionServiceImpl implements DefinitionService {
         //무조건 xml 파일로 결국 저장됨.
         DefaultResource resource = new DefaultResource(definitionPath);
 
+        Object definitionDeployed;
 
         if(fileExt.endsWith("bpmn")) {
             //TODO [severe] BPMNUtil.importAdapt(InputStream) must be available. using temp file will arise a multi-thread problem.
@@ -266,6 +269,8 @@ public class DefinitionServiceImpl implements DefinitionService {
 
             resourceManager.save(resource, processDefinition);
 
+            definitionDeployed = processDefinition;
+
         }else if(fileExt.endsWith("upd")) {
             ByteArrayInputStream bai = new ByteArrayInputStream(definition.getBytes("UTF-8"));
 
@@ -273,11 +278,16 @@ public class DefinitionServiceImpl implements DefinitionService {
 
             resourceManager.save(resource, processDefinition);
 
+            definitionDeployed = processDefinition;
+
         } else if(fileExt.endsWith("class")){
 
             ClassDefinition classDefinition = objectMapper.readValue(definition, ClassDefinition.class);
 
             resourceManager.save(resource, classDefinition);
+
+            definitionDeployed = classDefinition;
+
         }else if(fileExt.endsWith("json")){
 
             DefinitionWrapper definitionWrapper = objectMapper.readValue(definition, DefinitionWrapper.class);
@@ -286,11 +296,34 @@ public class DefinitionServiceImpl implements DefinitionService {
 
             resourceManager.save(resource, definitionWrapper.getDefinition());
 
+            definitionDeployed = definitionWrapper.getDefinition();
         }else
             throw new Exception("unknown resource type: " + definitionPath);
 
 
+        //TODO: deploy filter 로 등록된 bean 들을 호출:
+
+        if(definitionDeployed instanceof ProcessDefinition)
+            invokeDeployFilters((ProcessDefinition) definitionDeployed, resource.getPath());
+
+
         return new DefinitionResource(resource);
+    }
+
+    private void invokeDeployFilters(ProcessDefinition definitionDeployed, String path) throws UEngineException{
+        Map<String, DeployFilter> filters = MetaworksRemoteService.getInstance().getBeanFactory().getBeansOfType(DeployFilter.class);
+
+        if(filters!=null && filters.size()>0){
+
+            for(DeployFilter theFilter : filters.values()){
+                try {
+                    theFilter.beforeDeploy(definitionDeployed, null, path, true);
+                } catch (Exception e) {
+                    throw new UEngineException("Error when to invoke DeployFilter: " + theFilter.getClass().getName(), e);
+                }
+            }
+
+        }
     }
 
 
