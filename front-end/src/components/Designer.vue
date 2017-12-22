@@ -416,7 +416,7 @@
               var instanceId = instance.instanceId;
               me.$root.$children[0].success('프로세스가 시작되었습니다.');
               me.$router.push({
-                path: '/instance/' + instanceId
+                path: '/instance/' + instanceId + '/' + instanceId
               })
             },
             function (response) {
