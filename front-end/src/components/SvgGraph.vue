@@ -107,7 +107,7 @@
 
           <!--프로세스 정의-->
           <md-layout v-if="!monitor">
-            <md-button class="md-raised" id="processVariables" @click="openDefinitionSettings">Defintion Settings</md-button>
+            <md-button class="md-raised" id="defintionSettings" @click="openDefinitionSettings">Defintion Settings</md-button>
           </md-layout>
 
           <!--프로세스 변수-->
@@ -478,7 +478,6 @@
           me.definition = {
             _type: 'org.uengine.kernel.ProcessDefinition',
             name: {},
-            shortDescription: '',
             childActivities: [
               'java.util.ArrayList',
               []
@@ -565,6 +564,9 @@
 //        this.activity.role.name =
 //          this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
 
+        // 프로세스 정의 처리
+        definitionToSave.shortDescription = this.$refs['bpmn-vue'].defintionSettings.shortDescription;
+        
         var definition = {};
         me.backend.$bind("definition/raw/" + me.path + fileName, definition);
         definition.definition = definitionToSave;
@@ -635,13 +637,15 @@
       changeLocale() {
         var me = this;
         me.definition._changedByLocaleSelector = true;
-        me.definition.childActivities[1].forEach(function(activity) {
-          if (activity && activity.name && activity.name.localedTexts) {
-            if (activity.name.localedTexts[me.definition._selectedLocale]) {
-              activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
+        if (me.definition.childActivities) {
+          me.definition.childActivities[1].forEach(function(activity) {
+            if (activity && activity.name && activity.name.localedTexts) {
+              if (activity.name.localedTexts[me.definition._selectedLocale]) {
+                activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
+              }
             }
-          }
-        });
+          });
+        }
       }
     }
   }
@@ -747,4 +751,3 @@
     background-color: #DEF;
   }
 </style>
-

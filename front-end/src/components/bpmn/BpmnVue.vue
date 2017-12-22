@@ -51,41 +51,40 @@
     >
     </bpmn-component-changer>
 
+    <!-- 프로세스 변수 -->
     <md-dialog
       v-if="data.definition"
       md-open-from="#processVariables" md-close-to="#processVariables" ref="processVariables">
-      <!-- <md-dialog-title>Process Variables</md-dialog-title> -->
-
+      <md-dialog-title>Process Variables</md-dialog-title>
       <md-dialog-content>
         <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
                      :full-fledged="true" :backend="backend">
         </object-grid>
       </md-dialog-content>
-
       <md-dialog-actions>
         <md-button class="md-primary" @click="closeProcessVariables">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
 
+    <!-- 프로세스 정의 -->
     <md-dialog
       v-if="data.definition"
       md-open-from="#definitionSettings" md-close-to="#definitionSettings" ref="definitionSettings">
       <md-dialog-title>Definition Settings</md-dialog-title>
-
       <md-dialog-content>
         <form novalidate @submit.stop.prevent="submit">
           <md-input-container>
-            <label>짧은 설명</label>
-            <md-input v-model="definition.shortDescription"></md-input>
+            <label>Description</label>
+            <md-input v-model="defintionSettings.shortDescription.text"></md-input>
           </md-input-container>
-          <md-checkbox v-model="definition.initiateByFirstWorkitem">첫 휴먼-액티비티으로 시작</md-checkbox>
+          <!-- <md-checkbox v-model="definition.initiateByFirstWorkitem">첫 휴먼-액티비티으로 시작</md-checkbox> -->
         </form>
       </md-dialog-content>
-
       <md-dialog-actions>
         <md-button class="md-primary" @click="closeDefinitionSettings">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
+    
   </div>
 </template>
 
@@ -100,11 +99,32 @@
       monitor: Boolean,
       backend: Object
     },
-
+    
     mounted: function () {
+      
       this.id = this.uuid();
       this.data.definition = this.validateDefinition(this.definition);
+      
       this.preLocale = this.data.definition._selectedLocale;
+      
+      // 프로세스 정의 초기화
+      var shortDescription = this.data.definition.shortDescription;      
+      if (!shortDescription || !shortDescription.text) {
+        var text = shortDescription;
+        shortDescription = new Object();
+        shortDescription._type = 'org.uengine.contexts.TextContext';
+        shortDescription.text = text;
+      }
+      
+      // mount시 현재 locale 값으로 text 처리 - 프로세스 정의 
+      if (shortDescription.localedTexts && shortDescription.localedTexts[this.preLocale]) {
+        shortDescription.text = shortDescription.localedTexts[this.preLocale];
+      }
+      this.defintionSettings = {
+          shortDescription: shortDescription
+      };
+      
+      // mount시 현재 locale 값으로 text 처리 - 프로세스 변수
       var processVariables = this.data.definition.processVariableDescriptors;
       if (processVariables && processVariables.length) {
         var copy = JSON.parse(JSON.stringify(processVariables));
@@ -120,6 +140,7 @@
         });
         this.processVariables = copy;
       }
+
       this.history = [JSON.parse(JSON.stringify(this.data.definition))];
       this.$nextTick(function () {
         //$nextTick delays the callback function until Vue has updated the DOM
@@ -127,9 +148,9 @@
         //  so make any DOM changes here
         this.canvas._CONFIG.FAST_LOADING = false;
         this.canvas.updateSlider();
-      })
+      });
     },
-
+    
     data: function () {
       return {
         enableHistoryAdd: false,
@@ -147,11 +168,23 @@
         propertyEditing: false,
         componentChangerData: null,
         preventEvent: false,
-        preLocale: null
+        preLocale: null,
+        defintionSettings: null
       };
     },
 
     watch: {
+      defintionSettings: {
+        handler: function (newVal) {
+          if (!this.defintionSettings.shortDescription.localedTexts) {
+            this.defintionSettings.shortDescription.localedTexts = {
+              _type: 'java.util.HashMap'
+            };
+          }
+          this.defintionSettings.shortDescription.localedTexts[this.data.definition._selectedLocale] = this.defintionSettings.shortDescription.text;          
+        },
+        deep: true
+      },    
       processVariables: {
         handler: function (after, before) {
           console.log('processVariables update!!', after);
@@ -196,6 +229,12 @@
               this.enableHistoryAdd = false;
             } else {
               if (this.preLocale != after.definition._selectedLocale) {
+              
+                // locale change시 defintionSettings locale 변경
+                if (this.defintionSettings.shortDescription.localedTexts[after.definition._selectedLocale]) {
+                  this.defintionSettings.shortDescription.text = this.defintionSettings.shortDescription.localedTexts[after.definition._selectedLocale];
+                }
+                              
                 // locale change시 processVariable locale 변경
                 var copy = JSON.parse(JSON.stringify(after.definition.processVariableDescriptors));
                 $.each(copy, function (i, variable) {
@@ -255,9 +294,6 @@
         this.$refs['processVariables'].close();
       },
       openDefinitionSettings(ref) {
-        if(!this.definition.shortDescription){
-          this.definition.shortDescription = '';
-        }
         this.$refs['definitionSettings'].open();
       },
       closeDefinitionSettings(ref) {
@@ -495,7 +531,6 @@
       validateDefinition: function (value) {
         var bpmnComponent, required, me = this;
         var definition = JSON.parse(JSON.stringify(value));
-
 
         //롤 검증.
         if (!definition.roles) {
