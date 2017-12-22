@@ -528,7 +528,7 @@
 
         // 프로세스 정의 처리
         definitionToSave.shortDescription = this.$refs['bpmn-vue'].defintionSettings.shortDescription;
-        
+
         var definition = {};
         me.backend.$bind("definition/raw/" + me.path + fileName, definition);
         definition.definition = definitionToSave;
@@ -593,7 +593,12 @@
         me.backend.$bind(url, instance);
         instance.$create().then(function() {
           me.$root.$children[0].success('작업 내역을 선택한 위치로 되돌렸습니다.');
-          me.getStatus();
+          //메세지가 나오기 전에 바로 화면 refresh를 시도하는 것을 막기 위해
+          //타이머를 설정하여 일정 시간이 지나면 화면을 refresh 한다.
+          setInterval(function () {
+            // router refresh
+            me.$router.go(me.$router.currentRoute);
+          }, 1500)
         });
       },
       changeLocale() {
