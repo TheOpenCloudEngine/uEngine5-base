@@ -182,7 +182,7 @@ export default new Router({
           },
         },
         {
-          path: 'instance/:id/:rootId',
+          path: 'instance/:rootId/:id',
           name: 'instanceMonitor',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
