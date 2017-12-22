@@ -11,8 +11,6 @@
         return {
             myConditionType: 'And',
 
-
-
         }
 
     }
