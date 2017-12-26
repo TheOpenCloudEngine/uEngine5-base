@@ -123,6 +123,14 @@
           </md-layout>
 
           <md-layout v-if="monitor">
+            <!--프로세스 변수-->
+            <md-button class="md-raised" id="instanceVariables" @click="openInstanceVariables">Process Variable</md-button>
+            <bpmn-instance-variables
+              :id="id"
+              :definition="definition"
+              v-if="definition"
+              ref="instanceVariables"></bpmn-instance-variables>
+            <!--담당자 변경-->
             <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
             <user-picker
               :id="id"
@@ -131,8 +139,6 @@
               v-if="definition"
               style="min-width: 70%;"></user-picker>
           </md-layout>
-
-          <md-layout></md-layout>
 
         </md-layout>
       </md-layout>
@@ -343,8 +349,8 @@
           instance.definition.$load().then(function (definition) {
             me.definitionName = definition.name;
             definition.raw.$load().then(function (raw_definition) {
+              var definition = raw_definition.definition;
               me.getStatus(function (result) {
-                var definition = raw_definition.definition;
                 for (var key in definition.childActivities[1]) {
                   //데이터 꾸미기 status 로 definition 바꾸기.
                   if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
@@ -540,6 +546,9 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
+      },
+      openInstanceVariables(ref) {
+        this.$refs['instanceVariables'].openInstanceVariables();
       },
       openUserPicker(ref) {
         this.$refs['userPicker'].openUserPicker();
