@@ -36,7 +36,7 @@
 
       <sub-elements>
         <image-element
-          :image="'/static/image/symbol/Service.png'"
+          :image="'../static/image/symbol/Service.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-top="'5px'"
@@ -171,6 +171,4 @@
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
-
 </style>
-
