@@ -85,7 +85,7 @@
        */
       imageBase: {
         default: function () {
-          return '/static/image/symbol/';
+          return '../static/image/symbol/';
         },
         type: String
       },
@@ -1135,7 +1135,6 @@
   }
 </script>
 
-
 <style scoped lang="scss" rel="stylesheet/scss">
   .canvas-wrapper {
     width: 100%;
@@ -1153,4 +1152,3 @@
     background: #f7f7f7;
   }
 </style>
-

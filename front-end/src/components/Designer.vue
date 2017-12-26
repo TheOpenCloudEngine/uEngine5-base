@@ -1,6 +1,5 @@
 <template>
   <div>
-    <link rel="stylesheet" href="/static/external/font-awesome.min.css">
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
       <md-button class="md-fab" md-fab-trigger>
         <md-icon md-icon-morph>ondemand_video</md-icon>
@@ -331,7 +330,7 @@
                 cards.push(definition);
 
                 definition.desc = name + '...';
-                definition.src = '/static/image/sample.png';
+                definition.src = './static/image/sample.png';
 
               }
 
@@ -355,7 +354,7 @@
                 name: name,
                 packagePath: _path,
                 desc: name + '...',
-                src: '/static/image/sample.png'
+                src: './static/image/sample.png'
               })
               packageChildren.push(
                 {
@@ -416,7 +415,7 @@
               var instanceId = instance.instanceId;
               me.$root.$children[0].success('프로세스가 시작되었습니다.');
               me.$router.push({
-                path: '/instance/' + instanceId + '/' + instanceId
+                path: '/instance/' + instanceId
               })
             },
             function (response) {
