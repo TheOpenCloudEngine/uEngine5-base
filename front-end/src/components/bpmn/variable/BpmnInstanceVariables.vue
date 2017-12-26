@@ -15,12 +15,10 @@
               </md-table-row>
             </md-table-header>
             <md-table-body>
-              <md-table-row v-for="(item, idx) in definition.processVariableDescriptors">
+              <md-table-row v-for="(item, idx) in instanceVariables" @dblclick.native="onDoubleClick(item, idx)">
                 <md-table-cell>{{item.name}}</md-table-cell>
                 <md-table-cell>{{item.displayName.text}}</md-table-cell>
-                <md-table-cell v-if="processVariables[idx] != null &&
-                                    processVariables[idx].variables != ''">{{processVariables[idx].variables}}</md-table-cell>
-                <md-table-cell v-else>{{item.defaultValueInString}}</md-table-cell>
+                <md-table-cell>{{item.defaultValueInString}}</md-table-cell>
                 <md-table-cell>{{item.typeClassName}}</md-table-cell>
               </md-table-row>
             </md-table-body>
@@ -29,6 +27,20 @@
       </md-dialog-content>
       <md-dialog-actions>
         <md-button class="md-primary" @click="$refs['instanceVariables'].close();">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="variableChange">
+      <md-dialog-title>Variable Change</md-dialog-title>
+      <md-dialog-content>
+        <md-input-container>
+          <label>Default Value In String</label>
+          <md-input v-model="selected.data" type="text"></md-input>
+        </md-input-container>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click.native="changeVariable(); $refs['variableChange'].close()">Change</md-button>
+        <md-button class="md-primary" @click.native="$refs['variableChange'].close()">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
   </div>
@@ -45,31 +57,66 @@
     },
     data() {
       return {
-        processVariables: [],
+        instanceVariables: [],
+        selected: {
+            name: null,
+            data: null
+        },
       };
     },
+    mounted() {
+      var me = this;
+      me.getInstanceVariables();
+    },
     methods: {
-      closeInstanceVariables(ref) {
-        this.$refs['instanceVariables'].close();
-      },
       openInstanceVariables(ref) {
-        var me = this;
-        me.instanceVariables(me.definition.processVariableDescriptors);
         this.$refs['instanceVariables'].open();
       },
       //인스턴스 변수를 불러온다.
-      instanceVariables: function(processVariableDescriptors) {
+      getInstanceVariables: function() {
         var me = this;
-        var variables = [];
-        for(var idx in processVariableDescriptors) {
-          //하이바인드 적용시 데이터가 내려오지 않는 문제로 인해
+        var responseIndex = 0;
+        me.instanceVariables = me.definition.processVariableDescriptors;
+        for(var i in me.instanceVariables) {
+          //아래의 API에서 hateoas를 지원하지 않아 하이바인드 적용이 불가하여
           //기존의 방법을 사용하여 데이터를 받아옴
-          me.$root.codi('instance{/id}/variable{/variable}/').get({id: me.id, variable: processVariableDescriptors[idx].name})
+          me.$root.codi('instance{/id}/variable{/variable}/').get({id: me.id, variable: me.instanceVariables[i].name})
             .then(function (response) {
-              variables.push({ variables: response.data });
-              me.processVariables = variables;
+              me.replaceVariable(responseIndex, response.data);
+              responseIndex++;
             })
         }
+      },
+      replaceVariable: function(idx, instanceVariable) {
+        var me = this;
+        if(instanceVariable != '' && me.instanceVariables[idx].defaultValueInString != instanceVariable) {
+          me.instanceVariables[idx].defaultValueInString = instanceVariable;
+        }
+      },
+      //선택된 항목을 selected 변수에 담은 후에 모달창을 오픈한다.
+      onDoubleClick: function (item, idx) {
+        var me = this;
+        me.selected.data = item.defaultValueInString;
+        me.selected.name = item.name;
+        me.selected.idx = idx;
+        this.$refs['variableChange'].open();
+      },
+      //변수 변경을 눌렀을 시
+      changeVariable: function () {
+        var me = this;
+        var instance = {};
+        var url = "instance/" + me.id + "/variable/" + me.selected.name + "?varValue=" + me.selected.data;
+        //아래의 API에서 hateoas를 지원하지 않아 하이바인드 적용이 불가하여
+        //기존의 방법을 사용하여 데이터를 받아옴
+        me.$root.codi(url).save({})
+          .then(function (response) {
+              me.$root.$children[0].success('변경되었습니다.');
+              //qusrud
+              me.instanceVariables[me.selected.idx].defaultValueInString = me.selected.data;
+            },
+            function (response) {
+              me.$root.$children[0].error('변경할 수 없습니다.');
+            })
       },
     }
   }
