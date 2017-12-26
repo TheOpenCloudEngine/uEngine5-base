@@ -76,16 +76,18 @@
         <form novalidate @submit.stop.prevent="submit">
           <md-input-container>
             <label>짧은 설명</label>
-            <md-input v-model="definition.shortDescription"></md-input>
+            <md-input v-model="definition.shortDescription.text"></md-input>
           </md-input-container>
           <md-checkbox v-model="definition.initiateByFirstWorkitem">첫 휴먼-액티비티으로 시작</md-checkbox>
         </form>
+
       </md-dialog-content>
 
       <md-dialog-actions>
         <md-button class="md-primary" @click="closeDefinitionSettings">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
+
   </div>
 </template>
 
@@ -147,7 +149,12 @@
         propertyEditing: false,
         componentChangerData: null,
         preventEvent: false,
-        preLocale: null
+        preLocale: null,
+        condition:{
+            _type: 'org.uengine.kernel.Or',
+          conditionsVt: []
+
+        }
       };
     },
 
@@ -256,7 +263,9 @@
       },
       openDefinitionSettings(ref) {
         if(!this.definition.shortDescription){
-          this.definition.shortDescription = '';
+          this.definition.shortDescription = {
+              text:''
+          };
         }
         this.$refs['definitionSettings'].open();
       },

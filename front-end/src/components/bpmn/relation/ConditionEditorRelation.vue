@@ -36,8 +36,9 @@
         <md-checkbox v-model="complexCondition">복잡 조건</md-checkbox>
 
 
-        <org-uengine-kernel-Or v-if="complexCondition" :data="relation.condition"></org-uengine-kernel-Or>
-        <org-uengine-kernel-Evaluate v-else :data="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
+        <org-uengine-kernel-Or v-if="complexCondition" :data.sync="relation.condition"></org-uengine-kernel-Or>
+        <org-uengine-kernel-Evaluate v-else :data.sync="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
+
       </template>
 
 
@@ -45,6 +46,8 @@
 
       </template>
     </bpmn-property-panel>
+
+
   </div>
 </template>
 
@@ -102,9 +105,16 @@
       return {
         otherwise: false,
         complexCondition: false,
+        condition: {
+            _type:'org.uengine.kernel.Or',
+          conditionsVt:[]
+        }
       };
     },
     watch: {
+        condition: function(val){
+          this.relation.condition = val;
+        },
       drawer: function (val) {
         //패널 열릴때 other wise 체크
         if (val) {

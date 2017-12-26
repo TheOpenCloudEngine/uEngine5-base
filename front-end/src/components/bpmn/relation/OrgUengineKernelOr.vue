@@ -6,9 +6,7 @@
     <ul>
       <div v-for="childCondition in data.conditionsVt">
 
-
         <component :is="childCondition._type.split('.').join('-')" :data="childCondition"></component>
-
 
       </div>
 
@@ -59,6 +57,12 @@
         this.data.conditionsVt.push({
           _type: this.conditionType
         })
+
+//        var temp = this.data;
+//        this.data = null;
+//        this.data = temp;
+
+        this.$emit('update:data');
 
       }
 

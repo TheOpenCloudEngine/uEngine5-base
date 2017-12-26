@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <horizontal-lane-element
       selectable
@@ -36,6 +37,13 @@
           <md-input type="text"
                     v-model="role.name"></md-input>
         </md-input-container>
+        <md-input-container v-if="serviceIds">
+          <label>유레카에서 롤명 가져오기</label>
+          <md-select
+                    v-model="role.name">
+            <md-option :value="serviceId" v-for="serviceId in serviceIds">{{serviceId}}</md-option>
+          </md-select>
+        </md-input-container>
       </template>
       <template slot="additional-tabs">
 
@@ -50,6 +58,26 @@
     mixins: [IBpmn],
     name: 'bpmn-role',
     props: {},
+    created: function(){
+
+        var me = this;
+
+      this.$root.codi('eureka/apps').get()
+        .then(function (response) {
+
+            console.log(response.data);
+
+            response.data.applications.application.forEach(function(application){
+                if(me.serviceIds == null) me.serviceIds = [];
+
+                me.serviceIds.push(application.name);
+
+            });
+
+        });
+
+
+    },
     computed: {
       defaultStyle(){
         return {}
@@ -74,7 +102,10 @@
       }
     },
     data: function () {
-      return {};
+      return {
+          serviceIds: null
+
+      };
     },
     watch: {
       'role.name': function (newVal, oldVal) {
