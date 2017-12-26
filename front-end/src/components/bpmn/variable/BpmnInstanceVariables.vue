@@ -18,7 +18,8 @@
               <md-table-row v-for="(item, idx) in definition.processVariableDescriptors">
                 <md-table-cell>{{item.name}}</md-table-cell>
                 <md-table-cell>{{item.displayName.text}}</md-table-cell>
-                <md-table-cell v-if="processVariables[idx].variables != ''">{{processVariables[idx].variables}}</md-table-cell>
+                <md-table-cell v-if="processVariables[idx] != null &&
+                                    processVariables[idx].variables != ''">{{processVariables[idx].variables}}</md-table-cell>
                 <md-table-cell v-else>{{item.defaultValueInString}}</md-table-cell>
                 <md-table-cell>{{item.typeClassName}}</md-table-cell>
               </md-table-row>
