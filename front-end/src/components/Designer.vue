@@ -1,23 +1,23 @@
 <template>
   <div>
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
+    
       <md-button class="md-fab" md-fab-trigger>
-        <md-icon md-icon-morph>ondemand_video</md-icon>
+        <md-icon md-icon-morph>add</md-icon>
         <md-icon>add</md-icon>
       </md-button>
 
       <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newProcess">
-        <md-icon>ondemand_video</md-icon>
+        <md-icon>device_hub</md-icon>
       </md-button>
-
       <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newClass">
         <md-icon>view_stream</md-icon>
-      </md-button>
-
+      </md-button>      
       <md-button class="md-fab md-primary md-mini md-clean"
                  @click.native="selectedPackge = {}; $refs['create'].open()">
         <md-icon>folder</md-icon>
       </md-button>
+      
     </md-speed-dial>
     <md-layout>
       <ul class="breadcrumb">
@@ -35,7 +35,7 @@
     </md-layout>
     <div class="side-margin">
       <md-layout v-if="directory.length > 0">
-        Package
+        {{ $t("message['title.desinger.package']") }}
       </md-layout>
       <md-layout>
         <md-layout md-gutter="24">
@@ -57,15 +57,15 @@
                     <md-menu-content>
                       <md-menu-item
                         @click.native="selectedPackge = {'name' : item.name, 'path' : item.path}; $refs['update'].open()">
-                        <span>Rename</span>
+                        <span>{{ $t("message['button.rename']") }}</span>
                         <md-icon>edit</md-icon>
                       </md-menu-item>
                       <md-menu-item @click.native="originPackage = item.path; $refs['move'].open();">
-                        <span>Move</span>
+                        <span>{{ $t("message['button.move']") }}</span>
                         <md-icon>folder_open</md-icon>
                       </md-menu-item>
                       <md-menu-item @click.native="selectedPackge = item; $refs['delete'].open()">
-                        <span>Delete</span>
+                        <span>{{ $t("message['button.delete']") }}</span>
                         <md-icon>delete</md-icon>
                       </md-menu-item>
                     </md-menu-content>
@@ -77,9 +77,7 @@
           </md-layout>
         </md-layout>
       </md-layout>
-      <md-layout v-if="cards.length > 0">
-        Process
-      </md-layout>
+      <md-layout v-if="cards.length > 0">{{ $t("message['title.desinger.process']") }}</md-layout>
       <md-layout mo-gutter>
         <md-layout md-gutter="24">
           <md-layout md-flex-xsmall="100" md-flex-small="50" md-flex-medium="25" md-flex="25"
@@ -104,15 +102,14 @@
               </md-card-area>
 
               <md-card-actions>
-                <md-button v-on:click="initiateProcess(card)">Activate</md-button>
-                <md-button v-on:click="move(card)">Edit</md-button>
+                <md-button v-on:click="initiateProcess(card)">{{ $t("message['button.activate']") }}</md-button>
+                <md-button v-on:click="move(card)">{{ $t("message['button.edit']") }}</md-button>
               </md-card-actions>
               <md-card-actions>
-                <md-button
-                  @click.native="originPackage = card.path; $refs['move'].open();">
-                  Move
+                <md-button @click.native="originPackage = card.path; $refs['move'].open();">
+                  {{ $t("message['button.move']") }}
                 </md-button>
-                <md-button v-on:click="deleteProcess(card.name, card.packagePath)">Delete</md-button>
+                <md-button v-on:click="deleteProcess(card.name, card.packagePath)">{{ $t("message['button.delete']") }}</md-button>
               </md-card-actions>
             </md-card>
           </md-layout>
@@ -121,10 +118,10 @@
     </div>
     <!-- Move Form -->
     <md-dialog md-open-from="#fab" md-close-to="#fab" ref="move">
-      <md-dialog-title>Move Pacakge</md-dialog-title>
+      <md-dialog-title>{{ $t("message['title.desinger.package.move']") }}</md-dialog-title>
       <md-dialog-content>
         <md-input-container>
-          <label>Move Package List</label>
+          <label>{{ $t("message['message.package.list']") }}</label>
           <md-select v-model="selectedPackge" class="select-option">
             <md-option v-if="current !== package.path"
                        v-for="package in breadcrumb" :value="package.path">
@@ -142,37 +139,37 @@
         </md-input-container>
       </md-dialog-content>
       <md-dialog-actions>
-        <md-button class="md-primary" @click.native="moveClose(); $refs['move'].close()">Move</md-button>
-        <md-button class="md-primary" @click.native="$refs['move'].close()">Close</md-button>
+        <md-button class="md-primary" @click.native="moveClose(); $refs['move'].close()">{{ $t("message['button.move']") }}</md-button>
+        <md-button class="md-primary" @click.native="$refs['move'].close()">{{ $t("message['button.close']") }}</md-button>
       </md-dialog-actions>
     </md-dialog>
     <!-- Update Form -->
     <!-- Insert Form -->
     <md-dialog md-open-from="#fab" md-close-to="#fab" ref="create">
-      <md-dialog-title>New Package</md-dialog-title>
+      <md-dialog-title>{{ $t("message['title.desinger.new.package']") }}</md-dialog-title>
       <md-dialog-content>
         <md-input-container>
-          <label>Package Name</label>
+          <label>{{ $t("message['title.desinger.package.name']") }}</label>
           <md-input v-model="selectedPackge.name" type="text" ></md-input>
         </md-input-container>
       </md-dialog-content>
       <md-dialog-actions>
-        <md-button class="md-primary" @click.native="insertClose(); $refs['create'].close()">Create</md-button>
-        <md-button class="md-primary" @click.native="$refs['create'].close()">Close</md-button>
+        <md-button class="md-primary" @click.native="insertClose(); $refs['create'].close()">{{ $t("message['button.create']") }}</md-button>
+        <md-button class="md-primary" @click.native="$refs['create'].close()">{{ $t("message['button.close']") }}</md-button>
       </md-dialog-actions>
     </md-dialog>
     <!-- Update Form -->
     <md-dialog md-open-from="#fab" md-close-to="#fab" ref="update">
-      <md-dialog-title>Rename Package</md-dialog-title>
+      <md-dialog-title>{{ $t("message['title.desinger.rename.package']") }}</md-dialog-title>
       <md-dialog-content>
         <md-input-container>
-          <label>Package Name</label>
+          <label>{{ $t("message['title.desinger.package.name']") }}</label>
           <md-input v-model="selectedPackge.name" type="text"></md-input>
         </md-input-container>
       </md-dialog-content>
       <md-dialog-actions>
-        <md-button class="md-primary" @click.native="updateClose(); $refs['update'].close()">Rename</md-button>
-        <md-button class="md-primary" @click.native="$refs['update'].close()">Close</md-button>
+        <md-button class="md-primary" @click.native="updateClose(); $refs['update'].close()">{{ $t("message['button.rename']") }}</md-button>
+        <md-button class="md-primary" @click.native="$refs['update'].close()">{{ $t("message['button.close']") }}</md-button>
       </md-dialog-actions>
     </md-dialog>
     <!-- Delete Confirm -->
@@ -395,7 +392,7 @@
         this.$router.push({
           path: 'classdefinition'// + path + 'new-class-definition'
         })
-      },
+      },      
       move: function (card) {
         var path = this.current.replace(/\//g, "-");
         path = path.substring(1, path.length);

@@ -1,0 +1,20 @@
+{"message": {
+    "button.activate": "시작",
+    "button.close": "닫기",
+    "button.create": "생성",
+    "button.delete": "삭제",
+    "button.edit": "수정",
+    "button.move": "이동",
+    "button.rename": "이름변경",
+    
+    "common.logout": "로그아웃",
+    
+    "message.package.list": "패키지 목록",
+    
+    "title.desinger.package": "패키지",
+    "title.desinger.package.move": "패키지 이동",
+    "title.desinger.package.name": "패키지 명",
+    "title.desinger.process": "프로세스",
+    "title.desinger.rename.package": "패키지명 변경",
+    "title.desinger.new.package": "패키지 생성"
+}}
