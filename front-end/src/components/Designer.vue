@@ -1,6 +1,5 @@
 <template>
   <div>
-    <link rel="stylesheet" href="/static/external/font-awesome.min.css">
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
       <md-button class="md-fab" md-fab-trigger>
         <md-icon md-icon-morph>ondemand_video</md-icon>
@@ -335,7 +334,7 @@
                 cards.push(definition);
 
                 definition.desc = name + '...';
-                definition.src = '/static/image/sample.png';
+                definition.src = './static/image/sample.png';
 
               }
 
@@ -359,7 +358,7 @@
                 name: name,
                 packagePath: _path,
                 desc: name + '...',
-                src: '/static/image/sample.png'
+                src: './static/image/sample.png'
               })
               packageChildren.push(
                 {

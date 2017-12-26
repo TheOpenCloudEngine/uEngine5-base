@@ -290,7 +290,7 @@
       onClickList: function (instId) {
         //move to instance detail page
         this.$router.push({
-          path: 'instance/' + instId
+          path: 'instance/' + instId + '/' + instId
         })
       },
       onPagination(e) {

@@ -2,10 +2,9 @@
   <div class="canvas-panel">
     <md-layout>
       <md-layout md-flex="20">
-        <md-list v-if="monitor">
+        <md-list v-if="monitor" class="tree-list">
           <bpmn-tree-list
-            :model="treeData"
-            :id="id">
+            :trees="trees">
           </bpmn-tree-list>
         </md-list>
       </md-layout>
@@ -87,16 +86,13 @@
             </md-input-container>
           </md-layout>
 
-
-          <!--프로세스 정의-->
+          <!--프로세스 세이브-->
           <md-layout v-if="!monitor">
-            <md-button c lass="md-primary" id="processVariables" @click="openDefinitionSettings"><md-icon>settings</md-icon> Defintion Settings</md-button>
+            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
+              <md-icon>save</md-icon>
+            </md-button>
           </md-layout>
 
-          <!--프로세스 변수-->
-          <md-layout v-if="!monitor">
-            <md-button c lass="md-primary" id="processVariables" @click="openProcessVariables"><md-icon>sort_by_alpha</md-icon> Process Variable</md-button>
-          </md-layout>
           <!--로케일-->
           <md-layout v-if="!monitor && definition">
             <md-input-container>
@@ -108,13 +104,15 @@
             </md-input-container>
           </md-layout>
 
-          <!--프로세스 세이브-->
+          <!--프로세스 정의-->
           <md-layout v-if="!monitor">
-            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
-              <md-icon>save</md-icon>
-            </md-button>
+            <md-button class="md-raised" id="defintionSettings" @click="openDefinitionSettings">Defintion Settings</md-button>
           </md-layout>
 
+          <!--프로세스 변수-->
+          <md-layout v-if="!monitor">
+            <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable</md-button>
+          </md-layout>
 
           <!--인스턴스 이름-->
           <md-layout v-if="monitor">
@@ -125,6 +123,14 @@
           </md-layout>
 
           <md-layout v-if="monitor">
+            <!--프로세스 변수-->
+            <md-button class="md-raised" id="instanceVariables" @click="openInstanceVariables">Process Variable</md-button>
+            <bpmn-instance-variables
+              :id="id"
+              :definition="definition"
+              v-if="definition"
+              ref="instanceVariables"></bpmn-instance-variables>
+            <!--담당자 변경-->
             <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
             <user-picker
               :id="id"
@@ -133,8 +139,6 @@
               v-if="definition"
               style="min-width: 70%;"></user-picker>
           </md-layout>
-
-          <md-layout></md-layout>
 
         </md-layout>
       </md-layout>
@@ -159,6 +163,7 @@
       return {
         contextMenuActivated: false,
         id: null,
+        rootId: null,
         path: '',
         definition: null,
         definitionName: null,
@@ -236,7 +241,6 @@
           }
         ],
         trees: [],
-        treeData: {},
         bthTracingTag: ""
       }
     },
@@ -338,14 +342,15 @@
       getInstance: function () {
         var me = this;
         me.id = this.$route.params.id;
+        me.rootId = this.$route.params.rootId;
         var instance = {};
         me.backend.$bind("instance/" + me.id, instance);
         instance.$load().then(function () {
           instance.definition.$load().then(function (definition) {
             me.definitionName = definition.name;
             definition.raw.$load().then(function (raw_definition) {
+              var definition = raw_definition.definition;
               me.getStatus(function (result) {
-                var definition = raw_definition.definition;
                 for (var key in definition.childActivities[1]) {
                   //데이터 꾸미기 status 로 definition 바꾸기.
                   if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
@@ -355,70 +360,37 @@
                   me.definition = definition;
                 }
               });
+              me.treeStructure();
             });
           });
         });
       },
-      //트리 구조를 위해 mainInstanceId가 있는지 확인한다.
-      //재귀호출하여 상위 인스턴스가 없을 때까지 찾는다.
-      findParent: function (instanceId) {
-        var me = this;
-        me.$root.codi('instances{/id}').get({id: instanceId})
-          .then(function (response) {
-            var mainInstId = response.data.mainInstId;
-            var name = me.getLastText(response.data.defId).replace('.json', '');
-            var instanceId = me.getLastText(response.data._links.self.href);
-            if (mainInstId == null) {
-              me.trees.push({
-                name: name,
-                id: instanceId,
-                parentId: instanceId,
-                children: null
-              });
-              me.treeStruecture(instanceId);
-              return false;
-            }
-            me.findParent(mainInstId);
-          })
-      },
       //트리 구조를 위해 subprocess가 있는지 확인한다.
-      //재귀호출하여 하위 참조 인스턴스가 없을 때까지 찾는다.
-      treeStructure: function (instanceId) {
-        //instanceId가 null로 들어오는 경우가 있어 체크함
-        if (instanceId == null) {
-          return;
-        }
-
+      treeStructure: function () {
         var me = this;
-        me.$root.codi('instances/search/findChild?instId=' + instanceId).get()
-          .then(function (response) {
-            $.each(response.data, function (key, instances) {
-              if (key == '_embedded') {
-                if (instances.instances.length == 0) {
-                  var tree = me.listToTree(me.trees);
-                  me.treeData = tree[0];
-                  return false;
-                }
-                var name = instances.instances[0]["defId"].replace('codi/', '');
-                var childId = instances.instances[0]["_links"]["self"]["href"];
-                childId = me.getLastText(childId);
-                me.trees.push({
-                  name: name,
-                  id: childId,
-                  parentId: instanceId,
-                  children: null
-                });
-              }
-              me.treeStructure(childId);
-            });
-          })
-      },
-      getLastText: function (_val) {
-        var length = _val.length;
-        var lastSlash = _val.lastIndexOf('/') + 1;
-        var lastText = _val.substring(lastSlash, length);
 
-        return lastText;
+        var instance = {};
+        me.backend.$bind("instances/search/findChild?instId=" + me.rootId, instance);
+
+        var tree = [];
+        instance.$load().then(function (instances) {
+
+          for(var i in instances) {
+            if(instances[i] instanceof Object) {
+              //hateoas에서는 self 링크에 자신의 id가 담겨있다.
+              var selfLink = instances[i].$bind.self;
+              var instId = selfLink.substring(selfLink.lastIndexOf("/")+1, selfLink.length);
+              tree[i] = {
+                "name": instances[i].defName,
+                "id": parseInt(instId),
+                "rootInstId": instances[i].rootInstId,
+                "mainInstId": instances[i].mainInstId,
+                "children": null
+              };
+            }
+          }
+          me.trees = me.listToTree(tree);
+        });
       },
       listToTree: function (list) {
         var map = {}, node, roots = [], i;
@@ -429,17 +401,12 @@
         for (i = 0; i < list.length; i += 1) {
           node = list[i];
           if (i !== 0) {
-            list[map[node.parentId]].children.push(node);
+            list[map[node.mainInstId]].children.push(node);
           } else {
             roots.push(node);
           }
         }
         return roots;
-      },
-      toggle: function () {
-        if (this.isFolder) {
-          this.open = !this.open
-        }
       },
       getStatus: function (callback) {
         var me = this;
@@ -479,7 +446,6 @@
           me.definition = {
             _type: 'org.uengine.kernel.ProcessDefinition',
             name: {},
-            shortDescription: '',
             childActivities: [
               'java.util.ArrayList',
               []
@@ -566,6 +532,9 @@
 //        this.activity.role.name =
 //          this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
 
+        // 프로세스 정의 처리
+        definitionToSave.shortDescription = this.$refs['bpmn-vue'].defintionSettings.shortDescription;
+
         var definition = {};
         me.backend.$bind("definition/raw/" + me.path + fileName, definition);
         definition.definition = definitionToSave;
@@ -577,6 +546,9 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
+      },
+      openInstanceVariables(ref) {
+        this.$refs['instanceVariables'].openInstanceVariables();
       },
       openUserPicker(ref) {
         this.$refs['userPicker'].openUserPicker();
@@ -630,19 +602,26 @@
         me.backend.$bind(url, instance);
         instance.$create().then(function() {
           me.$root.$children[0].success('작업 내역을 선택한 위치로 되돌렸습니다.');
-          me.getStatus();
+          //메세지가 나오기 전에 바로 화면 refresh를 시도하는 것을 막기 위해
+          //타이머를 설정하여 일정 시간이 지나면 화면을 refresh 한다.
+          setInterval(function () {
+            // router refresh
+            me.$router.go(me.$router.currentRoute);
+          }, 1500)
         });
       },
       changeLocale() {
         var me = this;
         me.definition._changedByLocaleSelector = true;
-        me.definition.childActivities[1].forEach(function(activity) {
-          if (activity && activity.name && activity.name.localedTexts) {
-            if (activity.name.localedTexts[me.definition._selectedLocale]) {
-              activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
+        if (me.definition.childActivities) {
+          me.definition.childActivities[1].forEach(function(activity) {
+            if (activity && activity.name && activity.name.localedTexts) {
+              if (activity.name.localedTexts[me.definition._selectedLocale]) {
+                activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
+              }
             }
-          }
-        });
+          });
+        }
       }
     }
   }
@@ -748,4 +727,3 @@
     background-color: #DEF;
   }
 </style>
-

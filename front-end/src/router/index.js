@@ -71,7 +71,6 @@ Vue.http.interceptors.push(function (request, next) {
  * Hybind
  */
 var access_token = localStorage["access_token"];
-
 var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
 
 
@@ -112,6 +111,7 @@ Vue.component('chart-example', ChartExample);
 
 export default new Router({
   mode: 'history',
+  base: '/',
   routes: [
     {
       path: '/',
@@ -190,7 +190,7 @@ export default new Router({
           },
         },
         {
-          path: 'instance/:id',
+          path: 'instance/:rootId/:id',
           name: 'instanceMonitor',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
@@ -199,7 +199,7 @@ export default new Router({
             iam: iam,
             backend: backend
           }
-        }
+        }     
       ]
     },
     {

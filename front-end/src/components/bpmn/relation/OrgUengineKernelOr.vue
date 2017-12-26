@@ -9,17 +9,23 @@
         <component :is="childCondition._type.split('.').join('-')" :data="childCondition"></component>
 
       </div>
-
-      <md-button @click="addCondition">Add</md-button>
-      <md-select v-model="conditionType">
-        <md-option value="org.uengine.kernel.And">And</md-option>
-        <md-option value="org.uengine.kernel.Or">Or</md-option>
-        <md-option value="org.uengine.kernel.Evaluate">Evaluate</md-option>
-
-      </md-select>
-
+      
+      <md-layout md-gutter style="clear: both;">
+        <md-layout>
+          <md-input-container>
+            <md-select v-model="conditionType" md-elevation="2">
+              <md-option value="org.uengine.kernel.And">And</md-option>
+              <md-option value="org.uengine.kernel.Or">Or</md-option>
+              <md-option value="org.uengine.kernel.Evaluate">Evaluate</md-option>
+            </md-select>
+          </md-input-container>
+        </md-layout>
+        <md-layout>
+          <md-button @click="addCondition" class="md-raised md-primary" style="margin-top: 15px; margin-left: 12px; height: 30px;">Add</md-button>
+        </md-layout>
+      </md-layout>
+      
     </ul>
-
     )
   </div>
 
@@ -40,7 +46,6 @@
       },
 
       props: {
-
           data: Object
       },
 

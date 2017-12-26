@@ -88,7 +88,9 @@ public class DefinitionServiceImpl implements DefinitionService {
     @Override
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
 
-        definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
+        if (definitionPath.indexOf(".") != -1) {
+            definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
+        }
 
         IResource resource = new DefaultResource(resourceRoot + "/" + definitionPath);
         if (!resourceManager.exists(resource)) {

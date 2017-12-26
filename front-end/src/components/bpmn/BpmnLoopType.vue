@@ -2,7 +2,7 @@
   <div>
     <image-element
       v-if="loopType == 'Standard'"
-      :image="'/static/image/symbol/loop_standard.png'"
+      :image="'../static/image/symbol/loop_standard.png'"
       :sub-width="'15px'"
       :sub-height="'15px'"
       :sub-bottom="'5px'"
@@ -53,8 +53,5 @@
   }
 </script>
 
-
 <style scoped lang="scss" rel="stylesheet/scss">
-
 </style>
-
