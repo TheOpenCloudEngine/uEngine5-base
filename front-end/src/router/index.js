@@ -21,6 +21,8 @@ import RenamePackage from '@/components/bpm-portal/RenamePackage'
 import DeletePackage from '@/components/bpm-portal/DeletePackage'
 import ListPackage from '@/components/bpm-portal/ListPackage'
 import MovePackage from '@/components/bpm-portal/MovePackage'
+import ClassModeler from '@/components/class/ClassModeler'
+
 
 
 //import CustomizedSvgGraph from '@/components/CustomizedSvgGraph'
@@ -171,6 +173,12 @@ export default new Router({
           props: {
             backend: backend
           },
+        },
+        {
+          path: 'classdefinition',
+          name: 'classdefinition',
+          component: ClassModeler,
+          beforeEnter: RouterGuard.requireUser,
         },
         {
           path: 'instance',

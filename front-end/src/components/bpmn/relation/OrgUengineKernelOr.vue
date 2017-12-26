@@ -63,6 +63,12 @@
           _type: this.conditionType
         })
 
+//        var temp = this.data;
+//        this.data = null;
+//        this.data = temp;
+
+        this.$emit('update:data');
+
       }
 
     }

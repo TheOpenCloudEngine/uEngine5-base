@@ -259,7 +259,7 @@
 
 <style lang="scss" rel="stylesheet/scss">
   .md-sidenav .md-sidenav-content {
-    width: 400px
+    width: 600px
   }
 </style>
 

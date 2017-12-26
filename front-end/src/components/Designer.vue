@@ -10,6 +10,10 @@
         <md-icon>ondemand_video</md-icon>
       </md-button>
 
+      <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newClass">
+        <md-icon>view_stream</md-icon>
+      </md-button>
+
       <md-button class="md-fab md-primary md-mini md-clean"
                  @click.native="selectedPackge = {}; $refs['create'].open()">
         <md-icon>folder</md-icon>
@@ -382,6 +386,14 @@
         if (path !== "") path += "/";
         this.$router.push({
           path: 'definition/' + path + 'new-process-definition'
+        })
+      },
+      newClass: function () {
+        var path = this.current.replace(/\//g, "-");
+        path = path.substring(1, path.length);
+        if (path !== "") path += "/";
+        this.$router.push({
+          path: 'classdefinition'// + path + 'new-class-definition'
         })
       },
       move: function (card) {

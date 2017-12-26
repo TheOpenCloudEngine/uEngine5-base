@@ -76,12 +76,17 @@
         <bpmn-parameter-contexts
           :parameter-contexts="activity.parameters"
           :definition="definition"
+          :multi="true"
         ></bpmn-parameter-contexts>
+        <bpmn-mapper></bpmn-mapper>
         <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
                     v-model.number="activity.retryDelay"></md-input>
         </md-input-container>
+
+
+
       </template>
       <template slot="additional-tabs">
 

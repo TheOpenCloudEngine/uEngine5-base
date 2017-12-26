@@ -4,6 +4,7 @@ import Vue from 'vue'
 import VueMaterial from '../node_modules/vue-material'
 import BpmnVue from './components/bpmn'
 import Opengraph from './components/opengraph'
+import ClassVue from './components/class'
 
 import App from './App'
 import router from './router'
@@ -12,6 +13,7 @@ import router from './router'
 Vue.use(VueMaterial);
 Vue.use(BpmnVue);
 Vue.use(Opengraph);
+Vue.use(ClassVue);
 
 Vue.config.productionTip = false
 
