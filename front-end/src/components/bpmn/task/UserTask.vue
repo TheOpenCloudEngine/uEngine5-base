@@ -78,7 +78,7 @@
           :definition="definition"
           :multi="true"
         ></bpmn-parameter-contexts>
-        <bpmn-mapper></bpmn-mapper>
+        <!-- <bpmn-mapper></bpmn-mapper> -->
         <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
