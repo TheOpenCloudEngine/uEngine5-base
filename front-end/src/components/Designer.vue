@@ -1,7 +1,7 @@
 <template>
   <div>
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
-    
+
       <md-button class="md-fab" md-fab-trigger>
         <md-icon md-icon-morph>add</md-icon>
         <md-icon>add</md-icon>
@@ -12,12 +12,12 @@
       </md-button>
       <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newClass">
         <md-icon>view_stream</md-icon>
-      </md-button>      
+      </md-button>
       <md-button class="md-fab md-primary md-mini md-clean"
                  @click.native="selectedPackge = {}; $refs['create'].open()">
         <md-icon>folder</md-icon>
       </md-button>
-      
+
     </md-speed-dial>
     <md-layout>
       <ul class="breadcrumb">
@@ -392,7 +392,7 @@
         this.$router.push({
           path: 'classdefinition'// + path + 'new-class-definition'
         })
-      },      
+      },
       move: function (card) {
         var path = this.current.replace(/\//g, "-");
         path = path.substring(1, path.length);
@@ -424,7 +424,7 @@
               var instanceId = instance.instanceId;
               me.$root.$children[0].success('프로세스가 시작되었습니다.');
               me.$router.push({
-                path: '/instance/' + instanceId
+                path: '/instance/' + instanceId + '/' + instanceId
               })
             },
             function (response) {
