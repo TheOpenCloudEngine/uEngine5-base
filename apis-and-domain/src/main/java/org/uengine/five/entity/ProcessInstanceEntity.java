@@ -312,22 +312,26 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
 
     @Override
     public boolean getIsAdhoc() {
-        return false;
+        // 기존 소스 호환
+        return this.adhoc;
     }
 
     @Override
     public void setIsAdhoc(boolean isAdhoc) {
-
+        // 기존 소스 호환
+        this.adhoc = isAdhoc;
     }
 
     @Override
     public boolean getIsSubProcess() {
-        return false;
+        // 기존 소스 호환
+        return this.subProcess;
     }
 
     @Override
     public void setIsSubProcess(boolean isSubProcess) {
-
+        // 기존 소스 호환
+        this.subProcess = isSubProcess;
     }
 
     @Override
