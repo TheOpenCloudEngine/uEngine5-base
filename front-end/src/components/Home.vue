@@ -5,7 +5,7 @@
         <md-icon>menu</md-icon>
       </md-button>
       <h2 class="md-title">uEngine5</h2>
-      <md-button class="md-raised md-primary" @click="logout">로그 아웃</md-button>
+      <md-button class="md-raised md-primary" @click="logout">{{ $t("message['common.logout']") }}</md-button>
       <avatar-uploader :iam="iam"></avatar-uploader>
     </md-toolbar>
 
