@@ -157,7 +157,10 @@
         processVariables: [],
         data: {
           definition: null,
-          trigger: {}
+          trigger: {},
+//          pv: {
+//            name: ''
+//          }
         },
         history: [],
         historyIndex: 0,

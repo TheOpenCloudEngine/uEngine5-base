@@ -35,8 +35,19 @@
 
         <md-checkbox v-model="complexCondition">복잡 조건</md-checkbox>
 
+        <div v-if="complexCondition">
+          <md-input-container>
+            <md-select v-model="thisConditionType" md-elevation="2">
+              <md-option value="org.uengine.kernel.And">And</md-option>
+              <md-option value="org.uengine.kernel.Or">Or</md-option>
+            </md-select>
+          </md-input-container>
 
-        <org-uengine-kernel-Or v-if="complexCondition" :data="relation.condition"></org-uengine-kernel-Or>
+          <org-uengine-kernel-Or v-if="thisConditionType == 'org.uengine.kernel.Or'" :data="relation.condition" :definition="definition"></org-uengine-kernel-Or>
+          <org-uengine-kernel-And v-if="thisConditionType == 'org.uengine.kernel.And'" :data="relation.condition" :definition="definition"></org-uengine-kernel-And>
+        </div>
+
+
         <org-uengine-kernel-Evaluate v-else :data="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
       </template>
 
@@ -76,7 +87,7 @@
             _type: 'org.uengine.kernel.Evaluate',
             pv: {
               _type: 'org.uengine.kernel.ProcessVariable',
-
+              name: ''
             },
             condition: '==',
             val: ''
@@ -102,6 +113,7 @@
       return {
         otherwise: false,
         complexCondition: false,
+        thisConditionType: 'org.uengine.kernel.Or'
       };
     },
     watch: {
@@ -126,6 +138,7 @@
             _type: 'org.uengine.kernel.Evaluate',
             pv: {
               _type: 'org.uengine.kernel.ProcessVariable',
+              name: '',
             },
             condition: '==',
             val: ''
@@ -144,9 +157,12 @@
     mounted: function () {
     },
     methods: {
-
-
-
+      setDefinition: function (def) {
+        this.def = def
+      },
+      setData: function (data) {
+        this.data = data
+      }
     }
   }
 </script>
