@@ -86,13 +86,16 @@
             </md-input-container>
           </md-layout>
 
-          <!--프로세스 세이브-->
+
+          <!--프로세스 정의-->
           <md-layout v-if="!monitor">
-            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
-              <md-icon>save</md-icon>
-            </md-button>
+            <md-button c lass="md-primary" id="processVariables" @click="openDefinitionSettings"><md-icon>sort_by_alpha</md-icon> Defintion Settings</md-button>
           </md-layout>
 
+          <!--프로세스 변수-->
+          <md-layout v-if="!monitor">
+            <md-button c lass="md-primary" id="processVariables" @click="openProcessVariables"><md-icon>sort_by_alpha</md-icon> Process Variable</md-button>
+          </md-layout>
           <!--로케일-->
           <md-layout v-if="!monitor && definition">
             <md-input-container>
@@ -104,15 +107,13 @@
             </md-input-container>
           </md-layout>
 
-          <!--프로세스 정의-->
+          <!--프로세스 세이브-->
           <md-layout v-if="!monitor">
-            <md-button class="md-raised" id="defintionSettings" @click="openDefinitionSettings">Defintion Settings</md-button>
+            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
+              <md-icon>save</md-icon>
+            </md-button>
           </md-layout>
 
-          <!--프로세스 변수-->
-          <md-layout v-if="!monitor">
-            <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable</md-button>
-          </md-layout>
 
           <!--인스턴스 이름-->
           <md-layout v-if="monitor">
