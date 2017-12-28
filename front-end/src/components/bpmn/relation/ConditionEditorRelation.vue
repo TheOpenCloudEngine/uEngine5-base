@@ -48,13 +48,7 @@
         </div>
 
 
-<<<<<<< HEAD
         <org-uengine-kernel-Evaluate v-else :data="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
-=======
-        <org-uengine-kernel-Or v-if="complexCondition" :data.sync="relation.condition"></org-uengine-kernel-Or>
-        <org-uengine-kernel-Evaluate v-else :data.sync="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
-
->>>>>>> origin/master
       </template>
 
 
@@ -62,8 +56,6 @@
 
       </template>
     </bpmn-property-panel>
-
-
   </div>
 </template>
 
@@ -121,20 +113,10 @@
       return {
         otherwise: false,
         complexCondition: false,
-<<<<<<< HEAD
         thisConditionType: 'org.uengine.kernel.Or'
-=======
-        condition: {
-            _type:'org.uengine.kernel.Or',
-          conditionsVt:[]
-        }
->>>>>>> origin/master
       };
     },
     watch: {
-        condition: function(val){
-          this.relation.condition = val;
-        },
       drawer: function (val) {
         //패널 열릴때 other wise 체크
         if (val) {
