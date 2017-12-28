@@ -36,7 +36,7 @@
 
       <sub-elements>
         <image-element
-          :image="'/static/image/symbol/Service.png'"
+          :image="'../static/image/symbol/Service.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-top="'5px'"
@@ -59,21 +59,33 @@
           <label>액티비티 명</label>
           <md-input type="text"
                     v-model="activity.name.text"></md-input>
+          <!--<md-button @click="changeName">change name</md-button>-->
         </md-input-container>
         <md-input-container>
           <label>역할 (추후 레인에서 자동설정)</label>
-          <md-select v-model="activity.role.name">
-            <md-option v-for="role in definition.roles"
-                       :key="role.name"
-                       :value="role.name">
-              {{ role.name }}
-            </md-option>
-          </md-select>
+          <!--<md-select v-model="activity.role.name">-->
+            <!--<md-option v-for="role in definition.roles"-->
+                       <!--:key="role.name"-->
+                       <!--:value="role.name">-->
+              <!--{{ role.name }}-->
+            <!--</md-option>-->
+          <!--</md-select>-->
+
+          <md-input type="text" readonly
+                    v-model="activity.role.name"></md-input>
+
         </md-input-container>
         <md-input-container>
           <label>호출 URI 패턴</label>
           <md-input type="text"
                     v-model="activity.uriTemplate"></md-input>
+        </md-input-container>
+        <md-input-container v-if="links">
+          <label>호출 서비스 선택</label>
+          <md-select v-model="activity.uriTemplate" @change="giveJSONHint">
+            <md-option v-for="(link, key) in links" :value="link.href">{{key}}</md-option>
+          </md-select>
+
         </md-input-container>
         <md-input-container>
           <label>호출 메서드</label>
@@ -159,18 +171,101 @@
       }
     },
     data: function () {
-      return {};
+      return {
+          links: null
+
+      };
     },
-    watch: {},
+    watch: {
+      drawer: function (opened) {
+        if (opened) {
+          this.activity.role.name =
+            this.bpmnVue.getWhereRoleAmIByTracingTag(this.activity.tracingTag);
+
+
+          var me = this;
+          var serviceId = this.activity.role.name;
+
+          this.$root.codi('eureka/apps/' + this.activity.role.name).get()
+            .then(function (response) {
+
+              var homepage = response.data.application.instance[0].homePageUrl; //dont' use
+              homepage = serviceId.toLowerCase(); //use path by zuul rather
+
+              me.$root.codi(homepage).get().then(function(response2){
+                  if(response2.data._links){
+                    me.links = response2.data._links;
+                  }
+              });
+
+            });
+
+
+
+        }
+      },
+    },
     mounted: function () {
 
     },
-    methods: {}
+    methods: {
+
+//        changeName: function(){
+//          this.activity.name.text= this.activity.name.text + "aaa";
+//        },
+
+        giveJSONHint: function(){
+
+          var url = function(href) {
+            var l = document.createElement("a");
+            l.href = href;
+            l.path = l.pathname.substr(1);
+
+            try {
+              l.path = l.path.split("%7")[0];
+            }catch(e){}
+
+            return l;
+          };
+
+
+          var link = url(this.activity.uriTemplate);
+
+          var me = this;
+          this.$root.codi(link.path).get().then(function(response){
+              if(response.data._links.profile){
+                  var link = url(response.data._links.profile.href);
+
+                  me.$root.codi(link.path).get().then(function(response){
+
+                    console.log(response.data);
+
+                      if(response.data.alps.descriptors[0].descriptors){
+                        var jsonHint = {};
+
+                        response.data.alps.descriptors[0].descriptors.forEach(function(property){
+                           jsonHint[property.name] = '<%='+property.name+'%>';
+                        });
+
+                        me.activity.inputPayloadTemplate = JSON.stringify(jsonHint, null, 2);
+                        var temp = me.activity;
+                        me.activity = null;
+                        me.activity = temp;
+                      }
+
+
+                  });
+
+              }
+
+          });
+
+        }
+
+    }
   }
 </script>
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
-
 </style>
-

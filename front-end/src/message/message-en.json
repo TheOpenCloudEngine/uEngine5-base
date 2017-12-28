@@ -1,0 +1,20 @@
+{"message": {
+    "button.activate": "Activate",
+    "button.close": "Close",
+    "button.create": "Create",
+    "button.delete": "Delete",
+    "button.edit": "Edit",
+    "button.move": "Move",
+    "button.rename": "Rename",
+    
+    "common.logout": "Logout",
+    
+    "message.package.list": "Package List",
+    
+    "title.desinger.package": "Package",
+    "title.desinger.package.move": "Move Pacakge",
+    "title.desinger.package.name": "Package Name",
+    "title.desinger.process": "Process",
+    "title.desinger.rename.package": "Rename Package",
+    "title.desinger.new.package": "New Package"
+}}

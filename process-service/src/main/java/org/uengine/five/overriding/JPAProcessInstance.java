@@ -15,10 +15,12 @@ import org.uengine.kernel.*;
 import org.uengine.modeling.resource.DefaultResource;
 import org.uengine.modeling.resource.IResource;
 import org.uengine.modeling.resource.ResourceManager;
+import org.uengine.persistence.processinstance.ProcessInstanceDAO;
 import org.uengine.webservices.worklist.WorkList;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -259,4 +261,49 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
     public void afterRollback(ProcessTransactionContext tx) throws Exception {
 
     }
+
+
+    public void setStatus(String scope, String status) throws Exception{
+        super.setStatus(scope, status);
+
+        ProcessInstanceEntity pi = null;
+        //forward status of pi to processinstance
+        if(scope.equals("")){
+            //remove if this instance doesn't need to be archived
+            if(status.equals(Activity.STATUS_COMPLETED) && !getProcessDefinition().isArchive())
+                remove();
+            else{
+                pi = getProcessInstanceEntity();
+                pi.setStatus(status);
+            }
+
+            //when the instance is completed or stopped.
+            if(status.equals(Activity.STATUS_COMPLETED) || status.equals(Activity.STATUS_STOPPED)){
+                if(pi==null){
+                    pi = getProcessInstanceEntity();
+                }
+
+                pi.setFinishedDate(new Date());
+            }
+        }
+
+    }
+
+    public void stop(String status) throws Exception {
+
+        if(isSimulation()){
+            try {
+
+                super.stop(status);
+            }catch (Exception e){
+
+            }
+
+        }else{
+            super.stop(status);
+        }
+
+        getProcessInstanceEntity().setStatus(status);
+    }
+
 }

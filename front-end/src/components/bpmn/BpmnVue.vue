@@ -109,11 +109,10 @@
       
       // 프로세스 정의 초기화
       var shortDescription = this.data.definition.shortDescription;      
-      if (!shortDescription || !shortDescription.text) {
-        var text = shortDescription;
+      if (!shortDescription) {
         shortDescription = new Object();
         shortDescription._type = 'org.uengine.contexts.TextContext';
-        shortDescription.text = text;
+        shortDescription.text = "";
       }
       
       // mount시 현재 locale 값으로 text 처리 - 프로세스 정의 

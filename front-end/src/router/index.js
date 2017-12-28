@@ -21,6 +21,8 @@ import RenamePackage from '@/components/bpm-portal/RenamePackage'
 import DeletePackage from '@/components/bpm-portal/DeletePackage'
 import ListPackage from '@/components/bpm-portal/ListPackage'
 import MovePackage from '@/components/bpm-portal/MovePackage'
+import ClassModeler from '@/components/class/ClassModeler'
+
 
 
 //import CustomizedSvgGraph from '@/components/CustomizedSvgGraph'
@@ -69,7 +71,6 @@ Vue.http.interceptors.push(function (request, next) {
  * Hybind
  */
 var access_token = localStorage["access_token"];
-
 var backend = hybind("http://localhost:8080", {headers:{'access_token': access_token}});
 
 
@@ -110,6 +111,7 @@ Vue.component('chart-example', ChartExample);
 
 export default new Router({
   mode: 'history',
+  base: '/',
   routes: [
     {
       path: '/',
@@ -173,6 +175,12 @@ export default new Router({
           },
         },
         {
+          path: 'classdefinition',
+          name: 'classdefinition',
+          component: ClassModeler,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
           path: 'instance',
           name: 'instance',
           component: InstanceList,
@@ -182,7 +190,7 @@ export default new Router({
           },
         },
         {
-          path: 'instance/:id/:rootId',
+          path: 'instance/:rootId/:id',
           name: 'instanceMonitor',
           component: SvgGraph,
           beforeEnter: RouterGuard.requireUser,
@@ -191,7 +199,7 @@ export default new Router({
             iam: iam,
             backend: backend
           }
-        }
+        }     
       ]
     },
     {

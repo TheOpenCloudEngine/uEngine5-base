@@ -62,6 +62,7 @@
 
         })
 
+<<<<<<< HEAD
         var temp = this.data;
         this.data = null;
         this.data = temp;
@@ -93,6 +94,15 @@
         this.data = null;
         this.data = temp2;
       },
+=======
+//        var temp = this.data;
+//        this.data = null;
+//        this.data = temp;
+
+        this.$emit('update:data');
+
+      }
+>>>>>>> origin/master
 
     }
 

@@ -36,6 +36,21 @@ zuul:
       serviceId: bpm
       stripPrefix: false
 
+
+#### important for BPM introspection  ####
+
+    eureka:
+      path: /eureka/**
+      url: ${eureka.client.serviceUrl.defaultZone}
+      stripPrefix: true
+
+    bpm:
+      path: /bpm/**
+      serviceId: bpm
+      stripPrefix: true
+
+###########################################
+
 endpoints:
   routes:
     sensitive: false

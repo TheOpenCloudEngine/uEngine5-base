@@ -5,7 +5,7 @@
       <!--Completed 체크 이미지-->
       <div v-if="type == 'StartEvent' || type == 'EndEvent' || type == 'IntermediateEvent' || type == 'Gateway'">
         <image-element
-          :image="'/static/image/symbol/complete.png'"
+          :image="'../static/image/symbol/complete.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-right="'-10px'"
@@ -15,7 +15,7 @@
       </div>
       <div v-else>
         <image-element
-          :image="'/static/image/symbol/complete.png'"
+          :image="'../static/image/symbol/complete.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-align="'center'"
@@ -29,7 +29,7 @@
       <!--Running 체크 이미지-->
       <div v-if="type == 'StartEvent' || type == 'EndEvent' || type == 'IntermediateEvent' || type == 'Gateway'">
         <image-element
-          :image="'/static/image/symbol/running.png'"
+          :image="'../static/image/symbol/running.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-right="'-10px'"
@@ -39,7 +39,7 @@
       </div>
       <div v-else>
         <image-element
-          :image="'/static/image/symbol/running.png'"
+          :image="'../static/image/symbol/running.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-align="'center'"
@@ -122,6 +122,4 @@
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
-
 </style>
-

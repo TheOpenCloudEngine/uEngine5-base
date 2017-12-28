@@ -36,7 +36,7 @@
 
       <sub-elements>
         <image-element
-          :image="'/static/image/symbol/User.png'"
+          :image="'../static/image/symbol/User.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-top="'5px'"
@@ -76,12 +76,17 @@
         <bpmn-parameter-contexts
           :parameter-contexts="activity.parameters"
           :definition="definition"
+          :multi="true"
         ></bpmn-parameter-contexts>
+        <!-- <bpmn-mapper></bpmn-mapper> -->
         <md-input-container>
           <label>retryDelay</label>
           <md-input type="number"
                     v-model.number="activity.retryDelay"></md-input>
         </md-input-container>
+
+
+
       </template>
       <template slot="additional-tabs">
 
@@ -168,6 +173,4 @@
 
 
 <style scoped lang="scss" rel="stylesheet/scss">
-
 </style>
-

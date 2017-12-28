@@ -86,13 +86,16 @@
             </md-input-container>
           </md-layout>
 
-          <!--프로세스 세이브-->
+
+          <!--프로세스 정의-->
           <md-layout v-if="!monitor">
-            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
-              <md-icon>save</md-icon>
-            </md-button>
+            <md-button c lass="md-primary" id="processVariables" @click="openDefinitionSettings"><md-icon>sort_by_alpha</md-icon> Defintion Settings</md-button>
           </md-layout>
 
+          <!--프로세스 변수-->
+          <md-layout v-if="!monitor">
+            <md-button c lass="md-primary" id="processVariables" @click="openProcessVariables"><md-icon>sort_by_alpha</md-icon> Process Variable</md-button>
+          </md-layout>
           <!--로케일-->
           <md-layout v-if="!monitor && definition">
             <md-input-container>
@@ -104,15 +107,13 @@
             </md-input-container>
           </md-layout>
 
-          <!--프로세스 정의-->
+          <!--프로세스 세이브-->
           <md-layout v-if="!monitor">
-            <md-button class="md-raised" id="defintionSettings" @click="openDefinitionSettings">Defintion Settings</md-button>
+            <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
+              <md-icon>save</md-icon>
+            </md-button>
           </md-layout>
 
-          <!--프로세스 변수-->
-          <md-layout v-if="!monitor">
-            <md-button class="md-raised" id="processVariables" @click="openProcessVariables">Process Variable</md-button>
-          </md-layout>
 
           <!--인스턴스 이름-->
           <md-layout v-if="monitor">
@@ -123,6 +124,14 @@
           </md-layout>
 
           <md-layout v-if="monitor">
+            <!--프로세스 변수-->
+            <md-button class="md-raised" id="instanceVariables" @click="openInstanceVariables">Process Variable</md-button>
+            <bpmn-instance-variables
+              :id="id"
+              :definition="definition"
+              v-if="definition"
+              ref="instanceVariables"></bpmn-instance-variables>
+            <!--담당자 변경-->
             <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
             <user-picker
               :id="id"
@@ -131,8 +140,6 @@
               v-if="definition"
               style="min-width: 70%;"></user-picker>
           </md-layout>
-
-          <md-layout></md-layout>
 
         </md-layout>
       </md-layout>
@@ -343,8 +350,8 @@
           instance.definition.$load().then(function (definition) {
             me.definitionName = definition.name;
             definition.raw.$load().then(function (raw_definition) {
+              var definition = raw_definition.definition;
               me.getStatus(function (result) {
-                var definition = raw_definition.definition;
                 for (var key in definition.childActivities[1]) {
                   //데이터 꾸미기 status 로 definition 바꾸기.
                   if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
@@ -540,6 +547,9 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
+      },
+      openInstanceVariables(ref) {
+        this.$refs['instanceVariables'].openInstanceVariables();
       },
       openUserPicker(ref) {
         this.$refs['userPicker'].openUserPicker();
