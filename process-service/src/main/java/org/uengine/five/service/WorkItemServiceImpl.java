@@ -3,6 +3,7 @@ package org.uengine.five.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
+import org.uengine.five.framework.ProcessTransactionContext;
 import org.uengine.five.framework.ProcessTransactional;
 import org.uengine.five.repository.WorklistRepository;
 import org.uengine.kernel.*;
@@ -36,9 +37,12 @@ public class WorkItemServiceImpl {
     WorklistRepository worklistRepository;
     
     @Autowired
-    ApplicationContext applicationContext;    
-
-    @PostConstruct
+    ApplicationContext applicationContext;
+    
+    @Autowired
+    InstanceService instanceService;    
+    
+        @PostConstruct
     public void init() {
     }
 
@@ -57,9 +61,9 @@ public class WorkItemServiceImpl {
         WorkItemResource workItem = new WorkItemResource();
         workItem.setActivity(activity);
         workItem.setWorklist(worklistEntity);
-
-        org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(org.uengine.kernel.ProcessInstance.class,
-                new Object[] { null, worklistEntity.getInstId().toString(), null });
+        
+        String instanceId = worklistEntity.getInstId().toString();
+        ProcessInstance instance = instanceService.getProcessInstanceLocal(instanceId);
 
         // get the parameter values and set them to the "workItem.parameterValues" so that WorkItemHandler.vue can insert the default values
         Map parameterValues = new HashMap<String, Object>();
@@ -84,11 +88,8 @@ public class WorkItemServiceImpl {
         
         WorklistEntity worklistEntity = worklistRepository.findOne(new Long(taskId));
 
-        Long instId = worklistEntity.getInstId();
-
-        // ProcessDefinition definition = (ProcessDefinition) definitionService.getDefinitionLocal(workItem.getWorklist().getDefId());
-        org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(org.uengine.kernel.ProcessInstance.class,
-                new Object[] { null, instId.toString(), null });
+        String instanceId = worklistEntity.getInstId().toString();
+        ProcessInstance instance = instanceService.getProcessInstanceLocal(instanceId);
 
         HumanActivity humanActivity = ((HumanActivity) instance.getProcessDefinition().getActivity(worklistEntity.getTrcTag()));
 

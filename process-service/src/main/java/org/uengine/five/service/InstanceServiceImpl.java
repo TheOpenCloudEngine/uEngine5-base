@@ -164,24 +164,17 @@ public class InstanceServiceImpl implements InstanceService {
      * @param instanceId
      * @return
      */
-    public ProcessInstance getProcessInstanceLocal(String instanceId){
+    @Override
+    public ProcessInstance getProcessInstanceLocal(String instanceId) {
 
-        //lookup cached one in same transaction
         ProcessInstance instance = ProcessTransactionContext.getThreadLocalInstance().getProcessInstanceInTransaction(instanceId);
-
-        if(instance!=null) return instance;
-
-        //if not found, create one
-        //ProcessInstance
+        if (instance != null) {
+            return instance;
+        }
         instance = applicationContext.getBean(
                 ProcessInstance.class,
-                new Object[]{
-                        null,
-                        instanceId,
-                        null
-                }
+                new Object[]{null, instanceId, null}
         );
-
         return instance;
 
     }
