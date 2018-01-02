@@ -89,7 +89,7 @@
 
           <!--프로세스 정의-->
           <md-layout v-if="!monitor">
-            <md-button c lass="md-primary" id="processVariables" @click="openDefinitionSettings"><md-icon>sort_by_alpha</md-icon> Defintion Settings</md-button>
+            <md-button c lass="md-primary" id="processVariables" @click="openDefinitionSettings"><md-icon>settings</md-icon> Defintion Settings</md-button>
           </md-layout>
 
           <!--프로세스 변수-->
