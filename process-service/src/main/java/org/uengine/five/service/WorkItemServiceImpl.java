@@ -40,7 +40,7 @@ public class WorkItemServiceImpl {
     ApplicationContext applicationContext;
     
     @Autowired
-    InstanceService instanceService;    
+    InstanceServiceImpl instanceService;
     
         @PostConstruct
     public void init() {
