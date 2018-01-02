@@ -17,22 +17,21 @@ public class ProcessTransactionAdvice {
     @Before("@annotation(processTransactional)")
     public void initiateTransaction(JoinPoint joinPoint, ProcessTransactional processTransactional) throws Exception {
         System.out.println("start tx");
-
         new ProcessTransactionContext();
         ProcessTransactionContext.getThreadLocalInstance().setCommitable(!processTransactional.readOnly());
     }
 
     @AfterReturning("@annotation(processTransactional)")
     public void commitTransaction(JoinPoint joinPoint, ProcessTransactional processTransactional) throws Exception {
+        if (!processTransactional.readOnly()) {
+            ProcessTransactionContext.getThreadLocalInstance().commit();
+        }
         System.out.println("commit");
-
-        if(!processTransactional.readOnly())
-            ProcessTransactionContext.getThreadLocalInstance().commit(); //save
     }
 
     @AfterThrowing("@annotation(org.uengine.five.framework.ProcessTransactional)")
     public void rollbackTransaction() throws Exception {
-        System.out.println("rollback");
         ProcessTransactionContext.getThreadLocalInstance().rollback();
+        System.out.println("rollback");
     }
 }
