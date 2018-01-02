@@ -3,6 +3,8 @@ package org.uengine.five.service;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.web.bind.annotation.*;
+import org.uengine.kernel.ProcessInstance;
+
 import java.util.Map;
 
 /**
@@ -34,6 +36,8 @@ public interface InstanceService {
 
     @RequestMapping(value = "/instance/{instanceId}", method = RequestMethod.GET)
     public ResourceSupport getInstance(@PathVariable("instanceId") String instanceId) throws Exception;
+    
+    public ProcessInstance getProcessInstanceLocal(String instanceId) throws Exception;
 
     @RequestMapping(value = "/instance/{instanceId}/activity/{tracingTag}/backToHere", method = RequestMethod.POST)
     public ResourceSupport backToHere(@PathVariable("instanceId") String instanceId, @PathVariable("tracingTag") String tracingTag) throws Exception;

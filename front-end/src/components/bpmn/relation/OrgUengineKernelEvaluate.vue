@@ -1,36 +1,50 @@
 <template>
 
-  <div>
-    <div id="processVal">
-      <md-input-container>
-        <label>프로세스 변수</label>
-        <md-select id="input" v-model="data.pv.name">
-          <md-option v-for="variable in definition.processVariableDescriptors"
-                     :key="variable.name"
-                     :value="variable.name">
-            {{ variable.name }}
-          </md-option>
-        </md-select>
-      </md-input-container>
-    </div>
-    <div id="dataCon">
-      <md-input-container>
-        <label>조건 연산자</label>
-        <md-select type="text"
-                   v-model="data.condition"
-                   style="min-width: 20px;">
-          <md-option value="==">=</md-option>
-          <md-option value=">">&gt;</md-option>
-          <md-option value="<">&lt;</md-option>
-        </md-select>
-      </md-input-container>
-  </div>
-  <div id="dataVal">
-      <md-input-container>
-        <label>비교 값</label>
-        <md-input v-model="data.val"></md-input>
-      </md-input-container>
-  </div>
+  <div @click="click">
+    <md-card draggable="true"
+            @dragstart.native="dragover"
+            @dragleave.native="onDragLeave"
+            @dragenter.native="onDragenter"
+            _drag="drag"
+             style="box-shadow: 0 0 0 rgba(0, 0, 0, 0.2), 0 0 0 rgba(0, 0, 0, 0.14), 0 0 0 0 rgba(0, 0, 0, 0.12)">
+        <div>
+          <div id="processVal">
+            <md-input-container v-if="definition && definition.processVariableDescriptors"  style="min-width: 1px;">
+              <label>프로세스 변수</label>
+              <md-select id="input" v-model="data.pv.name"  style="min-width: 1px;">
+                <md-option v-for="variable in definition.processVariableDescriptors"
+                           :key="variable.name"
+                           :value="variable.name">
+                  {{ variable.name }}
+                </md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+          <div id="dataCon">
+            <md-input-container  style="min-width: 1px;">
+              <label>조건 연산자</label>
+              <md-select type="text"
+                         v-model="data.condition"
+                         style="min-width: 1px;">
+                <md-option value="==">=</md-option>
+                <md-option value=">">&gt;</md-option>
+                <md-option value="<">&lt;</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+          <div id="dataVal">
+              <md-input-container  style="min-width: 1px;">
+                <label>비교 값</label>
+                <md-input v-model="data.val"  style="min-width: 1px;"></md-input>
+              </md-input-container>
+          </div>
+            <div id="button">
+              <md-button @click="remove" style="min-width: 1px; padding: 0px;  padding-top: 10px;">
+                <md-icon>clear</md-icon>
+              </md-button>
+            </div>
+        </div>
+    </md-card>
   </div>
 
 </template>
@@ -39,25 +53,21 @@
 
   export default {
       name: 'org-uengine-kernel-Evaluate',
+      props: ['definition', 'data'],
 
-      props: {
-          definition: Object,
-          data: Object,
-      },
-
-    created: function(){
+      created: function(){
           if(this.data)
               this.data
             =
             {
                 _type: 'org.uengine.kernel.Evaluate',
-                pv: {
-
+                _pv: {
+                    name: ''
                 },
                 condition: '==',
                 val: ''
             };
-
+          console.log("def: " + this.definition);
           if(!this.data.pv) this.data.pv = {};
 
           if(!this.definition){
@@ -69,24 +79,92 @@
 
           }
 
+    },
+    methods: {
+        setDef: function() {
+            this.$emit('setDef', this.definition)
+        },
+        setData: function () {
+            this.$emit('setData', this.data)
+        },
+      remove: function () {
+        var parent;
+        parent = this.$parent;
+        while(parent.$vnode.tag.indexOf('org-uengine-kernel') == -1) parent = parent.$parent;
+        var index = parent.data.conditionsVt.indexOf(this.data);
+        parent.data.conditionsVt.splice(index, 1);
+
+        var temp = parent.data;
+        parent.data = null;
+        parent.data = temp;
+      },
+      dragover: function() {
+        window._dragItem = this;
+      },
+      // drop: function(item){
+      //   var parent;
+      //   parent = this.$parent;
+      //   while(parent.$vnode.tag.indexOf('org-uengine-kernel') == -1) parent = parent.$parent;
+      //   var myIdx = parent.data.conditionsVt.indexOf(this.data);
+      //   parent.data.conditionsVt.splice(myIdx, 1);
+      //   item.data.conditionsVt.push(this.data);
+
+      //   var temp1 = parent.data;
+      //   parent.data = null;
+      //   parent.data = temp1;
+
+      //   var temp2 = item.data;
+      //   item.data = null;
+      //   item.data = temp2;
+      // },
+
+      drag: function(){
+        var parent;
+        parent = this.$parent;
+        while(parent.$vnode.tag.indexOf('org-uengine-kernel') == -1) parent = parent.$parent;
+        var myIdx = this.$parent.data.conditionsVt.indexOf(this.data);
+        this.$parent.data.conditionsVt.splice(myIdx, 1);
+
+      },
+      onDragenter: function () {
+        var me = this;
+        me.folderName = this.data.conditionsVt;
+        me.navigationName = this.data.conditionsVt;
+      },
+      onDragLeave: function () {
+        var me = this;
+        console.log("드래그 끝");
+      },
+      click: function () {
+        console.log(this.data)
+      }
     }
+
 
   }
 
 </script>
 <style>
-  div#processVal {
-    float: left;
-    width: 35%;
-  } 
-  div#dataCon {
-    float: left;
-    width: 20%;
-    margin-left: 13px;
-    margin-right: 13px;
-  }
-  div#dataVal {
-    float: left;
-    width: 35%;
-  }
+    div#processVal {
+        float: left;
+        width: 30%;
+    }
+    div#dataCon {
+        float: left;
+        width: 20%;
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 0px;
+    }
+    div#dataVal {
+        float: left;
+        width: 30%;
+        padding: 0px;
+    }
+    div#button {
+        float: left;
+        width: 5%;
+        padding: 0px;
+
+    }
 </style>

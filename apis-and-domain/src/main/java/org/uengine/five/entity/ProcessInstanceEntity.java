@@ -299,75 +299,43 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     public void setName(String name) {
         this.name = name;
     }
-
+    
     @Override
-    public boolean getIsDeleted() {
-        return false;
-    }
-
-    @Override
-    public void setIsDeleted(boolean isDeleted) {
-
-    }
-
-    @Override
-    public boolean getIsAdhoc() {
-        return false;
-    }
-
-    @Override
-    public void setIsAdhoc(boolean isAdhoc) {
-
-    }
-
-    @Override
-    public boolean getIsSubProcess() {
-        return false;
-    }
-
-    @Override
-    public void setIsSubProcess(boolean isSubProcess) {
-
-    }
-
-    @Override
-    public boolean getIsEventHandler() {
-        return false;
-    }
-
-    @Override
-    public void setIsEventHandler(boolean isEventHandler) {
-
-    }
-
     public boolean isDeleted() {
         return deleted;
     }
-
+    
+    @Override
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
-
+    
+    @Override
     public boolean isAdhoc() {
         return adhoc;
     }
-
+    
+    @Override
     public void setAdhoc(boolean adhoc) {
         this.adhoc = adhoc;
     }
 
+    @Override
     public boolean isSubProcess() {
         return subProcess;
     }
-
+    
+    @Override
     public void setSubProcess(boolean subProcess) {
         this.subProcess = subProcess;
     }
-
+    
+    @Override
     public boolean isEventHandler() {
         return eventHandler;
     }
-
+    
+    @Override
     public void setEventHandler(boolean eventHandler) {
         this.eventHandler = eventHandler;
     }
@@ -421,21 +389,13 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     public void setMainDefVerId(Long mainDefVerId) {
         this.mainDefVerId = mainDefVerId;
     }
-
+    
     @Override
-    public boolean getIsArchive() {
-        return false;
-    }
-
-    @Override
-    public void setIsArchive(boolean isArchive) {
-
-    }
-
     public boolean isArchive() {
         return archive;
     }
-
+    
+    @Override
     public void setArchive(boolean archive) {
         this.archive = archive;
     }
@@ -451,10 +411,6 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     }
 
     @Override
-    public boolean getDontReturn() {
-        return false;
-    }
-
     public boolean isDontReturn() {
         return dontReturn;
     }
@@ -724,8 +680,6 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     public void releaseResource() throws Exception {
 
     }
-
-
 
 
     ////// moved from ProcessEventHandler for enhancement in cohesion ///////

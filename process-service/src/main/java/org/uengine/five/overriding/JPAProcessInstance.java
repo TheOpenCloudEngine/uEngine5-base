@@ -27,51 +27,60 @@ import java.util.Map;
 /**
  * Created by uengine on 2017. 8. 9..
  */
-//@Component
+// @Component
 @Transactional
-//@Scope("prototype")
+// @Scope("prototype")
 public class JPAProcessInstance extends DefaultProcessInstance implements ProcessTransactionListener {
-
-    ProcessInstanceEntity processInstanceEntity;
-    public ProcessInstanceEntity getProcessInstanceEntity() {
-        return processInstanceEntity;
-    }
-    public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
-        this.processInstanceEntity = processInstanceEntity;
-    }
+    
+    @Autowired
+    DefinitionServiceUtil definitionService;
+    
+    @Autowired
+    JPAWorkList jpaWorkList;
 
     @Autowired
+    ResourceManager resourceManager;
+
+    @Autowired
+    InstanceServiceImpl instanceService;
+    
+    @Autowired
     ProcessInstanceRepository processInstanceRepository;
+    
+    ProcessInstanceEntity processInstanceEntity;
+        public ProcessInstanceEntity getProcessInstanceEntity() {
+            return processInstanceEntity;
+        }
+        public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
+            this.processInstanceEntity = processInstanceEntity;
+        }
 
     boolean newInstance;
-
-    public boolean isNewInstance() {
-        return newInstance;
-    }
-
-    public void setNewInstance(boolean newInstance) {
-        this.newInstance = newInstance;
-    }
-
+        public boolean isNewInstance() {
+            return newInstance;
+        }
+        public void setNewInstance(boolean newInstance) {
+            this.newInstance = newInstance;
+        }
 
     boolean prototype;
-    public boolean isPrototype() {
-        return prototype;
-    }
-    public void setPrototype(boolean prototype) {
-        this.prototype = prototype;
-    }
-
+        public boolean isPrototype() {
+            return prototype;
+        }
+        public void setPrototype(boolean prototype) {
+            this.prototype = prototype;
+        }
 
     public JPAProcessInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
+
         super(procDefinition, instanceId, options);
 
-        if (instanceId == null && procDefinition == null){ //return prototype only
+        if (instanceId == null && procDefinition == null) {
             setPrototype(true);
             return;
         }
 
-        if(instanceId==null){ //means new InstanceResource, if exists, loading existing instance.
+        if (instanceId == null) {
             setNewInstance(true);
             setProcessInstanceEntity(new ProcessInstanceEntity());
             getProcessInstanceEntity().setName(instanceId);
@@ -80,39 +89,34 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
             getProcessInstanceEntity().setStatus(Activity.STATUS_READY);
             getProcessInstanceEntity().setDefName(procDefinition.getName());
 
-//            if(procDef.getModifiedDate()!=null)
-//                processInstanceDAO.setDefModDate(procDef.getModifiedDate().getTime());
+            // if(procDef.getModifiedDate()!=null)
+            // processInstanceDAO.setDefModDate(procDef.getModifiedDate().getTime());
 
-//            if(!UEngineUtil.isNotEmpty(name))
-//                name = procDef.getName() + instanceId;
-//
-//            processInstanceDAO.setName(name);
-//            setName(name);
-
+            // if(!UEngineUtil.isNotEmpty(name))
+            // name = procDef.getName() + instanceId;
+            //
+            // processInstanceDAO.setName(name);
+            // setName(name);
 
             getProcessInstanceEntity().setStartedDate(new Date());
 
-            boolean isSubProcess =
-                    (	options!=null
-                            && options.containsKey("isSubProcess")
-                            && options.get("isSubProcess").equals("yes")
-                    );
+            boolean isSubProcess = (options != null && options.containsKey("isSubProcess") && options.get("isSubProcess").equals("yes"));
 
-            if(isSubProcess){
-                getProcessInstanceEntity().setIsSubProcess(true);
-                getProcessInstanceEntity().setMainInstId(new Long((String)options.get(DefaultProcessInstance.RETURNING_PROCESS)));
-                getProcessInstanceEntity().setMainActTrcTag((String)options.get(DefaultProcessInstance.RETURNING_TRACINGTAG));
-                getProcessInstanceEntity().setMainExecScope((String)options.get(DefaultProcessInstance.RETURNING_EXECSCOPE));
-                getProcessInstanceEntity().setDontReturn(((Boolean)options.get(DefaultProcessInstance.DONT_RETURN)).booleanValue());
-                getProcessInstanceEntity().setIsEventHandler(options.containsKey("isEventHandler"));
+            if (isSubProcess) {
+                getProcessInstanceEntity().setSubProcess(true);
+                getProcessInstanceEntity().setMainInstId(new Long((String) options.get(DefaultProcessInstance.RETURNING_PROCESS)));
+                getProcessInstanceEntity().setMainActTrcTag((String) options.get(DefaultProcessInstance.RETURNING_TRACINGTAG));
+                getProcessInstanceEntity().setMainExecScope((String) options.get(DefaultProcessInstance.RETURNING_EXECSCOPE));
+                getProcessInstanceEntity().setDontReturn(((Boolean) options.get(DefaultProcessInstance.DONT_RETURN)).booleanValue());
+                getProcessInstanceEntity().setEventHandler(options.containsKey("isEventHandler"));
             }
 
-            if(options != null){
-                if(options.containsKey(DefaultProcessInstance.ROOT_PROCESS)) {
+            if (options != null) {
+                if (options.containsKey(DefaultProcessInstance.ROOT_PROCESS)) {
                     getProcessInstanceEntity().setRootInstId(new Long((String) options.get(DefaultProcessInstance.ROOT_PROCESS)));
                 }
 
-                if(options.containsKey(DefaultProcessInstance.SIMULATIONPROCESS)){
+                if (options.containsKey(DefaultProcessInstance.SIMULATIONPROCESS)) {
                     setSimulation(true);
                 }
             }
@@ -120,76 +124,52 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         }
     }
 
-//    @Autowired
-//    ApplicationEventPublisher applicationEventPublisher; //TODO see the DefinitionService.beforeProcessInstanceCommit() and move to here someday
-
+    // @Autowired
+    // ApplicationEventPublisher applicationEventPublisher; //TODO see the DefinitionService.beforeProcessInstanceCommit() and move to here someday
     @PostConstruct
     public void init() throws Exception {
 
-        if(isPrototype()) return;
+        if (isPrototype())
+            return;
 
-        if(isNewInstance()) { //if new instance, create one
+        if (isNewInstance()) { // if new instance, create one
             processInstanceRepository.save(getProcessInstanceEntity());
-
-            if(getProcessInstanceEntity().getRootInstId()==null){
+            if (getProcessInstanceEntity().getRootInstId() == null) {
                 getProcessInstanceEntity().setRootInstId(getProcessInstanceEntity().getInstId());
             }
-
-        }else{ //else, load the instance
+        } else { // else, load the instance
             setProcessInstanceEntity(processInstanceRepository.findOne(Long.valueOf(getInstanceId())));
-
             Map variables = loadVariables();
-
             setVariables(variables);
         }
 
-
         setInstanceId(String.valueOf(getProcessInstanceEntity().getInstId()));
 
-        //Add this instance as transaction listener and register this so that it can be cached.
+        // Add this instance as transaction listener and register this so that it can be cached.
         ProcessTransactionContext.getThreadLocalInstance().addTransactionListener(this);
         ProcessTransactionContext.getThreadLocalInstance().registerProcessInstance(this);
 
-//        applicationEventPublisher.publishEvent(new ProcessInstanceChangeEvent(this));
+        // applicationEventPublisher.publishEvent(new ProcessInstanceChangeEvent(this));
     }
-
-    protected Map loadVariables() throws Exception {
-        IResource resource = new DefaultResource("instances/" + getInstanceId());
-        return (Map) resourceManager.getObject(resource);
-    }
-
-    @Autowired
-    DefinitionServiceUtil definitionService;
 
     @Override
     public ProcessDefinition getProcessDefinition() throws Exception {
         ProcessDefinition definition = super.getProcessDefinition();
-
-        if(definition==null){
+        if (definition == null) {
             definition = (ProcessDefinition) definitionService.getDefinition(processInstanceEntity.getDefId());
         }
-
         return definition;
     }
-
 
     @Override
     public WorkList getWorkList() {
         return jpaWorkList;
-    }
-
-    @Autowired
-    JPAWorkList jpaWorkList;
-
-    @Autowired
-    ResourceManager resourceManager;
+    } 
 
     @Override
     public ProcessInstance getInstance(String instanceId, Map options) throws Exception {
-
         return instanceService.getProcessInstanceLocal(instanceId);
     }
-
 
     @Override
     public String getRootProcessInstanceId() {
@@ -216,35 +196,29 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         super.putRoleMapping(roleMap);
     }
 
-    @Autowired
-    InstanceServiceImpl instanceService;
-
     @Override
     public ProcessInstance getMainProcessInstance() throws Exception {
-        if(getMainProcessInstanceId() == null) return null;
-
+        if (getMainProcessInstanceId() == null)
+            return null;
         return instanceService.getProcessInstanceLocal(getMainProcessInstanceId());
-
     }
 
     @Override
     public ProcessInstance getRootProcessInstance() throws Exception {
-        if(getRootProcessInstanceId() == null) return null;
-
+        if (getRootProcessInstanceId() == null)
+            return null;
         return instanceService.getProcessInstanceLocal(getRootProcessInstanceId());
     }
-
+    
+    @Override
+    public boolean isSubProcess() throws Exception {
+        return getProcessInstanceEntity().isSubProcess();
+    }
+    
     @Override
     public void beforeCommit(ProcessTransactionContext tx) throws Exception {
-
         processInstanceRepository.save(getProcessInstanceEntity());
-
         saveVariables();
-    }
-
-    protected void saveVariables() throws Exception {
-        IResource resource = new DefaultResource("instances/" + getInstanceId());
-        resourceManager.save(resource, getVariables());
     }
 
     @Override
@@ -262,27 +236,35 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     }
 
-
-    public void setStatus(String scope, String status) throws Exception{
+    protected Map loadVariables() throws Exception {
+        IResource resource = new DefaultResource("instances/" + getInstanceId());
+        return (Map) resourceManager.getObject(resource);
+    }
+    
+    protected void saveVariables() throws Exception {
+        IResource resource = new DefaultResource("instances/" + getInstanceId());
+        resourceManager.save(resource, getVariables());
+    }    
+    
+    public void setStatus(String scope, String status) throws Exception {
         super.setStatus(scope, status);
 
         ProcessInstanceEntity pi = null;
-        //forward status of pi to processinstance
-        if(scope.equals("")){
-            //remove if this instance doesn't need to be archived
-            if(status.equals(Activity.STATUS_COMPLETED) && !getProcessDefinition().isArchive())
+        // forward status of pi to processinstance
+        if (scope.equals("")) {
+            // remove if this instance doesn't need to be archived
+            if (status.equals(Activity.STATUS_COMPLETED) && !getProcessDefinition().isArchive()) {
                 remove();
-            else{
+            } else {
                 pi = getProcessInstanceEntity();
                 pi.setStatus(status);
             }
 
-            //when the instance is completed or stopped.
-            if(status.equals(Activity.STATUS_COMPLETED) || status.equals(Activity.STATUS_STOPPED)){
-                if(pi==null){
+            // when the instance is completed or stopped.
+            if (status.equals(Activity.STATUS_COMPLETED) || status.equals(Activity.STATUS_STOPPED)) {
+                if (pi == null) {
                     pi = getProcessInstanceEntity();
                 }
-
                 pi.setFinishedDate(new Date());
             }
         }
@@ -291,18 +273,15 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     public void stop(String status) throws Exception {
 
-        if(isSimulation()){
+        if (isSimulation()) {
             try {
-
                 super.stop(status);
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
-
-        }else{
+        } else {
             super.stop(status);
         }
-
         getProcessInstanceEntity().setStatus(status);
     }
 

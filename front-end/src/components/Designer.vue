@@ -73,7 +73,6 @@
                 </md-card-header-text>
               </md-card-header>
             </md-card>
-
           </md-layout>
         </md-layout>
       </md-layout>
