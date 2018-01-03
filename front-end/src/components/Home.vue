@@ -13,7 +13,6 @@
     <md-sidenav class="md-left" ref="leftSidenav">
       <md-toolbar class="md-account-header">
           <iam-avatar :iam="iam"></iam-avatar>
-
         <!--<md-list class="md-transparent">-->
           <!--<md-list-item class="md-avatar-list">-->
             <!--&lt;!&ndash;avatar iam 으로 변경&ndash;&gt;-->
