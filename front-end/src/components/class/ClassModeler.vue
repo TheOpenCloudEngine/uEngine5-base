@@ -107,7 +107,7 @@
 
   export default {
 
-    name: 'bpmn-mapper',
+    name: 'class-modeler',
 
     data: function(){
 

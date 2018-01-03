@@ -27,7 +27,7 @@ public class DefinitionResource extends ResourceSupport {
         setDirectory(resource1 instanceof IContainer);
 
 
-        String relativePath = resource1.getPath().substring(DefinitionServiceImpl.resourceRoot.length()+1);
+        String relativePath = resource1.getPath().substring(DefinitionServiceImpl.RESOURCE_ROOT.length()+1);
 
         setPath(relativePath);
 

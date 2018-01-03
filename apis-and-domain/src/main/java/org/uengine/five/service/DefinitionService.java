@@ -2,6 +2,7 @@ package org.uengine.five.service;
 
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.hateoas.ResourceSupport;
+import org.springframework.hateoas.Resources;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,6 +23,12 @@ public interface DefinitionService {
     @RequestMapping(value = DEFINITION, method = RequestMethod.GET)
     public ResourceSupport listDefinition(String basePath) throws Exception;
 
+
+//    @RequestMapping(value = "/version/{version}" + DEFINITION, method = RequestMethod.GET)
+//    public ResourceSupport listVersionDefinitions(String version, String basePath) throws Exception;
+//
+//    @RequestMapping(value = "/version", method = RequestMethod.GET)
+//    public ResourceSupport listVersions() throws Exception;
 
     @RequestMapping(value = DEFINITION + "/{defPath}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception;

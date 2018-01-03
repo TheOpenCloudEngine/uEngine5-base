@@ -49,11 +49,17 @@
 
 
         <org-uengine-kernel-Evaluate v-else :data="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
+
       </template>
 
 
       <template slot="additional-tabs">
+        <md-tab :id="'mapper' + _uid" md-label="Data Mapping">
 
+
+          <bpmn-mapper :definition="definition"></bpmn-mapper>
+
+        </md-tab>
       </template>
     </bpmn-property-panel>
   </div>

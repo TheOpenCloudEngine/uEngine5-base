@@ -8,10 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -65,7 +62,7 @@ public class DefinitionServiceApplication extends Metaworks4BaseApplication {
      */
     public Storage storage() {
         LocalFileStorage storage = new LocalFileStorage();
-        storage.setBasePath("/tmp");
+        storage.setBasePath("/oce/repository");
 
         try {
             System.out.println("-------------------> " + storage.exists(new DefaultResource(".")) + " ---> file system is mounted.");
@@ -76,6 +73,17 @@ public class DefinitionServiceApplication extends Metaworks4BaseApplication {
         };
 
         return storage;
+    }
+
+
+    @Bean
+    @Scope("prototype")
+    public VersionManager versionManager(){
+        SimpleVersionManager simpleVersionManager = new SimpleVersionManager();
+        simpleVersionManager.setAppName("codi");
+        //simpleVersionManager.setModuleName("definition");
+
+        return simpleVersionManager;
     }
 
 

@@ -164,7 +164,6 @@ public class InstanceServiceImpl implements InstanceService {
      * @param instanceId
      * @return
      */
-    @Override
     public ProcessInstance getProcessInstanceLocal(String instanceId) {
 
         ProcessInstance instance = ProcessTransactionContext.getThreadLocalInstance().getProcessInstanceInTransaction(instanceId);

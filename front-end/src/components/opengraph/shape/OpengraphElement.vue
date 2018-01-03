@@ -66,6 +66,7 @@
       html: String,
       xml: String,
       text: String,
+      watchData: Object,
 
       /**
        * 연결 정의
