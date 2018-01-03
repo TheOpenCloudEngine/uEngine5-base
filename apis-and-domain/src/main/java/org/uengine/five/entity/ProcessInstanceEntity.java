@@ -299,7 +299,7 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     @Override
     public boolean isDeleted() {
         return deleted;
@@ -389,7 +389,7 @@ public class ProcessInstanceEntity implements ProcessInstanceDAO {
     public void setMainDefVerId(Long mainDefVerId) {
         this.mainDefVerId = mainDefVerId;
     }
-    
+
     @Override
     public boolean isArchive() {
         return archive;

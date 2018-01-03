@@ -3,6 +3,7 @@
   <div>
     <md-card @drop.native="drop()"
               draggable="true"
+              @click.native="click"
       style="box-shadow: 0 0 0 rgba(0, 0, 0, 0.2), 0 0 0 rgba(0, 0, 0, 0.14), 0 0 0 0 rgba(0, 0, 0, 0.12)">
       <div>
         {{myConditionType}} (
@@ -48,6 +49,9 @@
           };
       },
     methods: {
+      click: function () {
+        console.log(this.data.conditionsVt);
+      },
       addCondition: function(){
 
         if(!this.data.conditionsVt){

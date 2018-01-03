@@ -1,17 +1,19 @@
 <template>
   <div>
     <md-toolbar class="fixed-toolbar">
-      <md-button class="md-icon-button" @click="toggleLeftSidenav">
+      <md-button class="md-icon-button" @click="toggleLeftSidenav" style="z-index: 2;">
         <md-icon>menu</md-icon>
       </md-button>
       <h2 class="md-title">uEngine5</h2>
-      <md-button class="md-raised md-primary" @click="logout">{{ $t("message['common.logout']") }}</md-button>
-      <avatar-uploader :iam="iam"></avatar-uploader>
+      <div id="logoutButton" style="position: absolute; width: 100%; text-align:right; padding-right: 20px;">
+       <md-button class="md-raised md-primary" @click="logout" >{{ $t("message['common.logout']") }}</md-button>
+      </div>
     </md-toolbar>
 
     <md-sidenav class="md-left" ref="leftSidenav">
       <md-toolbar class="md-account-header">
           <iam-avatar :iam="iam"></iam-avatar>
+
         <!--<md-list class="md-transparent">-->
           <!--<md-list-item class="md-avatar-list">-->
             <!--&lt;!&ndash;avatar iam 으로 변경&ndash;&gt;-->
@@ -70,11 +72,12 @@
     },
     mounted() {
       this.updateActive();
+
     },
     watch: {
       '$route'(to, from) {
         this.updateActive();
-      }
+      },
     },
     methods: {
       toggleLeftSidenav() {
@@ -107,7 +110,9 @@
       move(routerPath) {
         this.$router.push(routerPath)
       },
-    }
+
+    },
+
   }
 </script>
 
