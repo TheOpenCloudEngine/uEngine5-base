@@ -8,9 +8,13 @@
       <div>
         {{myConditionType}} (
       <ul>
-        <div v-for="childCondition in data.conditionsVt">
+        <div v-for="(childCondition, index) in value.conditionsVt">
 
-          <component :is="childCondition._type.split('.').join('-')" :data="childCondition" :definition="definition"></component>
+          <component :is="childCondition._type.split('.').join('-')" v-model="value.conditionsVt[index]" :definition="definition"></component>
+          <md-button @click="remove(index)" style="min-width: 1px; padding: 0px;  padding-top: 10px;">
+            <md-icon>clear</md-icon>
+          </md-button>
+
 
         </div>
         <md-layout md-gutter style="clear: both;">
@@ -40,7 +44,10 @@
 
   export default {
       name: 'org-uengine-kernel-Or',
-      props: ['definition', 'data'],
+      props: {
+        definition: Object,
+        value: Object
+      },
       data: function(){
           return {
             conditionType: 'org.uengine.kernel.Or',
@@ -49,54 +56,32 @@
           };
       },
     methods: {
-      click: function () {
-        console.log(this.data.conditionsVt);
-      },
       addCondition: function(){
 
-        if(!this.data.conditionsVt){
-          this.data = {
+        if(!this.value.conditionsVt){
+          this.value = {
             _type: 'org.uengine.kernel.Or',
             conditionsVt: []
           }
         }
 
-        this.data.conditionsVt.push({
+        this.value.conditionsVt.push({
           _type: this.conditionType,
 
         })
 
-        var temp = this.data;
-        this.data = null;
-        this.data = temp;
+        var temp = this.value;
+        this.value = null;
+        this.value = temp;
+
+        this.$emit('input', this.value);
+
       },
 
-      drop: function(){
-        console.log("1");
-        var item = window._dragItem;
-        console.log("2");
-        var parent;
-        console.log("3");
-        parent = item.$parent;
-        console.log("4");
-        while(parent.$vnode.tag.indexOf('org-uengine-kernel') == -1) parent = parent.$parent;
-        console.log("5");
-        var myIdx = parent.data.conditionsVt.indexOf(item.data);
-        console.log("6");
-        parent.data.conditionsVt.splice(myIdx, 1);
-
-        var copy = JSON.parse(JSON.stringify(item.data));
-
-        this.data.conditionsVt.push(copy);
-
-        var temp1 = parent.data;
-        parent.data = null;
-        parent.data = temp1;
-
-        var temp2 = this.data;
-        this.data = null;
-        this.data = temp2;
-      },
+      remove: function(index) {
+        this.value.conditionsVt.splice(index, 1)
+        this.$emit('input', this.value);
+      }
 
     }
 

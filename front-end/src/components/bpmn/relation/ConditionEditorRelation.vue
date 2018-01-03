@@ -33,22 +33,13 @@
           <md-checkbox v-model="otherwise">otherwise</md-checkbox>
         </md-layout>
 
-        <md-checkbox v-model="complexCondition">복잡 조건</md-checkbox>
+        <md-checkbox v-model="complexCondition">복합 조건</md-checkbox>
 
         <div v-if="complexCondition">
-          <md-input-container>
-            <md-select v-model="thisConditionType" md-elevation="2">
-              <md-option value="org.uengine.kernel.And">And</md-option>
-              <md-option value="org.uengine.kernel.Or">Or</md-option>
-            </md-select>
-          </md-input-container>
-
-          <org-uengine-kernel-Or v-if="thisConditionType == 'org.uengine.kernel.Or'" :data="relation.condition" :definition="definition"></org-uengine-kernel-Or>
-          <org-uengine-kernel-And v-if="thisConditionType == 'org.uengine.kernel.And'" :data="relation.condition" :definition="definition"></org-uengine-kernel-And>
+          <org-uengine-kernel-Or v-model="relation.condition" :definition="definition"></org-uengine-kernel-Or>
         </div>
 
-
-        <org-uengine-kernel-Evaluate v-else :data="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
+        <org-uengine-kernel-Evaluate v-else v-model="relation.condition" :definition="definition"></org-uengine-kernel-Evaluate>
 
       </template>
 

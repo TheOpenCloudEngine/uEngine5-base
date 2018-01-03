@@ -11,7 +11,7 @@
           <div id="processVal">
             <md-input-container v-if="definition && definition.processVariableDescriptors"  style="min-width: 1px;">
               <label>프로세스 변수</label>
-              <md-select id="input" v-model="data.pv.name"  style="min-width: 1px;">
+              <md-select id="input" v-model="value.pv.name"  style="min-width: 1px;">
                 <md-option v-for="variable in definition.processVariableDescriptors"
                            :key="variable.name"
                            :value="variable.name">
@@ -24,7 +24,7 @@
             <md-input-container  style="min-width: 1px;">
               <label>조건 연산자</label>
               <md-select type="text"
-                         v-model="data.condition"
+                         v-model="value.condition"
                          style="min-width: 1px;">
                 <md-option value="==">=</md-option>
                 <md-option value=">">&gt;</md-option>
@@ -35,14 +35,9 @@
           <div id="dataVal">
               <md-input-container  style="min-width: 1px;">
                 <label>비교 값</label>
-                <md-input v-model="data.val"  style="min-width: 1px;"></md-input>
+                <md-input v-model="value.val"  style="min-width: 1px;"></md-input>
               </md-input-container>
           </div>
-            <div id="button">
-              <md-button @click="remove" style="min-width: 1px; padding: 0px;  padding-top: 10px;">
-                <md-icon>clear</md-icon>
-              </md-button>
-            </div>
         </div>
     </md-card>
   </div>
@@ -53,11 +48,11 @@
 
   export default {
       name: 'org-uengine-kernel-Evaluate',
-      props: ['definition', 'data'],
+      props: ['definition', 'value'],
 
       created: function(){
-          if(this.data)
-              this.data
+          if(this.value)
+              this.value
             =
             {
                 _type: 'org.uengine.kernel.Evaluate',
@@ -68,7 +63,7 @@
                 val: ''
             };
           console.log("def: " + this.definition);
-          if(!this.data.pv) this.data.pv = {};
+          if(!this.value.pv) this.value.pv = {};
 
           if(!this.definition){
               var conditionEditor;
@@ -85,19 +80,8 @@
             this.$emit('setDef', this.definition)
         },
         setData: function () {
-            this.$emit('setData', this.data)
+            this.$emit('setData', this.value)
         },
-      remove: function () {
-        var parent;
-        parent = this.$parent;
-        while(parent.$vnode.tag.indexOf('org-uengine-kernel') == -1) parent = parent.$parent;
-        var index = parent.data.conditionsVt.indexOf(this.data);
-        parent.data.conditionsVt.splice(index, 1);
-
-        var temp = parent.data;
-        parent.data = null;
-        parent.data = temp;
-      },
       dragover: function() {
         window._dragItem = this;
       },
@@ -122,22 +106,19 @@
         var parent;
         parent = this.$parent;
         while(parent.$vnode.tag.indexOf('org-uengine-kernel') == -1) parent = parent.$parent;
-        var myIdx = this.$parent.data.conditionsVt.indexOf(this.data);
-        this.$parent.data.conditionsVt.splice(myIdx, 1);
+        var myIdx = this.$parent.value.conditionsVt.indexOf(this.value);
+        this.$parent.value.conditionsVt.splice(myIdx, 1);
 
       },
       onDragenter: function () {
         var me = this;
-        me.folderName = this.data.conditionsVt;
-        me.navigationName = this.data.conditionsVt;
+        me.folderName = this.value.conditionsVt;
+        me.navigationName = this.value.conditionsVt;
       },
       onDragLeave: function () {
         var me = this;
         console.log("드래그 끝");
       },
-      click: function () {
-        console.log(this.data)
-      }
     }
 
 
