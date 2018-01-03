@@ -12,12 +12,14 @@
     </md-avatar>
 
     <span style="flex: 1"></span>
+      <avatar-uploader :iam="iam" style="padding-top: 20px;"></avatar-uploader>
     </md-list-item>
 
     <md-list-item>
     <div class="md-list-text-container">
     <span v-if="user.name">{{user.name}}</span>
     <span v-if="user.email">{{user.email}}</span>
+
     </div>
 
     <md-button class="md-icon-button md-list-action" @click="openDialog('userProfile')">

@@ -1,5 +1,5 @@
 <template>
-  <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')">
+  <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')" id="test">
     <md-tabs>
       <md-tab :id="'properties' + _uid" md-label="Properties">
 
@@ -259,7 +259,11 @@
 
 <style lang="scss" rel="stylesheet/scss">
   .md-sidenav .md-sidenav-content {
-    width: 600px
+    width: 400px
   }
+  .md-sidenav.md-right .md-sidenav-content {
+    width: 600px;
+  }
+
 </style>
 
