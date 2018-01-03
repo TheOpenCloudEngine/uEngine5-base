@@ -33,6 +33,13 @@
         </li>
       </ul>
     </md-layout>
+
+    <md-layout>
+      <md-select v-if="versions && versions.length > 0" v-model="selectedVersion">
+        <md-option v-for="version in versions" value="version.version.major + '.' + version.version.minor">Ver. {{version.version.major}}.{{version.version.minor}}</md-option>
+      </md-select>
+    </md-layout>
+
     <div class="side-margin">
       <md-layout v-if="directory.length > 0">
         {{ $t("message['title.desinger.package']") }}
@@ -55,6 +62,7 @@
                   <md-menu md-direction="bottom-end">
                     <md-icon class="folder-menu" md-menu-trigger>more_vert</md-icon>
                     <md-menu-content>
+
                       <md-menu-item
                         @click.native="selectedPackge = {'name' : item.name, 'path' : item.path}; $refs['update'].open()">
                         <span>{{ $t("message['button.rename']") }}</span>
@@ -208,7 +216,9 @@
         selectedPackge: "",
         folderName: "",
         navigationName: "",
-        originPackage: {}
+        originPackage: {},
+        versions: null,
+        selectedVersion: null
       }
     },
     created: function () {
@@ -224,6 +234,7 @@
       $('.scroll-inner').slimScroll({
         height: '100%'
       });
+      this.loadVersions();
       this.getDefinitionList('');
     },
     computed: {
@@ -342,6 +353,22 @@
         me.directory = folders;
         me.cards = cards;
       },
+
+      loadVersions: function() {
+        var me = this;
+
+        var versions = [];
+
+        me.backend.$bind("version", versions);
+
+        versions.$load().then(function(versions) {
+          if (versions) {
+            me.versions = versions;
+          }
+        });
+
+      },
+
       getPackageFile: function (_path, _cards) {
         var src = 'definitions/packages/' + _path + "/processes"; //패키지 내 파일 찾기
         var packageChildren = []; // 좌측 트리에 보여질 패키지 파일 리스트
@@ -417,7 +444,7 @@
       initiateProcess: function (card) {
         var me = this;
 
-        card.instantiation.$create()
+        card.instantiation.$create(null, {"simulation": true})
           .then(
             function (instance) {
               var instanceId = instance.instanceId;

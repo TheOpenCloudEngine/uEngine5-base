@@ -5,6 +5,8 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.QueryParam;
+
 /**
  * Created by uengine on 2017. 8. 9..
  *
@@ -23,6 +25,8 @@ public interface DefinitionService {
     @RequestMapping(value = DEFINITION, method = RequestMethod.GET)
     public ResourceSupport listDefinition(String basePath) throws Exception;
 
+    @RequestMapping(value = "/version/production", method = RequestMethod.GET)
+    public ResourceSupport getProduction() throws Exception;
 
 //    @RequestMapping(value = "/version/{version}" + DEFINITION, method = RequestMethod.GET)
 //    public ResourceSupport listVersionDefinitions(String version, String basePath) throws Exception;
@@ -42,6 +46,6 @@ public interface DefinitionService {
 
 
     @RequestMapping(value = DEFINITION + "/xml/{defPath}", method = RequestMethod.GET, produces = "application/xml;charset=UTF-8")
-    public String getXMLDefinition(@PathVariable("defPath") String definitionPath) throws Exception;
+    public String getXMLDefinition(@PathVariable("defPath") String definitionPath, @RequestParam("production") boolean production) throws Exception;
 
 }

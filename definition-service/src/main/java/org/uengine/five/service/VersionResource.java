@@ -54,7 +54,7 @@ public class VersionResource extends ResourceSupport{
     public Version getVersion() {
             return version;
         }
-        public void setVersion(Version version) {
+    public void setVersion(Version version) {
             this.version = version;
         }
 

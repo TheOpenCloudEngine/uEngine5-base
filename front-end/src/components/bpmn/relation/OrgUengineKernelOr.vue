@@ -80,6 +80,11 @@
 
       remove: function(index) {
         this.value.conditionsVt.splice(index, 1)
+
+        var temp = this.value;
+        this.value = null;
+        this.value = temp;
+
         this.$emit('input', this.value);
       }
 

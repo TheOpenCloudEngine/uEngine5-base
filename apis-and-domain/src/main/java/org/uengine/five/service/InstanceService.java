@@ -5,6 +5,7 @@ import org.springframework.hateoas.ResourceSupport;
 import org.springframework.web.bind.annotation.*;
 import org.uengine.kernel.ProcessInstance;
 
+import javax.ws.rs.QueryParam;
 import java.util.Map;
 
 /**
@@ -20,7 +21,7 @@ import java.util.Map;
 public interface InstanceService {
 
     @RequestMapping(value = "/instance", method = {RequestMethod.POST})
-    public ResourceSupport runDefinition(@RequestParam("defPath") String filePath) throws Exception;
+    public ResourceSupport runDefinition(@RequestParam("defPath") String filePath, @QueryParam("simulation") boolean simulation) throws Exception;
 
     @RequestMapping(value = "/instance/{instanceId}/variables", method = RequestMethod.GET)
     public Map getProcessVariables(@PathVariable("instanceId") String instanceId) throws Exception;
