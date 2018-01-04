@@ -1,6 +1,6 @@
 <template>
 
-  <div @click="click">
+  <div>
     <md-card draggable="true"
             @dragstart.native="dragover"
             @dragleave.native="onDragLeave"

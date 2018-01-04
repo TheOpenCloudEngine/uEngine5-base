@@ -10,7 +10,7 @@
 
         return {
             myConditionType: 'And',
-
+        conditionTypeAndOr: 'org.uengine.kernel.And'
         }
 
     }
