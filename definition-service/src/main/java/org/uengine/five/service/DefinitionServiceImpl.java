@@ -23,6 +23,7 @@ import org.uengine.util.UEngineUtil;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import java.io.*;
 import java.util.ArrayList;
@@ -131,9 +132,20 @@ public class DefinitionServiceImpl implements DefinitionService {
         Version versionObj = new Version(version);
         versionManager.makeProductionVersion(versionObj);
 
-       // VersionResource versionResource = new VersionResource(versionObj);
+        // VersionResource versionResource = new VersionResource(versionObj);
 
         return getVersion(version);
+    }
+
+    @RequestMapping(value = "/version/production", method = RequestMethod.GET)
+    public VersionResource getProduction() throws Exception {
+
+        VersionManager versionManager = MetaworksRemoteService.getComponent(VersionManager.class);
+        versionManager.load("codi", null);
+
+        Version versionObj = versionManager.getProductionVersion();
+
+        return new VersionResource(versionObj);
     }
 
     @RequestMapping(value = "/version/{version:.+}", method = RequestMethod.GET)
@@ -165,6 +177,7 @@ public class DefinitionServiceImpl implements DefinitionService {
 
         //case of file:
         definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
+
         resource = new DefaultResource(RESOURCE_ROOT + "/" + definitionPath);
 
         if (!resourceManager.exists(resource)) {
@@ -182,6 +195,7 @@ public class DefinitionServiceImpl implements DefinitionService {
         
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String definitionPath = path.substring(DEFINITION.length() + 1);
+
         return getDefinition(definitionPath);
         
     }
@@ -379,10 +393,19 @@ public class DefinitionServiceImpl implements DefinitionService {
     }
 
     @RequestMapping(value = DEFINITION + "/xml/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public String getXMLDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+    public String getXMLDefinition(@PathVariable("defPath") String definitionPath, @RequestParam("production") boolean production) throws Exception {
 
         definitionPath = definitionPath.startsWith(RESOURCE_ROOT) ? definitionPath.replace(RESOURCE_ROOT, "") : definitionPath;
         definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
+
+        //replace to production version if requested:
+        if(production){
+            VersionManager versionManager = MetaworksRemoteService.getComponent(VersionManager.class);
+            versionManager.load("codi", null);
+
+            definitionPath = versionManager.getProductionResourcePath(definitionPath);
+        }
+
         Serializable definition = (Serializable) getDefinitionLocal(definitionPath);
         String uEngineProcessXML = Serializer.serialize(definition);
         return uEngineProcessXML;
@@ -395,7 +418,10 @@ public class DefinitionServiceImpl implements DefinitionService {
 
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String definitionPath = path.substring((DEFINITION + "/xml").length() + 1);
-        return getXMLDefinition(definitionPath);
+
+        boolean production = "true".equals(request.getParameter("production"));
+
+        return getXMLDefinition(definitionPath, production);
         
     }
 

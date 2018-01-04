@@ -20,6 +20,8 @@ import org.uengine.kernel.DefaultProcessInstance;
 import org.uengine.kernel.ProcessDefinition;
 import org.uengine.kernel.ProcessInstance;
 
+import javax.ws.rs.QueryParam;
+
 /**
  * Created by uengine on 2017. 8. 9..
  *
@@ -36,13 +38,14 @@ public class InstanceServiceImpl implements InstanceService {
     DefinitionServiceUtil definitionService;
 
 
+
     // ----------------- execution services -------------------- //
     @RequestMapping(value = "/instance", method = {RequestMethod.POST, RequestMethod.PUT})
     @Transactional(rollbackFor={Exception.class})
     @ProcessTransactional
-    public InstanceResource runDefinition(@RequestParam("defPath") String filePath) throws Exception {
+    public InstanceResource runDefinition(@RequestParam("defPath") String filePath, @QueryParam("simulation") boolean simulation) throws Exception {
 
-        Object definition = definitionService.getDefinition(filePath);
+        Object definition = definitionService.getDefinition(filePath, !simulation); //if simulation time, use the version under construction
 
         if(definition instanceof ProcessDefinition){
             ProcessDefinition processDefinition = (ProcessDefinition) definition;

@@ -35,10 +35,11 @@ public class DefinitionResource extends ResourceSupport {
                 linkTo(
                         methodOn(DefinitionServiceImpl.class)
                                 .getDefinition(
-                                     relativePath
+                                        relativePath
                                 )
                 ).withSelfRel()
         );
+
 
         if(!isDirectory()) {
             add(
@@ -49,11 +50,19 @@ public class DefinitionResource extends ResourceSupport {
                                     )
                     ).withRel("raw")
             );
+//            add(
+//                    linkTo(
+//                            methodOn(DefinitionServiceImpl.class)
+//                                    .getXMLDefinition(
+//                                            UEngineUtil.getNamedExtFile(relativePath, "json"), false
+//                                    )
+//                    ).withRel("xml")
+//            );
             add(
                     ControllerLinkBuilder.linkTo(
                             methodOn(InstanceService.class)
                                     .runDefinition(
-                                            relativePath
+                                            relativePath, false
                                     )
                     ).withRel("instantiation")
             );

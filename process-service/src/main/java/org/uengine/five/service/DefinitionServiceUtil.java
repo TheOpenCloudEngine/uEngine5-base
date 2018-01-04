@@ -20,11 +20,15 @@ public class DefinitionServiceUtil {
     static ObjectMapper objectMapper = createTypedJsonObjectMapper();
 
     public Object getDefinition(String defPath) throws Exception {
+        return getDefinition(defPath, true);
+    }
+
+    public Object getDefinition(String defPath, boolean production) throws Exception {
 
         if (defPath.indexOf(".") == -1) {
             defPath = defPath + ".xml";
         }        
-        Object returned = definitionService.getXMLDefinition(defPath);
+        Object returned = definitionService.getXMLDefinition(defPath, production);
         String xml = (String) returned;
 
         return Serializer.deserialize(xml);
