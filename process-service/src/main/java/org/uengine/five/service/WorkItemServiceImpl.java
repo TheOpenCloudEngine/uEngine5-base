@@ -67,10 +67,12 @@ public class WorkItemServiceImpl {
 
         // get the parameter values and set them to the "workItem.parameterValues" so that WorkItemHandler.vue can insert the default values
         Map parameterValues = new HashMap<String, Object>();
-        for (ParameterContext parameterContext : activity.getParameters()) {
-            if (parameterContext.getDirection().indexOf("IN") == 0) {
-                parameterValues.put(parameterContext.getArgument().getText(),
-                        parameterContext.getVariable().get(instance, "", ""));
+        if (activity.getParameters() != null) {
+            for (ParameterContext parameterContext : activity.getParameters()) {
+                if (parameterContext.getDirection().indexOf("IN") == 0) {
+                    parameterValues.put(parameterContext.getArgument().getText(),
+                            parameterContext.getVariable().get(instance, "", ""));
+                }
             }
         }
 
