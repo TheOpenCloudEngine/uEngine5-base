@@ -12,7 +12,7 @@
       </md-dialog-content>
 
       <md-dialog-actions>
-        <md-button class="md-primary" @click.native="closeDialog('dialog2')">Close</md-button>
+        <md-button class="md-primary" @click.native="closeDialog('versionManager')">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
 
