@@ -1,6 +1,28 @@
 <template>
   <div>
-    <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple">
+    <!-- 버전관리 시작 -->
+    <md-button class="md-fab md-fab-top-right" id="fab" @click.native="openDialog('versionManager');" v-if="versions && versions.length > 0" v-model="selectedVersion">
+      <md-icon>restore</md-icon>
+    </md-button>
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="versionManager">
+      <md-dialog-title>Version Manager</md-dialog-title>
+
+      <md-dialog-content>
+        <version-manager :backend="backend"></version-manager>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click.native="closeDialog('versionManager')">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
+    <md-layout>
+      <md-select>
+        <md-option v-for="version in versions" value="version.version.major + '.' + version.version.minor">Ver. {{version.version.major}}.{{version.version.minor}}</md-option>
+      </md-select>
+    </md-layout>
+    <!-- 버전 관리 끝 -->
+    <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple" style="float: right; right: 100px;">
 
       <md-button class="md-fab" md-fab-trigger>
         <md-icon md-icon-morph>add</md-icon>
@@ -34,11 +56,7 @@
       </ul>
     </md-layout>
 
-    <md-layout>
-      <md-select v-if="versions && versions.length > 0" v-model="selectedVersion">
-        <md-option v-for="version in versions" value="version.version.major + '.' + version.version.minor">Ver. {{version.version.major}}.{{version.version.minor}}</md-option>
-      </md-select>
-    </md-layout>
+
 
     <div class="side-margin">
       <md-layout v-if="directory.length > 0">
@@ -193,7 +211,8 @@
 <script>
   export default {
     props: {
-      backend: Object
+      backend: Object,
+      iam: Object,
     },
     data () {
       return {
@@ -353,7 +372,14 @@
         me.directory = folders;
         me.cards = cards;
       },
-
+      openDialog: function(ref) {
+        this.loadVersions();
+        console.log(this.iam)
+        this.$refs[ref].open();
+      },
+      closeDialog: function(ref) {
+        this.$refs[ref].close();
+      },
       loadVersions: function() {
         var me = this;
 
