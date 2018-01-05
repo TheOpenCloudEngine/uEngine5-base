@@ -103,7 +103,8 @@ public class WorkItemServiceImpl {
         // map the argument list to variables change list
         Map variableChanges = new HashMap<String, Object>();
 
-        if (workItem.getParameterValues() != null)
+        if (workItem.getParameterValues() != null
+                && humanActivity.getParameters() != null) {
             for (ParameterContext parameterContext : humanActivity.getParameters()) {
                 if (parameterContext.getDirection().indexOf("OUT") >= 0
                         && workItem.getParameterValues().containsKey(parameterContext.getArgument().getText())) {
@@ -111,6 +112,7 @@ public class WorkItemServiceImpl {
                             workItem.getParameterValues().get(parameterContext.getArgument().getText()));
                 }
             }
+        }
 
         if ("SAVED".equals(workItem.getWorklist().getStatus())) {
             humanActivity.saveWorkItem(instance, variableChanges);
