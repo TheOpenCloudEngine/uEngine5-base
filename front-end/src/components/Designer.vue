@@ -470,7 +470,7 @@
       initiateProcess: function (card) {
         var me = this;
 
-        card.instantiation.$create(null, {"simulation": true})
+        card.instantiation.$create(null, {"simulation": false})
           .then(
             function (instance) {
               var instanceId = instance.instanceId;

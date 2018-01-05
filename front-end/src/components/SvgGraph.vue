@@ -564,7 +564,7 @@
             me.backend.$bind("definition/" + me.path + me.id + ".json", def);
             def.$load().then(function (definition) {
 
-              definition.instantiation.$create().then(function (instance) {
+              definition.instantiation.$create(null, {"simulation": true}).then(function (instance) {
                 window.open('/instance/' + instance.instanceId + '/' + instance.instanceId, '_blank');
               });
 
