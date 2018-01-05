@@ -41,7 +41,7 @@
       </md-toolbar>
 
       <md-list>
-        <md-list-item v-for="item in items" v-on:click="move(item.routerPath)" class="md-primary">
+        <md-list-item v-for="item in items" v-on:click="move(item.routerPath)" class="md-primary" >
           <md-icon>{{ item.icon }}</md-icon>
           <span>{{ item.title }}</span>
         </md-list-item>

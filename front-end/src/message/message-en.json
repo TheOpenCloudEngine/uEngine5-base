@@ -6,11 +6,22 @@
     "button.edit": "Edit",
     "button.move": "Move",
     "button.rename": "Rename",
-    
+
+    "version.add": "Version Up",
+    "version.active": "Activate",
+    "version.version" : "Version",
+    "version.description" : "Description",
+    "version.date" : "Date",
+    "version.writer" : "Writer",
+
+    "version.update.major" : "Major Update",
+    "version.update.minor" : "Minor Update",
+
+    "version.edit": "Version Information",
     "common.logout": "Logout",
-    
+
     "message.package.list": "Package List",
-    
+
     "title.desinger.package": "Package",
     "title.desinger.package.move": "Move Pacakge",
     "title.desinger.package.name": "Package Name",
