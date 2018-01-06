@@ -47,5 +47,7 @@ public interface ProcessInstanceRepository extends MultitenantRepository<Process
 
     @Query("select pi from ProcessInstanceEntity pi where pi.rootInstId = :instId")
     List<ProcessInstanceEntity> findChild(@Param("instId") Long instId);
+
+    ProcessInstanceEntity findByCorrKey(String s);
 }
 

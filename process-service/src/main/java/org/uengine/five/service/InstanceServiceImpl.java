@@ -1,9 +1,15 @@
 package org.uengine.five.service;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
@@ -13,13 +19,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.HandlerMapping;
+import org.uengine.five.entity.ProcessInstanceEntity;
+import org.uengine.five.entity.ServiceEndpointEntity;
 import org.uengine.five.framework.ProcessTransactionContext;
 import org.uengine.five.framework.ProcessTransactional;
-import org.uengine.kernel.Activity;
-import org.uengine.kernel.DefaultProcessInstance;
-import org.uengine.kernel.ProcessDefinition;
-import org.uengine.kernel.ProcessInstance;
+import org.uengine.five.overriding.JPAProcessInstance;
+import org.uengine.five.repository.ProcessInstanceRepository;
+import org.uengine.five.repository.ServiceEndpointRepository;
+import org.uengine.kernel.*;
+import org.uengine.kernel.bpmn.CatchingRestMessageEvent;
+import org.uengine.kernel.bpmn.MessageEvent;
+import org.uengine.kernel.bpmn.SendTask;
+import org.uengine.uml.model.ObjectInstance;
+import org.uengine.util.UEngineUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.QueryParam;
 
 /**
@@ -179,6 +194,116 @@ public class InstanceServiceImpl implements InstanceService {
         );
         return instance;
 
+    }
+
+
+    final static String SERVICES_ROOT = "services";
+
+    @Autowired
+    ServiceEndpointRepository serviceEndpointRepository;
+
+    @Autowired
+    ProcessInstanceRepository processInstanceRepository;
+
+    @ProcessTransactional
+    @RequestMapping(value = SERVICES_ROOT+ "/**", method = {RequestMethod.GET, RequestMethod.POST})
+    public Object serviceMessage(HttpServletRequest request) throws Exception {
+
+        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+
+        ServiceEndpointEntity serviceEndpointEntity = serviceEndpointRepository.findOne(path.substring(SERVICES_ROOT.length()+2));
+
+        if(serviceEndpointEntity==null)
+            throw new ResourceNotFoundException();
+
+        //find the correlated instance:
+        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+        UEngineUtil.copyStream(request.getInputStream(), bao);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        JsonNode jsonNode = objectMapper.readTree(bao.toByteArray());
+
+
+        // convert jsonNode to object instance.
+        ObjectInstance objectInstance = new ObjectInstance();
+        Iterator<String> fieldNames = jsonNode.fieldNames();
+        while(fieldNames.hasNext()){
+            String fieldName = fieldNames.next();
+
+            Object childNode = jsonNode.get(fieldName);
+            Object converted = null;
+
+            if(childNode instanceof TextNode){
+                converted = ((TextNode)childNode).asText();
+            }else if(childNode instanceof ValueNode){
+                converted = ((ValueNode)childNode).asText();
+            }else
+                converted = childNode;
+
+            objectInstance.setBeanProperty(fieldName, jsonNode.get(fieldName));
+        }
+
+
+        Object correlationData = jsonNode.get(serviceEndpointEntity.getCorrelationKey());
+        ProcessInstanceEntity processInstanceEntity = processInstanceRepository.findByCorrKey(correlationData.toString());
+        JPAProcessInstance instance = null;
+
+        // case that correlation instance exists and is running:
+        if(processInstanceEntity!=null && Activity.STATUS_RUNNING.equals(processInstanceEntity.getStatus())){
+            instance = (JPAProcessInstance) getProcessInstanceLocal(String.valueOf(processInstanceEntity.getInstId()));
+
+        }else { // if no instances running, create new instance:
+            Object definition = definitionService.getDefinition(serviceEndpointEntity.getDefId(), true);
+
+            ProcessDefinition processDefinition = (ProcessDefinition) definition;
+
+            instance = (JPAProcessInstance) applicationContext.getBean(
+                    ProcessInstance.class,
+                    //new Object[]{
+                    processDefinition,
+                    null,
+                    null
+                    //}
+            );
+
+            instance.execute();
+        }
+
+        // trigger the start or intermediate message catch events:
+        List<Activity> runningActivities = instance.getCurrentRunningActivities();
+
+        if(runningActivities!=null)
+        for(Activity activity: runningActivities){
+            if(activity instanceof CatchingRestMessageEvent){
+                CatchingMessageEvent catchingMessageEvent = (CatchingMessageEvent) activity;
+
+                catchingMessageEvent.onMessage(instance, objectInstance);
+            }
+        }
+
+        //set correlation key so that this instance could be re-visited by the recurring requester.
+        if(instance.isNew())
+            instance.getProcessInstanceEntity().setCorrKey(correlationData.toString());
+
+
+        List<String> history = instance.getActivityCompletionHistory();
+        if(history!=null){
+            for(String tracingTag : history){
+
+                Activity activityDone = instance.getProcessDefinition().getActivity(tracingTag);
+
+                if(activityDone instanceof SendTask){
+                    SendTask sendTask = (SendTask) activityDone;
+
+                    return sendTask.getDataInput().get(instance, "");
+                }
+
+            }
+
+        }
+
+        return null;
     }
 
 //    public ProcessInstance createProcessInstanceLocal(ProcessDefinition processDefinition){

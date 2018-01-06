@@ -27,6 +27,14 @@ zuul:
       path: /instances/**
       serviceId: bpm
       stripPrefix: false
+    instance-service:
+      path: /service/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-services:
+      path: /services/**
+      serviceId: bpm
+      stripPrefix: false
     worklist-entity:
       path: /worklist/**
       serviceId: bpm

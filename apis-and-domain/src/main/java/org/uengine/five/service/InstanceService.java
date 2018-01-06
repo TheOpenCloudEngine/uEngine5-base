@@ -41,4 +41,8 @@ public interface InstanceService {
     @RequestMapping(value = "/instance/{instanceId}/activity/{tracingTag}/backToHere", method = RequestMethod.POST)
     public ResourceSupport backToHere(@PathVariable("instanceId") String instanceId, @PathVariable("tracingTag") String tracingTag) throws Exception;
 
+
+//    @RequestMapping(value = "/instance/definition/", method = RequestMethod.POST)
+//    public void onDeploy() throws Exception;
+
 }

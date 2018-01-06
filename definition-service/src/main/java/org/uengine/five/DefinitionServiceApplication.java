@@ -12,8 +12,10 @@ import org.springframework.context.annotation.*;
 import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.uengine.five.overriding.ServiceRegisterDeployFilter;
 import org.uengine.five.service.DefinitionServiceImpl;
 import org.uengine.five.service.HomeService;
+import org.uengine.kernel.DeployFilter;
 import org.uengine.modeling.resource.*;
 
 import javax.sql.DataSource;
@@ -97,6 +99,10 @@ public class DefinitionServiceApplication extends Metaworks4BaseApplication {
         return homeService.getHome();
     }
 
+    @Bean
+    public DeployFilter serviceRegisterDeployFilter(){
+        return new ServiceRegisterDeployFilter();
+    }
 
 
 }

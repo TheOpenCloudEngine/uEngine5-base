@@ -137,6 +137,8 @@ public class ProcessInstanceEntity {//implements ProcessInstanceDAO {
 
     String initComCd;
 
+    String corrKey;
+
 
     @Lob
     byte[] varLob;
@@ -532,6 +534,15 @@ public class ProcessInstanceEntity {//implements ProcessInstanceDAO {
 
     public void setCurrRsNm(String currRsNm) {
         this.currRsNm = currRsNm;
+    }
+
+
+    public String getCorrKey() {
+        return corrKey;
+    }
+
+    public void setCorrKey(String corrKey) {
+        this.corrKey = corrKey;
     }
 
 }

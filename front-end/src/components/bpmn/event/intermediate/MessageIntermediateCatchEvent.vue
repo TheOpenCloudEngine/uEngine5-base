@@ -6,7 +6,6 @@
       resizable
       connectable
       deletable
-      :enableTo="false"
       :id.sync="activity.tracingTag"
       :x.sync="activity.elementView.x"
       :y.sync="activity.elementView.y"
@@ -25,6 +24,11 @@
       <geometry-circle
         :center="[50,50]"
         :radius="50"
+      >
+      </geometry-circle>
+      <geometry-circle
+        :center="[50,50]"
+        :radius="44"
       >
       </geometry-circle>
       <sub-elements>
@@ -82,7 +86,7 @@
   import IBpmn from '../../IBpmn'
   export default {
     mixins: [IBpmn],
-    name: 'bpmn-message-start-event',
+    name: 'bpmn-message-intermediate-catch-event',
     props: {},
     computed: {
       defaultStyle(){
