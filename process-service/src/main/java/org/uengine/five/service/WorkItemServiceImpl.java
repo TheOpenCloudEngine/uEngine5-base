@@ -67,10 +67,12 @@ public class WorkItemServiceImpl {
 
         // get the parameter values and set them to the "workItem.parameterValues" so that WorkItemHandler.vue can insert the default values
         Map parameterValues = new HashMap<String, Object>();
-        for (ParameterContext parameterContext : activity.getParameters()) {
-            if (parameterContext.getDirection().indexOf("IN") == 0) {
-                parameterValues.put(parameterContext.getArgument().getText(),
-                        parameterContext.getVariable().get(instance, "", ""));
+        if (activity.getParameters() != null) {
+            for (ParameterContext parameterContext : activity.getParameters()) {
+                if (parameterContext.getDirection().indexOf("IN") == 0) {
+                    parameterValues.put(parameterContext.getArgument().getText(),
+                            parameterContext.getVariable().get(instance, "", ""));
+                }
             }
         }
 
@@ -101,7 +103,8 @@ public class WorkItemServiceImpl {
         // map the argument list to variables change list
         Map variableChanges = new HashMap<String, Object>();
 
-        if (workItem.getParameterValues() != null)
+        if (workItem.getParameterValues() != null
+                && humanActivity.getParameters() != null) {
             for (ParameterContext parameterContext : humanActivity.getParameters()) {
                 if (parameterContext.getDirection().indexOf("OUT") >= 0
                         && workItem.getParameterValues().containsKey(parameterContext.getArgument().getText())) {
@@ -109,6 +112,7 @@ public class WorkItemServiceImpl {
                             workItem.getParameterValues().get(parameterContext.getArgument().getText()));
                 }
             }
+        }
 
         if ("SAVED".equals(workItem.getWorklist().getStatus())) {
             humanActivity.saveWorkItem(instance, variableChanges);

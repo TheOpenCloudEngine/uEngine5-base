@@ -22,6 +22,7 @@ import DeletePackage from '@/components/bpm-portal/DeletePackage'
 import ListPackage from '@/components/bpm-portal/ListPackage'
 import MovePackage from '@/components/bpm-portal/MovePackage'
 import ClassModeler from '@/components/class/ClassModeler'
+import VersionManager from '@/components/bpmn/VersionManager'
 
 
 
@@ -35,6 +36,7 @@ import ClassModeler from '@/components/class/ClassModeler'
 var iam = new IAM('http://iam.uengine.io:8080');
 //TODO Implict grant flow 로 전환하기. (클라이언트 시크릿키가 필요없는 flow, 로그인 창을 iam 이 제공.)
 iam.setDefaultClient('e74a9505-a811-407f-b4f6-129b7af1c703','109cf590-ac67-4b8c-912a-913373ada046');
+window.iam = iam;
 
 let RouterGuard = require("./RouterGuard.js")(iam);
 Vue.use(Router);
@@ -92,6 +94,7 @@ Vue.component('delete-package', DeletePackage);
 Vue.component('list-package', ListPackage);
 Vue.component('move-package', MovePackage);
 Vue.component('user-autocomplete', UserAutocomplete);
+Vue.component('version-manager', VersionManager);
 
 import CloudExample from '../components/example/CloudExample'
 Vue.component('cloud-example', CloudExample);
@@ -199,7 +202,7 @@ export default new Router({
             iam: iam,
             backend: backend
           }
-        }     
+        }
       ]
     },
     {

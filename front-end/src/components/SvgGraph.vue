@@ -97,7 +97,7 @@
             <md-button c lass="md-primary" id="processVariables" @click="openProcessVariables"><md-icon>sort_by_alpha</md-icon> Process Variable</md-button>
           </md-layout>
           <!--로케일-->
-          <md-layout v-if="!monitor && definition">
+          <md-layout v-if="!monitor && definition" style="max-width: 200px;">
             <md-input-container>
               <label>Language</label>
               <md-select v-model="definition._selectedLocale" @change="changeLocale">
@@ -108,7 +108,10 @@
           </md-layout>
 
           <!--프로세스 세이브-->
-          <md-layout v-if="!monitor">
+          <md-layout v-if="!monitor" style="margin-left: 30px;">
+            <md-button v-if="!monitor" class="md-fab md-primary md-mini"  v-on:click="initiateProcess">
+              <md-icon>play_arrow</md-icon>
+            </md-button>
             <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
               <md-icon>save</md-icon>
             </md-button>
@@ -476,7 +479,7 @@
           })
         }
       },
-      save: function () {
+      save: function (nextAction) {
         var me = this;
         //각 액티비티, 롤, 시퀀스 플로우 중 빈 컴포넌트값을 거른다.
         var definitionToSave = JSON.parse(JSON.stringify(me.definition));
@@ -540,11 +543,32 @@
         me.backend.$bind("definition/raw/" + me.path + fileName, definition);
         definition.definition = definitionToSave;
         definition.$save().then(
-          function (response) {
+          function (definition) {
             me.$root.$children[0].success('저장되었습니다.');
+
+            if(nextAction) nextAction(definition);
           },
           function (response) {
             me.$root.$children[0].error('저장할 수 없습니다.');
+          }
+        );
+      },
+      initiateProcess: function () {
+
+        var me = this;
+
+        this.save(
+          function() {
+
+            var def = {};
+            me.backend.$bind("definition/" + me.path + me.id + ".json", def);
+            def.$load().then(function (definition) {
+
+              definition.instantiation.$create(null, {"simulation": true}).then(function (instance) {
+                window.open('/instance/' + instance.instanceId + '/' + instance.instanceId, '_blank');
+              });
+
+            });
           }
         );
       },
