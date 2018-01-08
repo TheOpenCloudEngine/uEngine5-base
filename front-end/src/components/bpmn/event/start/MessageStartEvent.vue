@@ -108,7 +108,7 @@
         return 'StartEvent'
       },
       className(){
-        return 'org.uengine.kernel.bpmn.CatchingRestMessageEvent'
+        return 'org.uengine.kernel.bpmn.MessageStartEvent'
       },
       createNew(newTracingTag, x, y, width, height){
         return {
