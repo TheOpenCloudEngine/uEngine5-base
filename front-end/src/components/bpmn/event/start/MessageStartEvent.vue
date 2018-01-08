@@ -27,8 +27,21 @@
         :radius="50"
       >
       </geometry-circle>
-      <sub-elements>
+      <sub-elements
+        >
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
+        <rectangle-element
+          :sub-width="'65%'"
+          :sub-height="'40%'"
+          :sub-align="'center'"
+          :sub-top="'29%'">
+        </rectangle-element>
+        <geometry-line
+          :from="[17.4,29.2]"
+          :to="[50,50]"></geometry-line>
+        <geometry-line
+          :from="[82.4,29.2]"
+          :to="[50,50]"></geometry-line>
       </sub-elements>
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
