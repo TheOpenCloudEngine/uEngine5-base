@@ -41,3 +41,9 @@ eureka:
 #        commitSha: ${CI_COMMIT_SHA}
 #        image: ${MARATHON_APP_DOCKER_IMAGE}
 #        deployment: ${DEPLOYMENT}
+
+
+kafka:
+  bootstrap-servers: localhost:9092
+  topic:
+    bpm: bpm.topic

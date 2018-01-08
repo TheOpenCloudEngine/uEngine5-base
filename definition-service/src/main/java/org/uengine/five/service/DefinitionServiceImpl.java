@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
@@ -348,7 +349,7 @@ public class DefinitionServiceImpl implements DefinitionService {
         
         // TODO: deploy filter 로 등록된 bean 들을 호출:
         if (definitionDeployed instanceof ProcessDefinition) {
-            invokeDeployFilters((ProcessDefinition) definitionDeployed, resource.getPath());
+            invokeDeployFilters((ProcessDefinition) definitionDeployed, resource.getPath().substring(RESOURCE_ROOT.length()+2));
         }
 
         return new DefinitionResource(resource);
@@ -457,5 +458,6 @@ public class DefinitionServiceImpl implements DefinitionService {
         }
 
     }
+
 
 }

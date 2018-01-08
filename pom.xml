@@ -21,6 +21,7 @@
         <log4jdbc.remix.version>0.2.7</log4jdbc.remix.version>
         <hikaricp.version>2.4.6</hikaricp.version>
         <jpa.version>2.6.4</jpa.version>
+
     </properties>
 
     <modules>
@@ -144,6 +145,9 @@
             <artifactId>uengine-five-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+
+
 
     </dependencies>
 

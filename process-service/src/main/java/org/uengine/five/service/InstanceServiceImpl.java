@@ -206,7 +206,7 @@ public class InstanceServiceImpl implements InstanceService {
     ProcessInstanceRepository processInstanceRepository;
 
     @ProcessTransactional
-    @RequestMapping(value = SERVICES_ROOT+ "/**", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = SERVICES_ROOT+ "/**", method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json;charset=UTF-8")
     public Object serviceMessage(HttpServletRequest request) throws Exception {
 
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
@@ -246,11 +246,21 @@ public class InstanceServiceImpl implements InstanceService {
 
 
         Object correlationData = jsonNode.get(serviceEndpointEntity.getCorrelationKey());
-        ProcessInstanceEntity processInstanceEntity = processInstanceRepository.findByCorrKey(correlationData.toString());
+        List<ProcessInstanceEntity> processInstanceEntities = processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
+
+        ProcessInstanceEntity processInstanceEntity;
+        if(processInstanceEntities==null || processInstanceEntities.size()==0)
+            processInstanceEntity = null;
+        else{
+            processInstanceEntity = processInstanceEntities.get(0);
+            if(processInstanceEntities.size() > 1)
+                System.err.println("More than one correlated process instance found!");
+        }
+
         JPAProcessInstance instance = null;
 
         // case that correlation instance exists and is running:
-        if(processInstanceEntity!=null && Activity.STATUS_RUNNING.equals(processInstanceEntity.getStatus())){
+        if(processInstanceEntity!=null){
             instance = (JPAProcessInstance) getProcessInstanceLocal(String.valueOf(processInstanceEntity.getInstId()));
 
         }else { // if no instances running, create new instance:
@@ -283,7 +293,7 @@ public class InstanceServiceImpl implements InstanceService {
         }
 
         //set correlation key so that this instance could be re-visited by the recurring requester.
-        if(instance.isNew())
+        if(instance.isNewInstance())
             instance.getProcessInstanceEntity().setCorrKey(correlationData.toString());
 
 

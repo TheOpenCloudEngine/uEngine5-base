@@ -16,3 +16,7 @@ eureka:
     statusPageUrlPath: ${server.servletPath}info
     healthCheckUrlPath: ${server.servletPath}health
 
+kafka:
+  bootstrap-servers: localhost:9092
+  topic:
+    bpm: bpm.topic

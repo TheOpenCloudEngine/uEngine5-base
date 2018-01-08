@@ -12,7 +12,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.uengine.five.overriding.ServiceRegisterDeployFilter;
+import org.uengine.five.eventsourcing.EventSender;
+import org.uengine.five.overriding.EventSendingDeployFilter;
 import org.uengine.five.service.DefinitionServiceImpl;
 import org.uengine.five.service.HomeService;
 import org.uengine.kernel.DeployFilter;
@@ -101,8 +102,12 @@ public class DefinitionServiceApplication extends Metaworks4BaseApplication {
 
     @Bean
     public DeployFilter serviceRegisterDeployFilter(){
-        return new ServiceRegisterDeployFilter();
+        return new EventSendingDeployFilter();
     }
 
+    @Bean
+    public EventSender eventSender(){
+        return new EventSender();
+    }
 
 }
