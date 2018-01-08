@@ -20,19 +20,31 @@
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
-    >
+      >
       <geometry-circle
         :center="[50,50]"
         :radius="50"
-      >
+        >
       </geometry-circle>
       <geometry-circle
         :center="[50,50]"
         :radius="44"
-      >
+        >
       </geometry-circle>
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
+        <rectangle-element
+          :sub-width="'62%'"
+          :sub-height="'37%'"
+          :sub-align="'center'"
+          :sub-top="'32%'">
+        </rectangle-element>
+        <geometry-line
+          :from="[18.9,32]"
+          :to="[50,50]"></geometry-line>
+        <geometry-line
+          :from="[81.1,32]"
+          :to="[50,50]"></geometry-line>
       </sub-elements>
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
@@ -96,7 +108,7 @@
         }
       },
       type(){
-        return 'StartEvent'
+        return 'IntermediateEvent'
       },
       className(){
         return 'org.uengine.kernel.bpmn.CatchingRestMessageEvent'
