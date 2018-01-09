@@ -5,21 +5,21 @@
       <!--Completed 체크 이미지-->
       <div v-if="type == 'StartEvent' || type == 'EndEvent' || type == 'IntermediateEvent' || type == 'Gateway'">
         <image-element
-          :image="'../static/image/symbol/complete.png'"
+          :image="'/static/image/symbol/complete.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
-          :sub-right="'-10px'"
-          :sub-bottom="'-5px'"
+          :sub-right="'5px'"
+          :sub-bottom="'5px'"
         >
         </image-element>
       </div>
       <div v-else>
         <image-element
-          :image="'../static/image/symbol/complete.png'"
+          :image="'/static/image/symbol/complete.png'"
           :sub-width="'20px'"
           :sub-height="'20px'"
-          :sub-align="'center'"
-          :sub-top="'0px'"
+          :sub-right="'6%'"
+          :sub-top="'5px'"
         >
         </image-element>
       </div>
