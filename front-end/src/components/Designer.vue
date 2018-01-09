@@ -22,6 +22,17 @@
       </md-select>
     </md-layout>
     <!-- 버전 관리 끝 -->
+    <!-- 삭제 다이얼로그 시작 -->
+    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="deleteDialog">
+      <md-dialog-title v-if="selectedCard">{{selectedCard.name}}을 삭제하시겠습니까?</md-dialog-title>
+      <md-dialog-title v-if="!selectedCard">삭제하시겠습니까?</md-dialog-title>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click.native="deleteProcess(selectedCard.name, selectedCard.packagePath); closeDialog('deleteDialog')">예</md-button>
+        <md-button class="md-primary" @click.native="closeDialog('deleteDialog')">아니요</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+    <!-- 삭제 다이얼로그 끝-->
     <md-speed-dial md-open="hover" md-direction="left" class="md-fab-top-right" md-theme="purple" style="float: right; right: 100px;">
 
       <md-button class="md-fab" md-fab-trigger>
@@ -134,7 +145,7 @@
                 <md-button @click.native="originPackage = card.path; $refs['move'].open();">
                   {{ $t("message['button.move']") }}
                 </md-button>
-                <md-button v-on:click="deleteProcess(card.name, card.packagePath)">{{ $t("message['button.delete']") }}</md-button>
+                <md-button v-on:click="selectedCard = card; openDialog('deleteDialog')">{{ $t("message['button.delete']") }}</md-button>
               </md-card-actions>
             </md-card>
           </md-layout>
@@ -237,7 +248,8 @@
         navigationName: "",
         originPackage: {},
         versions: null,
-        selectedVersion: null
+        selectedVersion: null,
+        selectedCard: {},
       }
     },
     created: function () {
