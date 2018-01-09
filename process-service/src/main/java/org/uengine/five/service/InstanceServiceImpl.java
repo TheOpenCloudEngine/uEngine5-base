@@ -217,43 +217,48 @@ public class InstanceServiceImpl implements InstanceService {
             throw new ResourceNotFoundException();
 
         //find the correlated instance:
-        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        UEngineUtil.copyStream(request.getInputStream(), bao);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        JsonNode jsonNode = objectMapper.readTree(bao.toByteArray());
-
-
-        // convert jsonNode to object instance.
+        List<ProcessInstanceEntity> correlatedProcessInstanceEntities = null;
+        Object correlationData = null;
         ObjectInstance objectInstance = new ObjectInstance();
-        Iterator<String> fieldNames = jsonNode.fieldNames();
-        while(fieldNames.hasNext()){
-            String fieldName = fieldNames.next();
 
-            Object childNode = jsonNode.get(fieldName);
-            Object converted = null;
+        if("POST".equals(request.getMethod())) {
 
-            if(childNode instanceof TextNode){
-                converted = ((TextNode)childNode).asText();
-            }else if(childNode instanceof ValueNode){
-                converted = ((ValueNode)childNode).asText();
-            }else
-                converted = childNode;
+            ByteArrayOutputStream bao = new ByteArrayOutputStream();
+            UEngineUtil.copyStream(request.getInputStream(), bao);
 
-            objectInstance.setBeanProperty(fieldName, jsonNode.get(fieldName));
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            JsonNode jsonNode = objectMapper.readTree(bao.toByteArray());
+
+
+            // convert jsonNode to object instance.
+            Iterator<String> fieldNames = jsonNode.fieldNames();
+            while (fieldNames.hasNext()) {
+                String fieldName = fieldNames.next();
+
+                Object childNode = jsonNode.get(fieldName);
+                Object converted = null;
+
+                if (childNode instanceof TextNode) {
+                    converted = ((TextNode) childNode).textValue();
+                } else if (childNode instanceof ValueNode) {
+                    converted = ((ValueNode) childNode).textValue();
+                } else
+                    converted = childNode;
+
+                objectInstance.setBeanProperty(fieldName, jsonNode.get(fieldName));
+            }
+
+            correlationData = jsonNode.get(serviceEndpointEntity.getCorrelationKey());
+            processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
         }
 
-
-        Object correlationData = jsonNode.get(serviceEndpointEntity.getCorrelationKey());
-        List<ProcessInstanceEntity> processInstanceEntities = processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
-
         ProcessInstanceEntity processInstanceEntity;
-        if(processInstanceEntities==null || processInstanceEntities.size()==0)
+        if(correlatedProcessInstanceEntities==null || correlatedProcessInstanceEntities.size()==0)
             processInstanceEntity = null;
         else{
-            processInstanceEntity = processInstanceEntities.get(0);
-            if(processInstanceEntities.size() > 1)
+            processInstanceEntity = correlatedProcessInstanceEntities.get(0);
+            if(correlatedProcessInstanceEntities.size() > 1)
                 System.err.println("More than one correlated process instance found!");
         }
 
@@ -293,7 +298,7 @@ public class InstanceServiceImpl implements InstanceService {
         }
 
         //set correlation key so that this instance could be re-visited by the recurring requester.
-        if(instance.isNewInstance())
+        if(instance.isNewInstance() && correlationData!=null)
             instance.getProcessInstanceEntity().setCorrKey(correlationData.toString());
 
 

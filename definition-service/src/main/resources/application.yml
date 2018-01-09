@@ -45,5 +45,7 @@ eureka:
 
 kafka:
   bootstrap-servers: localhost:9092
+#  bootstrap-servers: cloud.pas-mini.io:10091
+#  bootstrap-servers: localhost:10091
   topic:
     bpm: bpm.topic
