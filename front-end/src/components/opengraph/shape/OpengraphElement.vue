@@ -336,7 +336,7 @@
           if (this.elementRole != 'opengraph-element') {
             return;
           }
-          console.log('1. $props change detected!! => ' + this._id);
+          //console.log('1. $props change detected!! => ' + this._id);
           this.props = JSON.parse(JSON.stringify(newVal));
         }
         ,
@@ -349,17 +349,17 @@
           }
 
           if (this.innerRedraw) {
-            console.log('2. $props change by inner side, so it will skip redraw element.');
+            //console.log('2. $props change by inner side, so it will skip redraw element.');
             this.innerRedraw = false;
             return;
           }
-          console.log('2. $props change by out side, so it will continue redraw element.');
+          //console.log('2. $props change by out side, so it will continue redraw element.');
 
           var needToWatch = false;
           var needToWatchKeys = [];
           //리드로우 트리거가 true 일때는 다시 그리기.
           if (newVal['redraw'] == true) {
-            console.log('3. redraw property is true, it will force redraw element.');
+            //console.log('3. redraw property is true, it will force redraw element.');
             needToWatch = true;
             needToWatchKeys.push('redraw');
           }
@@ -371,7 +371,7 @@
               }
               else if (typeof newVal[key] == 'object') {
                 if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
-                  console.log('3. property diff', key, newVal[key], oldVal[key]);
+                  //console.log('3. property diff', key, newVal[key], oldVal[key]);
                   needToWatch = true;
                   needToWatchKeys.push(key);
                 }
@@ -379,23 +379,26 @@
               else {
                 if (newVal[key] != oldVal[key]) {
                   needToWatch = true;
-                  console.log('3. property diff', key, newVal[key], oldVal[key]);
+                  //console.log('3. property diff', key, newVal[key], oldVal[key]);
                   needToWatchKeys.push(key);
                 }
               }
             }
           }
+
           if (!needToWatch) {
-            console.log('3. we scaned $props, but nothing changed. skip redraw.');
+            //console.log('3. we scaned $props, but nothing changed. skip redraw.');
             return;
           } else {
-            console.log('3. we found $props change, ' + needToWatchKeys.join() + '.');
+            //console.log('3. we found $props change, ' + needToWatchKeys.join() + '.');
           }
+
+
           if (!this.element) {
-            console.log('4. finally, drawShape', this._id);
+            //console.log('4. finally, drawShape', this._id);
             this.drawShape();
           } else {
-            console.log('4. finally, updateShape', this._id);
+            //console.log('4. finally, updateShape', this._id);
             this.updateShape();
           }
         }
@@ -410,7 +413,7 @@
       //오픈그래프 역할일 경우 캔버스에 엘리먼트 등록 삭제.
       if (me.elementRole == 'opengraph-element') {
         if (me.canvasComponent) {
-          console.log('** opengraph element component destroyed!!', me._id);
+          //console.log('** opengraph element component destroyed!!', me._id);
           me.canvasComponent.removeElement(me._id);
         }
       }
@@ -434,7 +437,7 @@
 
       //오픈그래프 엘리먼트 역할일 경우 렌더링 수행
       if (this.elementRole == 'opengraph-element') {
-        console.log('drawShape', this._id);
+        //console.log('drawShape', this._id);
         this.drawShape();
       }
       //서브 엘리먼트 역할일 경우 서브엘리먼트 등록
@@ -453,32 +456,32 @@
     ,
     methods: {
       addGeometry: function (geometryComponenet, id) {
-        console.log('** addGeometry to ', this._id);
+        //console.log('** addGeometry to ', this._id);
         this.geometrys[id] = geometryComponenet;
       }
       ,
       removeGeometry: function (id) {
-        console.log('** removeGeometry to ', this._id);
+        //console.log('** removeGeometry to ', this._id);
         delete this.geometrys[id];
       }
       ,
       addSubShapes: function (subShapeComponenet, id) {
-        console.log('** addSubShapes to ', this._id);
+        //console.log('** addSubShapes to ', this._id);
         this.subshapes[id] = subShapeComponenet;
       }
       ,
       removeSubShapes: function (id) {
-        console.log('** removeSubShapes to ', this._id);
+        //console.log('** removeSubShapes to ', this._id);
         delete this.subshapes[id];
       }
       ,
       addSubContollers: function (subControllerComponenet, id) {
-        console.log('** addSubContollers to ', this._id);
+        //console.log('** addSubContollers to ', this._id);
         this.subcontrollers[id] = subControllerComponenet;
       }
       ,
       removeSubContollers: function (id) {
-        console.log('** removeSubContollers to ', this._id);
+        //console.log('** removeSubContollers to ', this._id);
         delete this.subcontrollers[id];
       }
       ,
@@ -487,16 +490,16 @@
         this.innerRedraw = true;
         var me = this;
         if (!me.element) {
-          console.log('** element not found, so skip emit $props. ', this._id);
+          //console.log('** element not found, so skip emit $props. ', this._id);
           return;
         }
         let boundary = me.canvasComponent.canvas.getBoundary(me.element);
         if (!boundary) {
-          console.log('** element not found, so skip emit $props. ', this._id);
+          //console.log('** element not found, so skip emit $props. ', this._id);
           return;
         }
 
-        console.log('** start to emit $props. ', this._id);
+        //console.log('** start to emit $props. ', this._id);
 
         //리드로우는 false 로 원복한다.
         me.$emit('update:redraw', false);
@@ -613,6 +616,7 @@
       ,
       drawShape: function () {
         var me = this;
+        var now = new Date();
         var shape = me.generateShape();
         if (!shape) {
           return;
@@ -714,6 +718,7 @@
           this.setGroup();
           this.bindElementEvents();
           this.emitElement();
+          window.Vue.OGBus.$emit('renderingTime', this.canvasComponent.id, new Date().getTime() - now);
         }
       },
       setGroup: function () {

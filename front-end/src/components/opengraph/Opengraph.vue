@@ -27,7 +27,7 @@
        */
       width: {
         default: function () {
-          return 2000;
+          return 4000;
         },
         type: Number
       },
@@ -36,7 +36,7 @@
        */
       height: {
         default: function () {
-          return 2000;
+          return 4000;
         },
         type: Number
       },
@@ -702,7 +702,10 @@
         sliderId: sliderId,
         canvas: null,
         elements: {},
-        container: null
+        container: null,
+        timerMap: {
+          renderingTime: {}
+        }
       }
     },
 
@@ -748,6 +751,14 @@
     mounted: function () {
       this.render();
       this.bindEvents();
+
+      var me = this;
+      window.Vue.OGBus.$on('renderingTime', function (a, b) {
+        if (!me.timerMap.renderingTime[a]) {
+          me.timerMap.renderingTime[a] = 0;
+        }
+        me.timerMap.renderingTime[a] += b;
+      });
     },
 
     methods: {
@@ -887,13 +898,13 @@
          */
         me.canvas.onAddHistory(function (event) {
           console.log('userAction fired on opengraph!!');
-          console.log('me.elements',)
+
           for (var key in me.elements) {
             me.elements[key].emitElement();
           }
           me.$emit('userAction');
           me.$nextTick(function () {
-            me.canvas.setCanvasSize([2000, 2000]);
+            me.canvas.setCanvasSize([4000, 4000]);
 
             //TODO 네비게이터의 이미지가 $nextTick 이전에 스냅샷을 따왔기 때문에, 이미 화면이 틀어져있음.
             //이를 위해서는 오픈그래프의 메소드를 오버라이드 해야한다. => updateSlider => 캔버스 사이즈 강제 고정으로.
@@ -1104,7 +1115,7 @@
 
         //beforeDestroyElement 결과가 false 이면 삭제하지 않음.
         if (typeof result == 'boolean' && !result) {
-          console.log('beforeDestroyElement, prenve remove!!', id);
+          console.log('beforeDestroyElement, prevent remove!!', id);
         } else {
           delete this.elements[id];
           //도형이 남아있다면 도형을 삭제한다.
@@ -1130,6 +1141,14 @@
 
         return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
           s4() + '-' + s4() + s4() + s4();
+      },
+      printTimer: function (startTime, endTime) {
+        var total = endTime - startTime;
+        console.log('Total progress time', total);
+        console.log('Canvas Rendering time', JSON.stringify(this.timerMap, null, 2));
+        this.timerMap = {
+          renderingTime: {}
+        }
       }
     }
   }

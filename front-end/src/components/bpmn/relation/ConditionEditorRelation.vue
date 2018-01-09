@@ -48,7 +48,9 @@
         <md-tab :id="'mapper' + _uid" md-label="Data Mapping">
 
 
-          <bpmn-mapper :definition="definition"></bpmn-mapper>
+          <!--drawer : 프로퍼티 창 열림유무-->
+          <!--drawer 를 걸지않으면 bpmn 시작시 매퍼 캔버스 와 매퍼 도형이 액티비티 마다 만들어짐 => 퍼포먼스 저하-->
+          <bpmn-mapper v-if="drawer" :definition="definition"></bpmn-mapper>
 
         </md-tab>
       </template>

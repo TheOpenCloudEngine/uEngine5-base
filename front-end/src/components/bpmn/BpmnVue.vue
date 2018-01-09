@@ -84,7 +84,7 @@
         <md-button class="md-primary" @click="closeDefinitionSettings">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
-    
+
   </div>
 </template>
 
@@ -99,30 +99,32 @@
       monitor: Boolean,
       backend: Object
     },
-    
+
     mounted: function () {
-      
+      //timer start
+      var startTime = new Date().getTime();
+
       this.id = this.uuid();
       this.data.definition = this.validateDefinition(this.definition);
-      
+
       this.preLocale = this.data.definition._selectedLocale;
-      
+
       // 프로세스 정의 초기화
-      var shortDescription = this.data.definition.shortDescription;      
+      var shortDescription = this.data.definition.shortDescription;
       if (!shortDescription) {
         shortDescription = new Object();
         shortDescription._type = 'org.uengine.contexts.TextContext';
         shortDescription.text = "";
       }
-      
-      // mount시 현재 locale 값으로 text 처리 - 프로세스 정의 
+
+      // mount시 현재 locale 값으로 text 처리 - 프로세스 정의
       if (shortDescription.localedTexts && shortDescription.localedTexts[this.preLocale]) {
         shortDescription.text = shortDescription.localedTexts[this.preLocale];
       }
       this.defintionSettings = {
-          shortDescription: shortDescription
+        shortDescription: shortDescription
       };
-      
+
       // mount시 현재 locale 값으로 text 처리 - 프로세스 변수
       var processVariables = this.data.definition.processVariableDescriptors;
       if (processVariables && processVariables.length) {
@@ -147,11 +149,15 @@
         //  so make any DOM changes here
         this.canvas._CONFIG.FAST_LOADING = false;
         this.canvas.updateSlider();
+
+        //timer end
+        this.$refs.opengraph.printTimer(startTime, new Date().getTime());
       });
     },
-    
+
     data: function () {
       return {
+        timerMap: {},
         enableHistoryAdd: false,
         processVariables: [],
         data: {
@@ -183,10 +189,10 @@
               _type: 'java.util.HashMap'
             };
           }
-          this.defintionSettings.shortDescription.localedTexts[this.data.definition._selectedLocale] = this.defintionSettings.shortDescription.text;          
+          this.defintionSettings.shortDescription.localedTexts[this.data.definition._selectedLocale] = this.defintionSettings.shortDescription.text;
         },
         deep: true
-      },    
+      },
       processVariables: {
         handler: function (after, before) {
           console.log('processVariables update!!', after);
@@ -203,13 +209,13 @@
               });
               if (!localedTexts) {
                 localedTexts = {
-                    _type: 'java.util.HashMap'
+                  _type: 'java.util.HashMap'
                 };
               }
               localedTexts[me.data.definition._selectedLocale] = c.displayName;
               c.displayName = {
-                  text: c.displayName,
-                  localedTexts: localedTexts
+                text: c.displayName,
+                localedTexts: localedTexts
               }
             });
             this.data.definition.processVariableDescriptors = copy;
@@ -231,12 +237,12 @@
               this.enableHistoryAdd = false;
             } else {
               if (this.preLocale != after.definition._selectedLocale) {
-              
+
                 // locale change시 defintionSettings locale 변경
                 if (this.defintionSettings.shortDescription.localedTexts[after.definition._selectedLocale]) {
                   this.defintionSettings.shortDescription.text = this.defintionSettings.shortDescription.localedTexts[after.definition._selectedLocale];
                 }
-                              
+
                 // locale change시 processVariable locale 변경
                 var copy = JSON.parse(JSON.stringify(after.definition.processVariableDescriptors));
                 $.each(copy, function (i, variable) {

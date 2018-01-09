@@ -17,7 +17,7 @@
     watch: {
       '$props': {
         handler: function (newVal, oldVal) {
-          console.log('$props!!', this.element.id);
+          //console.log('$props!!', this.element.id);
           this.props = JSON.parse(JSON.stringify(newVal))
         },
         deep: true
@@ -32,21 +32,21 @@
             }
             else if (typeof newVal[key] == 'object') {
               if (!oldVal[key] || JSON.stringify(newVal[key]) != JSON.stringify(oldVal[key])) {
-                console.log('geom property diff', key, newVal[key], oldVal[key]);
+                //console.log('geom property diff', key, newVal[key], oldVal[key]);
                 needToWatch = true;
               }
             } else {
               if (newVal[key] != oldVal[key]) {
-                console.log('geom property diff', key, newVal[key], oldVal[key]);
+                //console.log('geom property diff', key, newVal[key], oldVal[key]);
                 needToWatch = true;
               }
             }
           }
           if (!needToWatch) {
-            console.log('geom $props changed, but no properties changed.');
+            //console.log('geom $props changed, but no properties changed.');
             return;
           }
-          console.log('geom $props changed, registToElement.');
+          //console.log('geom $props changed, registToElement.');
           this.registToElement();
         }
         ,
