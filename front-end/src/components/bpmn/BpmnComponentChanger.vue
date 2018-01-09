@@ -89,11 +89,6 @@
               label: 'Signal Start Event',
               icon: 'bpmn-icon-start-event-signal'
             },
-            {
-              component: 'kakao-message-start-event',
-              label: 'Kakao Message Start Event',
-              icon: 'bpmn-icon-start-event-message'
-            },
           ]
         }
         else if (this.bpmnComponent.type == 'IntermediateEvent') {
@@ -152,11 +147,6 @@
               component: 'bpmn-signal-intermediate-throw-event',
               label: 'Signal Intermediate Throw Event',
               icon: 'bpmn-icon-intermediate-event-throw-signal'
-            },
-            {
-              component: 'kakao-message-intermediate-catch-event',
-              label: 'Kakao Message Intermediate Catch Event',
-              icon: 'bpmn-icon-intermediate-event-catch-message'
             },
           ]
         }
