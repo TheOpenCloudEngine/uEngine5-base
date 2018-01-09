@@ -246,11 +246,11 @@ public class InstanceServiceImpl implements InstanceService {
                 } else
                     converted = childNode;
 
-                objectInstance.setBeanProperty(fieldName, jsonNode.get(fieldName));
+                objectInstance.setBeanProperty(fieldName, converted);
             }
 
             correlationData = jsonNode.get(serviceEndpointEntity.getCorrelationKey());
-            processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
+            correlatedProcessInstanceEntities = processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
         }
 
         ProcessInstanceEntity processInstanceEntity;
@@ -311,7 +311,11 @@ public class InstanceServiceImpl implements InstanceService {
                 if(activityDone instanceof SendTask){
                     SendTask sendTask = (SendTask) activityDone;
 
-                    return sendTask.getDataInput().get(instance, "");
+                    if(sendTask.getDataInput() != null && sendTask.getDataInput().getName() != null)
+                        return sendTask.getDataInput().get(instance, "");
+                    else {
+                        return sendTask.getInputPayloadTemplate();
+                    }
                 }
 
             }
