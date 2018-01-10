@@ -1,6 +1,6 @@
 <template>
   <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')" id="test">
-    <md-tabs>
+    <md-tabs v-if="navigationDrawer">
       <md-tab :id="'properties' + _uid" md-label="Properties">
 
         <md-input-container v-if="tracingTag !== null">
