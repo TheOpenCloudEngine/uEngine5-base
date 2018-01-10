@@ -119,19 +119,44 @@ public class InstanceServiceImpl implements InstanceService {
         return new InstanceResource(instance);
     }
 
+    @RequestMapping(value = "/instance/{instanceId}/suspend", method = RequestMethod.POST)
+    @ProcessTransactional
+    public InstanceResource suspend(@PathVariable("instanceId") String instanceId) throws Exception {
+
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
+
+        if(instance.isRunning("")){
+            List<ActivityInstanceContext> runningContexts = instance.getCurrentRunningActivitiesDeeply();
+
+            for(ActivityInstanceContext runningContext : runningContexts){
+
+                runningContext.getActivity().suspend(runningContext.getInstance());
+
+            }
+        }
+
+        return new InstanceResource(instance);
+    }
+
     @RequestMapping(value = "/instance/{instanceId}/resume", method = RequestMethod.POST)
     @ProcessTransactional
     public InstanceResource resume(@PathVariable("instanceId") String instanceId) throws Exception {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
-        if(instance.isRunning("")) {
-            instance.stop();
+        if(instance.isRunning("")){
+            List<ActivityInstanceContext> suspendedContexts = instance.getActivitiesDeeply(Activity.STATUS_SUSPENDED);
 
+            for(ActivityInstanceContext runningContext : suspendedContexts){
+
+                runningContext.getActivity().resume(runningContext.getInstance());
+
+            }
         }
 
         return new InstanceResource(instance);
     }
+
 
     @RequestMapping(value = "/instance/{instanceId}", method = RequestMethod.GET)
     @ProcessTransactional(readOnly = true)

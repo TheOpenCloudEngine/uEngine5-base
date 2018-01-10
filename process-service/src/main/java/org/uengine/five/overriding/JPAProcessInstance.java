@@ -156,9 +156,9 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
     public ProcessDefinition getProcessDefinition() throws Exception {
         ProcessDefinition definition = super.getProcessDefinition();
         if (definition == null) {
-            definition = (ProcessDefinition) definitionService.getDefinition(processInstanceEntity.getDefId());
+            setProcessDefinition((ProcessDefinition) definitionService.getDefinition(processInstanceEntity.getDefId()));
         }
-        return definition;
+        return super.getProcessDefinition();
     }
 
     @Override
