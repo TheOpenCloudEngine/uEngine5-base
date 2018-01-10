@@ -1,7 +1,7 @@
 <template>
   <div>
     <md-dialog
-      md-open-from="#instanceVariables" md-close-to="#instanceVariables" ref="instanceVariables">
+      md-open-from="#instanceVariables" md-close-to="#instanceVariables" ref="instanceVariables" @change="getInstanceVariables">
       <md-dialog-title>Instance Variables</md-dialog-title>
       <md-dialog-content>
         <md-table-card>
@@ -75,23 +75,31 @@
       //인스턴스 변수를 불러온다.
       getInstanceVariables: function() {
         var me = this;
-        var responseIndex = 0;
+
         me.instanceVariables = me.definition.processVariableDescriptors;
         for(var i in me.instanceVariables) {
           //아래의 API에서 hateoas를 지원하지 않아 하이바인드 적용이 불가하여
           //기존의 방법을 사용하여 데이터를 받아옴
           me.$root.codi('instance{/id}/variable{/variable}/').get({id: me.id, variable: me.instanceVariables[i].name})
             .then(function (response) {
-              me.replaceVariable(responseIndex, response.data);
-              responseIndex++;
+              me.replaceVariable(response.request.params.variable, response.data);
             })
         }
+
+        this.$emit('input', this.instanceVariables);
       },
-      replaceVariable: function(idx, instanceVariable) {
+      replaceVariable: function(variableName, instanceVariable) {
         var me = this;
-        if(instanceVariable != '' && me.instanceVariables[idx].defaultValueInString != instanceVariable) {
-          me.instanceVariables[idx].defaultValueInString = instanceVariable;
-        }
+          for(var y in me.instanceVariables) {
+            var variableName2 = me.instanceVariables[y].name
+
+            if(variableName2 == variableName) {
+              me.instanceVariables[y].defaultValueInString = instanceVariable;
+            }
+          }
+        var temp = me.instanceVariables;
+        me.instanceVariables = null;
+        me.instanceVariables = temp;
       },
       //선택된 항목을 selected 변수에 담은 후에 모달창을 오픈한다.
       onDoubleClick: function (item, idx) {
