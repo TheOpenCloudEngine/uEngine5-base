@@ -40,6 +40,21 @@ public class SemanticEvaluate extends Evaluate {
                 text = instance.getProcessDefinition().getProcessVariable(getKey()).get(instance, "");
             }
 
+            if(text == null){
+                if (getValue()==null) return true;
+
+                if (getValue() instanceof String){
+                    return (((String) getValue()).length() == 0);
+                }
+            }
+
+            if(getValue()==null){
+                if(text == null) return true;
+
+                if(text instanceof  String){
+                    return (((String)text).length() == 0);
+                }
+            }
 
             int probability = semanticEntityService.mean(text.toString(), getValue().toString());
 

@@ -16,7 +16,13 @@ public class SemanticTransformer extends Transformer {
 
         SemanticEntityService semanticEntityService = MetaworksRemoteService.getComponent(SemanticEntityService.class);
 
-        return semanticEntityService.entityValue(parameterMap.get("input").toString(), getEntityType());
+        final String sourceValue = parameterMap.get("input").toString();
+        Object value = semanticEntityService.entityValue(sourceValue, getEntityType());
+
+        if(value == null)
+            return sourceValue;
+
+        return value;
     }
 
     public String[] getInputArguments() {
