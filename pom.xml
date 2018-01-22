@@ -236,6 +236,18 @@
                 <configuration>
                     <addResources>true</addResources>
                 </configuration>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+
             </plugin>
 
             <plugin>
