@@ -34,6 +34,7 @@ import java.util.Map;
 @Configuration
 @ComponentScan(basePackageClasses = {DefinitionServiceImpl.class, ProcessDefinitionFactory.class, ProcessInstanceEntity.class, MetaworksRestService.class, ClassManager.class, MetadataService.class, MultitenantRepositoryImpl.class})
 @EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
+@Profile("standalone")
 public class StandaloneWebConfig extends Metaworks4WebConfig{
 
     /**

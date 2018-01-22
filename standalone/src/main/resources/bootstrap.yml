@@ -1,0 +1,5 @@
+spring:
+  application:
+      name: uengine5-standalone
+  profiles:
+    active: "standalone"

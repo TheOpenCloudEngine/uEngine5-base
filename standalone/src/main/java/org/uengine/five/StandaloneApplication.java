@@ -8,9 +8,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
 @SpringBootApplication
+@Profile("standalone")
 //WAS의 JMX MBeanServer와 충돌문제 발생 시 아래 주석 해지. Spring-Boot의 JmxAutoConfiguration을 사용하지 않는 기능임  
 //@EnableAutoConfiguration(exclude = {JmxAutoConfiguration.class, EndpointMBeanExportAutoConfiguration.class})
 public class StandaloneApplication extends Metaworks4BaseApplication {

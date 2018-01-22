@@ -1,8 +1,8 @@
 spring:
   application:
     name: standalone
-#  profiles:
-#    active: standalone
+  profiles:
+    active: standalone
 
 server:
   port: 8090
