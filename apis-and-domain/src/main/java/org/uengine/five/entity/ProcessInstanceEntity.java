@@ -20,6 +20,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.metaworks.annotation.AddMetadataLink;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
@@ -141,6 +142,7 @@ public class ProcessInstanceEntity {//implements ProcessInstanceDAO {
 
 
     @Lob
+    @JsonIgnore
     byte[] varLob;
         public byte[] getVarLob() {
             return varLob;

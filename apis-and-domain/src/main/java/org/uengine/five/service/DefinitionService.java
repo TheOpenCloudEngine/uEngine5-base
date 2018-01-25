@@ -28,24 +28,18 @@ public interface DefinitionService {
     @RequestMapping(value = "/version/production", method = RequestMethod.GET)
     public ResourceSupport getProduction() throws Exception;
 
-//    @RequestMapping(value = "/version/{version}" + DEFINITION, method = RequestMethod.GET)
-//    public ResourceSupport listVersionDefinitions(String version, String basePath) throws Exception;
-//
-//    @RequestMapping(value = "/version", method = RequestMethod.GET)
-//    public ResourceSupport listVersions() throws Exception;
+    @RequestMapping(value = "/version/{version}" + DEFINITION, method = RequestMethod.GET)
+    public ResourceSupport listVersionDefinitions(String version, String basePath) throws Exception;
+
+    @RequestMapping(value = "/version", method = RequestMethod.GET)
+    public ResourceSupport listVersions() throws Exception;
 
     @RequestMapping(value = DEFINITION + "/{defPath}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public ResourceSupport getDefinition(@PathVariable("defPath") String definitionPath) throws Exception;
 
 
-    // ----------------- raw definition services -------------------- //
+    @RequestMapping(value = DEFINITION_RAW + "/{defPath}", method = RequestMethod.GET)
+    public DefinitionWrapper getRawDefinition(@PathVariable("defPath") String definitionPath) throws Exception;
 
-
-//    @RequestMapping(value = DEFINITION_RAW + "/{defPath}", method = RequestMethod.GET)
-//    public DefinitionWrapper getRawDefinition(@PathVariable("defPath") String definitionPath) throws Exception;
-
-
-    @RequestMapping(value = DEFINITION + "/xml/{defPath}", method = RequestMethod.GET, produces = "application/xml;charset=UTF-8")
-    public String getXMLDefinition(@PathVariable("defPath") String definitionPath, @RequestParam("production") boolean production) throws Exception;
 
 }

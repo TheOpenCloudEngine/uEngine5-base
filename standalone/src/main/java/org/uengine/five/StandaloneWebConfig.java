@@ -8,14 +8,12 @@ import org.metaworks.multitenancy.tenantawarefilter.TenantAwareFilter;
 import org.metaworks.rest.MetaworksRestService;
 import org.metaworks.springboot.configuration.CorsFilter;
 import org.metaworks.springboot.configuration.Metaworks4WebConfig;
+import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.uengine.five.entity.ProcessInstanceEntity;
-import org.uengine.five.overriding.InstanceDataAppendingActivityFilter;
-import org.uengine.five.overriding.JPAProcessInstance;
-import org.uengine.five.overriding.JPAWorkList;
-import org.uengine.five.overriding.ProcessDefinitionFactory;
+import org.uengine.five.overriding.*;
 import org.uengine.five.repository.ProcessInstanceRepository;
 import org.uengine.five.service.DefinitionServiceImpl;
 import org.uengine.kernel.ActivityFilter;
@@ -83,7 +81,7 @@ public class StandaloneWebConfig extends Metaworks4WebConfig{
     @Bean
     @Scope("prototype")
     public ProcessInstance processInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
-        return new JPAProcessInstance(procDefinition, instanceId, options);
+        return new CLOBProcessInstance(procDefinition, instanceId, options);
     }
 
     @Bean
@@ -106,6 +104,10 @@ public class StandaloneWebConfig extends Metaworks4WebConfig{
         return new ProcessDefinitionFactory();
     }
 
+//    @Override
+//    public JpaProperties jpaProperties() {
+//        return super.jpaProperties();
+//    }
 }
 
 
