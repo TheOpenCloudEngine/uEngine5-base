@@ -128,11 +128,17 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
             verId = defIdAndVersion[1];
         }
 
-        Definition definition = new Definition();
-        definition.setDefinitionJson(json);
-        definition.setDefId(defId);
+        Definition definition;
 
         DefinitionRepository definitionRepository = MetaworksRemoteService.getComponent(DefinitionRepository.class);
+        definition = definitionRepository.findOne(defId);
+
+        if(definition==null){
+            definition = new Definition();
+            definition.setDefinitionJson(json);
+            definition.setDefId(defId);
+        }
+
         definitionRepository.save(definition);
     }
 

@@ -229,14 +229,17 @@ public class Definition implements BeforeSave, AfterLoadOne {//implements Proces
     private DefinitionVersion addNewVersion() {
         DefinitionVersion lastVersion = new DefinitionVersion();
 
+        Long version = new Long(0);
+
         if(getVersions()==null || getVersions().size() == 0){
             lastVersion.setVer(0L);
         }else{
             lastVersion.setVer(getVersions().get(getVersions().size()-1).getVer());
+            version = new Long(getVersions().size());
         }
 
         lastVersion.setDefinition(this);
-        lastVersion.setVer(lastVersion.getVer() + 1);
+        lastVersion.setVer(version + 1);
         lastVersion.setDefName(getName());
 
         byte[] rawFile = new byte[0];
