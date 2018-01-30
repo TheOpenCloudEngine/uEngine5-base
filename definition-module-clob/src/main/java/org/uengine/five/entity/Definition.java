@@ -23,15 +23,15 @@ import java.util.List;
  * Test scripts
  *
 
- http localhost:8080/definitions defId="def1" name="aaa" definitionJson="{\"_type\":\"java.lang.String\", \"definition\":\"Version1\"}"          #create new definition
- http PATCH localhost:8080/definitions/def1 name="aab" definitionJson="{\"_type\":\"java.lang.String\", \"definition\":\"Version2\"}"  #version up
- http PATCH localhost:8080/definitions/def1 name="aac" definitionJson="{\"_type\":\"java.lang.String\", \"definition\":\"Version3\"}"  #version up again
+ http localhost:8080/definition defId="def1" name="aaa" definitionJson="{\"_type\":\"java.lang.String\", \"definition\":\"Version1\"}"          #create new definition
+ http PATCH localhost:8080/definition/def1 name="aab" definitionJson="{\"_type\":\"java.lang.String\", \"definition\":\"Version2\"}"  #version up
+ http PATCH localhost:8080/definition/def1 name="aac" definitionJson="{\"_type\":\"java.lang.String\", \"definition\":\"Version3\"}"  #version up again
 
- http localhost:8080/definitions/def1/versions
- http localhost:8080/definitions/def1      #returns definitionJson = Version3
+ http localhost:8080/definition/def1/versions
+ http localhost:8080/definition/def1      #returns definitionJson = Version3
 
- http PATCH localhost:8080/definitions/def1 prodVerId=1        #mark 1 as production (1 is versionId, not version number)
- http localhost:8080/definitions/def1      #returns definitionJson = Version1
+ http PATCH localhost:8080/definition/def1 prodVerId=1        #mark 1 as production (1 is versionId, not version number)
+ http localhost:8080/definition/def1      #returns definitionJson = Version1
 
  *
  *

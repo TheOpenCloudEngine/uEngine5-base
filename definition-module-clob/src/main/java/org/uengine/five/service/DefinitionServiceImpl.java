@@ -135,9 +135,10 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
 
         if(definition==null){
             definition = new Definition();
-            definition.setDefinitionJson(json);
             definition.setDefId(defId);
         }
+
+        definition.setDefinitionJson(json);
 
         definitionRepository.save(definition);
     }

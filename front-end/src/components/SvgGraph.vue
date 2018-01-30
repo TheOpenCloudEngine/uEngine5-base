@@ -546,6 +546,8 @@
           function (definition) {
             me.$root.$children[0].success('저장되었습니다.');
 
+            me.loadVersions();
+
             if(nextAction) nextAction(definition);
           },
           function (response) {
