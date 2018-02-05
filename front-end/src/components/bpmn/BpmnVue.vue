@@ -11,6 +11,8 @@
       :resizable="!monitor"
       :selectable="!monitor"
       :connectable="!monitor"
+      :width="8000"
+      :height="8000"
       v-if="data.definition"
       ref="opengraph"
       v-on:canvasReady="bpmnReady"
