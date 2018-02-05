@@ -32,17 +32,17 @@
     </dependencyManagement>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.uengine</groupId>-->
-            <!--<artifactId>uengine-five-definition</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.uengine</groupId>
-            <artifactId>uengine-five-definition-clob</artifactId>
+            <artifactId>uengine-five-definition</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.uengine</groupId>-->
+            <!--<artifactId>uengine-five-definition-clob</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>org.uengine</groupId>

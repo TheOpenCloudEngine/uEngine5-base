@@ -104,10 +104,14 @@ public class StandaloneWebConfig extends Metaworks4WebConfig{
         return new ProcessDefinitionFactory();
     }
 
-//    @Override
-//    public JpaProperties jpaProperties() {
-//        return super.jpaProperties();
-//    }
+    @Override
+    public JpaProperties jpaProperties() {
+        JpaProperties jpaProperties = super.jpaProperties();
+
+        jpaProperties.getProperties().put("hibernate.hbm2ddl.auto", "create");
+
+        return jpaProperties;
+    }
 }
 
 
