@@ -27,7 +27,7 @@
        */
       width: {
         default: function () {
-          return 4000;
+          return 8000;
         },
         type: Number
       },
@@ -36,7 +36,7 @@
        */
       height: {
         default: function () {
-          return 4000;
+          return 8000;
         },
         type: Number
       },
@@ -766,6 +766,7 @@
 
         var me = this;
 
+        //컨테이너 설정
         canvas._CONTAINER = $(this.$el).find('.canvas-wrapper')[0];
         this.container = canvas._CONTAINER;
 
@@ -782,6 +783,8 @@
         }
         canvas.setCanvasSize([me.width, me.height]);
         canvas.setScale(me.scale);
+        $(this.$el).find('.canvas-container').width(me.width);
+        $(this.$el).find('.canvas-container').width(me.height);
 
         //옵션 관련
         canvas._CONFIG.POOL_DROP_EVENT = this.poolDropEvent;
@@ -904,7 +907,7 @@
           }
           me.$emit('userAction');
           me.$nextTick(function () {
-            me.canvas.setCanvasSize([4000, 4000]);
+            me.canvas.setCanvasSize([me.width, me.height]);
 
             //TODO 네비게이터의 이미지가 $nextTick 이전에 스냅샷을 따왔기 때문에, 이미 화면이 틀어져있음.
             //이를 위해서는 오픈그래프의 메소드를 오버라이드 해야한다. => updateSlider => 캔버스 사이즈 강제 고정으로.
@@ -1166,8 +1169,6 @@
 
   .canvas-container {
     position: relative;
-    width: 2000px;
-    height: 2000px;
     background: #f7f7f7;
   }
 </style>

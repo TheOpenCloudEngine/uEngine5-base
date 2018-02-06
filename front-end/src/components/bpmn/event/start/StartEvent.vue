@@ -21,6 +21,7 @@
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
+      v-on:drawShape="onDrawShape"
     >
       <geometry-circle
         :center="[50,50]"
@@ -104,7 +105,11 @@
 
     },
     methods: {
-
+      onDrawShape: function (element) {
+        setTimeout(function () {
+          element.canvasComponent.canvas._HANDLER.selectShape(element.element);
+        }, 500);
+      }
     }
   }
 </script>
