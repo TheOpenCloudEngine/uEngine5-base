@@ -984,6 +984,7 @@
             let shape = me.subshapes[key].generateShape();
             subShape.push({
               shape: shape,
+              vertices: me.subshapes[key].vertices,
               width: me.subshapes[key].subWidth,
               height: me.subshapes[key].subHeight,
               top: me.subshapes[key].subTop,

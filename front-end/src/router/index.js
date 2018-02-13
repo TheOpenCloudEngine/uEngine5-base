@@ -102,6 +102,9 @@ Vue.component('cloud-example', CloudExample);
 import ElementListExample from '../components/example/ElementListExample'
 Vue.component('element-list-example', ElementListExample);
 
+import ClassDiagramExample from '../components/example/ClassDiagramExample'
+Vue.component('class-diagram-example', ClassDiagramExample);
+
 import ChartExample from '../components/example/ChartExample'
 Vue.component('chart-example', ChartExample);
 
@@ -127,6 +130,12 @@ export default new Router({
           path: 'example/cloud',
           name: 'cloudexample',
           component: CloudExample,
+          beforeEnter: RouterGuard.requireUser,
+        },
+        {
+          path: 'example/classdiagrame',
+          name: 'classdiagramexample',
+          component: ClassDiagramExample,
           beforeEnter: RouterGuard.requireUser,
         },
         {
