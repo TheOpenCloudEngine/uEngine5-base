@@ -1,16 +1,10 @@
 package org.uengine.five.kernel;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.metaworks.dwr.MetaworksRemoteService;
 import org.uengine.five.service.SemanticEntityService;
 import org.uengine.kernel.Evaluate;
 import org.uengine.kernel.ProcessInstance;
 import org.uengine.util.UEngineUtil;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by uengine on 2018. 1. 11..

@@ -1,6 +1,8 @@
 package org.uengine.five.entity;
 
 
+import org.metaworks.annotation.RestAssociation;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -35,6 +37,9 @@ public class WorklistEntity {//implements WorkListDAO {
             this.processInstance = processInstance;
         }
 
+    @Transient
+    @RestAssociation(path="/work-item/{taskId}")
+    String workItem;
 
     String title;
     String description;

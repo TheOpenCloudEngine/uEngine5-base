@@ -31,6 +31,10 @@ zuul:
       path: /service/**
       serviceId: bpm
       stripPrefix: false
+    instance-create-app:
+      path: /create-app/**
+      serviceId: bpm
+      stripPrefix: false
     instance-services:
       path: /services/**
       serviceId: bpm

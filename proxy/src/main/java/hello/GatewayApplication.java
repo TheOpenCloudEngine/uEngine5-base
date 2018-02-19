@@ -44,4 +44,13 @@ public class GatewayApplication {
   }
 
 
+//  @Bean
+//  public AddingCustomHeaderFilter addingCustomHeaderFilter() {
+//    return new AddingCustomHeaderFilter();
+//  }
+//
+//  @Bean
+//  public IAMFilter iamFilter() {
+//    return new IAMFilter();
+//  }
 }
