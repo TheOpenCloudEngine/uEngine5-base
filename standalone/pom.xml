@@ -34,7 +34,7 @@
     <dependencies>
         <dependency>
             <groupId>org.uengine</groupId>
-            <artifactId>uengine-five-definition</artifactId>
+            <artifactId>uengine-five-definition-clob</artifactId>
             <version>${project.version}</version>
         </dependency>
 
