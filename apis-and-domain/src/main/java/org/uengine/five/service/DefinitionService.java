@@ -39,7 +39,7 @@ public interface DefinitionService {
 
 
     @RequestMapping(value = DEFINITION_RAW + "/{defPath}", method = RequestMethod.GET)
-    public Object getRawDefinition(@PathVariable("defPath") String definitionPath) throws Exception;
+    public Object getRawDefinition(@PathVariable("defPath") String definitionPath/*,  @RequestParam(value = "unwrap", required = false) boolean unwrap*/) throws Exception;
 
 
 }

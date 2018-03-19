@@ -1,18 +1,82 @@
-spring:
-  application:
-    name: zuul-router
-
-
 server:
   port: 8080
-  servletPath: /
+
+endpoints:
+  routes:
+    sensitive: false
+
+management:
+  security:
+    enabled: false
+
+security:
+  basic:
+    enabled: false
+
+dcos:
+  deployment:
+    role: local
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: local
+        profile: local
+        appType: zuul
 
 zuul:
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
   addProxyHeaders: true
 
+  # Decides to check the token.
+  iam-authentication: true
+
+  # Key to determine if the token's signature is correct.
+  # It must be the same key that IAM used to issue the token.
+  # Copy and paste from your IAM's iam.jwt.key
+  iam-jwt-key: my-jwt-encrypt-key-my-jwt-encrypt-key
+
   routes:
+#    order:
+#      path: /orders/**
+#      serviceId: order-service
+#      stripPrefix: false
+#      # Check whether the user's metadata also has a scope.
+#      iam-user-scopes-check: false
+#      # List of scopes needed for this path
+#      iam-scopes:
+#        - guest/GET
+#        - catalog-order/PUT-PATCH-POST-DELETE
+
+#    # If no iam-scopes, all request will be passed.
+#    customer:
+#      path: /customers/**
+#      serviceId: customer-service
+#      stripPrefix: false
+
+
+#    item:
+#      path: /items/**
+#      serviceId: order-service
+#      stripPrefix: false
+#      iam-user-scopes-check: false
+#      iam-scopes:
+#        - guest/GET
+#        - catalog-manage/PUT-PATCH-POST-DELETE
+
     definition:
       path: /definition/**
+      serviceId: definition
+      stripPrefix: false
+    create-app:
+      path: /create-app/**
       serviceId: definition
       stripPrefix: false
     version:
@@ -33,7 +97,7 @@ zuul:
       stripPrefix: false
     instance-create-app:
       path: /create-app/**
-      serviceId: bpm
+      serviceId: definition
       stripPrefix: false
     instance-services:
       path: /services/**
@@ -65,27 +129,57 @@ zuul:
       serviceId: bpm
       stripPrefix: true
 
+#### proxies for reverse engineering and java code generation ###
+
+    gitlab:
+      url: http://gitlab.pas-mini.io/api/v4/
+      stripPrefix: true
+      addHeader:
+        PRIVATE-TOKEN: EBXSvH425E3MzB2sc9Qz
+
+
+
 ###########################################
 
-endpoints:
-  routes:
-    sensitive: false
-
 ribbon:
+  # Max number of retries on the same server (excluding the first try)
   MaxAutoRetries: 1
-  MaxAutoRetriesNextServer: 1
-  OkToRetryOnAllOperations: true
-  ServerListRefreshInterval: 2000
-  ConnectTimeout: 10000
-  ReadTimeout: 10000
 
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-#      defaultZone: ${eureka_url}
-    healthcheck:
-      enabled: true
-  instance:
-    statusPageUrlPath: ${server.servletPath}info
-    healthCheckUrlPath: ${server.servletPath}health
+  # Max number of next servers to retry (excluding the first server)
+  MaxAutoRetriesNextServer: 1
+
+  # Whether all operations can be retried for this client
+  OkToRetryOnAllOperations: true
+
+  # Interval to refresh the server list from the source
+  ServerListRefreshInterval: 2000
+
+  # Connect timeout used by Apache HttpClient
+  ConnectTimeout: 3000
+
+  # Read timeout used by Apache HttpClient
+  ReadTimeout: 3000
+
+  # Initial list of servers, can be changed via Archaius dynamic property at runtime
+  #listOfServers: www.microsoft.com:80,www.yahoo.com:80,www.google.com:80
+
+
+## When your api call is over than timeoutInMilliseconds, api would be fallback.
+#hystrix:
+#  command:
+#    default:
+#      execution:
+#        isolation:
+#          thread:
+#            timeoutInMilliseconds: 5000
+#
+#turbine:
+#  # set appConfig as services which registered in eureka server.
+#  appConfig: service-A,service-B
+#
+#  # You can monitor by application profile.
+#  # stream url is hosted on zuul server, with parameter "cluster=[profile]"
+#  # ex) http://localhost:8080/turbine.stream?cluster=local
+#  aggregator:
+#      clusterConfig: local,dev,stg,prod
+#  clusterNameExpression: metadata['profile']
