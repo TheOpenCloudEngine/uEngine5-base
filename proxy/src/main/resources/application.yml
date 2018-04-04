@@ -135,7 +135,7 @@ zuul:
       url: http://gitlab.pas-mini.io/api/v4/
       stripPrefix: true
       addHeader:
-        PRIVATE-TOKEN: EBXSvH425E3MzB2sc9Qz
+        PRIVATE-TOKEN: 2A_LokKTbnywjw8shHy-
 
 
 
