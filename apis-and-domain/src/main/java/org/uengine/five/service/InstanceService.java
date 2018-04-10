@@ -23,9 +23,6 @@ public interface InstanceService {
     @RequestMapping(value = "/instance", method = {RequestMethod.POST})
     public ResourceSupport runDefinition(@RequestParam("defPath") String filePath, @QueryParam("simulation") boolean simulation) throws Exception;
 
-    @RequestMapping(value = "/instance/{instanceId}/variables", method = RequestMethod.GET)
-    public Map getProcessVariables(@PathVariable("instanceId") String instanceId) throws Exception;
-
     @RequestMapping(value = "/instance/{instanceId}/start", method = RequestMethod.POST)
     public ResourceSupport start(@PathVariable("instanceId") String instanceId) throws Exception;
 
