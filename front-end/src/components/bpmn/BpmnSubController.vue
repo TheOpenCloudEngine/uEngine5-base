@@ -5,7 +5,7 @@
       cloneable
       :image="'event_intermediate.png'"
       v-on:clone="intermediateClone">
-      <circle-element :width="30" :height="30"></circle-element>
+      <circle-element :width="28" :height="28"></circle-element>
     </sub-controller>
 
     <sub-controller
@@ -21,7 +21,7 @@
       cloneable
       :image="'gateway_exclusive.png'"
       v-on:clone="exclusiveGatewayClone">
-      <circle-element :width="50" :height="50"></circle-element>
+      <circle-element :width="30" :height="30"></circle-element>
     </sub-controller>
 
     <sub-controller
@@ -29,7 +29,7 @@
       cloneable
       :image="'task.png'"
       v-on:clone="taskClone">
-      <circle-element :width="100" :height="100"></circle-element>
+      <circle-element :width="100" :height="70"></circle-element>
     </sub-controller>
 
     <sub-controller
@@ -41,10 +41,23 @@
     </sub-controller>
 
     <sub-controller
+      v-if="clone.call"
+      :image="'popup.png'"
+      v-on:click="popDefinition">
+      <circle-element :width="100" :height="30"></circle-element>
+    </sub-controller>
+
+    <sub-controller
       v-if="clone.wrench"
       :image="'wrench.png'"
       v-on:click="showComponentChange">
     </sub-controller>
+
+    <!--sub-controller
+      v-if="clone.deleteActivity"
+      :image="'trash.png'"
+      v-on:click="deleteActivity">
+    </sub-controller-->
   </div>
 
 </template>
@@ -56,7 +69,9 @@
     mixins: [BpmnVueFinder, BpmnComponentFinder],
     name: 'bpmn-sub-controller',
     props: {
-      type: String
+      type: String,
+      className: String,
+      calleeDefinitionId:String
     },
     computed: {},
     data: function () {
@@ -67,7 +82,10 @@
           gateway: false,
           task: false,
           annotaion: false,
-          wrench: false
+          wrench: false,
+          call: false,
+          deleteActivity: false
+
         }
       }
     },
@@ -77,6 +95,7 @@
       if (this.type == 'EndEvent') {
         this.clone.annotaion = true;
         this.clone.wrench = true;
+        this.clone.deleteActivity = true;
       }
 
       //풀은 도형바꾸기 불가능
@@ -86,13 +105,24 @@
         this.clone.gateway = true;
         this.clone.task = true;
         this.clone.annotaion = true;
+        this.clone.deleteActivity = true;
       }
 
       //데이터나 롤은 어노테이션만 가능
       else if (this.type == 'Data' || this.type == 'Role') {
         this.clone.annotaion = true;
+        this.clone.deleteActivity = true;
       }
-
+      else if (this.className == 'org.uengine.kernel.bpmn.CallActivity'){
+        this.clone.intermediate = true;
+        this.clone.end = true;
+        this.clone.gateway = true;
+        this.clone.task = true;
+        this.clone.annotaion = true;
+        this.clone.wrench = true;
+        this.clone.call = true;
+        this.clone.deleteActivity = true;
+      }
       //나머지는 모두 가능
       else {
         this.clone.intermediate = true;
@@ -101,6 +131,7 @@
         this.clone.task = true;
         this.clone.annotaion = true;
         this.clone.wrench = true;
+        this.clone.deleteActivity = true;
       }
     },
     /**
@@ -108,6 +139,13 @@
      * showComponentChange : 컨트롤러중 렌치 모양을 클릭하여 도형 변경 창을 여는 경우
      */
     methods: {
+      deleteActivity: function () {
+        this.$root.$children[0].$children[3].$children[2].deleteActivity();
+        console.log(this.$root.$children[0].$children[3].$children[2]);
+      },
+      popDefinition: function () {
+        window.open('#/definition/' + this.bpmnComponent.activity.definitionId, '_blank')
+      },
       createEdgeAndElement: function (edgeElement, sourceElement, targetElement, component) {
         var newTracingTag = this.bpmnVue.createNewTracingTag();
         var edgeInfo = {

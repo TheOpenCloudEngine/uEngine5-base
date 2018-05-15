@@ -16,11 +16,6 @@
       </md-dialog-actions>
     </md-dialog>
 
-    <md-layout>
-      <md-select>
-        <md-option v-for="version in versions" value="version.version.major + '.' + version.version.minor">Ver. {{version.version.major}}.{{version.version.minor}}</md-option>
-      </md-select>
-    </md-layout>
     <!-- 버전 관리 끝 -->
     <!-- 삭제 다이얼로그 시작 -->
     <md-dialog md-open-from="#fab" md-close-to="#fab" ref="deleteDialog">
@@ -41,13 +36,20 @@
       </md-button>
 
       <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newProcess">
-        <md-icon>device_hub</md-icon>
+        <md-tooltip md-direction="right">New Process</md-tooltip>
+        <md-icon>label</md-icon>
       </md-button>
       <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newClass">
-        <md-icon>view_stream</md-icon>
+        <md-tooltip md-direction="right">New Class</md-tooltip>
+        <md-icon>device_hub</md-icon>
+      </md-button>
+      <md-button class="md-fab md-primary md-mini md-clean" v-on:click="newPractice">
+        <md-tooltip md-direction="right">New Practice</md-tooltip>
+        <md-icon>slideshow</md-icon>
       </md-button>
       <md-button class="md-fab md-primary md-mini md-clean"
                  @click.native="selectedPackge = {}; $refs['create'].open()">
+        <md-tooltip md-direction="right">New Folder</md-tooltip>
         <md-icon>folder</md-icon>
       </md-button>
 
@@ -129,7 +131,7 @@
                 </md-card-media>
 
                 <md-card-header>
-                  <div class="md-title">{{card.name}}</div>
+                  <div class="md-title">{{card.name.split(".")[0]}}</div>
                 </md-card-header>
 
                 <md-card-content>
@@ -247,8 +249,6 @@
         folderName: "",
         navigationName: "",
         originPackage: {},
-        versions: null,
-        selectedVersion: null,
         selectedCard: {},
       }
     },
@@ -265,7 +265,6 @@
       $('.scroll-inner').slimScroll({
         height: '100%'
       });
-      this.loadVersions();
       this.getDefinitionList('');
     },
     computed: {
@@ -372,7 +371,7 @@
                 cards.push(definition);
 
                 definition.desc = name + '...';
-                definition.src = './static/image/sample.png';
+                definition.src = location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/sample.png';
 
               }
 
@@ -385,26 +384,11 @@
         me.cards = cards;
       },
       openDialog: function(ref) {
-        this.loadVersions();
         console.log(this.iam)
         this.$refs[ref].open();
       },
       closeDialog: function(ref) {
         this.$refs[ref].close();
-      },
-      loadVersions: function() {
-        var me = this;
-
-        var versions = [];
-
-        me.backend.$bind("version", versions);
-
-        versions.$load().then(function(versions) {
-          if (versions) {
-            me.versions = versions;
-          }
-        });
-
       },
 
       getPackageFile: function (_path, _cards) {
@@ -419,7 +403,7 @@
                 name: name,
                 packagePath: _path,
                 desc: name + '...',
-                src: './static/image/sample.png'
+                src: location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/sample.png'
               })
               packageChildren.push(
                 {
@@ -446,7 +430,8 @@
         path = path.substring(1, path.length);
         if (path !== "") path += "/";
         this.$router.push({
-          path: 'definition/' + path + 'new-process-definition'
+//          path: 'definition/' + path + 'new?type=org.uengine.kernel.ProcessDefinition'
+          path: 'process-definition'
         })
       },
       newClass: function () {
@@ -454,7 +439,17 @@
         path = path.substring(1, path.length);
         if (path !== "") path += "/";
         this.$router.push({
-          path: 'classdefinition'// + path + 'new-class-definition'
+//          path: 'definition/' + path + 'new?type=org.uengine.uml.ClassDiagram'
+          path: 'class-definition'
+
+        })
+      },
+      newPractice: function () {
+        var path = this.current.replace(/\//g, "-");
+        path = path.substring(1, path.length);
+        if (path !== "") path += "/";
+        this.$router.push({
+          path: 'practice'// + path + 'new-class-definition'
         })
       },
       move: function (card) {

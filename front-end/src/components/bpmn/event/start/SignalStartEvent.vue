@@ -16,8 +16,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -29,6 +29,16 @@
       </geometry-circle>
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
+
+        <geometry-polygon
+               :vertices="[[50,22],[25,66],[73,66]]"
+                :_style="{
+                         'stroke-width': 0.8,
+
+                       }"
+             ></geometry-polygon>
+
+
       </sub-elements>
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
@@ -82,6 +92,7 @@
             text: ''
           },
           tracingTag: newTracingTag,
+          selected: false,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,

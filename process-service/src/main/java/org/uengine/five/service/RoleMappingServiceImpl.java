@@ -3,7 +3,8 @@ package org.uengine.five.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
-import org.uengine.kernel.*;
+import org.uengine.kernel.ProcessInstance;
+import org.uengine.kernel.RoleMapping;
 
 /**
  * Created by uengine on 2017. 8. 9..

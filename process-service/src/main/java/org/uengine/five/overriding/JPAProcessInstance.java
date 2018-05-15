@@ -31,10 +31,10 @@ import java.util.Map;
 @Transactional
 // @Scope("prototype")
 public class JPAProcessInstance extends DefaultProcessInstance implements ProcessTransactionListener {
-    
+
     @Autowired
     DefinitionServiceUtil definitionService;
-    
+
     @Autowired
     JPAWorkList jpaWorkList;
 
@@ -43,33 +43,33 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     @Autowired
     InstanceServiceImpl instanceService;
-    
+
     @Autowired
     ProcessInstanceRepository processInstanceRepository;
-    
+
     ProcessInstanceEntity processInstanceEntity;
-        public ProcessInstanceEntity getProcessInstanceEntity() {
-            return processInstanceEntity;
-        }
-        public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
-            this.processInstanceEntity = processInstanceEntity;
-        }
+    public ProcessInstanceEntity getProcessInstanceEntity() {
+        return processInstanceEntity;
+    }
+    public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
+        this.processInstanceEntity = processInstanceEntity;
+    }
 
     boolean newInstance;
-        public boolean isNewInstance() {
-            return newInstance;
-        }
-        public void setNewInstance(boolean newInstance) {
-            this.newInstance = newInstance;
-        }
+    public boolean isNewInstance() {
+        return newInstance;
+    }
+    public void setNewInstance(boolean newInstance) {
+        this.newInstance = newInstance;
+    }
 
     boolean prototype;
-        public boolean isPrototype() {
-            return prototype;
-        }
-        public void setPrototype(boolean prototype) {
-            this.prototype = prototype;
-        }
+    public boolean isPrototype() {
+        return prototype;
+    }
+    public void setPrototype(boolean prototype) {
+        this.prototype = prototype;
+    }
 
     public JPAProcessInstance(ProcessDefinition procDefinition, String instanceId, Map options) throws Exception {
 
@@ -81,6 +81,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         }
 
         if (instanceId == null) {
+
             setNewInstance(true);
             setProcessInstanceEntity(new ProcessInstanceEntity());
             getProcessInstanceEntity().setName(instanceId);
@@ -109,6 +110,11 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
                 getProcessInstanceEntity().setMainExecScope((String) options.get(DefaultProcessInstance.RETURNING_EXECSCOPE));
                 getProcessInstanceEntity().setDontReturn(((Boolean) options.get(DefaultProcessInstance.DONT_RETURN)).booleanValue());
                 getProcessInstanceEntity().setEventHandler(options.containsKey("isEventHandler"));
+
+                //TODO: need main process definition object instance from argument not the link (id) or the cache will provide the cached one
+            }else{
+                mainProcessInstance = this;
+                rootProcessInstance = this;
             }
 
             if (options != null) {
@@ -122,6 +128,9 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
             }
 
         }
+
+        if(procDefinition!=null && procDefinition.isVolatile())
+            setPrototype(true);
     }
 
     // @Autowired
@@ -139,6 +148,10 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
             }
         } else { // else, load the instance
             setProcessInstanceEntity(processInstanceRepository.findOne(Long.valueOf(getInstanceId())));
+
+            if(getProcessInstanceEntity()==null)
+                throw new UEngineException("No such process instance where id = " + getInstanceId());
+
             Map variables = loadVariables();
             setVariables(variables);
         }
@@ -164,7 +177,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
     @Override
     public WorkList getWorkList() {
         return jpaWorkList;
-    } 
+    }
 
     @Override
     public ProcessInstance getInstance(String instanceId, Map options) throws Exception {
@@ -196,25 +209,41 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         super.putRoleMapping(roleMap);
     }
 
+    ProcessInstance mainProcessInstance;
+
     @Override
     public ProcessInstance getMainProcessInstance() throws Exception {
+        if(mainProcessInstance!=null)
+            return mainProcessInstance;
+
         if (getMainProcessInstanceId() == null)
             return null;
-        return instanceService.getProcessInstanceLocal(getMainProcessInstanceId());
+
+        mainProcessInstance = instanceService.getProcessInstanceLocal(getMainProcessInstanceId());
+
+        return mainProcessInstance;
     }
+
+    ProcessInstance rootProcessInstance;
 
     @Override
     public ProcessInstance getRootProcessInstance() throws Exception {
+        if(rootProcessInstance!=null)
+            return rootProcessInstance;
+
         if (getRootProcessInstanceId() == null)
             return null;
-        return instanceService.getProcessInstanceLocal(getRootProcessInstanceId());
+
+        rootProcessInstance = instanceService.getProcessInstanceLocal(getRootProcessInstanceId());
+
+        return rootProcessInstance;
     }
-    
+
     @Override
     public boolean isSubProcess() throws Exception {
         return getProcessInstanceEntity().isSubProcess();
     }
-    
+
     @Override
     public void beforeCommit(ProcessTransactionContext tx) throws Exception {
         processInstanceRepository.save(getProcessInstanceEntity());
@@ -240,12 +269,12 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
         IResource resource = new DefaultResource("instances/" + getInstanceId());
         return (Map) resourceManager.getObject(resource);
     }
-    
+
     protected void saveVariables() throws Exception {
         IResource resource = new DefaultResource("instances/" + getInstanceId());
         resourceManager.save(resource, getVariables());
-    }    
-    
+    }
+
     public void setStatus(String scope, String status) throws Exception {
         super.setStatus(scope, status);
 
@@ -283,6 +312,34 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
             super.stop(status);
         }
         getProcessInstanceEntity().setStatus(status);
+    }
+
+    @Override
+    public String getName() {
+        if(getProcessInstanceEntity()!=null)
+            return getProcessInstanceEntity().getName();
+
+        else return null;
+    }
+
+    @Override
+    public void setName(String value) {
+        if(getProcessInstanceEntity()!=null)
+            getProcessInstanceEntity().setName(value);
+    }
+
+    @Override
+    public String getInfo() {
+        if(getProcessInstanceEntity()!=null)
+            return getProcessInstanceEntity().getInfo();
+
+        else return null;
+    }
+
+    @Override
+    public void setInfo(String value) {
+        if(getProcessInstanceEntity()!=null)
+            getProcessInstanceEntity().setInfo(value);
     }
 
 }

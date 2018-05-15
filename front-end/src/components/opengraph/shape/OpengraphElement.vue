@@ -281,7 +281,7 @@
        */
       copyable: {
         default: function () {
-          return false;
+          return true;
         },
         type: Boolean
       },
@@ -289,12 +289,12 @@
        * x,y 축만 이동 가능여부. Y | N | none
        * @type {null}
        */
-      copyable: {
-        default: function () {
-          return 'none';
-        },
-        type: String
-      }
+//      copyable: {
+//        default: function () {
+//          return 'none';
+//        },
+//        type: String
+//      }
     },
     computed: {
       opengraphRole: function () {
@@ -618,6 +618,10 @@
         var me = this;
         var now = new Date();
         var shape = me.generateShape();
+        shape.clone = function () {
+          return me.generateShape();
+        };
+
         if (!shape) {
           return;
         } else {
@@ -646,7 +650,14 @@
               if (shape instanceof OG.HorizontalLaneShape) {
                 var parent = me.canvasComponent.canvas.getRenderer().getParent(me.element);
                 if (parent && parent.shape instanceof OG.HorizontalLaneShape) {
-                  parent.insertBefore(me.element, parent.firstChild);
+                  var beforeTarget = null;
+                  $.each(parent.childNodes, function (i, childNode) {
+                    if (childNode.tagName == 'g') {
+                      beforeTarget = childNode;
+                      return false;
+                    }
+                  })
+                  parent.insertBefore(me.element, beforeTarget ? beforeTarget : parent.firstChild);
                 }
               }
               break;
@@ -673,6 +684,7 @@
               };
 
               var fromElement, toElement, fromTerminal, toTerminal, fromP, toP;
+
               if (me.from) {
                 fromElement = me.canvasComponent.canvas.getElementById(me.from);
                 fromTerminal = me.from + '_TERMINAL_' + me.fromPosition[0] + '_' + me.fromPosition[1];
@@ -862,7 +874,8 @@
           me.$emit('pasteShape',
             me.canvasComponent.getElementById(copied.id) || copied,
             me.canvasComponent.getElementById(pasted.id) || pasted
-          );
+          )
+          ;
         };
         /**
          * 자신에게 도형들이 그룹으로 들어왔을때의 이벤트

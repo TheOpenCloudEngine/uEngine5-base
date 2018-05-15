@@ -94,7 +94,7 @@
                 cards.push(definition);
 
                 definition.desc=name + '...';
-                definition.src='/static/image/sample.png';
+                definition.src = location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/sample.png';
 
               }
 

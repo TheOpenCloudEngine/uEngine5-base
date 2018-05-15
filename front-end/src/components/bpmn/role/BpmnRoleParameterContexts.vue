@@ -7,7 +7,7 @@
       <md-layout v-for="parameterContext in data.parameterContexts">
         <md-layout md-flex="30">
           <md-input-container>
-            <label>피호출측 역할</label>
+            <label>Callee Roles</label>
             <md-select v-if="calleeDefinition.loaded" name="input" id="input" v-model="parameterContext.argument">
               <md-option v-for="role in calleeDefinition.roles"
                          :key="role.name"
@@ -20,7 +20,7 @@
         </md-layout>
         <md-layout md-flex="30">
           <md-input-container>
-            <label>연결 역할</label>
+            <label>Caller Roles</label>
             <md-select v-model="parameterContext.role.name">
               <md-option v-for="role in definition.roles"
                          :key="role.name"

@@ -4,6 +4,7 @@
 
 <script>
   import BpmnVueFinder from './BpmnVueFinder'
+
   export default {
     mixins: [BpmnVueFinder],
     name: 'bpmn-base',
@@ -92,6 +93,20 @@
     mounted: function () {
     },
     methods: {
+      selectedActivity: function () {
+          if(this.activity)
+            this.activity._selected = true;
+      },
+      deSelectedActivity: function () {
+          if(this.activity)
+            this.activity._selected = false;
+      },
+      selectedFlow: function () {
+          this.relation.selected = true;
+      },
+      deSelectedFlow: function () {
+          this.relation.selected = false;
+      },
       closeComponentChanger: function () {
         console.log('closeComponentChanger');
         this.bpmnVue.componentChangerData = {};

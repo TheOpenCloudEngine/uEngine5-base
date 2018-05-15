@@ -1,21 +1,16 @@
 <template>
   <md-dialog
     md-open-from="#userPicker" md-close-to="#userPicker" ref="userPicker">
-    <md-dialog-title>사용자 선택</md-dialog-title>
+    <md-dialog-title>Role Mappings</md-dialog-title>
 
     <md-dialog-content>
       <div v-for="(role,index) in roles" :key="role.name">
-        <md-layout md-gutter >
-          <md-layout md-flex="25" md-align="center">
-            <span>{{role.name}}</span>
-          </md-layout>
-          <md-layout md-flex="75">
-            <user-autocomplete
-              :role="role.name"
-              @userSelected:user:role="userSelected"
-              ></user-autocomplete>
-          </md-layout>
-        </md-layout>
+          <md-input-container>
+              <label>{{role.name}}</label>
+              <user-autocomplete
+                v-model="users[role.name]"
+                ></user-autocomplete>
+          </md-input-container>
       </div>
     </md-dialog-content>
 
@@ -34,7 +29,7 @@
     },
 
     created: function () {
-
+      this.loadUsers()
     },
 
     data: function () {
@@ -50,6 +45,7 @@
         this.$refs['userPicker'].close();
       },
       openUserPicker(ref) {
+        this.loadUsers();
         this.$refs['userPicker'].open();
       },
       confirmUser: function () {
@@ -64,8 +60,16 @@
         })
         this.$refs['userPicker'].close();
       },
-      userSelected: function (item,role) {
-        this.$set(this.users,role,item);
+
+      loadUsers: function(){
+        var me = this;
+        $.each(me.roles, function (index, arg) {
+            me.$root.codi('instance{/id}/role-mapping{/roleName}').get({id: me.id, roleName: arg.name})
+              .then(function (response) {
+                //me.users[arg.name] = response.data.endpoint;  ---- X
+                Vue.set(me.users, arg.name, response.data.endpoint) //----O
+              })
+        })
       }
     }
   }

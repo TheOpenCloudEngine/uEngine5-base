@@ -1,4 +1,9 @@
-{"message": {
+{
+  "loopCountOf": "반복횟수 액티비티",
+  "variable": "변수",
+
+
+  "message": {
     "button.activate": "시작",
     "button.close": "닫기",
     "button.create": "생성",
@@ -6,6 +11,10 @@
     "button.edit": "수정",
     "button.move": "이동",
     "button.rename": "이름변경",
+
+    "button.resume": "재시작",
+    "button.pause": "일시정지",
+    "button.stop": "정지",
 
     "version.add": "현재 편집중인 내용으로 버전업하기",
     "version.active": "활성화",

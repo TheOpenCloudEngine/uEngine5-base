@@ -1,24 +1,64 @@
+---
 spring:
-  application:
-    name: bpm
+  profiles:
+    active: msa
 
 server:
-  port: 8090
+  port: 8080
   servletPath: /
 
 eureka:
   client:
     serviceUrl:
+#      defaultZone: http://eureka-server.pas-mini.io/eureka/
       defaultZone: http://localhost:8761/eureka/
     healthcheck:
       enabled: true
   instance:
     statusPageUrlPath: ${server.servletPath}info
     healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: local
+        profile: local
 
 kafka:
-  bootstrap-servers: localhost:9092
-#  bootstrap-servers: cloud.pas-mini.io:10091
-#  bootstrap-servers: localhost:10091
-  topic:
-    bpm: bpm.topic
+    bootstrap-servers: localhost:9092 #cloud.pas-mini.io:10091
+    topic:
+      bpm: bpm.topic
+    consumer-topic: bpm
+
+---
+spring:
+  profiles: dev,stg,prod
+
+server:
+  port: 8080
+  servletPath: /
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    hostname: ${HOST}
+    nonSecurePort: ${PORT}
+    preferIpAddress: false
+    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
+    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
+    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
+    instanceId: ${HOST}:${spring.application.name}:${PORT}
+    metadataMap:
+        project: ${CI_PROJECT_NAME}
+        commitSha: ${CI_COMMIT_SHA}
+        image: ${MARATHON_APP_DOCKER_IMAGE}
+        deployment: ${DEPLOYMENT}
+        profile: ${PROFILE}
+        appname: ${APP_NAME}
+
+kafka:
+    bootstrap-servers: cloud.pas-mini.io:10091
+    topic:
+      bpm: bpm.topic
+    consumer-topic: bpm

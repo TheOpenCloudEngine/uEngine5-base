@@ -33,6 +33,7 @@
                   <md-option value="org.uengine.kernel.And">And</md-option>
                   <md-option value="org.uengine.kernel.Or">Or</md-option>
                   <md-option value="org.uengine.kernel.Evaluate">Evaluate</md-option>
+                  <md-option value="org.uengine.kernel.LoopCount">LoopCount</md-option>
                 </md-select>
               </md-input-container>
             </div>
@@ -65,6 +66,14 @@
             myConditionType:'Or',
           };
       },
+      watch: {
+        'value': {
+          deep: true,
+          handler: function(){
+            this.$emit('input', this.value);
+          }
+        }
+      },
     methods: {
       addCondition: function(){
 
@@ -74,11 +83,16 @@
             conditionsVt: []
           }
         }
+        
+        var pushCondition = {
+          _type: this.conditionType  
+        };
+        if (this.conditionType == "org.uengine.kernel.LoopCount") {
+          pushCondition._type = "org.uengine.kernel.Evaluate";
+          pushCondition.type = "loopCount";
+        }
 
-        this.value.conditionsVt.push({
-          _type: this.conditionType,
-
-        })
+        this.value.conditionsVt.push(pushCondition);
 
         var temp = this.value;
         this.value = null;

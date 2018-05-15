@@ -4,7 +4,7 @@
       <md-button class="md-icon-button" @click="toggleLeftSidenav" style="z-index: 2;">
         <md-icon>menu</md-icon>
       </md-button>
-      <h2 class="md-title">uEngine5</h2>
+      <img src="http://uengine.org/assets/img/uengine/logo_bright.png" style="height:25px">
       <div id="logoutButton" style="position: absolute; width: 100%; text-align:right; padding-right: 20px;">
        <md-button class="md-raised md-primary" @click="logout" >{{ $t("message['common.logout']") }}</md-button>
       </div>
@@ -64,6 +64,7 @@
         items: [
           {title: 'Workspace', icon: 'question_answer', routerPath: '/sns'},
           {title: 'Designer', icon: 'question_answer', routerPath: '/definition'},
+          {title: 'Service', icon: 'question_answer', routerPath: '/services'},
           {title: 'Instances', icon: 'question_answer', routerPath: '/instance'}
         ],
         mini: false,

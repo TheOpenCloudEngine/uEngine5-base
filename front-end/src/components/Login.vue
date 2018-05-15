@@ -9,7 +9,7 @@
             </md-card-media>
 
             <md-card-header>
-              <div class="md-title">로그인</div>
+              <div class="md-title">Login</div>
             </md-card-header>
 
             <md-card-content>
@@ -46,7 +46,7 @@
             </md-card-media>
 
             <md-card-header>
-              <div class="md-title">회원 가입</div>
+              <div class="md-title">Subscribe</div>
             </md-card-header>
 
             <md-card-content>
@@ -66,7 +66,7 @@
               </md-input-container>
 
               <md-input-container>
-                <label>이름</label>
+                <label>Name</label>
                 <md-input v-model="name"
                           type="text"
                           required></md-input>

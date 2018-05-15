@@ -24292,7 +24292,11 @@ OG.renderer.RaphaelRenderer.prototype.drawGuide = function (element) {
             x = _upperRight.x + ((divide + 1) * (_ctrlMargin + _ctrlSize) - _ctrlSize);
             y = _upperRight.y + (rest * (_ctrlMargin + _ctrlSize));
 
+            if(!controller) return;
+
             controller.attr({x: x, y: y});
+
+
             //라인일경우 하위 라인까지 함께 재배치
             if (controller.id === rElement.id + OG.Constants.GUIDE_SUFFIX.LINE) {
                 if (me._CONFIG.GUIDE_CONTROL_LINE_NUM == 2) {
@@ -27240,7 +27244,7 @@ OG.renderer.RaphaelRenderer.prototype.divideLane = function (element, quarterOrd
     if (divedLanes.length) {
         for (var i = 0, leni = divedLanes.length; i < leni; i++) {
             //생성된 lane 의 부모에 대해 첫번째 자식으로 들어감으로써 lane 에 속한 다른 도형의 인덱스들을 방해하지 않는다.
-            divedLanes[i].parentElement.insertBefore(divedLanes[i], divedLanes[i].parentElement.firstChild);
+            //divedLanes[i].parentElement.insertBefore(divedLanes[i], divedLanes[i].parentElement.firstChild);
 
             $(this._PAPER.canvas).trigger('divideLane', divedLanes[i]);
         }
@@ -30641,6 +30645,8 @@ OG.handler.EventHandler.prototype = {
                 //터치패드 이벤트와 마우스 휠 스피드의 차이는 매우 크다.
                 //터치패드 0~10, 마우스 휠 400 이상.
 
+                if(!event.shiftKey) return;
+
                 var deltaX = 0;
                 var deltaY = 0;
                 deltaX = event.originalEvent.wheelDeltaX || event.deltaX || 0;
@@ -30649,12 +30655,15 @@ OG.handler.EventHandler.prototype = {
                 if (Math.abs(deltaX) < 120 && Math.abs(deltaY) < 120) {
                     isTrackPad = true;
                 }
+                if (!me._CONFIG.ENABLE_TRACKPAD) {
+                    isTrackPad = false;
+                }
                 if (isTrackPad) {
                     //chrome pinch-to-zoom
                     if (event.ctrlKey) {
                         event.preventDefault();
                         event.stopPropagation();
-                        if (event.originalEvent.wheelDeltaY > 0 || event.deltaY > 0) {
+                        if (event.originalEvent.wheelDelta > 0 || event.deltaY > 0) {
                             // scroll up
                             updateScale(event, true);
                         }
@@ -30665,7 +30674,7 @@ OG.handler.EventHandler.prototype = {
                 } else {
                     event.preventDefault();
                     event.stopPropagation();
-                    if (event.originalEvent.wheelDeltaY > 0 || event.deltaY > 0) {
+                    if (event.originalEvent.wheelDelta > 0 || event.deltaY > 0) {
                         // scroll up
                         updateScale(event, true);
                     }
@@ -31009,10 +31018,10 @@ OG.handler.EventHandler.prototype = {
                     }
 
                     // Delete : 삭제
-                    if (me._CONFIG.ENABLE_HOTKEY_DELETE && (event.keyCode === KeyEvent.DOM_VK_DELETE || event.keyCode === KeyEvent.DOM_VK_BACK_SPACE)) {
-                        event.preventDefault();
-                        me.deleteSelectedShape();
-                    }
+                    //if (me._CONFIG.ENABLE_HOTKEY_DELETE && (event.keyCode === KeyEvent.DOM_VK_DELETE || event.keyCode === KeyEvent.DOM_VK_BACK_SPACE)) {
+                    //    event.preventDefault();
+                    //    me.deleteSelectedShape();
+                    //}
 
                     // Ctrl+A : 전체선택
                     if (me._CONFIG.ENABLE_HOTKEY_CTRL_A && me._CONFIG.SELECTABLE && (event.ctrlKey || event.metaKey) && event.keyCode === KeyEvent.DOM_VK_A) {
@@ -32791,7 +32800,7 @@ OG.handler.EventHandler.prototype = {
         var setPastedShapes = function (copied, selected) {
             copiedShapes.push(copied);
             pastedShapes.push(selected);
-            selected.shape.onPasteShape(copied, selected);
+            copied.shape.onPasteShape(copied, selected);
 
             if (renderer.isGroup(copied)) {
                 var copiedChilds = renderer.getChilds(copied);
@@ -33510,12 +33519,11 @@ OG.handler.EventHandler.prototype = {
     _autoExtend: function (currentX, currentY, element) {
         var me = this, rootBBox = me._RENDERER.getRootBBox(),
             width = element.shape.geom.boundary.getWidth(), height = element.shape.geom.boundary.getHeight()
-
         // Canvas 영역을 벗어나서 드래그되는 경우 Canvas 확장
-        if (me._CONFIG.AUTO_EXTENSIONAL && rootBBox.width < (currentX + width) * me._CONFIG.SCALE) {
+        if (me._CONFIG.AUTO_EXTENSIONAL && rootBBox.width < (currentX + width)) {
             me._RENDERER.setCanvasSize([rootBBox.width + me._CONFIG.AUTO_EXTENSION_SIZE, rootBBox.height]);
         }
-        if (me._CONFIG.AUTO_EXTENSIONAL && rootBBox.height < (currentY + height) * me._CONFIG.SCALE) {
+        if (me._CONFIG.AUTO_EXTENSIONAL && rootBBox.height < (currentY + height)) {
             me._RENDERER.setCanvasSize([rootBBox.width, rootBBox.height + me._CONFIG.AUTO_EXTENSION_SIZE]);
         }
     },
@@ -34972,6 +34980,10 @@ OG.graph.Canvas = function (container, containerSize, backgroundColor, backgroun
     this._CONFIG = {
 
         /**
+         * 트랙패드 허용
+         */
+        ENABLE_TRACKPAD: false,
+        /**
          * 풀, 래인 도형의 드랍시 자동 위치 조정 기능
          */
         POOL_DROP_EVENT: false,
@@ -35184,7 +35196,7 @@ OG.graph.Canvas = function (container, containerSize, backgroundColor, backgroun
         /**
          * 핫키 : DELETE 삭제 키 가능여부
          */
-        ENABLE_HOTKEY_DELETE: true,
+        ENABLE_HOTKEY_DELETE: false,
 
         /**
          * 핫키 : Ctrl+A 전체선택 키 가능여부
@@ -35194,12 +35206,12 @@ OG.graph.Canvas = function (container, containerSize, backgroundColor, backgroun
         /**
          * 핫키 : Ctrl+C 복사 키 가능여부
          */
-        ENABLE_HOTKEY_CTRL_C: true,
+        ENABLE_HOTKEY_CTRL_C: false,
 
         /**
          * 핫키 : Ctrl+V 붙여넣기 키 가능여부
          */
-        ENABLE_HOTKEY_CTRL_V: true,
+        ENABLE_HOTKEY_CTRL_V: false,
 
         /**
          * 핫키 : Ctrl+D 복제하기 키 가능여부

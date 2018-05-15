@@ -1,12 +1,21 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
-  <div>
+  <div v-click-outside="close">
     <md-card v-if="bpmnComponent">
       <md-card-content class="no-padding">
         <div v-if="bpmnComponent.type == 'Task' || bpmnComponent.type == 'SubProcess'">
           <span class="icons bpmn-icon-parallel-mi-marker"></span>
           <span class="icons bpmn-icon-sequential-mi-marker"></span>
           <span class="icons bpmn-icon-loop-marker"></span>
-
+          <span class="icons bpmn-icon-close" style="padding-left: 70px;" v-on:click="close"><md-icon
+            v-on:click="close">clear</md-icon></span>
+          <hr class="separator">
+        </div>
+        <div v-else>
+          <span class="icons bpmn-icon-parallel-mi-marker"></span>
+          <span class="icons bpmn-icon-sequential-mi-marker"></span>
+          <span class="icons bpmn-icon-loop-marker"></span>
+          <span class="icons bpmn-icon-close" style="padding-left: 70px;" v-on:click="close"><md-icon
+            v-on:click="close">clear</md-icon></span>
           <hr class="separator">
         </div>
 
@@ -14,6 +23,7 @@
            class="icons"
            :class="item.icon"
            v-on:click="change(item.component)"
+           style="cursor:default"
         >
           <span class="icon-text">{{item.label}}</span>
         </p>
@@ -24,19 +34,27 @@
 
 <script>
   import BpmnVueFinder from './BpmnVueFinder'
+  import ClickOutside from 'vue-click-outside'
+
+
   export default {
     mixins: [BpmnVueFinder],
     name: 'bpmn-component-changer',
     props: {
       data: Object
     },
+    directives: {
+      ClickOutside
+    },
     computed: {},
     data: function () {
       return {
         bpmnComponent: null,
-        items: []
+        items: [],
+        showInside: false
       };
     },
+
     watch: {
       '$props.data': function (newVal, oldVal) {
         if (!newVal || !newVal.bpmnComponent) {
@@ -45,15 +63,45 @@
         } else {
           this.bpmnComponent = newVal.bpmnComponent;
         }
-
-        $(this.$el).css({
-          position: 'absolute',
-          width: '260px',
-          height: 'auto',
-          top: newVal.top + 'px',
-          left: newVal.left + 'px'
-        })
-
+        if (newVal.bpmnComponent.type == 'IntermediateEvent') {
+          console.log(window.innerHeight - newVal.top < 390)
+          if (window.innerHeight - newVal.top < 390) {
+            console.log(newVal.top)
+            newVal.top = 400;
+            $(this.$el).css({
+              position: 'fixed',
+              width: '260px',
+              height: 'auto',
+              top: newVal.top + 'px',
+              left: newVal.left + 'px'
+            })
+          } else {
+            $(this.$el).css({
+              position: 'fixed',
+              width: '260px',
+              height: 'auto',
+              top: newVal.top + 'px',
+              left: newVal.left + 'px'
+            })
+          }
+        }
+        if (window.innerHeight - newVal.top < 390) {
+          $(this.$el).css({
+            position: 'fixed',
+            width: '260px',
+            height: 'auto',
+            top: newVal.top - 180 + 'px',
+            left: newVal.left + 'px'
+          })
+        } else {
+          $(this.$el).css({
+            position: 'fixed',
+            width: '260px',
+            height: 'auto',
+            top: newVal.top + 'px',
+            left: newVal.left + 'px'
+          })
+        }
         this.getComponentChangeItems();
       }
     },
@@ -109,8 +157,8 @@
               icon: 'bpmn-icon-intermediate-event-throw-message'
             },
             {
-              component: 'bpmn-timer-intermediate-catch-event',
-              label: 'Timer Intermediate Catch Event',
+              component: 'bpmn-timer-intermediate-event',
+              label: 'Timer Intermediate Event',
               icon: 'bpmn-icon-intermediate-event-catch-timer'
             },
             {
@@ -147,6 +195,11 @@
               component: 'bpmn-signal-intermediate-throw-event',
               label: 'Signal Intermediate Throw Event',
               icon: 'bpmn-icon-intermediate-event-throw-signal'
+            },
+            {
+              component: 'bpmn-error-catch-event',
+              label: 'Catch Error Intermediate Throw Event',
+              icon: 'bpmn-icon-intermediate-event-catch-error'
             },
           ]
         }
@@ -212,7 +265,7 @@
               icon: 'bpmn-icon-gateway-complex'
             },
             {
-              component: 'bpmn-eventbased-gateway',
+              component: 'bpmn-event-based-gateway',
               label: 'EventBased Gateway',
               icon: 'bpmn-icon-gateway-eventbased'
             }
@@ -288,8 +341,13 @@
         }
         //그외 데이터, Pool, Lane 은 바꿀 메뉴 없음.
       },
+      close: function () {
+        this.bpmnComponent = false;
+      },
       change: function (componentName) {
+
         var oldActivity = JSON.parse(JSON.stringify(this.bpmnComponent.activity));
+
         var component = this.bpmnVue.getComponentByName(componentName); //TODO :  getComponentByName 은 공통
         var newActivity = component.computed.createNew(
           oldActivity.tracingTag,
@@ -368,6 +426,7 @@
       font-size: 11px;
     }
   }
+
 
 </style>
 

@@ -3,10 +3,19 @@
     <router-view></router-view>
 
     <!--서비스 로케이터 리스트-->
-    <service-locator :host="location.protocol + '//' + location.hostname + ':8080'" path="/"
-                     resource-name="codi"></service-locator>
+    <div v-if="profile == 'local'">
+      <service-locator :host="location.protocol + '//' + location.hostname + ':8080'" path="/"
+                       resource-name="codi"></service-locator>
 
-    <service-locator ref="backend" :host="location.protocol + '//' + location.hostname + ':8080'"></service-locator>
+      <service-locator ref="backend" :host="location.protocol + '//' + location.hostname + ':8080'"></service-locator>
+    </div>
+    <div v-else>
+      <service-locator :host="'http://' + config.vcap.services['uengine5-router'][profile].external" path="/"
+                       resource-name="codi"></service-locator>
+
+      <service-locator ref="backend"
+                       :host="'http://' + config.vcap.services['uengine5-router'][profile].external"></service-locator>
+    </div>
 
     <!--글로벌 알림 컴포넌트-->
     <md-snackbar md-position="top right" ref="snackbar" :md-duration="4000">
@@ -19,6 +28,8 @@
   export default {
     data () {
       return {
+        config: window.config,
+        profile: profile,
         location: window.location,
         snackbar: {
           top: true,

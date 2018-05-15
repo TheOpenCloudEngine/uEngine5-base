@@ -15,8 +15,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -56,15 +56,23 @@
     >
       <template slot="properties-contents">
         <md-input-container>
-          <label>액티비티 명</label>
+          <label>Activity Name</label>
           <md-input type="text"
                     v-model="activity.name.text"></md-input>
         </md-input-container>
-        <md-input-container>
-          <label>retryDelay</label>
-          <md-input type="number"
-                    v-model.number="activity.retryDelay"></md-input>
-        </md-input-container>
+
+        <md-subheader>Array Variable for multiplicity</md-subheader>
+
+          <bpmn-variable-selector v-model="activity.forEachVariable" :definition="definition"></bpmn-variable-selector>
+
+
+        <md-subheader>Variable Mappings</md-subheader>
+        <bpmn-parameter-contexts
+          :parameter-contexts="activity.variableBindings"
+          :definition="definition"
+          :for-sub-process="true"
+        ></bpmn-parameter-contexts>
+
       </template>
       <template slot="additional-tabs">
 
@@ -96,11 +104,17 @@
             text: ''
           },
           tracingTag: newTracingTag,
+          selected: false,
           childActivities: [
             "java.util.ArrayList",
             []
           ],
-          sequenceFlows: [],
+          sequenceFlows: [
+          ],
+          variableBindings: [
+           "java.util.ArrayList",
+           []
+          ],
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,

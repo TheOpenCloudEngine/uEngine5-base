@@ -15,8 +15,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -36,10 +36,11 @@
 
       <sub-elements>
         <bpmn-loop-type :loopType="loopType"></bpmn-loop-type>
-        <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
+        <bpmn-state-animation :status="status" :type="type" :faultMessage="faultMessage"></bpmn-state-animation>
       </sub-elements>
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
     </geometry-element>
+
 
     <bpmn-property-panel
       :drawer.sync="drawer"
@@ -86,6 +87,7 @@
           name: {
             text: ''
           },
+          selected: false,
           tracingTag: newTracingTag,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
@@ -106,7 +108,16 @@
     mounted: function () {
 
     },
-    methods: {}
+    methods: {
+
+//          onDrawShape: function (element) {
+//            setTimeout(function () {
+//              element.canvasComponent.canvas._HANDLER.selectShape(element.element);
+//            }, 500);
+//          }
+
+
+    }
   }
 </script>
 

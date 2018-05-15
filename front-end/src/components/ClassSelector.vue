@@ -1,9 +1,20 @@
 <template>
+  <div>
+    <md-input-container>
+      <label>Category</label>
+      <md-select v-model="category">
+        <md-option v-if="!modelingClassesOnly" value="primitive">Primitive Types</md-option>
+        <md-option v-for="entry in categories" :value="entry">{{entry}}</md-option>
+      </md-select>
+    </md-input-container>
 
-  <md-select v-model="classType">
-    <md-option v-for="entry in classTypes" :value="entry.className">{{entry.displayName}}</md-option>
-  </md-select>
-
+    <md-input-container>
+      <label>Class</label>
+      <md-select v-model="value">
+        <md-option v-for="entry in classTypes" :value="entry.className">{{entry.displayName}}</md-option>
+      </md-select>
+    </md-input-container>
+  </div>
 </template>
 
 
@@ -12,26 +23,102 @@
   export default{
 
     props: {
-      data: String,
+      value: String,
+      modelingClassesOnly: false
     },
 
     created: function(){
-      if(!this.data){
-        this.$emit('update:data', 'java.lang.String');
-      }
+
+      var definitions = [];
+      var me = this;
+
+      window.backend.$bind("definition", definitions);
+
+      definitions.$load().then(function(definitions) {
+
+        if (definitions) {
+          definitions.forEach(function(definition){
+
+            if(definition.name && definition.name.indexOf(".ClassDiagram.xml") > -1){
+              me.categories.push(definition.name.split(".")[0]);
+            }
+          });
+
+        }
+
+      });
+
+
     },
 
     watch: {
-      classType: function(){
-          this.$emit('update:data', this.classType);
+      value: function(){
+          this.$emit('input', this.value);
       }
+
+    },
+
+    asyncComputed: {
+
+      classTypes: function(){
+        if(!this.category) return [];
+
+        if(this.category=="primitive")
+          return this.primitiveTypes
+        else{
+
+          var classDiagram = {};
+          var classes = [];
+
+          window.backend.$bind("definition/raw/" + this.category + ".ClassDiagram.json", classDiagram);
+          classDiagram.$load().then(function(classDiagram){
+
+            if(classDiagram.definition.classDefinitions[1]){
+              classDiagram.definition.classDefinitions[1].forEach(function(classDefinition){
+                classes.push(
+                   {
+                     displayName: classDefinition.name,
+                     className: classDiagram.definition.name.split(".")[0]+ "#" + classDefinition.name
+                   },
+                )
+              })
+
+              return classes;
+            }
+
+          });
+
+          return classes;
+//          return [
+//                           {
+//                             displayName: 'Order',
+//                             className: 'Order Management#Order'
+//                           },
+//                           {
+//                             displayName: 'Item',
+//                             className: 'Order Management#Item'
+//                           }]
+
+        }
+
+      }
+
     },
 
     data:function(){
 
       return {
-        classType: this.data ? this.data : 'java.lang.String',
-        classTypes: [
+        category: null,
+        categories: [
+//          'shop',
+//          'e-learning',
+//          'production'
+        ],
+        primitiveTypes: [
+          {
+            displayName: '객체(미정)',
+            className: 'java.lang.Object'
+          },
           {
             displayName: '문자열',
             className: 'java.lang.String'
@@ -41,16 +128,12 @@
             className: 'java.lang.Integer'
           },
           {
-            displayName: '정수형(Long)',
+            displayName: '긴 정수형(Long)',
             className: 'java.lang.Long'
           },
           {
-            displayName: '정수형(long)',
-            className: 'long'
-          },
-          {
             displayName: '실수형',
-            className: 'java.lang.double'
+            className: 'java.lang.Double'
           },
           {
             displayName: '예 아니오',
@@ -59,6 +142,10 @@
           {
             displayName: '날짜',
             className: 'java.util.Date'
+          },
+          {
+            displayName: '사용자',
+            className: 'org.uengine.kernel.RoleMapping'
           },
         ]
       };

@@ -15,8 +15,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -39,7 +39,7 @@
         <bpmn-loop-type :loopType="loopType"></bpmn-loop-type>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
-      <bpmn-sub-controller :type="type"></bpmn-sub-controller>
+      <bpmn-sub-controller :type="type" :className="className" :callee-definition-id="activity.definitionId"></bpmn-sub-controller>
     </geometry-element>
 
     <bpmn-property-panel
@@ -56,11 +56,10 @@
           <label>연결 프로세스 정의</label>
 
           <!--TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 -->
-          <md-input v-model="activity.definitionId">
-          </md-input>
-          <!--<md-select name="movie" id="movie" v-model="activity.definitionId">-->
-            <!--<md-option v-for="definition in rowData" :value="definition.name">{{definition.name}}</md-option>-->
-          <!--</md-select>-->
+          <md-autocomplete v-model="activity.definitionId" :list="recommendedDefinitionList" :filter-list="fetchDefinitionList">
+          </md-autocomplete>
+
+
         </md-input-container>
 
 
@@ -71,6 +70,7 @@
             :definition="definition"
             :callee-definition-id="activity.definitionId"
             :for-sub-process="true"
+            :for-call-activity="true"
           ></bpmn-parameter-contexts>
 
           <p>연결 역할 매핑</p>
@@ -120,6 +120,7 @@
             text: ''
           },
           tracingTag: newTracingTag,
+          selected: false,
           definitionId: "",
           variableBindings: [],
           roleBindings: [],
@@ -137,8 +138,12 @@
     },
     data: function () {
       return {
-        rowData : []
+        rowData : [],
+        recommendedDefinitionList: [{name: ''}]
       };
+    },
+    created: function () {
+
     },
     //매번 창을 열때 (창을 열때 activity 를 갱신시켜주는건 프로퍼티 패널에 장치가 되있음.) 리스트를 갱신하길 원함.
     //그러기 위해서는 watch 를 해야하는데, watch 대상은 activity 이다.
@@ -148,12 +153,16 @@
           if(editingMode) {
             this.loadData();
           }
-      }
+      },
     },
+//    created: function() {
+//      this.fetchDefinitionList();
+//    },
     mounted: function(){
       //데피니션 리스트 조회
       this.loadData();
-  },
+      this.fetchDefinitionList();
+    },
     methods: {
       loadData: function () {
         var me = this;
@@ -175,6 +184,30 @@
             });
             me.rowData = definitions;
           })
+      },
+
+      fetchDefinitionList(list, param){
+        var query = param;
+        var me = this;
+        var access_token = localStorage["access_token"];
+
+        var backend = hybind("http://localhost:8080", {headers: {'access_token': access_token}});
+        me.recommendedDefinitionList = [({name: '-----List-----'})];
+        var search = {};
+        backend.$bind("definition/search/findByDefIdContaining?defId=" + query, search);
+
+        search.$load().then(function(definition){
+          console.log(definition)
+          for(var i = 0; i < definition.length; i++) {
+
+            var tmp = definition[i].name;
+            me.recommendedDefinitionList.push({name: tmp});
+
+          }
+        });
+
+//        me.recommendedDefinitionList.splice(0);
+        return me.recommendedDefinitionList
       }
     }
   }

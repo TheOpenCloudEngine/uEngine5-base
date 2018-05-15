@@ -15,7 +15,7 @@
         },
         type: Boolean
       },
-      image: String
+      image: String,
     },
     //&& me.elementRole != 'sub-controller'
     computed: {

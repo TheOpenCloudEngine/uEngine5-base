@@ -11,22 +11,25 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.Resources;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
-import org.uengine.kernel.*;
+import org.uengine.kernel.DeployFilter;
+import org.uengine.kernel.NeedArrangementToSerialize;
+import org.uengine.kernel.ProcessDefinition;
+import org.uengine.kernel.UEngineException;
 import org.uengine.modeling.resource.*;
-import org.uengine.modeling.resource.Serializer;
 import org.uengine.processpublisher.BPMNUtil;
 import org.uengine.uml.model.ClassDefinition;
 import org.uengine.util.UEngineUtil;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +45,7 @@ import java.util.Map;
  * TODO: accept? typed json is sometimes hard to read
  */
 @RestController
-public class DefinitionServiceImpl implements DefinitionService {
+public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLService {
 
     static protected final String RESOURCE_ROOT = "codi";
 
@@ -290,6 +293,7 @@ public class DefinitionServiceImpl implements DefinitionService {
 
         objectMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, "_type");
         return objectMapper;
+
     }
 
     /**
@@ -341,6 +345,12 @@ public class DefinitionServiceImpl implements DefinitionService {
             if (definitionWrapper.getDefinition() == null) {
                 throw new Exception("DefinitionResource is corrupt.");
             }
+
+            //add additional info if definition is not a process definition!
+            if(!(definitionWrapper.getDefinition() instanceof ProcessDefinition) && !resource.getPath().endsWith("."+definitionWrapper.getDefinition().getClass().getSimpleName() + ".xml")){
+                resource = new DefaultResource(UEngineUtil.getNamedExtFile(resource.getPath(), definitionWrapper.getDefinition().getClass().getSimpleName() +".xml"));
+            }
+
             resourceManager.save(resource, definitionWrapper.getDefinition());
             definitionDeployed = definitionWrapper.getDefinition();
         } else {
@@ -371,24 +381,30 @@ public class DefinitionServiceImpl implements DefinitionService {
     }
 
     @RequestMapping(value = DEFINITION_RAW + "/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Object getRawDefinition(@PathVariable("defPath") String definitionPath) throws Exception {
+    public Object getRawDefinition(@PathVariable("defPath") String definitionPath/*, @RequestParam(value = "unwrap", required = false) boolean unwrap*/) throws Exception {
 
         definitionPath = UEngineUtil.getNamedExtFile(RESOURCE_ROOT + "/" + definitionPath, "xml");
         // 무조건 xml 파일로 결국 저장됨.
         DefaultResource resource = new DefaultResource(definitionPath);
         Serializable definition = (Serializable) getDefinitionLocal(resource.getPath());
-        DefinitionWrapper definitionWrapper = new DefinitionWrapper(definition);
 
-        String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
-        return uEngineProcessJSON;
+//        if(unwrap) {
+//            return objectMapper.writeValueAsString(definition);
+//        }else{
+            DefinitionWrapper definitionWrapper = new DefinitionWrapper(definition);
+            String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
+            return uEngineProcessJSON;
+//        }
         
     }
 
     @RequestMapping(value = DEFINITION_RAW + "/**", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Object getRawDefinition(HttpServletRequest request) throws Exception {
+    public Object getRawDefinition(HttpServletRequest request/*, @RequestParam("unwrap") boolean unwrap*/) throws Exception {
 
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String definitionPath = path.substring(DEFINITION_RAW.length() + 1);
+
+
         return getRawDefinition(definitionPath);
         
     }

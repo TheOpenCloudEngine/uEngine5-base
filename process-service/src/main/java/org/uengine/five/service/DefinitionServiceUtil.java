@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.uengine.five.service.DefinitionService;
 import org.uengine.modeling.resource.Serializer;
-import org.uengine.util.UEngineUtil;
 
 /**
  * Created by uengine on 2017. 11. 15..
@@ -15,12 +15,12 @@ import org.uengine.util.UEngineUtil;
 public class DefinitionServiceUtil {
 
     @Autowired
-    DefinitionService definitionService;
+    DefinitionXMLService definitionService;
 
     static ObjectMapper objectMapper = createTypedJsonObjectMapper();
 
     public Object getDefinition(String defPath) throws Exception {
-        return getDefinition(defPath, true);
+        return getDefinition(defPath, false);
     }
 
     public Object getDefinition(String defPath, boolean production) throws Exception {

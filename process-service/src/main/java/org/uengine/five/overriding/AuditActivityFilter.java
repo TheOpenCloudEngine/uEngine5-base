@@ -1,7 +1,6 @@
 package org.uengine.five.overriding;
 
 import org.metaworks.dwr.MetaworksRemoteService;
-import org.springframework.boot.actuate.endpoint.jmx.AuditEventsJmxEndpoint;
 import org.uengine.five.entity.AuditEntity;
 import org.uengine.five.repository.AuditEntityRepository;
 import org.uengine.kernel.Activity;

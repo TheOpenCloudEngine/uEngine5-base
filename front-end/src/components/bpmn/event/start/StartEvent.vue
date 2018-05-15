@@ -16,12 +16,11 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
-      v-on:drawShape="onDrawShape"
     >
       <geometry-circle
         :center="[50,50]"
@@ -69,6 +68,7 @@
       defaultStyle(){
         return {
           'label-position': 'bottom',
+          'label-width': 120,
           'stroke-width': 1.5
         }
       },
@@ -85,6 +85,7 @@
             text: ''
           },
           tracingTag: newTracingTag,
+          selected: false,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,
@@ -105,11 +106,7 @@
 
     },
     methods: {
-      onDrawShape: function (element) {
-        setTimeout(function () {
-          element.canvasComponent.canvas._HANDLER.selectShape(element.element);
-        }, 500);
-      }
+
     }
   }
 </script>

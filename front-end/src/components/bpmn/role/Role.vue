@@ -15,8 +15,8 @@
       :parentId.sync="role.elementView.parent"
       :label.sync="role.name"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
     >
@@ -33,17 +33,41 @@
     >
       <template slot="properties-contents">
         <md-input-container>
-          <label>롤 명</label>
+          <label>Pool/Lane (Role) Name</label>
           <md-input type="text"
                     v-model="role.name"></md-input>
         </md-input-container>
-        <md-input-container v-if="serviceIds">
-          <label>유레카에서 롤명 가져오기</label>
-          <md-select
-                    v-model="role.name">
-            <md-option :value="serviceId" v-for="serviceId in serviceIds">{{serviceId}}</md-option>
-          </md-select>
-        </md-input-container>
+
+        <md-radio v-model="roleDef" id="roleDef" name="roleDef" md-value="Human">Human</md-radio>
+        <md-radio v-model="roleDef" id="roleDef" name="roleDef" md-value="System">System</md-radio>
+
+        <div v-if="roleDef=='Human'">
+          <md-radio v-model="roleResolution" id="roleResolution" name="roleResolution" md-value="null">None</md-radio>
+          <md-radio v-model="roleResolution" id="roleResolution" name="roleResolution" md-value="org.uengine.five.overriding.IAMRoleResolutionContext">Role Resolution By IAM Scope</md-radio>
+          <md-radio v-model="roleResolution" id="roleResolution" name="roleResolution" md-value="org.uengine.kernel.DirectRoleResolutionContext">Role Resolution By Direct user</md-radio>
+
+          <md-input-container v-if="role.roleResolutionContext && role.roleResolutionContext._type == 'org.uengine.five.overriding.IAMRoleResolutionContext'">
+            <label>Scope Name</label>
+            <md-input v-model="role.roleResolutionContext.scope"></md-input>
+          </md-input-container>
+
+          <md-input-container v-if="role.roleResolutionContext && role.roleResolutionContext._type == 'org.uengine.kernel.DirectRoleResolutionContext'">
+            <label>User ID</label>
+            <md-input v-model="role.roleResolutionContext.endpoint"></md-input>
+          </md-input-container>
+
+        </div>
+
+
+        <div v-if="roleDef=='System'">
+          <md-input-container>
+            <label>Select serviceId from eureka</label>
+            <md-select
+                      v-model="role.name">
+              <md-option :value="serviceId" v-for="serviceId in serviceIds">{{serviceId}}</md-option>
+            </md-select>
+          </md-input-container>
+         </div>
       </template>
       <template slot="additional-tabs">
 
@@ -59,24 +83,7 @@
     name: 'bpmn-role',
     props: {},
     created: function(){
-
-        var me = this;
-
-      this.$root.codi('eureka/apps').get()
-        .then(function (response) {
-
-            console.log(response.data);
-
-            response.data.applications.application.forEach(function(application){
-                if(me.serviceIds == null) me.serviceIds = [];
-
-                me.serviceIds.push(application.name);
-
-            });
-
-        });
-
-
+      this.loadRolesFromEureka();
     },
     computed: {
       defaultStyle(){
@@ -89,6 +96,7 @@
         return {
           name: '',
           displayName: {},
+          roleResolutionContext: null,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': null,//this.uuid(), //오픈그래프 자동 생성
@@ -103,11 +111,15 @@
     },
     data: function () {
       return {
-          serviceIds: null
-
+        serviceIds: null,
+        roleDef: 'Human',
+        roleResolution: false
       };
     },
     watch: {
+      'drawer': function(val){
+        this.loadRolesFromEureka();
+      },
       'role.name': function (newVal, oldVal) {
         var me = this;
         //롤의 이름이 변경되었을 때
@@ -118,12 +130,46 @@
             console.log(activitiy.tracingTag + ' Human activitiy role changed by role name updated!!');
           }
         });
+      },
+      'roleResolution': function(val){
+        if(val){
+          if(!this.role.roleResolutionContext)
+            this.role.roleResolutionContext = {
+              endpoint: null,
+              scope: null
+            };
+
+          this.role.roleResolutionContext._type = val;
+
+        }else
+          this.role.roleResolutionContext = null;
       }
     },
-    mounted: function () {
-
+    created: function () {
+      if(this.role.roleResolutionContext){
+        this.roleResolution = this.role.roleResolutionContext._type;
+      }
     },
-    methods: {}
+    methods: {
+      loadRolesFromEureka: function(){
+         var me = this;
+
+            this.$root.codi('eureka/apps').get()
+              .then(function (response) {
+
+                  console.log(response.data);
+
+                  response.data.applications.application.forEach(function(application){
+                      if(me.serviceIds == null) me.serviceIds = [];
+
+                      me.serviceIds.push(application.name);
+
+                  });
+
+              });
+      }
+
+    }
   }
 </script>
 

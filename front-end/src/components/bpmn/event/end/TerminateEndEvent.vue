@@ -16,8 +16,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -51,7 +51,7 @@
     >
       <template slot="properties-contents">
         <md-input-container>
-          <label>액티비티 명</label>
+          <label>End Status Name</label>
           <md-input type="text"
                     v-model="activity.name.text"></md-input>
         </md-input-container>
@@ -77,7 +77,8 @@
     computed: {
       defaultStyle(){
         return {
-          'label-position': 'bottom'
+          'label-position': 'bottom',
+          'label-width': 120
         }
       },
       type(){
@@ -93,6 +94,7 @@
             text: ''
           },
           tracingTag: newTracingTag,
+          selected: false,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,

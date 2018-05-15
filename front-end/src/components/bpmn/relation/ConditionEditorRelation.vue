@@ -2,6 +2,8 @@
   <div>
     <edge-element
       selectable
+      movable
+      resizable
       connectable
       deletable
       :id="relation.sourceRef + '-' + relation.targetRef"
@@ -11,10 +13,11 @@
       :_style.sync="style"
       :label.sync="relation.name"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedFlow();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedFlow();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
+      v-on:addedToGroup="onAddedToGroup"
     >
     </edge-element>
 
@@ -25,15 +28,20 @@
     >
       <template slot="properties-contents">
         <md-input-container>
-          <label>릴레이션 이름</label>
+          <label>Sequence Name</label>
           <md-input type="text"
                     v-model="relation.name"></md-input>
         </md-input-container>
         <md-layout md-flex="20">
-          <md-checkbox v-model="otherwise">otherwise</md-checkbox>
+          <md-checkbox v-model="otherwise">Otherwise Condition</md-checkbox>
         </md-layout>
 
-        <md-checkbox v-model="complexCondition">복합 조건</md-checkbox>
+        <md-input-container>
+          <label>Priority</label>
+          <md-input v-model="relation.priority" type="number"></md-input>
+        </md-input-container>
+
+        <md-checkbox v-model="complexCondition">Complex Rule</md-checkbox>
 
         <div v-if="complexCondition">
           <org-uengine-kernel-Or v-model="relation.condition" :definition="definition"></org-uengine-kernel-Or>
@@ -66,6 +74,10 @@
     props: {},
     created: function(){
         console.log('xxx');
+
+        if(this.relation.condition && (this.relation.condition._type.indexOf('Or') > -1 || this.relation.condition._type.indexOf('And') > -1)){
+          this.complexCondition = true;
+        }
     },
     computed: {
       defaultStyle(){
@@ -76,8 +88,10 @@
       },
       createNew(from, to, vertices){
         return {
+          selected: false,
           sourceRef: from,
           targetRef: to,
+          priority: 1,
           relationView: {
             style: JSON.stringify({}),
             value: vertices
@@ -126,6 +140,7 @@
           }
         }
       },
+
       otherwise: function (_val) {
         var me = this;
         var condition = {};
@@ -148,8 +163,24 @@
       },
       complexCondition: function(val){
           if(val){
-              this.relation.condition.conditionsVt = [];
-              this.relation.condition._type="org.uengine.kernel.Or";
+
+            if(this.relation.condition && (this.relation.condition._type.indexOf("Or") > -1 || this.relation.condition._type.indexOf("And") > -1)){
+              return;
+            }
+
+            var existingCondition = this.relation.condition;
+
+            this.relation.condition.conditionsVt = [];
+            this.relation.condition._type="org.uengine.kernel.Or";
+
+//            if(existingCondition){
+//              this.relation.condition.conditionsVt.push(existingCondition);
+//            }
+
+          }else{
+            if(this.relation.condition && (this.relation.condition._type.indexOf("Or") > -1 || this.relation.condition._type.indexOf("And") > -1)){
+              this.complexCondition = true; //not changeable to simple condition.
+            }
           }
       }
     },

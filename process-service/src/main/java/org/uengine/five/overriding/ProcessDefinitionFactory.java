@@ -2,9 +2,10 @@ package org.uengine.five.overriding;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.uengine.five.service.DefinitionServiceUtil;
+import org.uengine.kernel.Activity;
 import org.uengine.processmanager.ProcessTransactionContext;
 import org.uengine.processmanager.SimulatorTransactionContext;
-import org.uengine.five.service.DefinitionServiceUtil;
 
 import java.util.Map;
 
@@ -28,11 +29,13 @@ public class ProcessDefinitionFactory extends org.uengine.kernel.ProcessDefiniti
     @Autowired
     DefinitionServiceUtil definitionService;
 
-
-    protected Object getDefinitionSourceImpl(String location, boolean fromCompilationVersion, boolean shouldBeObjectResult) throws Exception {
-
-        return definitionService.getDefinition(location + ".json"); //TODO: definition reference problematic someday
+    public Activity getActivity(String pdvid, boolean caching, boolean withoutInheritance) throws Exception {
+        return (Activity) definitionService.getDefinition(pdvid + ".json"); //TODO: definition reference problematic someday
     }
+
+//    protected Object getDefinitionSourceImpl(String location, boolean fromCompilationVersion, boolean shouldBeObjectResult) throws Exception {
+//
+//    }
 
     public void removeDefinition(String pdvid) throws Exception {
         throw new Exception("Not implemented.");

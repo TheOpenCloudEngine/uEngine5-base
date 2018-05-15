@@ -1,4 +1,9 @@
-{"message": {
+{
+  "loopCountOf": "Loop count of",
+  "variable": "Variable",
+
+
+  "message": {
     "button.activate": "Activate",
     "button.close": "Close",
     "button.create": "Create",
@@ -6,6 +11,11 @@
     "button.edit": "Edit",
     "button.move": "Move",
     "button.rename": "Rename",
+
+    "button.resume": "Resume",
+    "button.pause": "Pause",
+    "button.stop": "Stop",
+
 
     "version.add": "Version Up",
     "version.active": "Activate",
@@ -28,4 +38,6 @@
     "title.desinger.process": "Process",
     "title.desinger.rename.package": "Rename Package",
     "title.desinger.new.package": "New Package"
+
+
 }}

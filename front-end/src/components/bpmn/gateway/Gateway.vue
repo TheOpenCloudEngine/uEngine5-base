@@ -62,6 +62,7 @@
       defaultStyle(){
         return {
           'label-position': 'bottom',
+          'label-width': 120,
           'stroke-width': 1.5
         }
       },

@@ -1,21 +1,76 @@
 <template>
   <div>
+
+    <div v-if="status == 'Failed'">
+
+      <!--Failed 체크 이미지-->
+      <div v-if="type == 'StartEvent' || type == 'EndEvent' || type == 'IntermediateEvent' || type == 'Gateway'">
+        <image-element
+          v-bind:image="failed_image"
+          :sub-width="'20px'"
+          :sub-height="'20px'"
+          :sub-right="'5px'"
+          :sub-bottom="'5px'"
+          >
+          <md-tooltip md-direction="bottom">My tooltip</md-tooltip>
+        </image-element>
+      </div>
+      <div v-else>
+        <image-element
+          v-bind:image="failed_image"
+          :sub-width="'20px'"
+          :sub-height="'20px'"
+          :sub-right="'6%'"
+          :sub-top="'5px'"
+          >
+          <md-tooltip md-direction="bottom">My tooltip</md-tooltip>
+        </image-element>
+
+      </div>
+    </div>
+
+    <div v-if="status == 'Stopped'">
+
+      <!--Stopped 체크 이미지-->
+      <div v-if="type == 'StartEvent' || type == 'EndEvent' || type == 'IntermediateEvent' || type == 'Gateway'">
+        <image-element
+          v-bind:image="stopped_image"
+          :sub-width="'20px'"
+          :sub-height="'20px'"
+          :sub-right="'5px'"
+          :sub-bottom="'5px'"
+          >
+        </image-element>
+      </div>
+      <div v-else>
+        <image-element
+          v-bind:image="stopped_image"
+          :sub-width="'20px'"
+          :sub-height="'20px'"
+          :sub-right="'6%'"
+          :sub-top="'5px'"
+          >
+        </image-element>
+      </div>
+    </div>
+
     <div v-if="status == 'Completed'">
 
       <!--Completed 체크 이미지-->
       <div v-if="type == 'StartEvent' || type == 'EndEvent' || type == 'IntermediateEvent' || type == 'Gateway'">
         <image-element
-          :image="'/static/image/symbol/complete.png'"
+          v-bind:image="complete_image"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-right="'5px'"
           :sub-bottom="'5px'"
         >
+          <md-tooltip md-direction="right">My tooltip</md-tooltip>
         </image-element>
       </div>
       <div v-else>
         <image-element
-          :image="'/static/image/symbol/complete.png'"
+          v-bind:image="complete_image"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-right="'6%'"
@@ -29,7 +84,7 @@
       <!--Running 체크 이미지-->
       <div v-if="type == 'StartEvent' || type == 'EndEvent' || type == 'IntermediateEvent' || type == 'Gateway'">
         <image-element
-          :image="'../static/image/symbol/running.png'"
+          v-bind:image="running_image"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-right="'-10px'"
@@ -39,7 +94,7 @@
       </div>
       <div v-else>
         <image-element
-          :image="'../static/image/symbol/running.png'"
+          v-bind:image="running_image"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-align="'center'"
@@ -72,7 +127,8 @@
     name: 'bpmn-state-animation',
     props: {
       status: String,
-      type: String
+      type: String,
+      faultMessage: String
     },
     computed: {},
     data: function () {
@@ -109,14 +165,21 @@
         delete animationStyle.r;
       }
       return {
-        animationStyle: animationStyle
+        animationStyle: animationStyle,
+        complete_image: location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/symbol/complete.png',
+        running_image: location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/symbol/running.png',
+        stopped_image: location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/symbol/stopped.png',
+        failed_image: location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/symbol/failed.png',
+        //faultMessage: ''
       }
     },
     watch: {},
     mounted: function () {
 
     },
-    methods: {}
+    methods: {
+
+    }
   }
 </script>
 

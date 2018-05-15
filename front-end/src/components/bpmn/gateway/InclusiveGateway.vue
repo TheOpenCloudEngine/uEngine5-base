@@ -22,7 +22,7 @@
       v-on:addedToGroup="onAddedToGroup"
     >
       <geometry-polygon :vertices="[[0, 50],[50, 100],[100, 50],[50, 0]]"></geometry-polygon>
-      <geometry-circle :center="[50, 50]" :radius="25" :_style="{'stroke-width': 3}"></geometry-circle>
+      <geometry-circle :center="[49, 49]" :radius="25" :_style="{'stroke-width': 2}"></geometry-circle>
 
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
@@ -62,7 +62,8 @@
     computed: {
       defaultStyle(){
         return {
-          'label-position': 'bottom'
+          'label-position': 'bottom',
+          'label-width': 120,
         }
       },
       type(){

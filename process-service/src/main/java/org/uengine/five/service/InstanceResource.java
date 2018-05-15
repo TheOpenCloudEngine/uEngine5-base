@@ -5,9 +5,8 @@ import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.hateoas.EntityLinks;
 import org.springframework.hateoas.ResourceSupport;
 import org.springframework.hateoas.core.Relation;
-import org.uengine.five.service.*;
-import org.uengine.kernel.ProcessInstance;
 import org.uengine.five.entity.ProcessInstanceEntity;
+import org.uengine.kernel.ProcessInstance;
 import org.uengine.util.UEngineUtil;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -45,7 +44,7 @@ public class InstanceResource extends ResourceSupport {
 
         add(
                 linkTo(
-                        methodOn(InstanceService.class).getProcessVariables(processInstance.getInstanceId())
+                        methodOn(VariableService.class).getProcessVariables(processInstance.getInstanceId())
                 ).withRel("variables")
         );
 
@@ -59,6 +58,12 @@ public class InstanceResource extends ResourceSupport {
                 linkTo(
                         methodOn(DefinitionService.class).getDefinition(UEngineUtil.getNamedExtFile(processInstance.getProcessDefinition().getId(), "json"))
                 ).withRel("definition")
+        );
+
+        add(
+                linkTo(
+                        methodOn(DefinitionService.class).getRawDefinition(UEngineUtil.getNamedExtFile(processInstance.getProcessDefinition().getId(), "json"))
+                ).withRel("rawDefinition")
         );
 
         if(!processInstance.isRunning(""))

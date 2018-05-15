@@ -1,7 +1,19 @@
-<template xmlns:v-on="http://www.w3.org/1999/xhtml">
+<template xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
   <div class="canvas-panel">
     <md-layout>
       <md-layout md-flex="20">
+        <md-layout v-if="id && id.indexOf('@') > -1">
+          <md-button v-if="!isProduction" @click="markProduction" class="md-raised md-accent">Mark Production (rev
+            {{id.substring(id.indexOf('@') + 1)}})
+          </md-button>
+          <div v-else>
+            <md-button class="md-primary">this is production (rev. {{id.substring(id.indexOf('@') + 1)}})</md-button>
+          </div>
+        </md-layout>
+        <md-layout v-if="versions">
+          <md-button class="md-primary" @click="loadVersions">latest version</md-button>
+        </md-layout>
+
         <md-list v-if="monitor" class="tree-list">
           <bpmn-tree-list
             :trees="trees">
@@ -9,15 +21,26 @@
         </md-list>
       </md-layout>
       <md-layout @contextmenu.native="openMenu" @mousedown.native="closeMenu">
-
-        <bpmn-vue v-if="definition" class="full-canvas" ref="bpmn-vue"
+        <div style="position: absolute; left:48%; top: 37%; z-index: 99999" v-if="loaded == false">
+          <md-spinner :md-size="90" md-indeterminate style="z-index: 99999"></md-spinner>
+        </div>
+        <bpmn-vue v-if="definition" class="fullcanvas" ref="bpmn-vue"
                   :definition.sync="definition"
                   :monitor="monitor"
                   :backend="backend"
-                  v-on:bpmnReady="bindEvents">
+                  :dragPageMovable="dragPageMovable"
+                  v-on:bpmnReady="bindEvents"
+                  v-bind:style="cursorStyle"
+                  :loaded.sync="loaded"
+        >
+
         </bpmn-vue>
 
         <md-card v-if="!monitor" class="tools" style="top:100px;">
+          <span class="bpmn-icon-hand-tool hands" _width="30" _height="30" v-bind:style="handsStyle"
+                v-on:click="changeMultiple">
+            <md-tooltip md-direction="right">Drag On/Off</md-tooltip>
+          </span>
           <span v-for="item in dragItems"
                 class="icons draggable"
                 :class="item.icon"
@@ -27,7 +50,7 @@
             <md-tooltip md-direction="right">{{item.label}}</md-tooltip>
           </span>
         </md-card>
-        <md-card v-if="!monitor" class="tools" style="top:362px;">
+        <md-card v-if="!monitor" class="tools" style="top:427px;">
           <span class="icons fa fa-undo" v-on:click="undo" style="margin-left:7px;">
             <md-tooltip md-direction="right">Undo</md-tooltip>
           </span>
@@ -77,7 +100,6 @@
         </md-card-->
 
         <md-layout>
-
           <!--프로세스 아이디-->
           <md-layout v-if="!monitor">
             <md-input-container>
@@ -86,15 +108,32 @@
             </md-input-container>
           </md-layout>
 
+          <md-layout v-if="versions">
+            <md-input-container>
+              <label>Revision</label>
+              <md-select v-model="selectedVersion" @change="changeVersion">
+                <md-option v-for="version in versions.slice().reverse()" :value="version">rev. {{version.ver}}
+                  <md-chip v-if="productionVersionId == version.versionId">production</md-chip>
+                </md-option>
+              </md-select>
+            </md-input-container>
+          </md-layout>
+
 
           <!--프로세스 정의-->
           <md-layout v-if="!monitor">
-            <md-button c lass="md-primary" id="processVariables" @click="openDefinitionSettings"><md-icon>settings</md-icon> Defintion Settings</md-button>
+            <md-button c lass="md-primary" id="processVariables" @click="openDefinitionSettings">
+              <md-icon>settings</md-icon>
+              Settings
+            </md-button>
           </md-layout>
 
           <!--프로세스 변수-->
           <md-layout v-if="!monitor">
-            <md-button c lass="md-primary" id="processVariables" @click="openProcessVariables"><md-icon>sort_by_alpha</md-icon> Process Variable</md-button>
+            <md-button c lass="md-primary" id="processVariables" @click="openProcessVariables">
+              <md-icon>sort_by_alpha</md-icon>
+              Vars
+            </md-button>
           </md-layout>
           <!--로케일-->
           <md-layout v-if="!monitor && definition" style="max-width: 200px;">
@@ -109,11 +148,12 @@
 
           <!--프로세스 세이브-->
           <md-layout v-if="!monitor" style="margin-left: 30px;">
-            <md-button v-if="!monitor" class="md-fab md-primary md-mini"  v-on:click="initiateProcess">
+            <md-button v-if="!monitor" class="md-fab md-primary md-mini" v-on:click="initiateProcess">
               <md-icon>play_arrow</md-icon>
             </md-button>
             <md-button v-if="!monitor" class="md-fab md-warn md-mini" @click="save">
-              <md-icon>save</md-icon>
+              <md-icon v-if="id && id.indexOf('@') == -1">save</md-icon>
+              <md-icon v-else>history</md-icon>
             </md-button>
           </md-layout>
 
@@ -122,20 +162,20 @@
           <md-layout v-if="monitor">
             <md-input-container>
               <label>Instance Name</label>
-              <md-input v-model="definitionName" type="text" readonly></md-input>
+              <md-input v-model="instanceName" type="text" readonly></md-input>
             </md-input-container>
           </md-layout>
 
           <md-layout v-if="monitor">
             <!--프로세스 변수-->
-            <md-button class="md-raised" id="instanceVariables" @click="openInstanceVariables">Process Variable</md-button>
+            <md-button id="instanceVariables" @click="openInstanceVariables">Variables</md-button>
             <bpmn-instance-variables
               :id="id"
               :definition="definition"
               v-if="definition"
               ref="instanceVariables"></bpmn-instance-variables>
             <!--담당자 변경-->
-            <md-button class="md-raised" id="userPicker" @click="openUserPicker">담당자 변경</md-button>
+            <md-button id="userPicker" @click="openUserPicker">Role Mappings</md-button>
             <user-picker
               :id="id"
               ref="userPicker"
@@ -161,21 +201,32 @@
   export default {
     props: {
       monitor: Boolean,
-      backend: Object
+      backend: Object,
+      id: String,
+      rootId: null,
+
     },
     data() {
       return {
+        loaded: false,
+        copyActivity: [],
+        beforeTracing: [],
+        afterTracing: [],
         contextMenuActivated: false,
-        id: null,
-        rootId: null,
         path: '',
         definition: null,
         definitionName: null,
+        instanceName: null,
         processVariables: [],
         dialog: false,
         items: [],
+        active: false,
         mode: 'editor',
         shapeMenu: false,
+        dragPageMovable: false,
+        cursorStyle: null,
+        handsStyle: null,
+        versions: null, selectedVersion: null, isProduction: false, productionVersionId: null,
         dragItems: [
           {
             'icon': 'bpmn-icon-start-event-none',
@@ -210,14 +261,14 @@
             'component': 'bpmn-task',
             'label': 'Task',
             'width': '100',
-            'height': '100'
+            'height': '70'
           },
-//          {
-//            'icon': 'bpmn-icon-subprocess-expanded',
-//            'component': 'bpmn-subprocess',
-//            'width': '200',
-//            'height': '150'
-//          },
+          {
+            'icon': 'bpmn-icon-subprocess-expanded',
+            'component': 'bpmn-subprocess',
+            'width': '200',
+            'height': '150'
+          },
 //          {
 //            'icon': 'bpmn-icon-data-object',
 //            'component': 'bpmn-data-object',
@@ -252,13 +303,31 @@
 
     //컴포넌트가 Dom 에 등록되었을 떄(실제 렌더링 되기 위해 활성화 되었을 때.)
     mounted() {
+      $(document).keydown((evt) => {
+        if (evt.keyCode == 67 && (evt.metaKey || evt.ctrlKey)) {
+          this.copy();
+        }
+      });
+
+      $(document).keydown((evt) => {
+        if (evt.keyCode == 86 && (evt.ctrlKey || evt.metaKey)) {
+          this.paste();
+        }
+      });
+
+      $(document).keydown((evt) => {
+        if (evt.keyCode == 46 || evt.keyCode == 8) {
+          this.deleteActivity();
+        }
+      });
+
       var me = this;
       me.setMode();
 
       // If the menu element is clicked //TODO - vue js 방식으로 전환, IE - 9
-      $(".custom-menu li").click(function(){
+      $(".custom-menu li").click(function () {
         // This is the triggered action name
-        switch($(this).attr("data-action")) {
+        switch ($(this).attr("data-action")) {
           // A case for each action. Your actions here
           case "backToHere":
             me.onBackToHere();
@@ -267,7 +336,6 @@
         // Hide it AFTER the action was triggered
         $(".custom-menu").hide(0);
       });
-
     },
 
     //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
@@ -277,6 +345,19 @@
       }
     },
     methods: {
+      changeMultiple: function () {
+        if (this.dragPageMovable == false && this.active == false) {
+          this.dragPageMovable = true;
+          this.active = true;
+          this.cursorStyle = 'cursor: url("/static/image/symbol/hands.png"), auto;';
+          this.handsStyle = ' color: #ffc124;';
+        } else if (this.dragPageMovable == true && this.active == true) {
+          this.dragPageMovable = false;
+          this.active = false;
+          this.cursorStyle = null;
+          this.handsStyle = null;
+        }
+      },
       openProcessVariables() {
         this.$refs['bpmn-vue'].openProcessVariables();
       },
@@ -328,6 +409,137 @@
           }
         });
       },
+      copy: function () {
+        var me = this;
+        me.copyActivity = [];
+        me.copySquenceFlow = [];
+        this.definition.childActivities[1].forEach(function (activity) {
+          if (activity) {
+            if (activity._selected) {
+              me.copyActivity.push(activity);
+              me.beforeTracing = me.copyActivity.map(function (element) {
+                var returnTracingTag = element.tracingTag;
+                return returnTracingTag;
+              })
+            }
+          }
+        });
+        if (me.copyActivity.length > 0) {
+          me.$root.$children[0].success('Copied.');
+        } else {
+          me.$root.$children[0].success('Not Selected');
+        }
+      },
+
+      deleteActivity: function () {
+        var me = this
+        var deleteTracing = [];
+        var bpmnVue = me.$children[0].$children[1].$children[3];
+        var drawer = false;
+        for (var j = 0; j < bpmnVue.$children[0].$children.length; j++) {
+          if (bpmnVue.$children[0].$children[j].drawer == true) {
+            drawer = true;
+          }
+        }
+
+        if (drawer == false) {
+
+          console.log("Delete Activity")
+          for (var i = 0; i < me.definition.childActivities[1].length; i++) {
+            if (me.definition.childActivities[1][i] != null) {
+              if (me.definition.childActivities[1][i]._selected == true) {
+                console.log(me.definition.childActivities[1][i]);
+                deleteTracing.push(me.definition.childActivities[1][i].tracingTag);
+                me.definition.childActivities[1][i] = null;
+              }
+            }
+          }
+
+          for (var y = 0; y < me.definition.sequenceFlows.length; y++) {
+            if (me.definition.sequenceFlows[y]) {
+              for (var x = 0; x < deleteTracing.length; x++) {
+                if (me.definition.sequenceFlows[y].sourceRef == deleteTracing[x]) {
+                  for (var z = 0; z < deleteTracing.length; z++) {
+                    if (me.definition.sequenceFlows[y].targetRef == deleteTracing[z]) {
+                      me.definition.sequenceFlows[y] = null
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        for (var z = 0; z < me.definition.sequenceFlows.length; z++) {
+          if (me.definition.sequenceFlows[z] != null) {
+            if (me.definition.sequenceFlows[z].selected == true) {
+              me.definition.sequenceFlows[z] = null;
+            }
+          }
+        }
+
+        for (var x = 0; x < me.definition.messageFlows.length; x++) {
+          if (me.definition.messageFlows[x] != null) {
+            if (me.definition.messageFlows[x].selected == true) {
+              me.definition.messageFlows[x] = null;
+            }
+          }
+        }
+
+        var tmp = me.definition.sequenceFlows;
+        me.definition.sequenceFlows = null;
+        me.definition.sequenceFlows = tmp;
+      },
+      paste: function () {
+        var me = this;
+        var bpmnVue = me.$refs['bpmn-vue']
+        var drawer = false;
+        var newTracingTag = 0;
+
+        for (var j = 0; j < bpmnVue.$children[0].$children.length; j++) {
+          if (bpmnVue.$children[0].$children[j].drawer == true) {
+            drawer = true;
+          }
+        }
+        if (drawer == false) {
+          me.afterTracing = [];
+
+          me.copyActivity.forEach(function (activity) {
+              var newAct = JSON.parse(JSON.stringify(activity));
+              var newActX = parseInt(activity.elementView.x + 20);
+              var newActY = parseInt(activity.elementView.y + 20);
+
+              newAct.tracingTag = bpmnVue.createNewTracingTag(me.definition);
+              newAct._selected = false;
+              newAct.elementView.x = newActX;
+              newAct.elementView.y = newActY;
+              newAct.elementView.id = newAct.tracingTag;
+              me.afterTracing.push(newAct.tracingTag);
+              me.definition.childActivities[1].push(newAct);
+            }
+          );
+
+          me.definition.sequenceFlows.forEach(function (element, index, array) {
+            if (element) {
+              var newFlow = JSON.parse(JSON.stringify(element));
+              for (var i = 0; i < me.beforeTracing.length; i++) {
+                if (newFlow.sourceRef == me.beforeTracing[i]) {
+                  for (var y = 0; y < me.beforeTracing.length; y++) {
+                    if (newFlow.targetRef == me.beforeTracing[y]) {
+                      newFlow.sourceRef = me.afterTracing[i];
+                      newFlow.targetRef = me.afterTracing[y];
+                      newFlow.relationView.value = '';
+                      me.definition.sequenceFlows.push(newFlow);
+                    }
+                  }
+                }
+              }
+            }
+          })
+        }
+      },
+
+
       undo: function () {
         this.$refs['bpmn-vue'].undo();
       },
@@ -343,47 +555,78 @@
           me.getDefinition();
         }
       },
+
       getInstance: function () {
         var me = this;
-        me.id = this.$route.params.id;
-        me.rootId = this.$route.params.rootId;
+//        me.id = this.$route.params.id;
+//        me.rootId = this.$route.params.rootId;
         var instance = {};
         me.backend.$bind("instance/" + me.id, instance);
-        instance.$load().then(function () {
+        instance.$load().then(function (instance) {
+          me.instanceName = instance.name;
+
           instance.definition.$load().then(function (definition) {
             me.definitionName = definition.name;
             definition.raw.$load().then(function (raw_definition) {
               var definition = raw_definition.definition;
-              me.getStatus(function (result) {
-                for (var key in definition.childActivities[1]) {
-                  //데이터 꾸미기 status 로 definition 바꾸기.
-                  if (definition.childActivities[1][key]["tracingTag"] == result.elementId) {
-                    definition.childActivities[1][key]["status"] = result.status;
-                  }
-                  definition.status = result.status;
-                  me.definition = definition;
-                }
-              });
+              me.loadStatus(definition);
               me.treeStructure();
             });
           });
         });
       },
+
+      loadVersions: function () {
+        var me = this;
+        var definition = {};
+        me.backend.$bind("definition/" + me.id, definition);
+        definition.$load().then(function (definition) {
+          me.productionVersionId = definition.prodVerId;
+          definition.versions.$load().then(function (versions) {
+            if (versions && versions.length > 0) {
+              me.versions = versions;
+              me.selectedVersion = versions[versions.length - 1];
+            }
+          });
+        });
+      },
+
+      changeVersion: function () {
+        window.open('#/definition/' + this.id + '@' + this.selectedVersion.versionId, '_blank');
+      },
+
+      markProduction: function () {
+        var me = this;
+        var version = {};
+        me.backend.$bind("version/" + me.id.substring(me.id.indexOf('@') + 1), version);
+        version.$load().then(function () {
+          version.makeProduction.$create().then(
+            function () {
+              me.$root.$children[0].success('설정되었습니다.');
+              me.isProduction = true;
+            },
+            function () {
+              me.$root.$children[0].error('저장할 수 없습니다.');
+            }
+          );
+        });
+
+      },
+
       //트리 구조를 위해 subprocess가 있는지 확인한다.
       treeStructure: function () {
         var me = this;
-
         var instance = {};
         me.backend.$bind("instances/search/findChild?instId=" + me.rootId, instance);
 
         var tree = [];
         instance.$load().then(function (instances) {
 
-          for(var i in instances) {
-            if(instances[i] instanceof Object) {
+          for (var i in instances) {
+            if (instances[i] instanceof Object) {
               //hateoas에서는 self 링크에 자신의 id가 담겨있다.
               var selfLink = instances[i].$bind.self;
-              var instId = selfLink.substring(selfLink.lastIndexOf("/")+1, selfLink.length);
+              var instId = selfLink.substring(selfLink.lastIndexOf("/") + 1, selfLink.length);
               tree[i] = {
                 "name": instances[i].defName,
                 "id": parseInt(instId),
@@ -412,21 +655,49 @@
         }
         return roots;
       },
-      getStatus: function (callback) {
+
+      loadStatus: function (definition) {
         var me = this;
         me.$root.codi('instance{/id}/variables').get({id: me.id})
           .then(function (response) {
             for (var key in response.data) {
-              if (key.indexOf(':_status:prop') != -1) {
-                var result = [];
-                result.elementId = key.replace(':_status:prop', '');
-                result.status = response.data[key];
 
-                callback(result);
-                //me.updateElementStatus(elementId, status);
+              var tracingTagAndPropName = key.split(":");
+
+              //set the instance data to each activities as '_instanceInfo' property (which is volatile!)
+              if (tracingTagAndPropName && tracingTagAndPropName.length > 1) {
+                var tracingTag = tracingTagAndPropName[0]
+                var propName = tracingTagAndPropName[1]
+
+                var activity = me.getActivity(tracingTag, definition);
+
+                if (activity) {
+                  if (!activity._instanceInfo)
+                    activity._instanceInfo = {};
+
+                  activity._instanceInfo[propName] = response.data[key];
+
+                  if ("_status" == propName) {
+                    activity.status = response.data[key];
+                  }
+                }
               }
+
             }
+
+            me.definition = definition;
+            console.log({"definitionFilledWithInstanceInfo": me.definition})
           })
+      },
+      getActivity: function (tracingTag, definition) {
+        var me = this;
+        if (!definition) definition = me.definition;
+
+        for (var key in definition.childActivities[1]) {
+          if (definition.childActivities[1][key]["tracingTag"] == tracingTag) {
+            return definition.childActivities[1][key];
+          }
+        }
       },
       updateElementStatus: function (elementId, status) {
 //        var me = this;
@@ -438,7 +709,7 @@
       },
       getDefinition: function () {
         var me = this;
-        me.id = me.$route.params.id;
+//        me.id = me.$route.params.id;
         if (me.$route.params.path) {
           var pathSplit = me.$route.params.path.split('-');
           for (var i = 0; i < pathSplit.length; i++) {
@@ -446,7 +717,7 @@
           }
         }
         // 신규 생성
-        if (me.id == 'new-process-definition') {
+        if (me.id == 'new') {
           me.definition = {
             _type: 'org.uengine.kernel.ProcessDefinition',
             name: {},
@@ -469,6 +740,7 @@
           me.changeLocale();
         } else {
           var url = 'definition/raw/' + me.path + me.id + '.json';
+
           this.$root.codi(url).get().then(function (response) {
             var definition = response.data.definition;
             definition._selectedLocale = 'ko';
@@ -477,6 +749,8 @@
             me.definitionName = me.definition.name.text;
             me.changeLocale();
           })
+
+          this.loadVersions();
         }
       },
       save: function (nextAction) {
@@ -487,7 +761,7 @@
 
         //save 시 확장자는 .json이어야 한다.
         //확장자가 존재하지 않으면 폴더로 인식한다.
-        if (fileName == 'new-process-definition') {
+        if (fileName == 'new') {
           if (me.definitionName !== null) {
             fileName = me.definitionName;
           }
@@ -515,6 +789,9 @@
           }
           if (activity.sequenceFlows && activity.sequenceFlows.length) {
             activity.sequenceFlows = nullFilter(activity.sequenceFlows);
+          }
+          if (activity.messageFlows && activity.messageFlows.length) {
+            activity.messageFlows = nullFilter(activity.messageFlows);
           }
           if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
             activity.childActivities[1] = nullFilter(activity.childActivities[1]);
@@ -548,7 +825,7 @@
 
             me.loadVersions();
 
-            if(nextAction) nextAction(definition);
+            if (nextAction) nextAction(definition);
           },
           function (response) {
             me.$root.$children[0].error('저장할 수 없습니다.');
@@ -560,14 +837,14 @@
         var me = this;
 
         this.save(
-          function() {
+          function () {
 
             var def = {};
             me.backend.$bind("definition/" + me.path + me.id + ".json", def);
             def.$load().then(function (definition) {
 
               definition.instantiation.$create(null, {"simulation": true}).then(function (instance) {
-                window.open('/instance/' + instance.instanceId + '/' + instance.instanceId, '_blank');
+                window.open('#/instance/' + instance.instanceId + '/' + instance.instanceId, '_blank');
               });
 
             });
@@ -593,11 +870,15 @@
         var childActivities = me.definition.childActivities[1];
         var _type = "";
         var _status = "";
+        var _faultMessage = "";
         for (var key in childActivities) {
           if (childActivities[key].tracingTag == event.toElement.parentNode.id) {
             _type = childActivities[key]._type;
             _status = childActivities[key].status;
             me.bthTracingTag = childActivities[key].tracingTag;
+            if (childActivities[key].faultMessage) {
+              _faultMessage = childActivities[key]._faultMessage;
+            }
           }
         }
         _type = _type.substring(_type.lastIndexOf('.') + 1, _type.length); // 타입만 나오도록 수정
@@ -627,7 +908,7 @@
         var url = "instance/" + me.id + "/activity/" + me.bthTracingTag + "/backToHere";
         var instance = {};
         me.backend.$bind(url, instance);
-        instance.$create().then(function() {
+        instance.$create().then(function () {
           me.$root.$children[0].success('작업 내역을 선택한 위치로 되돌렸습니다.');
           //메세지가 나오기 전에 바로 화면 refresh를 시도하는 것을 막기 위해
           //타이머를 설정하여 일정 시간이 지나면 화면을 refresh 한다.
@@ -641,7 +922,7 @@
         var me = this;
         me.definition._changedByLocaleSelector = true;
         if (me.definition.childActivities) {
-          me.definition.childActivities[1].forEach(function(activity) {
+          me.definition.childActivities[1].forEach(function (activity) {
             if (activity && activity.name && activity.name.localedTexts) {
               if (activity.name.localedTexts[me.definition._selectedLocale]) {
                 activity.name.text = activity.name.localedTexts[me.definition._selectedLocale];
@@ -663,7 +944,7 @@
     position: absolute;
     overflow: hidden;
 
-    .full-canvas {
+    .fullcanvas {
       position: absolute;
       width: 100%;
       height: 100%;
@@ -683,6 +964,10 @@
         margin-top: 5px;
         margin-bottom: 5px;
       }
+      .hands {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
     }
     .zoom {
       position: absolute;
@@ -690,6 +975,12 @@
       right: 20px;
       bottom: 120px;
       .icons {
+        font-size: 25px;
+        margin-left: 10px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+      .hands {
         font-size: 25px;
         margin-left: 10px;
         margin-top: 5px;
@@ -704,6 +995,13 @@
       }
     }
 
+    .hands {
+      cursor: pointer;
+      font-size: 30px;
+      &:hover {
+        color: #ffc124;
+      }
+    }
     .import, .export, .save, .history {
       position: absolute;
       padding: 8px;

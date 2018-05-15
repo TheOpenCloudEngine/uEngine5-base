@@ -11,10 +11,11 @@
       :_style.sync="style"
       :label.sync="relation.name"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedFlow();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedFlow();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
+      v-on:addedToGroup="onAddedToGroup"
     >
     </edge-element>
 
@@ -60,6 +61,7 @@
       },
       createNew(from, to, vertices){
         return {
+          selected: false,
           sourceRef: from,
           targetRef: to,
           relationView: {

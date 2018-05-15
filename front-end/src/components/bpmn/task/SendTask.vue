@@ -15,8 +15,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -36,7 +36,7 @@
 
       <sub-elements>
         <image-element
-          :image="'../static/image/symbol/message_blank.png'"
+          v-bind:image="message_blank_image"
           :sub-width="'20px'"
           :sub-height="'20px'"
           :sub-top="'5px'"
@@ -118,6 +118,7 @@
           },
           dataInput:{name:''},
           tracingTag: newTracingTag,
+          selected: false,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,
@@ -132,8 +133,8 @@
     },
     data: function () {
       return {
-          links: null
-
+          links: null,
+          message_blank_image: location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/symbol/message_blank.png'
       };
     },
     watch: {

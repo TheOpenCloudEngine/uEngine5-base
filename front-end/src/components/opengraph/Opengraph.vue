@@ -27,7 +27,7 @@
        */
       width: {
         default: function () {
-          return 8000;
+          return 4000;
         },
         type: Number
       },
@@ -36,7 +36,7 @@
        */
       height: {
         default: function () {
-          return 8000;
+          return 4000;
         },
         type: Number
       },
@@ -85,7 +85,7 @@
        */
       imageBase: {
         default: function () {
-          return '../static/image/symbol/';
+          return location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/symbol/';
         },
         type: String
       },
@@ -302,6 +302,102 @@
        * 핫키 가능여부
        */
       enableHotkey: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 핫키 : UNDO REDO 키 가능여부
+       */
+      enableHotkeyCtrlZ: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 핫키 : DELETE 삭제 키 가능여부
+       */
+      enableHotkeyDelete: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 핫키 : Ctrl+A 전체선택 키 가능여부
+       */
+      enableHotkeyCtrlA: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+      /**
+       * 핫키 : Ctrl+C 복사 키 가능여부
+       */
+      enableHotkeyCtrlC: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 핫키 : Ctrl+V 붙여넣기 키 가능여부
+       */
+      enableHotkeyCtrlV: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 핫키 : Ctrl+D 복제하기 키 가능여부
+       */
+      enableHotkeyCtrlD: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 핫키 : Ctrl+G 그룹 키 가능여부
+       */
+      enableHotkeyCtrlG: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 핫키 : Ctrl+U 언그룹 키 가능여부
+       */
+      enableHotkeyCtrlU: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 핫키 : 방향키 가능여부
+       */
+      enableHotkeyArrow: {
+        default: function () {
+          return true;
+        },
+        type: Boolean
+      },
+
+      /**
+       * 핫키 : Shift + 방향키 가능여부
+       */
+      enableHotkeyShiftArrow: {
         default: function () {
           return true;
         },
@@ -766,7 +862,6 @@
 
         var me = this;
 
-        //컨테이너 설정
         canvas._CONTAINER = $(this.$el).find('.canvas-wrapper')[0];
         this.container = canvas._CONTAINER;
 
@@ -782,9 +877,8 @@
           $(canvas.getRootElement()).css({"background-image": me.backgroundImage});
         }
         canvas.setCanvasSize([me.width, me.height]);
-        canvas.setScale(me.scale);
-        $(this.$el).find('.canvas-container').width(me.width);
-        $(this.$el).find('.canvas-container').width(me.height);
+        //Drag On & Off 시, 캔버스 크기가 재조정되는 부분
+        //        canvas.setScale(me.scale);
 
         //옵션 관련
         canvas._CONFIG.POOL_DROP_EVENT = this.poolDropEvent;
@@ -810,10 +904,19 @@
         canvas._CONFIG.LABEL_EDITABLE = this.labelEditable;
         canvas._CONFIG.GROUP_DROPABLE = this.groupDropable;
         canvas._CONFIG.DRAG_GRIDABLE = this.dragGridable;
-        canvas._CONFIG.ENABLE_HOTKEY = this.enableHotkey;
         canvas._CONFIG.ENABLE_CONTEXTMENU = this.enableContextmenu;
         canvas._CONFIG.ENABLE_ROOT_CONTEXTMENU = this.enableRootContextmenu;
-
+        canvas._CONFIG.ENABLE_HOTKEY = this.enableHotkey;
+        canvas._CONFIG.ENABLE_HOTKEY_CTRL_Z = this.enableHotkeyCtrlZ;
+        canvas._CONFIG.ENABLE_HOTKEY_DELETE = this.enableHotkeyDelete;
+        canvas._CONFIG.ENABLE_HOTKEY_CTRL_A = this.enableHotkeyCtrlA;
+        canvas._CONFIG.ENABLE_HOTKEY_CTRL_C = this.enableHotkeyCtrlC;
+        canvas._CONFIG.ENABLE_HOTKEY_CTRL_V = this.enableHotkeyCtrlV;
+        canvas._CONFIG.ENABLE_HOTKEY_CTRL_D = this.enableHotkeyCtrlD;
+        canvas._CONFIG.ENABLE_HOTKEY_CTRL_G = this.enableHotkeyCtrlG;
+        canvas._CONFIG.ENABLE_HOTKEY_CTRL_U = this.enableHotkeyCtrlU;
+        canvas._CONFIG.ENABLE_HOTKEY_ARROW = this.enableHotkeyArrow;;
+        canvas._CONFIG.ENABLE_HOTKEY_SHIFT_ARROW = this.enableHotkeyShiftArrow;
 
         //디폴트 스타일 정의
         canvas._CONFIG.DEFAULT_STYLE.SHAPE = this.defaultStyleShape;
@@ -907,7 +1010,7 @@
           }
           me.$emit('userAction');
           me.$nextTick(function () {
-            me.canvas.setCanvasSize([me.width, me.height]);
+            me.canvas.setCanvasSize([4000, 4000]);
 
             //TODO 네비게이터의 이미지가 $nextTick 이전에 스냅샷을 따왔기 때문에, 이미 화면이 틀어져있음.
             //이를 위해서는 오픈그래프의 메소드를 오버라이드 해야한다. => updateSlider => 캔버스 사이즈 강제 고정으로.
@@ -1169,6 +1272,8 @@
 
   .canvas-container {
     position: relative;
+    width: 2000px;
+    height: 2000px;
     background: #f7f7f7;
   }
 </style>

@@ -16,8 +16,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -76,6 +76,7 @@
         <bpmn-parameter-contexts
           :parameter-contexts="activity.dataOutputMapping"
           :definition="definition"
+          label-for-argument="속성"
         ></bpmn-parameter-contexts>
 
         <md-input-container>
@@ -119,6 +120,7 @@
           dataOutput:{name:''},
           dataOutputMapping: [],
           tracingTag: newTracingTag,
+          selected: false,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,

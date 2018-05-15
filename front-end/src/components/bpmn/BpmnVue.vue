@@ -3,16 +3,18 @@
     <opengraph
       focus-canvas-on-select
       wheelScalable
-      dragPageMovable
+      :dragPageMovable="dragPageMovable"
       :enableContextmenu="false"
       :enableRootContextmenu="false"
+      :enableHotkeyCtrlC="false"
+      :enableHotkeyCtrlV="false"
+      :enableHotkeyDelete="false"
       :slider="false"
       :movable="!monitor"
       :resizable="!monitor"
       :selectable="!monitor"
       :connectable="!monitor"
-      :width="8000"
-      :height="8000"
+      :width="10000"
       v-if="data.definition"
       ref="opengraph"
       v-on:canvasReady="bpmnReady"
@@ -38,13 +40,16 @@
         <!--그 안에 tracingTag 가 동일한 것들에 대해 status 를 매핑시켜주어야 한다.-->
         <component v-if="activity != null" :is="getComponentByClassName(activity._type)"
                    :activity.sync="activity" :definition="data.definition"
-                   :status="activity.status"
+                   :status="activity.status" :faultMessage="activity.faultMessage"
         ></component>
       </div>
 
       <!--릴레이션은 액티비티간 연결선(흐름)-->
       <div v-for="relation in data.definition.sequenceFlows">
         <bpmn-relation v-if="relation != null" :relation.sync="relation" :definition="data.definition"></bpmn-relation>
+      </div>
+      <div v-for="relation in data.definition.messageFlows">
+        <bpmn-message-flow v-if="relation != null" :relation.sync="relation" :definition="data.definition"></bpmn-message-flow>
       </div>
     </opengraph>
     <bpmn-component-changer
@@ -59,7 +64,7 @@
       md-open-from="#processVariables" md-close-to="#processVariables" ref="processVariables">
       <md-dialog-title>Process Variables</md-dialog-title>
       <md-dialog-content>
-        <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" :data.sync="processVariables"
+        <object-grid java="org.uengine.kernel.ProcessVariable" :online="false" v-model="processVariables"
                      :full-fledged="true" :backend="backend">
         </object-grid>
       </md-dialog-content>
@@ -79,7 +84,13 @@
             <label>Description</label>
             <md-input v-model="defintionSettings.shortDescription.text"></md-input>
           </md-input-container>
-          <!-- <md-checkbox v-model="definition.initiateByFirstWorkitem">첫 휴먼-액티비티으로 시작</md-checkbox> -->
+          <md-input-container>
+            <label>Instance Name Pattern</label>
+            <md-input v-model="data.definition.instanceNamePattern"></md-input>
+          </md-input-container>
+          <md-switch v-model="data.definition.initiateByFirstWorkitem" id="my-test1" name="my-test1" class="md-primary">Initiate by event</md-switch>
+          <md-switch v-model="data.definition.volatile" id="my-test1" name="my-test1" class="md-primary">Volatile</md-switch>
+
         </form>
       </md-dialog-content>
       <md-dialog-actions>
@@ -97,9 +108,11 @@
   export default {
     name: 'bpmn-vue',
     props: {
+      loaded: Boolean,
       definition: Object,
       monitor: Boolean,
-      backend: Object
+      backend: Object,
+      dragPageMovable:Boolean
     },
 
     mounted: function () {
@@ -118,6 +131,12 @@
         shortDescription._type = 'org.uengine.contexts.TextContext';
         shortDescription.text = "";
       }
+
+      if(!this.data.definition.initiateByFirstWorkitem)
+        this.data.definition.initiateByFirstWorkitem = false;
+
+      if(!this.data.definition.volatile)
+        this.data.definition.volatile = false;
 
       // mount시 현재 locale 값으로 text 처리 - 프로세스 정의
       if (shortDescription.localedTexts && shortDescription.localedTexts[this.preLocale]) {
@@ -154,6 +173,8 @@
 
         //timer end
         this.$refs.opengraph.printTimer(startTime, new Date().getTime());
+
+        this.$emit('update:loaded', this.loaded = true)
       });
     },
 
@@ -293,7 +314,8 @@
       ,
       bpmnRole: function () {
         return 'bpmn-vue';
-      }
+      },
+
     },
 
     methods: {
@@ -315,6 +337,13 @@
         var recursiveCheck = function (activity) {
           if (!activity) {
             return;
+          }
+          if (activity.messageFlows && activity.messageFlows.length) {
+            $.each(activity.messageFlows, function (i, relation) {
+              if (relation && (relation.sourceRef == id || relation.targetRef == id)) {
+                relations.push(relation);
+              }
+            })
           }
           if (activity.sequenceFlows && activity.sequenceFlows.length) {
             $.each(activity.sequenceFlows, function (i, relation) {
@@ -353,6 +382,13 @@
               }
             })
           }
+          if (activity.messageFlows && activity.messageFlows.length) {
+            $.each(activity.messageFlows, function (i, relation) {
+              if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
+                selected = relation;
+              }
+            })
+          }
           if (!selected) {
             if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
               $.each(activity.childActivities[1], function (i, child) {
@@ -377,6 +413,27 @@
         return roleName;
       },
 
+      getWherePoolAmIByTracingTag: function (id) {
+        var me = this;
+        var selected;
+        var poolName = null;
+        var element = me.canvas.getElementById(id);
+        var laneElement = me.canvas.getRenderer().getFrontForBoundary(me.canvas.getBoundary(element));
+
+        if (!laneElement || !me.canvas.getRenderer().isLane(laneElement)) {
+          return null;
+        }
+
+        var poolElement = me.canvas.getRenderer().getFrontForBoundary(me.canvas.getBoundary(laneElement));
+
+        if (poolElement && me.canvas.getRenderer().isLane(poolElement)) {
+          return poolElement.shape.label;
+        }else{
+          return laneElement.shape.label;
+        }
+
+      },
+
       /**
        * 오픈그래프 아이디로 부모 서브프로세스를 찾는다. 부모가 데피니션일 경우 null 리턴.
        **/
@@ -392,6 +449,13 @@
           }
           if (activity.sequenceFlows && activity.sequenceFlows.length) {
             $.each(activity.sequenceFlows, function (i, relation) {
+              if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
+                selected = parent;
+              }
+            })
+          }
+          if (activity.messageFlows && activity.messageFlows.length) {
+            $.each(activity.messageFlows, function (i, relation) {
               if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
                 selected = parent;
               }
@@ -431,6 +495,9 @@
 
       addChild: function (child, parent, isRelation) {
         if (isRelation) {
+          if(child._type=="org.uengine.kernel.bpmn.MessageFlow"){
+              this.data.definition.messageFlows.push(child);
+          }else
           if (parent) {
             console.log('parent.tracingTag', parent.tracingTag);
             if (!parent.sequenceFlows) {
@@ -441,6 +508,9 @@
             console.log('parent is root');
             this.data.definition.sequenceFlows.push(child);
           }
+
+
+
         } else {
           if (parent) {
             console.log('parent.tracingTag', parent.tracingTag);
@@ -573,6 +643,11 @@
         //기본 시퀀스 플로우 검증.
         if (!definition.sequenceFlows) {
           definition.sequenceFlows = [];
+        }
+
+        //기본 시퀀스 플로우 검증.
+        if (!definition.messageFlows) {
+          definition.messageFlows = [];
         }
 
         var recursiveCheck = function (activity) {
@@ -728,7 +803,23 @@
 
         //릴레이션 추가인 경우
         if (componentInfo.component == 'bpmn-relation') {
-          var bpmnComponent = me.getComponentByName('bpmn-relation');
+          var from = componentInfo.from;
+          var to = componentInfo.to;
+
+          var fromParent = this.getParentActByOpengraphId(componentInfo.from);
+          var toParent = this.getParentActByOpengraphId(componentInfo.to);
+
+          var fromAct = this.getActAndRelByOpengraphId(componentInfo.from);
+          var toAct = this.getActAndRelByOpengraphId(componentInfo.to);
+
+          var fromPool = this.getWherePoolAmIByTracingTag(fromAct.tracingTag)
+          var toPool = this.getWherePoolAmIByTracingTag(toAct.tracingTag)
+
+          console.log({formRole: fromPool, toRole: toPool})
+
+          var relationComponentTag = (fromPool == toPool || toPool==null ? "bpmn-relation" : "bpmn-message-flow")
+
+          var bpmnComponent = me.getComponentByName(relationComponentTag);
           additionalData = bpmnComponent.computed.createNew(
             componentInfo.from,
             componentInfo.to,
@@ -741,11 +832,6 @@
               }
             }
           }
-
-          var from = componentInfo.from;
-          var to = componentInfo.to;
-          var fromParent = this.getParentActByOpengraphId(componentInfo.from);
-          var toParent = this.getParentActByOpengraphId(componentInfo.to);
 
           var enableDraw = true;
           //서로 다른 서브프로세스 부모를 가진 경우는 연결을 추가하지 않는다.
@@ -873,8 +959,10 @@
 
       /**
        * 새로운 트레이싱 태그를 생성한다.
+       *
+       * 기본으로 히스토리를 검색하며, 주어진 데피니션이 있을 경우 추가로 검색한다.
        **/
-      createNewTracingTag: function () {
+      createNewTracingTag: function (additionalDefinition) {
         var me = this, maxTracingTag = 0,
           isInt = function (value) {
             return !isNaN(value) &&
@@ -900,6 +988,9 @@
           $.each(me.history, function (i, definition) {
             recursiveCheck(definition);
           })
+        }
+        if(additionalDefinition){
+          recursiveCheck(additionalDefinition);
         }
         return maxTracingTag + 1 + '';
       },
@@ -938,6 +1029,15 @@
             return;
           }
           //릴레이션 삭제
+          if (activity.messageFlows && activity.messageFlows.length) {
+            $.each(activity.messageFlows, function (i, relation) {
+              if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
+                console.log('** remove sequenceFlow', id);
+                activity.messageFlows[i] = undefined;
+              }
+            });
+          }
+
           if (activity.sequenceFlows && activity.sequenceFlows.length) {
             $.each(activity.sequenceFlows, function (i, relation) {
               if (relation && relation.sourceRef + '-' + relation.targetRef + '' == id) {
@@ -949,6 +1049,7 @@
           //액티비티 삭제
           if (activity.childActivities && activity.childActivities[1] && activity.childActivities[1].length) {
             $.each(activity.childActivities[1], function (i, child) {
+              console.log('toRemove', child, id);
               if (child && child.elementView && child.elementView.id == id) {
                 activity.childActivities[1][i] = undefined;
               } else {

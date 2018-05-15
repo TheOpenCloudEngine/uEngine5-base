@@ -29,8 +29,9 @@ import org.uengine.five.repository.ProcessInstanceRepository;
 import org.uengine.five.repository.ServiceEndpointRepository;
 import org.uengine.kernel.*;
 import org.uengine.kernel.bpmn.CatchingRestMessageEvent;
-import org.uengine.kernel.bpmn.MessageEvent;
 import org.uengine.kernel.bpmn.SendTask;
+import org.uengine.kernel.bpmn.SignalEventInstance;
+import org.uengine.kernel.bpmn.SignalIntermediateCatchEvent;
 import org.uengine.uml.model.ObjectInstance;
 import org.uengine.util.UEngineUtil;
 
@@ -82,18 +83,6 @@ public class InstanceServiceImpl implements InstanceService {
 
     }
 
-
-    @RequestMapping(value = "/instance/{instanceId}/variables", method = RequestMethod.GET)
-    @ProcessTransactional(readOnly = true)
-    public Map getProcessVariables(@PathVariable("instanceId") String instanceId) throws Exception {
-
-        ProcessInstance instance = getProcessInstanceLocal(instanceId);
-
-        //여기서도 롤매핑이 들어가면 시리얼라이즈 에러가 나옴.
-        Map variables = ((DefaultProcessInstance) instance).getVariables();
-
-        return variables;
-    }
 
     @RequestMapping(value = "/instance/{instanceId}/start", method = RequestMethod.POST)
     @ProcessTransactional
@@ -158,7 +147,7 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
 
-    @RequestMapping(value = "/instance/{instanceId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/instance/{instanceId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     @ProcessTransactional(readOnly = true)
     public InstanceResource getInstance(@PathVariable("instanceId") String instanceId) throws Exception {
 
@@ -170,7 +159,7 @@ public class InstanceServiceImpl implements InstanceService {
         return new InstanceResource(instance);
     }
 
-    @RequestMapping(value = "/instance/{instanceId}/activity/{tracingTag}/backToHere", method = RequestMethod.POST)
+    @RequestMapping(value = "/instance/{instanceId}/activity/{tracingTag}/backToHere", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ProcessTransactional
     public InstanceResource backToHere(@PathVariable("instanceId") String instanceId, @PathVariable("tracingTag") String tracingTag) throws Exception {
 
@@ -231,6 +220,24 @@ public class InstanceServiceImpl implements InstanceService {
     ProcessInstanceRepository processInstanceRepository;
 
     @ProcessTransactional
+    @RequestMapping(value = "/instance/{instanceId}/signal/{signal}", method = {RequestMethod.POST}, produces = "application/json;charset=UTF-8")
+    public Object signal(@PathVariable("instanceId") String instanceId, @PathVariable("signal") String signal) throws Exception {
+
+        ProcessInstance instance = getProcessInstanceLocal(instanceId);
+        Map<String, SignalEventInstance> signalEventInstanceMap = SignalIntermediateCatchEvent.getSignalEvents(instance);
+
+        SignalEventInstance signalEventInstance = signalEventInstanceMap.get(signal);
+
+        Activity activity = instance.getProcessDefinition().getActivity(signalEventInstance.getActivityRef());
+
+        if(activity instanceof SignalIntermediateCatchEvent){
+            ((SignalIntermediateCatchEvent) activity).onMessage(instance, null);
+        }
+
+        return null;
+    }
+
+    @ProcessTransactional
     @RequestMapping(value = SERVICES_ROOT+ "/**", method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json;charset=UTF-8")
     public Object serviceMessage(HttpServletRequest request) throws Exception {
 
@@ -275,7 +282,9 @@ public class InstanceServiceImpl implements InstanceService {
             }
 
             correlationData = jsonNode.get(serviceEndpointEntity.getCorrelationKey());
-            correlatedProcessInstanceEntities = processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
+
+            if(correlationData!=null)
+                correlatedProcessInstanceEntities = processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
         }
 
         ProcessInstanceEntity processInstanceEntity;
@@ -311,15 +320,27 @@ public class InstanceServiceImpl implements InstanceService {
         }
 
         // trigger the start or intermediate message catch events:
-        List<Activity> runningActivities = instance.getCurrentRunningActivities();
+        List<ActivityInstanceContext> runningActivities = instance.getCurrentRunningActivitiesDeeply();
 
-        if(runningActivities!=null)
-        for(Activity activity: runningActivities){
-            if(activity instanceof CatchingRestMessageEvent){
-                CatchingMessageEvent catchingMessageEvent = (CatchingMessageEvent) activity;
+        boolean neverTreated = true;
 
-                catchingMessageEvent.onMessage(instance, objectInstance);
+        if(runningActivities!=null) {
+            for (ActivityInstanceContext activityInstanceContext : runningActivities) {
+                Activity activity = activityInstanceContext.getActivity();
+
+                if (activity instanceof CatchingRestMessageEvent) {
+                    CatchingMessageEvent catchingMessageEvent = (CatchingMessageEvent) activity;
+
+                    boolean treated = catchingMessageEvent.onMessage(activityInstanceContext.getInstance(), objectInstance);
+                    if (treated) neverTreated = false;
+                }
             }
+        }
+
+        if(neverTreated){
+            instance.stop();
+
+            return "문제가 발생하여 처음으로 돌아갑니다.";
         }
 
         //set correlation key so that this instance could be re-visited by the recurring requester.
@@ -327,23 +348,36 @@ public class InstanceServiceImpl implements InstanceService {
             instance.getProcessInstanceEntity().setCorrKey(correlationData.toString());
 
 
-        List<String> history = instance.getActivityCompletionHistory();
-        if(history!=null){
-            for(String tracingTag : history){
+//        List<String> history = instance.getActivityCompletionHistory();
+//        if(history!=null){
+//            for(String tracingTag : history){
+//
+//                Activity activityDone = instance.getProcessDefinition().getActivity(tracingTag);
+//
+//                if(activityDone instanceof SendTask){
+//                    SendTask sendTask = (SendTask) activityDone;
+//
+//                    if(sendTask.getDataInput() != null && sendTask.getDataInput().getName() != null)
+//                        return sendTask.getDataInput().get(instance, "");
+//                    else {
+//                        return sendTask.getInputPayloadTemplate();
+//                    }
+//                }
+//
+//            }
+//
+//        }
+        List<String> messageQueue = SendTask.getMessageQueue(instance);
 
-                Activity activityDone = instance.getProcessDefinition().getActivity(tracingTag);
+        if(messageQueue!=null && messageQueue.size() > 0){
 
-                if(activityDone instanceof SendTask){
-                    SendTask sendTask = (SendTask) activityDone;
+//            StringBuffer fullMessage = new StringBuffer();
+//
+//            for(String message : messageQueue){
+//                fullMessage.append(message);
+//            }
 
-                    if(sendTask.getDataInput() != null && sendTask.getDataInput().getName() != null)
-                        return sendTask.getDataInput().get(instance, "");
-                    else {
-                        return sendTask.getInputPayloadTemplate();
-                    }
-                }
-
-            }
+            return messageQueue.get(messageQueue.size()-1).toString().replace("\n", "").replace("\r", "");
 
         }
 

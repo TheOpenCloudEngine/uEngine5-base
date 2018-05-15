@@ -1,20 +1,21 @@
 package org.uengine.five.framework;
 
+import org.uengine.five.framework.ProcessTransactionListener;
+import org.uengine.kernel.ActivityInstanceContext;
+import org.uengine.kernel.ProcessInstance;
+import org.uengine.util.ForLoop;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import org.uengine.kernel.ActivityInstanceContext;
-import org.uengine.kernel.ProcessInstance;
-import org.uengine.util.ForLoop;
 
 /**
  * Created by uengine on 2017. 11. 10..
  */
 public class ProcessTransactionContext {
 
-    static ThreadLocal<ProcessTransactionContext> local = new ThreadLocal<ProcessTransactionContext>();
+    static ThreadLocal<org.uengine.five.framework.ProcessTransactionContext> local = new ThreadLocal<org.uengine.five.framework.ProcessTransactionContext>();
     private boolean commitable;
 
     protected ProcessTransactionContext() {
@@ -25,21 +26,21 @@ public class ProcessTransactionContext {
         local.set(this);
     }
 
-    public static ProcessTransactionContext getThreadLocalInstance() {
-        ProcessTransactionContext tc = local.get();
+    public static org.uengine.five.framework.ProcessTransactionContext getThreadLocalInstance() {
+        org.uengine.five.framework.ProcessTransactionContext tc = local.get();
         if (tc == null) {
             // if the local instance is obtained without @ProcessTransactional demarcation
-            tc = new ProcessTransactionContext();
+            tc = new org.uengine.five.framework.ProcessTransactionContext();
             tc.setCommitable(false);
         }
         return tc;
     }
 
-    List<ProcessTransactionListener> transactionListeners = new ArrayList<ProcessTransactionListener>();
-    public void addTransactionListener(ProcessTransactionListener tl) {
+    List<org.uengine.five.framework.ProcessTransactionListener> transactionListeners = new ArrayList<org.uengine.five.framework.ProcessTransactionListener>();
+    public void addTransactionListener(org.uengine.five.framework.ProcessTransactionListener tl) {
         transactionListeners.add(tl);
     }
-    public List<ProcessTransactionListener> getTransactionListeners() {
+    public List<org.uengine.five.framework.ProcessTransactionListener> getTransactionListeners() {
         return transactionListeners;
     }
 
@@ -84,9 +85,9 @@ public class ProcessTransactionContext {
     protected void beforeCommit() throws Exception {
         ForLoop beforeCommitLoop = new ForLoop() {
             public void logic(Object target) {
-                ProcessTransactionListener tl = (ProcessTransactionListener) target;
+                org.uengine.five.framework.ProcessTransactionListener tl = (ProcessTransactionListener) target;
                 try {
-                    tl.beforeCommit(ProcessTransactionContext.this);
+                    tl.beforeCommit(org.uengine.five.framework.ProcessTransactionContext.this);
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);

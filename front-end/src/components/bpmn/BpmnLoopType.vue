@@ -2,7 +2,7 @@
   <div>
     <image-element
       v-if="loopType == 'Standard'"
-      :image="'../static/image/symbol/loop_standard.png'"
+      v-bind:image="loop_standard_image"
       :sub-width="'15px'"
       :sub-height="'15px'"
       :sub-bottom="'5px'"
@@ -43,7 +43,9 @@
     },
     computed: {},
     data: function () {
-      return {};
+      return {
+        loop_standard_image: location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/symbol/loop_standard.png'
+      };
     },
     watch: {},
     mounted: function () {

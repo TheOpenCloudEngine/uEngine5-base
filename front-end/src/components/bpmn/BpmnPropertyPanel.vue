@@ -1,6 +1,25 @@
 <template>
   <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')" id="test">
     <md-tabs v-if="navigationDrawer">
+
+      <md-tab md-label="Instance Info" v-if="item._instanceInfo">
+        <md-table>
+          <md-table-header>
+            <md-table-row>
+              <md-table-head>Key</md-table-head>
+              <md-table-head>Value</md-table-head>
+            </md-table-row>
+          </md-table-header>
+
+          <md-table-body>
+            <md-table-row v-for="(row, index) in item._instanceInfo" :key="index">
+              <md-table-cell>{{index}}</md-table-cell>
+              <md-table-cell>{{item._instanceInfo[index]}}</md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
+      </md-tab>
+
       <md-tab :id="'properties' + _uid" md-label="Properties">
 
         <md-input-container v-if="tracingTag !== null">
@@ -111,6 +130,7 @@
       //프로퍼티 창이 오픈되었을 때 모델값을 새로 반영한다.
       navigationDrawer: {
         handler: function (val, oldval) {
+
           console.log('val', val);
           if (val == true) {
             this._item = this.item;

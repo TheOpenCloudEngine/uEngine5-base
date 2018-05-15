@@ -3,14 +3,18 @@ package org.uengine.five.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
-import org.uengine.five.framework.ProcessTransactionContext;
+import org.uengine.five.ProcessServiceApplication;
+import org.uengine.five.entity.WorklistEntity;
 import org.uengine.five.framework.ProcessTransactional;
+import org.uengine.five.overriding.RestResourceProcessVariableValue;
 import org.uengine.five.repository.WorklistRepository;
 import org.uengine.kernel.*;
-import org.uengine.modeling.resource.*;
-import org.uengine.five.entity.WorklistEntity;
+import org.uengine.modeling.resource.ResourceManager;
+import org.uengine.uml.ClassDiagram;
+import org.uengine.uml.model.ClassDefinition;
 
 import javax.annotation.PostConstruct;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +46,7 @@ public class WorkItemServiceImpl {
     @Autowired
     InstanceServiceImpl instanceService;
     
-        @PostConstruct
+    @PostConstruct
     public void init() {
     }
 
@@ -80,6 +84,8 @@ public class WorkItemServiceImpl {
             workItem.setParameterValues(parameterValues);
         }
 
+        workItem.worklist.setProcessInstance(null); //disconnect recursive json path
+
         return workItem;
     }
 
@@ -108,8 +114,27 @@ public class WorkItemServiceImpl {
             for (ParameterContext parameterContext : humanActivity.getParameters()) {
                 if (parameterContext.getDirection().indexOf("OUT") >= 0
                         && workItem.getParameterValues().containsKey(parameterContext.getArgument().getText())) {
+
+                    Serializable data = (Serializable) workItem.getParameterValues().get(parameterContext.getArgument().getText());
+                    if("REST".equals(parameterContext.getVariable().getPersistOption())){
+                        RestResourceProcessVariableValue restResourceProcessVariableValue = new RestResourceProcessVariableValue();
+                        data = restResourceProcessVariableValue.lightweight(data, parameterContext.getVariable(), instance);
+                    }
+
+
+                    if(data instanceof Map && ((Map)data).containsKey("_type")){
+                        String typeName = null;
+                        try {
+                            typeName = (String) ((Map) data).get("_type");
+                            Class classType = Thread.currentThread().getContextClassLoader().loadClass(typeName);
+                            data = (Serializable) ProcessServiceApplication.objectMapper.convertValue(data, classType);
+                        }catch (Exception e){
+                            throw new Exception("Error while convert map to type: " + typeName, e);
+                        }
+                    }
+
                     variableChanges.put(parameterContext.getVariable().getName(),
-                            workItem.getParameterValues().get(parameterContext.getArgument().getText()));
+                           data );
                 }
             }
         }

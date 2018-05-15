@@ -1,7 +1,6 @@
 <template>
-  <md-layout md-gutter>
-    <md-layout md-gutter>
-      <md-layout md-flex-xsmall="100" md-flex-small="20" md-flex-medium="20" md-flex-large="20">
+    <div>
+      <div style="float:left; width: 13%; min-width: 250px;" v-if="windowWidth > 920">
         <!--<md-toolbar md-theme="white">-->
         <!--<span class="md-title">인스턴스 검색</span>-->
         <!--</md-toolbar>-->
@@ -94,29 +93,48 @@
             <md-button class="md-raised md-primary" v-on:click="search(1, 10)">Search</md-button>
           </md-list-item>
         </md-list>
-      </md-layout>
-      <md-layout md-flex-xsmall="100" md-flex-small="80" md-flex-medium="80" md-flex-large="80">
+      </div>
+      <div>
         <md-table-card>
           <md-table @select="onSelect">
             <md-table-header>
               <md-table-row>
-                <md-table-head v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
+                <md-table-head style="text-align: center" v-for="header in headers" :key="header.text">{{header.text}}</md-table-head>
               </md-table-row>
             </md-table-header>
             <md-table-body v-if="items.length > 0">
-              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection style="cursor:pointer"
-                            @click.native="onClickList(item.instId)">
-                <md-table-cell>{{item.status}}</md-table-cell>
-                <md-table-cell>{{item.instId}}</md-table-cell>
-                <md-table-cell>{{item.defId}}</md-table-cell>
-                <md-table-cell>{{item.defName}}</md-table-cell>
-                <md-table-cell>{{item.endpoint}}</md-table-cell>
-                <md-table-cell>{{item.endpoint}}</md-table-cell>
-                <md-table-cell>{{item.info}}</md-table-cell>
-                <md-table-cell>{{item.startedDate}}</md-table-cell>
-                <md-table-cell>{{item.finishedDate}}</md-table-cell>
-                <md-table-cell>{{item.ext1}}</md-table-cell>
-                <md-table-cell>{{item.instId}}</md-table-cell>
+              <md-table-row v-for="item in items" :md-item="item" md-auto-select md-selection style="cursor:pointer">
+                <md-table-cell @click.native="onClickList(item.instId)">{{item.status}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" >{{item.instId}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" v-if="windowWidth > 1724">{{item.defId}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)">{{item.defName}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)"  v-if="windowWidth > 1724">{{item.endpoint}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" v-if="windowWidth > 660">{{item.endpoint}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" v-if="windowWidth > 1724">{{item.info}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" v-if="windowWidth > 1724">{{item.startedDate}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" v-if="windowWidth > 1724">{{item.finishedDate}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" v-if="windowWidth > 1724">{{item.ext1}}</md-table-cell>
+                <md-table-cell @click.native="onClickList(item.instId)" v-if="windowWidth > 660">{{item.instId}}</md-table-cell>
+                <md-table-cell class="md-has-action">
+                  <md-menu md-direction="bottom-end">
+                    <md-icon class="folder-menu" md-menu-trigger>more_vert</md-icon>
+                    <md-menu-content>
+                      <md-menu-item
+                        @click.native="stopInstance(item.instId)">
+                        <span>{{ $t("message['button.stop']") }}</span>
+                        <md-icon>stop</md-icon>
+                      </md-menu-item>
+                      <md-menu-item @click.native="pauseInstance(item.instId);">
+                        <span>{{ $t("message['button.pause']") }}</span>
+                        <md-icon>pause</md-icon>
+                      </md-menu-item>
+                      <md-menu-item @click.native="resumeInstance(item.instId)">
+                        <span>{{ $t("message['button.resume']") }}</span>
+                        <md-icon>play_arrow</md-icon>
+                      </md-menu-item>
+                    </md-menu-content>
+                  </md-menu>
+                </md-table-cell>
               </md-table-row>
             </md-table-body>
             <md-table-body v-if="items.length == 0">
@@ -134,9 +152,8 @@
             :md-page-options="[5, 10, 20]"
             @pagination="onPagination($event)"></md-table-pagination>
         </md-table-card>
-      </md-layout>
-    </md-layout>
-  </md-layout>
+      </div>
+    </div>
 </template>
 <script>
 
@@ -145,9 +162,49 @@
       iam: Object,
       backend: Object
     },
+    watch: {
+      windowWidth: {
+        handler: function(newVal) {
+          var me = this
+          if(this.windowWidth < 660) {
+            me.headers = [
+              {text: '상태', value: 'status'},
+              {text: '아이디', value: 'instId'},
+              {text: '프로세스명', value: 'defName'},
+              {text: '액션'}
+            ]
+          } else if(this.windowWidth < 1725) {
+            me.headers = [
+              {text: '상태', value: 'status'},
+              {text: '아이디', value: 'instId'},
+              {text: '프로세스명', value: 'defName'},
+              {text: '현담당자', value: 'eventHandler'},
+              {text: '삭제', value: 'instId'},
+              {text: '액션'}
+            ]
+          } else {
+            me.headers = [
+              {text: '상태', value: 'status'},
+              {text: '아이디', value: 'instId'},
+              {text: '인스턴스명', value: 'defId'},
+              {text: '프로세스명', value: 'defName'},
+              {text: '시작자', value: 'defName'},
+              {text: '현담당자', value: 'eventHandler'},
+              {text: '정보', value: 'info'},
+              {text: '시작일', value: 'startedDate'},
+              {text: '종료일', value: 'finishedDate'},
+              {text: 'Ext1', value: 'ext1'},
+              {text: '삭제', value: 'instId'},
+              {text: '액션'}
+            ]
+          }
+        },
+      }
+    },
     data() {
       return {
         status: 'All',
+        windowWidth: 0,
         headers: [
           {text: '상태', value: 'status'},
           {text: '아이디', value: 'instId'},
@@ -159,7 +216,8 @@
           {text: '시작일', value: 'startedDate'},
           {text: '종료일', value: 'finishedDate'},
           {text: 'Ext1', value: 'ext1'},
-          {text: '삭제', value: 'instId'}
+          {text: '삭제', value: 'instId'},
+          {text: '액션'}
         ],
         items: [],
         paging: {
@@ -194,8 +252,55 @@
         height: '100%'
       });
       this.listData(1, 10);
+      this.$nextTick(function() {
+        window.addEventListener('resize', this.getWindowWidth);
+        //Init
+        this.getWindowWidth()
+      })
     },
     methods: {
+      stopInstance: function(instanceId) {
+        var me = this;
+        var url = 'instance/';
+        url = url + instanceId + '/stop';
+        var instance = {};
+        me.backend.$bind(url, instance);
+        instance.$create({
+        }).then(
+          function (response) {
+            me.$root.$children[0].success('중지되었습니다.');
+            me.listData(me.paging.rowStart, 10);
+        });
+
+      },
+      pauseInstance: function(instanceId) {
+        var me = this;
+        var url = 'instance/';
+        url = url + instanceId + '/stop';
+        var instance = {};
+        me.backend.$bind(url, instance);
+        instance.$create({
+        }).then(
+          function (response) {
+            me.$root.$children[0].success('일시정지 되었습니다.');
+            me.listData(me.paging.rowStart, 10);
+        });
+
+      },
+      resumeInstance: function(instanceId) {
+        var me = this;
+        var url = 'instance/';
+        url = url + instanceId + '/start';
+        var instance = {};
+        me.backend.$bind(url, instance);
+        instance.$create({
+        }).then(
+          function (response) {
+            me.$root.$children[0].success('재시작되었습니다.');
+            me.listData(me.paging.rowStart, 10);
+        });
+
+      },
       listData(_page, _size) {
         var me = this;
         var url = 'instances?'
@@ -299,7 +404,14 @@
         } else {
           this.listData(e.page, e.size);
         }
+      },
+      getWindowWidth(event) {
+        this.windowWidth = document.documentElement.clientWidth;
       }
+    },
+    beforeDestroy() {
+      window.removeEventListener('resize', this.getWindowWidth);
+
     }
   }
 </script>

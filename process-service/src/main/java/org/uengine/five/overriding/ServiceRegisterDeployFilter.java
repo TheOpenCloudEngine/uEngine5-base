@@ -1,9 +1,7 @@
 package org.uengine.five.overriding;
 
 import org.metaworks.dwr.MetaworksRemoteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.uengine.five.entity.ServiceEndpointEntity;
-import org.uengine.five.eventsourcing.EventSender;
 import org.uengine.five.repository.ServiceEndpointRepository;
 import org.uengine.kernel.Activity;
 import org.uengine.kernel.DeployFilter;
@@ -20,6 +18,8 @@ public class ServiceRegisterDeployFilter implements DeployFilter {
 
     @Override
     public void beforeDeploy(ProcessDefinition definition, ProcessTransactionContext tc, String path, boolean isNew) throws Exception {
+
+        if(!definition.isInitiateByFirstWorkitem()) return;
 
         List<Activity> startActivities = definition.getStartActivities();
 

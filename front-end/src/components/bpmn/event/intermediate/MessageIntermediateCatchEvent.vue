@@ -15,8 +15,8 @@
       :parentId.sync="activity.elementView.parent"
       :label.sync="activity.name.text"
       v-on:dblclick="showProperty"
-      v-on:selectShape="closeComponentChanger"
-      v-on:deSelectShape="closeComponentChanger"
+      v-on:selectShape="closeComponentChanger(); selectedActivity();"
+      v-on:deSelectShape="closeComponentChanger(); deSelectedActivity();"
       v-on:removeShape="closeComponentChanger"
       v-on:redrawShape="closeComponentChanger"
       v-on:addedToGroup="onAddedToGroup"
@@ -26,24 +26,28 @@
         :radius="50"
         >
       </geometry-circle>
-      <geometry-circle
-        :center="[50,50]"
-        :radius="44"
-        >
-      </geometry-circle>
+            <geometry-circle
+              :center="[50,50]"
+              :radius="40"
+              :_style="{
+                                       'stroke-width': 1
+                                     }"
+              >
+            </geometry-circle>
+
       <sub-elements>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
         <rectangle-element
-          :sub-width="'62%'"
-          :sub-height="'37%'"
+          :sub-width="'55%'"
+          :sub-height="'35%'"
           :sub-align="'center'"
           :sub-top="'32%'">
         </rectangle-element>
         <geometry-line
-          :from="[18.9,32]"
+          :from="[20,32]"
           :to="[50,50]"></geometry-line>
         <geometry-line
-          :from="[81.1,32]"
+          :from="[80,32]"
           :to="[50,50]"></geometry-line>
       </sub-elements>
       <bpmn-sub-controller :type="type"></bpmn-sub-controller>
@@ -55,7 +59,7 @@
     >
       <template slot="properties-contents">
         <md-input-container>
-          <label>액티비티 명</label>
+          <label>Event Name</label>
           <md-input type="text"
                     v-model="activity.name.text"></md-input>
         </md-input-container>
@@ -75,7 +79,7 @@
                     v-model="activity.dataOutput.name"></md-input>
         </md-input-container>
 
-        <p>데이터 속성 별 매핑</p>
+        <p>Data Mapping</p>
         <bpmn-parameter-contexts
           :parameter-contexts="activity.dataOutputMapping"
           :definition="definition"
@@ -104,6 +108,7 @@
       defaultStyle(){
         return {
           'label-position': 'bottom',
+          'label-width': 120,
           'stroke-width': 1.5
         }
       },
@@ -111,7 +116,7 @@
         return 'IntermediateEvent'
       },
       className(){
-        return 'org.uengine.kernel.bpmn.CatchingRestMessageEvent'
+        return 'org.uengine.kernel.bpmn.MessageIntermediateCatchEvent'
       },
       createNew(newTracingTag, x, y, width, height){
         return {
@@ -122,6 +127,7 @@
           dataOutput:{name:''},
           dataOutputMapping: [],
           tracingTag: newTracingTag,
+          selected: false,
           elementView: {
             '_type': 'org.uengine.kernel.view.DefaultActivityView',
             'id': newTracingTag,
