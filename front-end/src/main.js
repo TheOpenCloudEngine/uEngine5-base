@@ -7,9 +7,9 @@ import Opengraph from './components/opengraph'
 import App from './App'
 import router from './router'
 import VueI18n from '../node_modules/vue-i18n'
-import ClassModeling from './components/class-modeling'
-import Essence from './components/essence'
-import Modeling from './components/modeling'
+import ClassModeling from './components/designer/class-modeling'
+import Essence from './components/designer/essence'
+import Modeling from './components/designer/modeling'
 
 Vue.use(VueMaterial);
 Vue.use(BpmnVue);
@@ -51,6 +51,17 @@ router.beforeEach((to, from, next) => {
 Vue.config.productionTip = false
 
 window.Vue = Vue;
+
+import VueBreadcrumbs from 'vue-breadcrumbs'
+Vue.use(VueBreadcrumbs, {
+  template: '<nav class="breadcrumb" v-if="$breadcrumbs.length"> ' +
+  '<router-link class="md-title-accent" v-for="(crumb, key) in $breadcrumbs" :to="linkProp(crumb)" :key="key">' +
+  '<span class="md-title-accent" v-if="crumb.meta.preTitle">{{ crumb.meta.preTitle }} &nbsp;&nbsp;>&nbsp;&nbsp;</span>' +
+  '<span class="md-title-accent" v-if="crumb.meta.breadcrumb.indexOf(' + "':'" + ') != -1">{{ $route.params[crumb.meta.breadcrumb.split(' + "':'" + ')[1]] }} &nbsp;&nbsp;>&nbsp;&nbsp;</span>' +
+  '<span class="md-title-accent" v-else>{{ crumb.meta.breadcrumb }} &nbsp;&nbsp;>&nbsp;&nbsp;</span>' +
+  '</router-link> ' +
+  '</nav>'
+});
 
 /* eslint-disable no-new */
 new Vue({

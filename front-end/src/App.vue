@@ -71,5 +71,5 @@
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-
+  @import '/static/bpmn/css/custom.css';
 </style>

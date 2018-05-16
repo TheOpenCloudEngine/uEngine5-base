@@ -1,34 +1,7 @@
 <template>
-  <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')" id="test">
+  <md-sidenav class="md-right" ref="rightSidenav" @open="open('Right')" @close="close('Right')">
     <md-tabs v-if="navigationDrawer">
-
-      <md-tab md-label="Instance Info" v-if="item._instanceInfo">
-        <md-table>
-          <md-table-header>
-            <md-table-row>
-              <md-table-head>Key</md-table-head>
-              <md-table-head>Value</md-table-head>
-            </md-table-row>
-          </md-table-header>
-
-          <md-table-body>
-            <md-table-row v-for="(row, index) in item._instanceInfo" :key="index">
-              <md-table-cell>{{index}}</md-table-cell>
-              <md-table-cell>{{item._instanceInfo[index]}}</md-table-cell>
-            </md-table-row>
-          </md-table-body>
-        </md-table>
-      </md-tab>
-
-      <md-tab :id="'properties' + _uid" md-label="Properties">
-
-        <md-input-container v-if="tracingTag !== null">
-          <label>액티비티 ID</label>
-          <md-input v-model="tracingTag"
-                    type="text"
-                    maxlength="50"
-                    required></md-input>
-        </md-input-container>
+      <md-tab :id="'properties' + _uid" md-label="Properties" selected>
 
         <slot name="properties-contents">
         </slot>
@@ -38,7 +11,7 @@
       </slot>
 
       <md-tab :id="'visual' + _uid" md-label="Visual">
-        <div v-if="item.elementView">
+        <div v-if="value.elementView">
           <md-layout>
             <md-layout>
               <md-input-container>
@@ -87,12 +60,8 @@
 </template>
 
 <script>
-  import BpmnVueFinder from './BpmnVueFinder'
-  import BpmnComponentFinder from './BpmnComponentFinder'
-
   export default {
-    mixins: [BpmnVueFinder, BpmnComponentFinder],
-    name: 'bpmn-property-panel',
+    name: 'modeling-property-panel',
     props: {
       drawer: {
         default: function () {
@@ -100,14 +69,14 @@
         },
         type: Boolean
       },
-      item: Object
+      value: Object
     },
     computed: {},
     data: function () {
       var me = this;
       return {
         navigationDrawer: this.drawer,
-        _item: this.item,
+        _item: this.value,
         preventWatch: false,
         x: null,
         y: null,
@@ -128,23 +97,29 @@
       drawer: function (val) {
         this.navigationDrawer = val;
       },
+      value: {
+        handler: function () {
+          this.$emit("input", this.value);
+        },
+        deep: true
+      },
       //프로퍼티 창이 오픈되었을 때 모델값을 새로 반영한다.
       navigationDrawer: {
         handler: function (val, oldval) {
 
-          console.log('val', val);
+          console.log('val', val, this.value);
           if (val == true) {
-            this._item = this.item;
+            this._item = this.value;
 
-            if (this.item.elementView) {
-              this.x = this.item.elementView.x;
-              this.y = this.item.elementView.y;
-              this.width = this.item.elementView.width;
-              this.height = this.item.elementView.height;
+            if (this.value.elementView) {
+              this.x = this.value.elementView.x;
+              this.y = this.value.elementView.y;
+              this.width = this.value.elementView.width;
+              this.height = this.value.elementView.height;
             }
 
             //맵 형식의 스타일을 어레이타입으로 변형한다.
-            var view = this.item.elementView || this.item.relationView;
+            var view = this.value.elementView || this.value.relationView;
             var style = [];
             if (view.style) {
               var itemStyle = JSON.parse(view.style);
@@ -159,13 +134,15 @@
               this.style = style;
             }
 
-            if (this.item.tracingTag) {
-              this.tracingTag = this.item.tracingTag;
+            if (this.value.tracingTag) {
+              this.tracingTag = this.value.tracingTag;
             }
 
             //bpmnVue 에 프로퍼티 에디팅중임을 알린다.
             //프로퍼티 에디팅 중 데피니션 변화는 히스토리에 기록된다.
-            this.bpmnVue.propertyEditing = true;
+            if (this.bpmnVue) {
+              this.bpmnVue.propertyEditing = true;
+            }
             this.$emit('update:drawer', true);
 
             this.toggleRightSidenav();
@@ -182,19 +159,19 @@
       },
       x: function (val) {
         this._item.elementView.x = val;
-        this.$emit('update:item', this._item);
+        this.$emit('update:value', this._item);
       },
       y: function (val) {
         this._item.elementView.y = val;
-        this.$emit('update:item', this._item);
+        this.$emit('update:value', this._item);
       },
       width: function (val) {
         this._item.elementView.width = val;
-        this.$emit('update:item', this._item);
+        this.$emit('update:value', this._item);
       },
       height: function (val) {
         this._item.elementView.height = val;
-        this.$emit('update:item', this._item);
+        this.$emit('update:value', this._item);
       },
       style: {
         handler: function (newVal, oldVal) {
@@ -206,43 +183,9 @@
           }
           var view = this._item.elementView || this._item.relationView;
           view.style = JSON.stringify(style);
-          this.$emit('update:item', this._item);
+          this.$emit('update:value', this._item);
         },
         deep: true
-      },
-
-      //모델러에 의해 tracingTag 가 변경되었을 경우.
-      tracingTag: function (value) {
-        var me = this;
-        //동일함.
-        if (me._item.tracingTag == value) {
-
-        }
-        //이미 있음.
-        else if (me.bpmnVue.checkExistTracingTag(value)) {
-          console.log('TracingTag aleardy exist.');
-        }
-        //트레이싱 태그 값이 바뀜.
-        else if (value && value.length > 0) {
-          var oldTracingTag = me._item.tracingTag;
-
-          //해당 액티비티 업데이트.
-          me._item.tracingTag = value;
-          me.$emit('update:item', me._item);
-
-          //해당 트레이싱 태그를 사용중인 릴레이션의 source,target 을 변경한다.
-          var sequenceFlows = me.bpmnVue.data.definition.sequenceFlows;
-          if (sequenceFlows && sequenceFlows.length) {
-            $.each(sequenceFlows, function (i, relation) {
-              if (relation.sourceRef == oldTracingTag) {
-                relation.sourceRef = value;
-              }
-              if (relation.targetRef == oldTracingTag) {
-                relation.targetRef = value;
-              }
-            });
-          }
-        }
       }
     },
     mounted: function () {
@@ -262,16 +205,6 @@
       },
       toggleRightSidenav() {
         this.$refs.rightSidenav.toggle();
-      },
-      uuid: function () {
-        function s4() {
-          return Math.floor((1 + Math.random()) * 0x10000)
-            .toString(16)
-            .substring(1);
-        }
-
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-          s4() + '-' + s4() + s4() + s4();
       }
     }
   }
@@ -279,6 +212,10 @@
 
 
 <style lang="scss" rel="stylesheet/scss">
+  .md-sidenav .md-sidenav-content {
+    width: 400px
+  }
+
   .md-sidenav.md-right .md-sidenav-content {
     width: 600px;
   }

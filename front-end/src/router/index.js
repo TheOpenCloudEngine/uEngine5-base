@@ -2,12 +2,44 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '../../node_modules/metaworks4/src/components/Login.vue'
 import ServiceLocator from '@/components/ServiceLocator'
-import Designer from '@/components/Designer'
 import Home from '@/components/Home'
-import Sns from '@/components/Sns'
-import Service from '@/components/ServiceManagement'
-import WorkItemHandler from '@/components/WorkItemHandler'
-import InstanceHandler from '@/components/InstanceHandler'
+
+
+/**
+ * Sns
+ */
+import Sns from '@/components/sns/Sns'
+import WorkItemHandler from '@/components/sns/WorkItemHandler'
+import InstanceHandler from '@/components/sns/InstanceHandler'
+
+Vue.component('work-item-handler', WorkItemHandler);
+Vue.component('instance-handler', InstanceHandler);
+
+
+/**
+ * Instance
+ */
+import InstanceList from '@/components/instance/InstanceList'
+
+/**
+ * Service
+ */
+import Service from '@/components/service/ServiceManagement'
+
+
+/**
+ * Designer / Definition
+ */
+import DefinitionList from '@/components/designer/DefinitionList'
+import ModelerRouter from '@/components/designer/ModelerRouter'
+import ProcessDesigner from '@/components/designer/process//ProcessDesigner'
+import ClassModeler from '@/components/designer/class-modeling/ClassModeler'
+import PracticeDesigner from '@/components/designer/essence/PracticeDesigner'
+
+Vue.component('modeler-router', ModelerRouter);
+Vue.component('process-designer', ProcessDesigner);
+
+
 import ObjectForm from '@/components/ObjectForm'
 import ObjectFormSelect from '@/components/ObjectFormSelect'
 import ObjectFormBoolean from '@/components/ObjectFormBoolean'
@@ -17,8 +49,6 @@ import ClassSelector from '@/components/ClassSelector'
 import UserSelector from '@/components/bpm-portal/UserSelector'
 import AvatarUploader from '@/components/AvatarUploader'
 import IAMAvatar from '@/components/IAMAvatar'
-import InstanceList from '@/components/InstanceList'
-import SvgGraph from '@/components/SvgGraph'
 import UserPicker from '@/components/bpm-portal/UserPicker'
 import UserAutocomplete from '@/components/bpm-portal/UserAutocomplete'
 import NewPackage from '@/components/bpm-portal/NewPackage'
@@ -26,29 +56,26 @@ import RenamePackage from '@/components/bpm-portal/RenamePackage'
 import DeletePackage from '@/components/bpm-portal/DeletePackage'
 import ListPackage from '@/components/bpm-portal/ListPackage'
 import MovePackage from '@/components/bpm-portal/MovePackage'
-import ClassModeler from '@/components/class-modeling/ClassModeler'
 import VersionManager from '@/components/bpmn/VersionManager'
-import PracticeDesigner from '@/components/essence/PracticeDesigner'
-import ModelerRouter from '@/components/ModelerRouter'
+
 
 import Metaworks4 from '../../node_modules/metaworks4'
+
+Vue.use(Metaworks4);
+
 import AsyncComputed from 'vue-async-computed'
+
+Vue.use(AsyncComputed);
 
 import TreeView from "vue-json-tree-view"
 
-
 Vue.use(TreeView)
-Vue.use(Metaworks4);
-Vue.use(AsyncComputed);
 
-
-//import CustomizedSvgGraph from '@/components/CustomizedSvgGraph'
 
 /**
  * Iam && Vue Router
  * @type {IAM}
  */
-
 var clientKey = "my-client-key";
 
 //This required for managing user rest api (avatar upload, curl user data, etc..)
@@ -76,12 +103,11 @@ let RouterGuard = require("./RouterGuard.js")(iam);
 Vue.use(Router);
 
 
-
 /**
  * VueImgInputer
  */
-// https://github.com/waynecz/vue-img-inputer --Document
 import VueImgInputer from 'vue-img-inputer'
+
 Vue.component('vue-img-inputer', VueImgInputer)
 
 
@@ -121,8 +147,6 @@ window.backend = backend;
 /**
  * Others
  */
-Vue.component('work-item-handler', WorkItemHandler);
-Vue.component('instance-handler', InstanceHandler);
 Vue.component('object-grid', ObjectGrid);
 Vue.component('object-form', ObjectForm);
 Vue.component('object-form-select', ObjectFormSelect);
@@ -131,12 +155,11 @@ Vue.component('class-editor', ClassEditor);
 Vue.component('class-selector', ClassSelector);
 Vue.component('object-form-org-uengine-kernel-role-mapping', UserSelector);
 
-if(!Vue._components) Vue._components = {};
+if (!Vue._components) Vue._components = {};
 Vue._components['object-form-org-uengine-kernel-role-mapping'] = UserSelector;
 
 Vue.component('avatar-uploader', AvatarUploader);
 Vue.component('iam-avatar', IAMAvatar);
-Vue.component('process-designer', SvgGraph);
 Vue.component('user-picker', UserPicker);
 Vue.component('new-package', NewPackage);
 Vue.component('rename-package', RenamePackage);
@@ -145,24 +168,23 @@ Vue.component('list-package', ListPackage);
 Vue.component('move-package', MovePackage);
 Vue.component('user-autocomplete', UserAutocomplete);
 Vue.component('version-manager', VersionManager);
-Vue.component('modeler-router', ModelerRouter);
 
 import CloudExample from '../components/example/CloudExample'
+
 Vue.component('cloud-example', CloudExample);
 
 import ElementListExample from '../components/example/ElementListExample'
+
 Vue.component('element-list-example', ElementListExample);
 
 import ChartExample from '../components/example/ChartExample'
+
 Vue.component('chart-example', ChartExample);
 
 import ClassDiagram from '../components/example/ClassDiagram'
 
 
 //--------- customized components here -------
-
-
-//Vue.component('svg-graph', CustomizedSVGGraph);
 
 
 export default new Router({
@@ -175,6 +197,9 @@ export default new Router({
       name: 'home',
       component: Home,
       props: {iam: iam},
+      meta: {
+        breadcrumb: '홈'
+      },
       children: [
         {
           path: 'example/cloud',
@@ -205,6 +230,9 @@ export default new Router({
           name: 'Workspace',
           component: Sns,
           beforeEnter: RouterGuard.requireUser,
+          meta: {
+            breadcrumb: 'Workspace'
+          },
           props: {
             backend: backend
           },
@@ -214,43 +242,39 @@ export default new Router({
           name: 'Service',
           component: Service,
           beforeEnter: RouterGuard.requireUser,
+          meta: {
+            breadcrumb: 'Service'
+          },
           props: {
             backend: backend
           },
         },
         {
-          path: 'definition',
-          name: 'definition',
-          component: Designer,
+          path: 'designer/:path*',
+          name: 'designer',
+          component: DefinitionList,
           beforeEnter: RouterGuard.requireUser,
-          props: {
-            backend: backend
+          meta: {
+            breadcrumb: 'Designer'
           },
-        },
-        {
-          path: 'definition/:id',
-          name: 'graph',
-          component: ModelerRouter,
-          beforeEnter: RouterGuard.requireUser,
-          props: function(route){
-            //alert(route.params.id)
-
+          props: function (route) {
             return {
-                backend: backend,
-                id: route.params.id,
-                type: route.query.type
+              backend: backend,
+              path: route.params.path
             }
           }
         },
         {
-          path: 'definition/:path/:id',
-          name: 'graph',
+          path: 'definition/:path*',
+          name: 'definition',
           component: ModelerRouter,
           beforeEnter: RouterGuard.requireUser,
-          props: {
-                      backend: backend,
-                    },
-
+          props: function (route) {
+            return {
+              backend: backend,
+              path: route.params.path
+            }
+          }
         },
         {
           path: 'class-definition',
@@ -264,11 +288,10 @@ export default new Router({
         {
           path: 'process-definition',
           name: 'processdefinition',
-          component: SvgGraph,
+          component: ProcessDesigner,
           beforeEnter: RouterGuard.requireUser,
           props: {
             backend: backend,
-            id: 'new'
           },
         },
         {
@@ -292,16 +315,16 @@ export default new Router({
         {
           path: 'instance/:rootId/:id',
           name: 'instanceMonitor',
-          component: SvgGraph,
+          component: ProcessDesigner,
           beforeEnter: RouterGuard.requireUser,
-          props: function(route){
-               return {
-                   backend: backend,
-                   id: route.params.id,
-                   monitor: true,
-                   iam: iam,
-                   rootId: route.params.rootId
-               }
+          props: function (route) {
+            return {
+              backend: backend,
+              instanceId: route.params.id,
+              rootInstanceId: route.params.rootId,
+              monitor: true,
+              iam: iam
+            }
           }
         }
       ]

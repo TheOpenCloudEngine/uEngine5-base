@@ -4,44 +4,29 @@
       <md-button class="md-icon-button" @click="toggleLeftSidenav" style="z-index: 2;">
         <md-icon>menu</md-icon>
       </md-button>
+
       <img src="http://uengine.org/assets/img/uengine/logo_bright.png" style="height:25px">
-      <div id="logoutButton" style="position: absolute; width: 100%; text-align:right; padding-right: 20px;">
-       <md-button class="md-raised md-primary" @click="logout" >{{ $t("message['common.logout']") }}</md-button>
-      </div>
+
+      <span style="margin-left: 15px">
+        <breadcrumbs style="width: 100%"></breadcrumbs>
+      </span>
+
+      <!--<div id="logoutButton" style="position: absolute; width: 100%; text-align:right; padding-right: 20px;">-->
+      <!--<md-button class="md-raised md-primary" @click="logout">{{ $t("message['common.logout']") }}</md-button>-->
+      <!--</div>-->
+      <md-layout md-align="end">
+        <md-button class="md-raised md-primary" @click="logout">{{ $t("message['common.logout']") }}
+        </md-button>
+      </md-layout>
     </md-toolbar>
 
     <md-sidenav class="md-left" ref="leftSidenav">
       <md-toolbar class="md-account-header">
-          <iam-avatar :iam="iam"></iam-avatar>
-        <!--<md-list class="md-transparent">-->
-          <!--<md-list-item class="md-avatar-list">-->
-            <!--&lt;!&ndash;avatar iam 으로 변경&ndash;&gt;-->
-            <!--<md-avatar class="md-large">-->
-              <!--&lt;!&ndash;<img src="https://placeimg.com/64/64/people/8" alt="People">&ndash;&gt;-->
-              <!--<img-->
-                  <!--:src="'http://iam.uengine.io:8080/rest/v1/avatar?userName='+ user.username"-->
-                  <!--v-if="user.username"-->
-                  <!--alt="People">-->
-            <!--</md-avatar>-->
-
-            <!--<span style="flex: 1"></span>-->
-          <!--</md-list-item>-->
-
-          <!--<md-list-item>-->
-            <!--<div class="md-list-text-container">-->
-              <!--<span v-if="user.name">{{user.name}}</span>-->
-              <!--<span v-if="user.email">{{user.email}}</span>-->
-            <!--</div>-->
-
-            <!--<md-button class="md-icon-button md-list-action">-->
-              <!--<md-icon>arrow_drop_down</md-icon>-->
-            <!--</md-button>-->
-          <!--</md-list-item>-->
-        <!--</md-list>-->
+        <iam-avatar :iam="iam"></iam-avatar>
       </md-toolbar>
 
       <md-list>
-        <md-list-item v-for="item in items" v-on:click="move(item.routerPath)" class="md-primary" >
+        <md-list-item v-for="item in items" v-on:click="move(item.routerPath)" class="md-primary">
           <md-icon>{{ item.icon }}</md-icon>
           <span>{{ item.title }}</span>
         </md-list-item>
@@ -62,10 +47,10 @@
       return {
         drawer: null,
         items: [
-          {title: 'Workspace', icon: 'question_answer', routerPath: '/sns'},
-          {title: 'Designer', icon: 'question_answer', routerPath: '/definition'},
-          {title: 'Service', icon: 'question_answer', routerPath: '/services'},
-          {title: 'Instances', icon: 'question_answer', routerPath: '/instance'}
+          {title: 'Workspace', icon: 'supervisor_account', routerPath: '/sns'},
+          {title: 'Designer', icon: 'crop', routerPath: '/designer'},
+          {title: 'Service', icon: 'cloud_queue', routerPath: '/services'},
+          {title: 'Instances', icon: 'list', routerPath: '/instance'}
         ],
         mini: false,
       }
