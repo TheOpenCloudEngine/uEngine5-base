@@ -37,10 +37,12 @@ cd service-registry
 mvn spring-boot:run
 
 cd ../definition-service
-mvn spring-boot:run -Dserver.port=9001 -Drun.arguments="--spring.profiles.active=msa"
+mvn package -B -U
+java -jar target/uengine-five-definistion-*-exec.jar --server.port=9091 --spring.profiles.active=msa
 
 cd ../process-service
-mvn spring-boot:run -Dserver.port=9002 -Drun.arguments="--spring.profiles.active=msa"
+mvn package -B -U
+javar -jar target/uengine-five-process-*-exec.jar --server.port=9092 --spring.profiles.active=msa
 
 cd ../proxy
 mvn spring-boot:run
