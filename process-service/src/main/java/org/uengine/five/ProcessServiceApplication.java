@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.metaworks.WebFieldDescriptor;
 import org.metaworks.springboot.configuration.Metaworks4BaseApplication;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +11,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.cloud.client.SpringCloudApplication;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.transaction.jta.JtaTransactionManager;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.uengine.five.overriding.InstanceNameFilter;
 import org.uengine.five.overriding.ServiceRegisterDeployFilter;
@@ -35,7 +33,7 @@ import javax.sql.DataSource;
 @EnableEurekaClient
 //@EnableDiscoveryClient
 @EnableFeignClients(basePackageClasses = {DefinitionService.class, SemanticEntityService.class})
-@Profile("msa")
+//@Profile("msa")
 @EnableKafka
 @RestController
 public class ProcessServiceApplication extends Metaworks4BaseApplication {
@@ -112,5 +110,9 @@ public class ProcessServiceApplication extends Metaworks4BaseApplication {
         return objectMapper;
     }
 
+    @RequestMapping("/health")
+    public String home() throws Exception {
+        return "";
+    }
 
 }

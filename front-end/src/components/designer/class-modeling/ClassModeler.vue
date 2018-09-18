@@ -184,7 +184,7 @@
       rearrangeClassHierarchy: function () {
         var me = this;
 
-        if (me.value.relations[1]) {
+        if (me.value.relations && me.value.relations[1]) {
           me.value.relations[1].forEach(function (relation) {
 
             var sourceClass = me.findClassDefinition(relation.relationView.from);

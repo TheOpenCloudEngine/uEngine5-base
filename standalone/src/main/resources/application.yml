@@ -6,7 +6,8 @@ spring:
 
 server:
   port: 8090
-  servletPath: /
+  servlet:
+    context-path: /
 
 
 eureka:

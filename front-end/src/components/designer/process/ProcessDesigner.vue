@@ -19,6 +19,7 @@
             :trees="trees">
           </bpmn-tree-list>
         </md-list>
+
       </md-layout>
       <md-layout @contextmenu.native="openMenu" @mousedown.native="closeMenu">
         <div style="position: absolute; left:48%; top: 37%; z-index: 99999" v-if="loaded == false">
@@ -154,6 +155,8 @@
       <li data-action="backToHere">Back To Here</li>
     </ul>
     <!--Back to Here Menu End -->
+
+    <modeler-image-generator ref="modeler-image-generator"></modeler-image-generator>
   </div>
 </template>
 <script>
@@ -171,14 +174,6 @@
               'java.util.ArrayList',
               []
             ],
-//            processVariableDescriptors: [{
-//              _type: 'org.uengine.kernel.ProcessVariable',
-//              name: 'Var1',
-//            }],
-//            'roles': [{
-//                _type: 'org.uengine.kernel.Role',
-//                name: 'initiator'
-//            }],
             'sequenceFlows': [],
             _selectedLocale: 'ko',
             _changedByLocaleSelector: false
@@ -302,11 +297,10 @@
       });
     },
 
-    //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
     watch: {
-      '$route'(to, from) {
+      instanceId: function (val) {
         this.setMode();
-      }
+      },
     },
     methods: {
       changeMultiple: function () {
@@ -502,8 +496,6 @@
           })
         }
       },
-
-
       undo: function () {
         this.$refs['bpmn-vue'].undo();
       },
@@ -513,11 +505,15 @@
       //여기서는, 라우터에서 전달해준 monitor prop 를 가지고 디자이너 모드인지, 모니터 모드인지 판별함.
       setMode: function () {
         var me = this;
-        if (me.monitor) {
-          me.getInstance();
-        } else {
-          me.getDefinition();
-        }
+        me.loaded = false;
+        me.definition = null;
+        me.$nextTick(function () {
+          if (me.monitor) {
+            me.getInstance();
+          } else {
+            me.getDefinition();
+          }
+        });
       },
 
       getInstance: function () {
@@ -544,12 +540,14 @@
         me.backend.$bind("definition/" + me.id + '.json', definition);
         definition.$load().then(function (definition) {
           me.productionVersionId = definition.prodVerId;
-          definition.versions.$load().then(function (versions) {
-            if (versions && versions.length > 0) {
-              me.versions = versions;
-              me.selectedVersion = versions[versions.length - 1];
-            }
-          });
+          if (definition.versions) {
+            definition.versions.$load().then(function (versions) {
+              if (versions && versions.length > 0) {
+                me.versions = versions;
+                me.selectedVersion = versions[versions.length - 1];
+              }
+            });
+          }
         });
       },
 
@@ -572,10 +570,8 @@
             }
           );
         });
-
       },
 
-      //트리 구조를 위해 subprocess가 있는지 확인한다.
       treeStructure: function () {
         var me = this;
         var instance = {};
@@ -586,7 +582,6 @@
 
           for (var i in instances) {
             if (instances[i] instanceof Object) {
-              //hateoas에서는 self 링크에 자신의 id가 담겨있다.
               var selfLink = instances[i].$bind.self;
               var instId = selfLink.substring(selfLink.lastIndexOf("/") + 1, selfLink.length);
               tree[i] = {
@@ -594,28 +589,108 @@
                 "id": parseInt(instId),
                 "rootInstId": instances[i].rootInstId,
                 "mainInstId": instances[i].mainInstId,
-                "children": null
+                "children": []
               };
             }
           }
-          me.trees = me.listToTree(tree);
+          me.trees = me.listToTree(tree, me.rootInstanceId);
         });
       },
-      listToTree: function (list) {
-        var map = {}, node, roots = [], i;
-        for (i = 0; i < list.length; i += 1) {
-          map[list[i].id] = i;
-          list[i].children = [];
+
+      //TODO This looks like make incorrect tree data. Need fix.
+      //=> Fixed.
+      listToTree: function (list, rootInstanceId) {
+        //sample tree data
+        // rootInstanceId = 6;
+        // list = [
+        //   {
+        //     "name": 'c3',
+        //     "id": 1,
+        //     "rootInstId": 6,
+        //     "mainInstId": 4,
+        //     "children": []
+        //   },
+        //   {
+        //     "name": 'c3',
+        //     "id": 2,
+        //     "rootInstId": 6,
+        //     "mainInstId": 4,
+        //     "children": []
+        //   },
+        //   {
+        //     "name": 'c1',
+        //     "id": 3,
+        //     "rootInstId": 6,
+        //     "mainInstId": 6,
+        //     "children": []
+        //   },
+        //   {
+        //     "name": 'c2',
+        //     "id": 4,
+        //     "rootInstId": 6,
+        //     "mainInstId": 3,
+        //     "children": []
+        //   },
+        //   {
+        //     "name": 'c1',
+        //     "id": 5,
+        //     "rootInstId": 6,
+        //     "mainInstId": 6,
+        //     "children": []
+        //   },
+        //   {
+        //     "name": 'root',
+        //     "id": 6,
+        //     "rootInstId": 6,
+        //     "mainInstId": 6,
+        //     "children": []
+        //   },
+        //   {
+        //     "name": 'c2',
+        //     "id": 7,
+        //     "rootInstId": 6,
+        //     "mainInstId": 5,
+        //     "children": []
+        //   },
+        //   {
+        //     "name": 'c3',
+        //     "id": 8,
+        //     "rootInstId": 6,
+        //     "mainInstId": 7,
+        //     "children": []
+        //   },
+        // ]
+
+        var treeData = [];
+        //copy data.
+        var copy = JSON.parse(JSON.stringify(list));
+
+        //recursive check child node.
+        var insertChildNode = function (parentNode) {
+          var parentId = parentNode.id;
+          list.forEach(function (node, index) {
+            //prevent self insert.
+            if (node.id != parentId &&
+              node.id != rootInstanceId &&
+              node.mainInstId == parentId) {
+
+              parentNode.children.push(copy[index]);
+
+              //continue recursive check.
+              insertChildNode(copy[index]);
+            }
+          })
         }
-        for (i = 0; i < list.length; i += 1) {
-          node = list[i];
-          if (i !== 0) {
-            list[map[node.mainInstId]].children.push(node);
-          } else {
-            roots.push(node);
+
+        //start insertChildNode for root.
+        list.forEach(function (node, index) {
+          if (node.id == rootInstanceId) {
+            treeData.push(copy[index]);
+            insertChildNode(copy[index]);
           }
-        }
-        return roots;
+        })
+
+        return treeData;
       },
 
       loadStatus: function (definition) {
@@ -645,7 +720,6 @@
               }
             }
             me.definition = definition;
-            console.log({"definitionFilledWithInstanceInfo": me.definition})
           })
       },
       getActivity: function (tracingTag, definition) {
@@ -674,7 +748,6 @@
         me.definition = definition;
         me.definitionName = me.definition.name.text;
         me.changeLocale();
-
         this.loadVersions();
       },
       save: function (nextAction) {
@@ -751,7 +824,7 @@
 
             me.loadVersions();
 
-            if (nextAction) {
+            if (nextAction && typeof nextAction === "function") {
               nextAction(definition);
             }
           },
@@ -759,6 +832,9 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
+
+        //save image to localstorage
+        me.$refs['modeler-image-generator'].save(me.id, me.$refs['bpmn-vue'].canvas);
       },
 
 
@@ -830,7 +906,7 @@
       },
       onBackToHere() {
         var me = this;
-        var url = "instance/" + me.id + "/activity/" + me.bthTracingTag + "/backToHere";
+        var url = "instance/" + me.instanceId + "/activity/" + me.bthTracingTag + "/backToHere";
         var instance = {};
         me.backend.$bind(url, instance);
         instance.$create().then(function () {

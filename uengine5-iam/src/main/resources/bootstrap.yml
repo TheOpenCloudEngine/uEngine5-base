@@ -1,0 +1,23 @@
+spring:
+  application:
+      name: my-iam
+  profiles:
+    active: "local"
+
+---
+spring:
+  profiles: local
+
+# ui 호스트
+#ui-host: http://localhost:8081/
+ui-host: /
+
+---
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: http://marathon-lb-internal.marathon.mesos:10000
+
+# ui 호스트
+ui-host: /

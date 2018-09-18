@@ -1,11 +1,5 @@
 package org.uengine.five.service;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -14,11 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 import org.uengine.five.entity.ProcessInstanceEntity;
 import org.uengine.five.entity.ServiceEndpointEntity;
@@ -37,15 +27,20 @@ import org.uengine.util.UEngineUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.QueryParam;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by uengine on 2017. 8. 9..
- *
+ * <p>
  * Implementation Principles:
- *  - REST Maturity Level : 2
- *  - Not using old uEngine ProcessManagerBean, this replaces the ProcessManagerBean
- *  - ResourceManager and CachedResourceManager will be used for definition caching (Not to use the old DefinitionFactory)
- *  - json must be Typed JSON to enable object polymorphism - need to change the jackson engine. TODO: accept? typed json is sometimes hard to read
+ * - REST Maturity Level : 2
+ * - Not using old uEngine ProcessManagerBean, this replaces the ProcessManagerBean
+ * - ResourceManager and CachedResourceManager will be used for definition caching (Not to use the old DefinitionFactory)
+ * - json must be Typed JSON to enable object polymorphism - need to change the jackson engine. TODO: accept? typed json is sometimes hard to read
  */
 @RestController
 public class InstanceServiceImpl implements InstanceService {
@@ -54,20 +49,19 @@ public class InstanceServiceImpl implements InstanceService {
     DefinitionServiceUtil definitionService;
 
 
-
     // ----------------- execution services -------------------- //
     @RequestMapping(value = "/instance", method = {RequestMethod.POST, RequestMethod.PUT})
-    @Transactional(rollbackFor={Exception.class})
+    @Transactional(rollbackFor = {Exception.class})
     @ProcessTransactional
     public InstanceResource runDefinition(@RequestParam("defPath") String filePath, @QueryParam("simulation") boolean simulation) throws Exception {
 
         Object definition = definitionService.getDefinition(filePath, !simulation); //if simulation time, use the version under construction
 
-        if(definition instanceof ProcessDefinition){
+        if (definition instanceof ProcessDefinition) {
             ProcessDefinition processDefinition = (ProcessDefinition) definition;
 
-            org.uengine.kernel.ProcessInstance instance = applicationContext.getBean(
-                    org.uengine.kernel.ProcessInstance.class,
+            ProcessInstance instance = applicationContext.getBean(
+                    ProcessInstance.class,
                     //new Object[]{
                     processDefinition,
                     null,
@@ -90,7 +84,7 @@ public class InstanceServiceImpl implements InstanceService {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
-        if(!instance.isRunning(""))
+        if (!instance.isRunning(""))
             instance.execute();
 
         return new InstanceResource(instance);
@@ -102,7 +96,7 @@ public class InstanceServiceImpl implements InstanceService {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
-        if(instance.isRunning(""))
+        if (instance.isRunning(""))
             instance.stop();
 
         return new InstanceResource(instance);
@@ -114,10 +108,10 @@ public class InstanceServiceImpl implements InstanceService {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
-        if(instance.isRunning("")){
+        if (instance.isRunning("")) {
             List<ActivityInstanceContext> runningContexts = instance.getCurrentRunningActivitiesDeeply();
 
-            for(ActivityInstanceContext runningContext : runningContexts){
+            for (ActivityInstanceContext runningContext : runningContexts) {
 
                 runningContext.getActivity().suspend(runningContext.getInstance());
 
@@ -133,10 +127,10 @@ public class InstanceServiceImpl implements InstanceService {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
-        if(instance.isRunning("")){
+        if (instance.isRunning("")) {
             List<ActivityInstanceContext> suspendedContexts = instance.getActivitiesDeeply(Activity.STATUS_SUSPENDED);
 
-            for(ActivityInstanceContext runningContext : suspendedContexts){
+            for (ActivityInstanceContext runningContext : suspendedContexts) {
 
                 runningContext.getActivity().resume(runningContext.getInstance());
 
@@ -153,7 +147,7 @@ public class InstanceServiceImpl implements InstanceService {
 
         ProcessInstance instance = getProcessInstanceLocal(instanceId);
 
-        if(instance==null) throw new ResourceNotFoundException(); // make 404 error
+        if (instance == null) throw new ResourceNotFoundException(); // make 404 error
 
 
         return new InstanceResource(instance);
@@ -170,7 +164,7 @@ public class InstanceServiceImpl implements InstanceService {
         Activity returningActivity = definition.getActivity(tracingTag);
         definition.gatherPropagatedActivitiesOf(instance, returningActivity, list);
         Activity proActiviy;
-        for(int i=0; i<list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             proActiviy = list.get(i);
             //compensate
             proActiviy.compensate(instance);
@@ -186,13 +180,13 @@ public class InstanceServiceImpl implements InstanceService {
 */
 
 
-
         return new InstanceResource(instance);
     }
 
 
     /**
      * use this rather ProcessManagerRemote.getProcessInstance() method instead
+     *
      * @param instanceId
      * @return
      */
@@ -230,7 +224,7 @@ public class InstanceServiceImpl implements InstanceService {
 
         Activity activity = instance.getProcessDefinition().getActivity(signalEventInstance.getActivityRef());
 
-        if(activity instanceof SignalIntermediateCatchEvent){
+        if (activity instanceof SignalIntermediateCatchEvent) {
             ((SignalIntermediateCatchEvent) activity).onMessage(instance, null);
         }
 
@@ -238,14 +232,15 @@ public class InstanceServiceImpl implements InstanceService {
     }
 
     @ProcessTransactional
-    @RequestMapping(value = SERVICES_ROOT+ "/**", method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = SERVICES_ROOT + "/**", method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json;charset=UTF-8")
     public Object serviceMessage(HttpServletRequest request) throws Exception {
 
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 
-        ServiceEndpointEntity serviceEndpointEntity = serviceEndpointRepository.findOne(path.substring(SERVICES_ROOT.length()+2));
+        ServiceEndpointEntity serviceEndpointEntity = serviceEndpointRepository.findById(path.substring(SERVICES_ROOT.length() + 2))
+                .orElse(null);
 
-        if(serviceEndpointEntity==null)
+        if (serviceEndpointEntity == null)
             throw new ResourceNotFoundException();
 
         //find the correlated instance:
@@ -253,7 +248,7 @@ public class InstanceServiceImpl implements InstanceService {
         Object correlationData = null;
         ObjectInstance objectInstance = new ObjectInstance();
 
-        if("POST".equals(request.getMethod())) {
+        if ("POST".equals(request.getMethod())) {
 
             ByteArrayOutputStream bao = new ByteArrayOutputStream();
             UEngineUtil.copyStream(request.getInputStream(), bao);
@@ -283,26 +278,26 @@ public class InstanceServiceImpl implements InstanceService {
 
             correlationData = jsonNode.get(serviceEndpointEntity.getCorrelationKey());
 
-            if(correlationData!=null)
+            if (correlationData != null)
                 correlatedProcessInstanceEntities = processInstanceRepository.findByCorrKeyAndStatus(correlationData.toString(), Activity.STATUS_RUNNING);
         }
 
         ProcessInstanceEntity processInstanceEntity;
-        if(correlatedProcessInstanceEntities==null || correlatedProcessInstanceEntities.size()==0)
+        if (correlatedProcessInstanceEntities == null || correlatedProcessInstanceEntities.size() == 0)
             processInstanceEntity = null;
-        else{
+        else {
             processInstanceEntity = correlatedProcessInstanceEntities.get(0);
-            if(correlatedProcessInstanceEntities.size() > 1)
+            if (correlatedProcessInstanceEntities.size() > 1)
                 System.err.println("More than one correlated process instance found!");
         }
 
         JPAProcessInstance instance = null;
 
         // case that correlation instance exists and is running:
-        if(processInstanceEntity!=null){
+        if (processInstanceEntity != null) {
             instance = (JPAProcessInstance) getProcessInstanceLocal(String.valueOf(processInstanceEntity.getInstId()));
 
-        }else { // if no instances running, create new instance:
+        } else { // if no instances running, create new instance:
             Object definition = definitionService.getDefinition(serviceEndpointEntity.getDefId(), true);
 
             ProcessDefinition processDefinition = (ProcessDefinition) definition;
@@ -324,7 +319,7 @@ public class InstanceServiceImpl implements InstanceService {
 
         boolean neverTreated = true;
 
-        if(runningActivities!=null) {
+        if (runningActivities != null) {
             for (ActivityInstanceContext activityInstanceContext : runningActivities) {
                 Activity activity = activityInstanceContext.getActivity();
 
@@ -337,14 +332,14 @@ public class InstanceServiceImpl implements InstanceService {
             }
         }
 
-        if(neverTreated){
+        if (neverTreated) {
             instance.stop();
 
             return "문제가 발생하여 처음으로 돌아갑니다.";
         }
 
         //set correlation key so that this instance could be re-visited by the recurring requester.
-        if(instance.isNewInstance() && correlationData!=null)
+        if (instance.isNewInstance() && correlationData != null)
             instance.getProcessInstanceEntity().setCorrKey(correlationData.toString());
 
 
@@ -369,7 +364,7 @@ public class InstanceServiceImpl implements InstanceService {
 //        }
         List<String> messageQueue = SendTask.getMessageQueue(instance);
 
-        if(messageQueue!=null && messageQueue.size() > 0){
+        if (messageQueue != null && messageQueue.size() > 0) {
 
 //            StringBuffer fullMessage = new StringBuffer();
 //
@@ -377,7 +372,7 @@ public class InstanceServiceImpl implements InstanceService {
 //                fullMessage.append(message);
 //            }
 
-            return messageQueue.get(messageQueue.size()-1).toString().replace("\n", "").replace("\r", "");
+            return messageQueue.get(messageQueue.size() - 1).toString().replace("\n", "").replace("\r", "");
 
         }
 

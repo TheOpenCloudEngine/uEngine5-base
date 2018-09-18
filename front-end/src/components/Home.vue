@@ -11,9 +11,6 @@
         <breadcrumbs style="width: 100%"></breadcrumbs>
       </span>
 
-      <!--<div id="logoutButton" style="position: absolute; width: 100%; text-align:right; padding-right: 20px;">-->
-      <!--<md-button class="md-raised md-primary" @click="logout">{{ $t("message['common.logout']") }}</md-button>-->
-      <!--</div>-->
       <md-layout md-align="end">
         <md-button class="md-raised md-primary" @click="logout">{{ $t("message['common.logout']") }}
         </md-button>
@@ -47,7 +44,7 @@
       return {
         drawer: null,
         items: [
-          {title: 'Workspace', icon: 'supervisor_account', routerPath: '/sns'},
+          {title: 'Workspace', icon: 'supervisor_account', routerPath: '/workspace'},
           {title: 'Designer', icon: 'crop', routerPath: '/designer'},
           {title: 'Service', icon: 'cloud_queue', routerPath: '/services'},
           {title: 'Instances', icon: 'list', routerPath: '/instance'}
@@ -110,7 +107,7 @@
   .fluid {
     position: relative;
     height: calc(100vh - 64px);
-    overflow-y: scroll;
+    overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
   }

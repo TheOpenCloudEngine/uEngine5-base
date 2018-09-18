@@ -6,11 +6,11 @@ import Home from '@/components/Home'
 
 
 /**
- * Sns
+ * Workspace
  */
-import Sns from '@/components/sns/Sns'
-import WorkItemHandler from '@/components/sns/WorkItemHandler'
-import InstanceHandler from '@/components/sns/InstanceHandler'
+import Workspace from '@/components/workspace/Workspace'
+import WorkItemHandler from '@/components/workspace/WorkItemHandler'
+import InstanceHandler from '@/components/workspace/InstanceHandler'
 
 Vue.component('work-item-handler', WorkItemHandler);
 Vue.component('instance-handler', InstanceHandler);
@@ -35,8 +35,10 @@ import ModelerRouter from '@/components/designer/ModelerRouter'
 import ProcessDesigner from '@/components/designer/process//ProcessDesigner'
 import ClassModeler from '@/components/designer/class-modeling/ClassModeler'
 import PracticeDesigner from '@/components/designer/essence/PracticeDesigner'
+import ModelerImageGenerator from '@/components/designer/ModelerImageGenerator'
 
 Vue.component('modeler-router', ModelerRouter);
+Vue.component('modeler-image-generator', ModelerImageGenerator);
 Vue.component('process-designer', ProcessDesigner);
 
 
@@ -88,7 +90,7 @@ var profile = window.profile;
 
 //Change the url your IAM application's vcap service's profile url.
 //For example, 'http://' + config.vcap.services['your-iam-server'][profile].external;
-var iamUrl = 'http://iam.pas-mini.io';
+var iamUrl = 'http://uengine5-iam.pas-mini.io';
 
 //Define iam client
 var iam = new IAM(iamUrl);
@@ -193,7 +195,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/sns',
+      redirect: '/workspace',
       name: 'home',
       component: Home,
       props: {iam: iam},
@@ -226,18 +228,6 @@ export default new Router({
           beforeEnter: RouterGuard.requireUser,
         },
         {
-          path: 'sns',
-          name: 'Workspace',
-          component: Sns,
-          beforeEnter: RouterGuard.requireUser,
-          meta: {
-            breadcrumb: 'Workspace'
-          },
-          props: {
-            backend: backend
-          },
-        },
-        {
           path: 'services',
           name: 'Service',
           component: Service,
@@ -248,6 +238,26 @@ export default new Router({
           props: {
             backend: backend
           },
+        },
+        {
+          path: 'workspace',
+          redirect: '/workspace/worklist',
+        },
+        {
+          path: 'workspace/:submenu/:id*',
+          name: 'Workspace',
+          component: Workspace,
+          beforeEnter: RouterGuard.requireUser,
+          meta: {
+            breadcrumb: 'Workspace'
+          },
+          props: function (route) {
+            return {
+              backend: backend,
+              submenu: route.params.submenu,
+              id: route.params.id
+            }
+          }
         },
         {
           path: 'designer/:path*',

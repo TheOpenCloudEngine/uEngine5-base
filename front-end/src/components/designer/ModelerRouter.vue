@@ -19,24 +19,32 @@
         value: null
       }
     },
+    watch: {
+      path: function (val) {
+        this.load();
+      }
+    },
     computed: {},
-    created() {
+    mounted() {
       this.load();
     },
-    //컴포넌트가 Dom 에 등록되었을 떄(실제 렌더링 되기 위해 활성화 되었을 때.)
-    mounted() {
-    },
-
     methods: {
       load: function () {
         var me = this;
-        var def = {};
-        me.backend.$bind('definition/raw/' + me.path + '.json', def);
-        def.$load().then(function (definition) {
-          if (definition) {
-            me.value = definition.definition;
-          }
-        });
+
+        //remove designer component, as setting value null.
+        me.value = null;
+
+        //after designer component removed, render new designer component.
+        me.$nextTick(function () {
+          var def = {};
+          me.backend.$bind('definition/raw/' + me.path + '.json', def);
+          def.$load().then(function (definition) {
+            if (definition) {
+              me.value = definition.definition;
+            }
+          });
+        })
       }
     }
   }

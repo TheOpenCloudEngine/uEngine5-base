@@ -2,7 +2,6 @@ package org.uengine.five.overriding;
 
 import org.springframework.stereotype.Component;
 import org.uengine.five.framework.ProcessTransactional;
-import org.uengine.kernel.Activity;
 import org.uengine.kernel.ProcessDefinition;
 import org.uengine.kernel.ProcessInstance;
 import org.uengine.kernel.bpmn.TimerEvent;

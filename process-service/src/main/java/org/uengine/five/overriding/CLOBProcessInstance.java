@@ -1,8 +1,6 @@
 package org.uengine.five.overriding;
 
 import org.uengine.kernel.ProcessDefinition;
-import org.uengine.modeling.resource.DefaultResource;
-import org.uengine.modeling.resource.IResource;
 import org.uengine.modeling.resource.Serializer;
 
 import java.io.ByteArrayInputStream;

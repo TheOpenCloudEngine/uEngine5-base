@@ -36,7 +36,7 @@ import java.util.Map;
 
 /**
  * Created by uengine on 2017. 8. 9..
- *
+ * <p>
  * Implementation Principles: - REST Maturity Level : 3 (Hateoas)
  * - Not using old uEngine ProcessManagerBean, this replaces the ProcessManagerBean
  * - ResourceManager and CachedResourceManager will be used for definition caching (Not to use the old DefinitionFactory)
@@ -54,9 +54,9 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
 
     @Autowired
     ApplicationEventPublisher applicationEventPublisher;
-    
+
     @Autowired
-    ApplicationContext applicationContext;    
+    ApplicationContext applicationContext;
 
     static ObjectMapper objectMapper = createTypedJsonObjectMapper();
 
@@ -118,7 +118,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
         VersionManager versionManager = MetaworksRemoteService.getComponent(VersionManager.class);
         versionManager.load("codi", null);
 
-        if(major)
+        if (major)
             versionManager.majorVersionUp();
         else
             versionManager.minorVersionUp();
@@ -158,8 +158,8 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
         VersionManager versionManager = MetaworksRemoteService.getComponent(VersionManager.class);
         List<Version> versions = versionManager.listVersions();
 
-        for(Version theVersion : versions){
-            if(theVersion.equals(new Version(version))){
+        for (Version theVersion : versions) {
+            if (theVersion.equals(new Version(version))) {
                 VersionResource versionResource = new VersionResource(theVersion);
 
                 return versionResource;
@@ -196,17 +196,17 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
 
     @RequestMapping(value = DEFINITION + "/**", method = RequestMethod.GET)
     public Object getDefinition(HttpServletRequest request) throws Exception {
-        
+
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         String definitionPath = path.substring(DEFINITION.length() + 1);
 
         return getDefinition(definitionPath);
-        
+
     }
 
     /**
      * TODO: need ACL referenced by token
-     * 
+     *
      * @throws Exception
      */
     @RequestMapping(value = DEFINITION + "/**", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
@@ -231,7 +231,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
         return new DefinitionResource(resource);
     }
 
-    @RequestMapping(value = DEFINITION + "/**", method = { RequestMethod.POST })
+    @RequestMapping(value = DEFINITION + "/**", method = {RequestMethod.POST})
     public DefinitionResource createFolder(@RequestBody DefinitionResource newResource_, HttpServletRequest request) throws Exception {
 
         DefinitionResource newResource = newResource_;
@@ -265,7 +265,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
 
     }
 
-    @RequestMapping(value = DEFINITION + "/**", method = { RequestMethod.DELETE })
+    @RequestMapping(value = DEFINITION + "/**", method = {RequestMethod.DELETE})
     public void deleteDefinition(HttpServletRequest request) throws Exception {
 
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
@@ -298,13 +298,15 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
 
     /**
      * TODO: need ACL referenced by token
-     * 
+     *
      * @param definition
      * @throws Exception
      */
-    @RequestMapping(value = DEFINITION_RAW + "/**", method = { RequestMethod.POST, RequestMethod.PUT })
+    @RequestMapping(value = DEFINITION_RAW + "/**", method = {RequestMethod.POST, RequestMethod.PUT})
     public DefinitionResource putRawDefinition(@RequestBody String definition, HttpServletRequest request) throws Exception {
-        
+
+        String access_token = request.getHeader("access_token");
+
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 
         String definitionPath = path.substring(DEFINITION_RAW.length());
@@ -347,8 +349,8 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
             }
 
             //add additional info if definition is not a process definition!
-            if(!(definitionWrapper.getDefinition() instanceof ProcessDefinition) && !resource.getPath().endsWith("."+definitionWrapper.getDefinition().getClass().getSimpleName() + ".xml")){
-                resource = new DefaultResource(UEngineUtil.getNamedExtFile(resource.getPath(), definitionWrapper.getDefinition().getClass().getSimpleName() +".xml"));
+            if (!(definitionWrapper.getDefinition() instanceof ProcessDefinition) && !resource.getPath().endsWith("." + definitionWrapper.getDefinition().getClass().getSimpleName() + ".xml")) {
+                resource = new DefaultResource(UEngineUtil.getNamedExtFile(resource.getPath(), definitionWrapper.getDefinition().getClass().getSimpleName() + ".xml"));
             }
 
             resourceManager.save(resource, definitionWrapper.getDefinition());
@@ -356,17 +358,17 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
         } else {
             throw new Exception("unknown resource type: " + definitionPath);
         }
-        
+
         // TODO: deploy filter 로 등록된 bean 들을 호출:
         if (definitionDeployed instanceof ProcessDefinition) {
-            invokeDeployFilters((ProcessDefinition) definitionDeployed, resource.getPath().substring(RESOURCE_ROOT.length()+2));
+            invokeDeployFilters((ProcessDefinition) definitionDeployed, resource.getPath().substring(RESOURCE_ROOT.length() + 2));
         }
 
         return new DefinitionResource(resource);
     }
 
     private void invokeDeployFilters(ProcessDefinition definitionDeployed, String path) throws UEngineException {
-        
+
         Map<String, DeployFilter> filters = MetaworksRemoteService.getInstance().getBeanFactory().getBeansOfType(DeployFilter.class);
         if (filters != null && filters.size() > 0) {
             for (DeployFilter theFilter : filters.values()) {
@@ -377,7 +379,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
                 }
             }
         }
-        
+
     }
 
     @RequestMapping(value = DEFINITION_RAW + "/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -391,11 +393,11 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
 //        if(unwrap) {
 //            return objectMapper.writeValueAsString(definition);
 //        }else{
-            DefinitionWrapper definitionWrapper = new DefinitionWrapper(definition);
-            String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
-            return uEngineProcessJSON;
+        DefinitionWrapper definitionWrapper = new DefinitionWrapper(definition);
+        String uEngineProcessJSON = objectMapper.writeValueAsString(definitionWrapper);
+        return uEngineProcessJSON;
 //        }
-        
+
     }
 
     @RequestMapping(value = DEFINITION_RAW + "/**", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -406,7 +408,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
 
 
         return getRawDefinition(definitionPath);
-        
+
     }
 
     @RequestMapping(value = DEFINITION + "/xml/{defPath:.+}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -416,7 +418,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
         definitionPath = UEngineUtil.getNamedExtFile(definitionPath, "xml");
 
         //replace to production version if requested:
-        if(production){
+        if (production) {
             VersionManager versionManager = MetaworksRemoteService.getComponent(VersionManager.class);
             versionManager.load("codi", null);
 
@@ -426,7 +428,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
         Serializable definition = (Serializable) getDefinitionLocal(definitionPath);
         String uEngineProcessXML = Serializer.serialize(definition);
         return uEngineProcessXML;
-        
+
     }
 
 
@@ -439,7 +441,7 @@ public class DefinitionServiceImpl implements DefinitionService, DefinitionXMLSe
         boolean production = "true".equals(request.getParameter("production"));
 
         return getXMLDefinition(definitionPath, production);
-        
+
     }
 
     public Object getDefinitionLocal(String definitionPath) throws Exception {

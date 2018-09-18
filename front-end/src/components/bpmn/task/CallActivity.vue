@@ -39,7 +39,8 @@
         <bpmn-loop-type :loopType="loopType"></bpmn-loop-type>
         <bpmn-state-animation :status="status" :type="type"></bpmn-state-animation>
       </sub-elements>
-      <bpmn-sub-controller :type="type" :className="className" :callee-definition-id="activity.definitionId"></bpmn-sub-controller>
+      <bpmn-sub-controller :type="type" :className="className"
+                           :callee-definition-id="activity.definitionId"></bpmn-sub-controller>
     </geometry-element>
 
     <bpmn-property-panel
@@ -55,8 +56,8 @@
         <md-input-container>
           <label>연결 프로세스 정의</label>
 
-          <!--TODO: 실제 프로세스 정의 목록에서 혹은 검색으로 가져와야 함 -->
-          <md-autocomplete v-model="activity.definitionId" :list="recommendedDefinitionList" :filter-list="fetchDefinitionList">
+          <md-autocomplete v-model="activity.definitionId" :list="recommendedDefinitionList"
+                           :filter-list="fetchDefinitionList">
           </md-autocomplete>
 
 
@@ -82,7 +83,6 @@
         </div>
 
 
-
         <!--</md-input-container>-->
         <md-input-container>
           <label>Retry Delay</label>
@@ -99,21 +99,22 @@
 
 <script>
   import IBpmn from '../IBpmn'
+
   export default {
     mixins: [IBpmn],
     name: 'bpmn-call-activity',
     props: {},
     computed: {
-      defaultStyle(){
+      defaultStyle() {
         return {}
       },
-      type(){
+      type() {
         return 'Task'
       },
-      className(){
+      className() {
         return 'org.uengine.kernel.bpmn.CallActivity'
       },
-      createNew(newTracingTag, x, y, width, height){
+      createNew(newTracingTag, x, y, width, height) {
         return {
           _type: this.className(),
           name: {
@@ -138,7 +139,7 @@
     },
     data: function () {
       return {
-        rowData : [],
+        rowData: [],
         recommendedDefinitionList: [{name: ''}]
       };
     },
@@ -149,16 +150,13 @@
     //그러기 위해서는 watch 를 해야하는데, watch 대상은 activity 이다.
     watch: {
       drawer: function (editingMode) {
-          console.log('editing mode changed');
-          if(editingMode) {
-            this.loadData();
-          }
+        console.log('editing mode changed');
+        if (editingMode) {
+          this.loadData();
+        }
       },
     },
-//    created: function() {
-//      this.fetchDefinitionList();
-//    },
-    mounted: function(){
+    mounted: function () {
       //데피니션 리스트 조회
       this.loadData();
       this.fetchDefinitionList();
@@ -174,8 +172,8 @@
             $.each(response.data, function (i, definition) {
               var length = definition.length;
               var lastDot = definition.lastIndexOf('.') + 1;
-              var fileName  = definition.substring(lastDot, length);
-              if(fileName == "json") {
+              var fileName = definition.substring(lastDot, length);
+              if (fileName == "json") {
                 definition = definition.replace('.json', '');
                 definitions.push({
                   name: definition
@@ -186,19 +184,19 @@
           })
       },
 
-      fetchDefinitionList(list, param){
+      fetchDefinitionList(list, param) {
         var query = param;
         var me = this;
         var access_token = localStorage["access_token"];
 
-        var backend = hybind("http://localhost:8080", {headers: {'access_token': access_token}});
         me.recommendedDefinitionList = [({name: '-----List-----'})];
         var search = {};
-        backend.$bind("definition/search/findByDefIdContaining?defId=" + query, search);
 
-        search.$load().then(function(definition){
-          console.log(definition)
-          for(var i = 0; i < definition.length; i++) {
+        //TODO 404 error. is findByDefIdContaining path exist in definision service?
+        window.backend.$bind("definition/search/findByDefIdContaining?defId=" + query, search);
+
+        search.$load().then(function (definition) {
+          for (var i = 0; i < definition.length; i++) {
 
             var tmp = definition[i].name;
             me.recommendedDefinitionList.push({name: tmp});

@@ -1,7 +1,5 @@
 package org.uengine.five.service;
 
-import org.eclipse.persistence.internal.descriptors.PersistenceEntity;
-import org.eclipse.persistence.internal.identitymaps.CacheKey;
 import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.ResourceSupport;
@@ -13,8 +11,6 @@ import org.uengine.five.entity.DefinitionVersion;
 import org.uengine.five.repository.DefinitionRepository;
 import org.uengine.five.repository.DefinitionVersionRepository;
 import org.uengine.modeling.resource.Serializer;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import javax.transaction.Transactional;
 import java.io.ByteArrayInputStream;
@@ -51,11 +47,11 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
 
             if("last".equals(verId)){
                 DefinitionRepository definitionRepository = MetaworksRemoteService.getComponent(DefinitionRepository.class);
-                Definition definition = definitionRepository.findOne(defId);
+                Definition definition = definitionRepository.findById(defId).orElse(null);
 
                 definitionVersion = definition.getVersions().get(definition.getVersions().size()-1);
             }else{
-                definitionVersion = definitionVersionRepository.findOne(new Long(verId));
+                definitionVersion = definitionVersionRepository.findById(new Long(verId)).orElse(null);
             }
 
             ByteArrayInputStream bai = new ByteArrayInputStream(definitionVersion.getRawFile());
@@ -68,7 +64,7 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
 
         }else {
             DefinitionRepository definitionRepository = MetaworksRemoteService.getComponent(DefinitionRepository.class);
-            Definition definition = definitionRepository.findOne(defId);
+            Definition definition = definitionRepository.findById(defId).orElse(null);
 
             return definition.getDefinitionJson();
         }
@@ -93,7 +89,7 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
 
         if(verId!=null){
             DefinitionVersionRepository definitionVersionRepository = MetaworksRemoteService.getComponent(DefinitionVersionRepository.class);
-            DefinitionVersion definitionVersion = definitionVersionRepository.findOne(new Long(verId));
+            DefinitionVersion definitionVersion = definitionVersionRepository.findById(new Long(verId)).orElse(null);
 
             return new String(definitionVersion.getRawFile());
 
@@ -102,7 +98,7 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
             // Definition.afterLoadOne() will store the definition xml at the production version.
 
             DefinitionRepository definitionRepository = MetaworksRemoteService.getComponent(DefinitionRepository.class);
-            Definition definition = definitionRepository.findOne(defId);
+            Definition definition = definitionRepository.findById(defId).orElse(null);
 
             return definition.getDefinitionXml();
 
@@ -131,7 +127,7 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
         Definition definition;
 
         DefinitionRepository definitionRepository = MetaworksRemoteService.getComponent(DefinitionRepository.class);
-        definition = definitionRepository.findOne(defId);
+        definition = definitionRepository.findById(defId).orElse(null);
 
         if(definition==null){
             definition = new Definition();
@@ -148,7 +144,7 @@ public class DefinitionServiceImpl implements DefinitionXMLService {
     public ResourceSupport makeProduction(@PathVariable("defVerId") String defVerId) throws Exception {
         DefinitionVersionRepository  definitionVersionRepository = MetaworksRemoteService.getComponent(DefinitionVersionRepository.class);
 
-        DefinitionVersion definitionVersion = definitionVersionRepository.findOne(new Long(defVerId));
+        DefinitionVersion definitionVersion = definitionVersionRepository.findById(new Long(defVerId)).orElse(null);
 
         definitionVersion.getDefinition().setProdVerId(definitionVersion.getDefVerId());
         definitionVersionRepository.save(definitionVersion);

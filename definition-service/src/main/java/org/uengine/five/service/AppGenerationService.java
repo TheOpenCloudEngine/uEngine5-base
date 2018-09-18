@@ -9,14 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.uengine.cloud.app.AppCreate;
 import org.uengine.cloud.app.TemplateSpecific;
 import org.uengine.cloud.catalog.FileMapping;
-import org.uengine.cloud.services.AppService;
-import org.uengine.modeling.Relation;
 import org.uengine.uml.ClassDiagram;
-import org.uengine.uml.model.Aggregation;
-import org.uengine.uml.model.Association;
-import org.uengine.uml.model.Attribute;
 import org.uengine.uml.model.ClassDefinition;
-import org.uengine.util.UEngineUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +24,7 @@ import java.util.Properties;
 public class AppGenerationService {
 
     @Autowired
-    AppService appService;
+    CloudAppService appService;
 
 //    @Autowired
 //    JavaReverseService javaReverseService;

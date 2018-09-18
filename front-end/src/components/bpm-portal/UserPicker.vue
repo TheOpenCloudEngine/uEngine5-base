@@ -5,12 +5,12 @@
 
     <md-dialog-content>
       <div v-for="(role,index) in roles" :key="role.name">
-          <md-input-container>
-              <label>{{role.name}}</label>
-              <user-autocomplete
-                v-model="users[role.name]"
-                ></user-autocomplete>
-          </md-input-container>
+        <md-input-container>
+          <label>{{role.name}}</label>
+          <user-autocomplete
+            v-model="users[role.name]"
+          ></user-autocomplete>
+        </md-input-container>
       </div>
     </md-dialog-content>
 
@@ -61,14 +61,14 @@
         this.$refs['userPicker'].close();
       },
 
-      loadUsers: function(){
+      loadUsers: function () {
         var me = this;
         $.each(me.roles, function (index, arg) {
-            me.$root.codi('instance{/id}/role-mapping{/roleName}').get({id: me.id, roleName: arg.name})
-              .then(function (response) {
-                //me.users[arg.name] = response.data.endpoint;  ---- X
-                Vue.set(me.users, arg.name, response.data.endpoint) //----O
-              })
+          me.$root.codi('instance{/id}/role-mapping{/roleName}').get({id: me.id, roleName: arg.name})
+            .then(function (response) {
+              //me.users[arg.name] = response.data.endpoint;  ---- X
+              Vue.set(me.users, arg.name, response.data.endpoint) //----O
+            })
         })
       }
     }

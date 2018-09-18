@@ -1,28 +1,23 @@
 package org.uengine.five.overriding;
 
-import org.metaworks.dwr.MetaworksRemoteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.uengine.five.entity.ProcessInstanceEntity;
 import org.uengine.five.framework.ProcessTransactionContext;
 import org.uengine.five.framework.ProcessTransactionListener;
 import org.uengine.five.repository.ProcessInstanceRepository;
-import org.uengine.five.service.DefinitionService;
 import org.uengine.five.service.DefinitionServiceUtil;
-import org.uengine.five.service.InstanceService;
 import org.uengine.five.service.InstanceServiceImpl;
 import org.uengine.kernel.*;
 import org.uengine.modeling.resource.DefaultResource;
 import org.uengine.modeling.resource.IResource;
 import org.uengine.modeling.resource.ResourceManager;
-import org.uengine.persistence.processinstance.ProcessInstanceDAO;
 import org.uengine.webservices.worklist.WorkList;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by uengine on 2017. 8. 9..
@@ -48,25 +43,31 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
     ProcessInstanceRepository processInstanceRepository;
 
     ProcessInstanceEntity processInstanceEntity;
+
     public ProcessInstanceEntity getProcessInstanceEntity() {
         return processInstanceEntity;
     }
+
     public void setProcessInstanceEntity(ProcessInstanceEntity processInstanceEntity) {
         this.processInstanceEntity = processInstanceEntity;
     }
 
     boolean newInstance;
+
     public boolean isNewInstance() {
         return newInstance;
     }
+
     public void setNewInstance(boolean newInstance) {
         this.newInstance = newInstance;
     }
 
     boolean prototype;
+
     public boolean isPrototype() {
         return prototype;
     }
+
     public void setPrototype(boolean prototype) {
         this.prototype = prototype;
     }
@@ -112,7 +113,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
                 getProcessInstanceEntity().setEventHandler(options.containsKey("isEventHandler"));
 
                 //TODO: need main process definition object instance from argument not the link (id) or the cache will provide the cached one
-            }else{
+            } else {
                 mainProcessInstance = this;
                 rootProcessInstance = this;
             }
@@ -129,7 +130,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
         }
 
-        if(procDefinition!=null && procDefinition.isVolatile())
+        if (procDefinition != null && procDefinition.isVolatile())
             setPrototype(true);
     }
 
@@ -147,11 +148,11 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
                 getProcessInstanceEntity().setRootInstId(getProcessInstanceEntity().getInstId());
             }
         } else { // else, load the instance
-            setProcessInstanceEntity(processInstanceRepository.findOne(Long.valueOf(getInstanceId())));
+            ProcessInstanceEntity processInstanceEntity =
+                    processInstanceRepository.findById(Long.valueOf(getInstanceId()))
+                            .orElseThrow(() -> new UEngineException("No such process instance where id = " + getInstanceId()));
 
-            if(getProcessInstanceEntity()==null)
-                throw new UEngineException("No such process instance where id = " + getInstanceId());
-
+            setProcessInstanceEntity(processInstanceEntity);
             Map variables = loadVariables();
             setVariables(variables);
         }
@@ -213,7 +214,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     @Override
     public ProcessInstance getMainProcessInstance() throws Exception {
-        if(mainProcessInstance!=null)
+        if (mainProcessInstance != null)
             return mainProcessInstance;
 
         if (getMainProcessInstanceId() == null)
@@ -228,7 +229,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     @Override
     public ProcessInstance getRootProcessInstance() throws Exception {
-        if(rootProcessInstance!=null)
+        if (rootProcessInstance != null)
             return rootProcessInstance;
 
         if (getRootProcessInstanceId() == null)
@@ -316,7 +317,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     @Override
     public String getName() {
-        if(getProcessInstanceEntity()!=null)
+        if (getProcessInstanceEntity() != null)
             return getProcessInstanceEntity().getName();
 
         else return null;
@@ -324,13 +325,13 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     @Override
     public void setName(String value) {
-        if(getProcessInstanceEntity()!=null)
+        if (getProcessInstanceEntity() != null)
             getProcessInstanceEntity().setName(value);
     }
 
     @Override
     public String getInfo() {
-        if(getProcessInstanceEntity()!=null)
+        if (getProcessInstanceEntity() != null)
             return getProcessInstanceEntity().getInfo();
 
         else return null;
@@ -338,7 +339,7 @@ public class JPAProcessInstance extends DefaultProcessInstance implements Proces
 
     @Override
     public void setInfo(String value) {
-        if(getProcessInstanceEntity()!=null)
+        if (getProcessInstanceEntity() != null)
             getProcessInstanceEntity().setInfo(value);
     }
 

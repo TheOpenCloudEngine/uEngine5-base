@@ -1,0 +1,9 @@
+spring:
+  application:
+      name: uengine5-eureka
+  profiles:
+    active: "local"
+
+---
+spring:
+  profiles: local

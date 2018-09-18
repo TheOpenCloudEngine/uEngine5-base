@@ -256,6 +256,8 @@
       @close="deleteClose"
       ref="delete">
     </md-dialog-confirm>
+
+    <modeler-image-generator ref="modeler-image-generator"></modeler-image-generator>
   </div>
 </template>
 <script>
@@ -410,14 +412,24 @@
               if (definition.directory) {
                 folders.push(definition);
               } else {
-                cards.push(definition);
+                //path
                 definition.desc = name + '...';
-                definition.src = location.pathname + ((location.pathname == '/' || location.pathname.lastIndexOf('/') > 0) ? '' : '/') + 'static/image/sample.png';
+                //localStorage['svg-' + me.id];
+
+                var svgData = me.$refs['modeler-image-generator'].load(definition.path.replace('.xml', '').replace('.json', ''));
+                if (svgData) {
+                  //definition.src = 'data:image/svg+xml;utf-8,' + svgData;
+                  definition.src = svgData;
+                } else {
+                  definition.src = '/static/image/sample.png';
+                }
+                cards.push(definition);
               }
             });
           }
         });
 
+        //localStorage['svg-' + me.id] = svgData;
         me.directory = folders;
         me.cards = cards;
       },

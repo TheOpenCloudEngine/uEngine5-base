@@ -1,0 +1,297 @@
+security:
+  password:
+    encoder:
+      secret1: Bar12345Bar12345
+      secret2: ThisIsASecretKet
+
+spring:
+  data:
+    rest:
+      basePath: /api/v1
+
+# ========================================
+#  IAM 시스템 Configuration
+# ========================================
+
+iam:
+# 어드민 정보
+  admin:
+    username: admin
+    password: admin
+  jwt:
+    # jwt 암호화 키
+    key: my-jwt-encrypt-key-my-jwt-encrypt-key
+
+    # jwt 발급자
+    issuer: ${spring.application.name}
+
+    # 기한 만료된 리프레쉬 토큰 삭제 체크 인터벌
+    oldRefreshTokenTimeout: 60
+
+    # 메타데이터 암호화 키
+    metadata-encoder-secret1: Bar12345Bar12345
+    metadata-encoder-secret2: ThisIsASecretKet
+
+    # 암호화 할 메타데이터 필드.
+    secure-metadata-fields:
+      - "$.store.book[0].category"
+      - "$.gitlabToken"
+
+# 시스템 이메일 정보 (옵셔널)
+  mail:
+    host: smtp.gmail.com
+    username: "sppark@uengine.org"
+    password: "!gosu23546"
+    port: 587
+    smtp-auth: true
+    smtp-starttls-enable: true
+    from-address: sppark@uengine.org
+    from-name: uengine
+
+  billing:
+    url: "http://billing.pas-mini.io"
+    authentication: "Basic ZGFya2dvZGFya2dvQGdtYWlsLmNvbTpnb3N1MjM1NDY="
+    organization: "37e1fcf5-8244-46bb-a4e2-3a1c7363fdcb"
+    account-sync: true
+    account-sync-body:
+      name: "$.name" #required
+      email: "$.email" #required
+      billCycleDayLocal: 0 #required
+      currency: "KRW" #required
+      locale: "ko_KR" #required
+      parentAccountId: null
+      isPaymentDelegatedToParent: false
+      timeZone: "UTC"
+      address1: "$.address1"
+      address2: "$.address2"
+      postalCode: "$.postalCode"
+      company: "$.company"
+      city: "$.city"
+      state: "$.state"
+      country: "KR"
+      phone: "$.phone"
+      notes: "$.notes"
+      isNotifiedForInvoices: true
+
+# =============================================
+#  스코프 - 주로 백엔드 서비스에 해당됩니다.
+# =============================================
+scopes:
+  - name: cloud-server
+    description: 클라우드 서버 접근을 허용합니다.
+  - name: bpm
+    description: bpm 서비스를 사용합니다.
+
+# =============================================
+#  클라이언트 - 주로 프론트 엔드 어플리케이션에 해당됩니다.
+# =============================================
+clients:
+  - name: uEngine-bpmn-saas
+    description: uEngine bpmn Application
+    clientKey: my-client-key
+    clientSecret: my-client-secret
+
+    # 토큰 발급시 요청할 수 있는 스코프 목록 (콤마 세퍼레이션)
+    enable-scopes: cloud-server,bpm
+
+    # 유저 스코프 체크. 유저 metadata 의 scopes 를 검사한다.
+    # true: 요청받은 스코프를 모두 가지고 있어야 한다.
+    # false: 요청받은 스코프 중 일부만 가지고 있으면 된다. (default)
+    user-scope-check-all: false
+
+    # client-key,client-secret 헤더로 Rest api 를 호출할 수 있는 권한.
+    # 회원 가입,사용자 정보 수정등의 rest api 를 호출할 수 있다.
+    # 서드파티 어플리케이션은 권한을 주면 안되고, 오피셜 어플리케이션은 권한을 가지는것을 추천.
+    access-rest-enable: true
+
+    # 클라이언트 활성화 여부
+    activeClient: true
+
+    # 지원하는 그런트 타입.
+    authorizedGrantTypes: code,implicit,password,credentials
+
+    # code,implicit 방식의 로그인일 때 리다이렉트 되는 주소.
+    webServerRedirectUri: http://front-end.pas-mini.io#login-redirect
+
+    # 리프레쉬 토큰 발급.
+    refreshTokenValidity: true
+
+    # 만기 토큰 자동 삭제.
+    autoDeletionToken: true
+
+    # JWT 토큰 콘텍스트에 포함될 정보 : clientKey,scopes,type,refreshToken,userName,user | ALL
+    requiredContext: clientKey,scopes,type,refreshToken,userName,user
+
+    # JWT 토큰 알고리즘: HS256 or RS256
+    jwtAlgorithm: HS256
+
+    # code 인증 방식의 유지시간.
+    codeLifetime: 36000
+
+    # 리프레쉬 토큰 유효시간
+    refreshTokenLifetime: 2592000
+
+    # 어세스 토큰 유효시간
+    accessTokenLifetime: 3600
+
+    # 사용자 알림 메일 발송 SIGN_UP,SIGNED_UP,FORGOT_PASSWORD,PASSWORD_CHANGED | ALL
+    notification: ALL
+
+facebook:
+  clientName: facebook
+  client:
+    clientId: 2226652360914220
+    clientSecret: d0e6b7b32a3c95e0457ca618f4b0efd4
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://graph.facebook.com/me?fields=id,name,email,picture
+  # 인증 결과값을 받을 형식 token / code
+  responseType: token
+  # responseType 이 token 일 경우 설정.
+  tokenType: JWT
+  # 인증 성공후 redirectUri
+  redirectUri: http://localhost:8081/#/auth/verification
+  # 상위 ClientId 의 기본 셋팅을 상속함
+  parentClientId: ${clients[0].clientKey}
+  # 소셜 로그인 기본 scope 설정
+  scopes: cloud-server,bpm
+
+
+github:
+  clientName: github
+  client:
+    clientId: 057eebbd3686c068b1ce
+    clientSecret: f7414a9b5b7e71ea215cc730e28c340a02c8ebfa
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user
+  # 인증 결과값을 받을 형식 token / code
+  responseType: token
+  # responseType 이 token 일 경우 설정.
+  tokenType: JWT
+  # 인증 성공후 redirectUri
+  redirectUri: http://localhost:8081/#/auth/verification
+  # 상위 ClientId 의 기본 셋팅을 상속함
+  parentClientId: ${clients[0].clientKey}
+  # 소셜 로그인 기본 scope 설정
+  scopes: cloud-server,bpm
+
+google :
+  clientName: google
+  client :
+    clientId: 970411080478-rjvn7k0g9goush0pve0ipokf7i4gcug8.apps.googleusercontent.com
+    clientSecret: _5QN578FsFP1MazLGEScbNUK
+    accessTokenUri: https://accounts.google.com/o/oauth2/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+    clientAuthenticationScheme: form
+    scope: email, profile
+  resource:
+    userInfoUri: https://www.googleapis.com/oauth2/v2/userinfo
+  # 인증 결과값을 받을 형식 token / code
+  responseType: token
+  # responseType 이 token 일 경우 설정.
+  tokenType: JWT
+  # 인증 성공후 redirectUri
+  redirectUri: http://localhost:8081/#/auth/verification
+  # 상위 ClientId 의 기본 셋팅을 상속함
+  parentClientId: ${clients[0].clientKey}
+  # 소셜 로그인 기본 scope 설정
+  scopes: cloud-server,bpm
+
+---
+spring:
+  profiles: local
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://bpm-dev.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com:3306/iam
+    username: root
+    password: 18925ung
+
+server:
+  port: 8180
+  servlet:
+    context-path: /
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+# ======================
+#  Eureka Configuration
+# ======================
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    statusPageUrlPath: ${server.servlet.context-path}info
+    healthCheckUrlPath: ${server.servlet.context-path}health
+    metadataMap:
+        deployment: local
+        profile: local
+
+---
+spring:
+  profiles: docker
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://bpm-dev.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com:3306/iam
+    username: root
+    password: 18925ung
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# ======================
+#  Eureka Configuration
+# ======================
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    hostname: ${HOST}
+    nonSecurePort: ${PORT}
+
+
+    preferIpAddress: false
+    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
+    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
+    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
+    instanceId: ${HOST}:${spring.application.name}:${PORT}
+    metadataMap:
+        project: ${CI_PROJECT_NAME}
+        commitSha: ${CI_COMMIT_SHA}
+        image: ${MARATHON_APP_DOCKER_IMAGE}
+        deployment: ${DEPLOYMENT}
+        profile: ${PROFILE}

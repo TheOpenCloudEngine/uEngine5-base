@@ -1,0 +1,113 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+
+zuul:
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
+  addProxyHeaders: true
+
+  routes:
+    definition:
+      path: /definition/**
+      serviceId: definition
+      stripPrefix: false
+    version:
+      path: /version/**
+      serviceId: definition
+      stripPrefix: false
+    instance:
+      path: /instance/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-entity:
+      path: /instances/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-service:
+      path: /service/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-services:
+      path: /services/**
+      serviceId: bpm
+      stripPrefix: false
+    worklist-entity:
+      path: /worklist/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-workitem:
+      path: /work-item/**
+      serviceId: bpm
+      stripPrefix: false
+    metadata:
+      path: /classdefinition/**
+      serviceId: bpm
+      stripPrefix: false
+#### important for BPM introspection  ####
+
+    eureka:
+      path: /eureka/**
+      url: ${eureka.client.serviceUrl.defaultZone}
+      stripPrefix: true
+
+    bpm:
+      path: /bpm/**
+      serviceId: bpm
+      stripPrefix: true
+
+#### proxies for reverse engineering and java code generation ###
+
+    gitlab:
+      url: http://gitlab.pas-mini.io/api/v4/
+      stripPrefix: true
+      addHeader:
+        PRIVATE-TOKEN: 2A_LokKTbnywjw8shHy-
+
+---
+spring:
+  profiles: local
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    statusPageUrlPath: ${server.servlet.context-path}info
+    healthCheckUrlPath: ${server.servlet.context-path}health
+    metadataMap:
+        deployment: local
+        profile: local
+        appType: zuul
+
+---
+spring:
+  profiles: compose
+
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST}:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    statusPageUrlPath: ${server.servlet.context-path}info
+    healthCheckUrlPath: ${server.servlet.context-path}health
+    metadataMap:
+        deployment: compose
+        profile: compose
+        appType: zuul

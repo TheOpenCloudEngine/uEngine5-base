@@ -13,7 +13,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Relation(value = "version", collectionRelation = "versions")
-public class VersionResource extends ResourceSupport{
+public class VersionResource extends ResourceSupport {
 
 
 

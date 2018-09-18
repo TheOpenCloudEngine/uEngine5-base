@@ -145,7 +145,9 @@
           var xhr = new XMLHttpRequest();
 
           if(this.metadataResolver){
+            console.log('this.metadataResolver', this.metadataResolver, this.java);
             metadata = this.metadataResolver(this.java, this);
+            console.log('metadata', metadata);
           }else{
 
             xhr.open('GET', this.getServiceHost() + "/classdefinition?className=" + this.java, false);

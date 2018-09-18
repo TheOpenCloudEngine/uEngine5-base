@@ -1,8 +1,5 @@
 package org.uengine.five.overriding;
 
-import org.metaworks.dwr.MetaworksRemoteService;
-import org.uengine.five.entity.AuditEntity;
-import org.uengine.five.repository.AuditEntityRepository;
 import org.uengine.kernel.Activity;
 import org.uengine.kernel.ActivityFilter;
 import org.uengine.kernel.ProcessDefinition;

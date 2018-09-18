@@ -1,9 +1,7 @@
 package org.uengine.five.overriding;
 
 import org.metaworks.dwr.MetaworksRemoteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.metaworks.eventsourcing.EventSender;
-import org.springframework.context.annotation.Lazy;
 import org.uengine.kernel.Activity;
 import org.uengine.kernel.DeployFilter;
 import org.uengine.kernel.ProcessDefinition;

@@ -303,7 +303,7 @@ public class Definition implements BeforeSave, AfterLoadOne {//implements Proces
             if(getVersionId()!=null){
                 DefinitionVersionRepository definitionVersionRepository = MetaworksRemoteService.getComponent(DefinitionVersionRepository.class);
 
-                definitionVersion = definitionVersionRepository.findOne(getVersionId());
+                definitionVersion = definitionVersionRepository.findById(getVersionId()).orElse(null);
             }else {
 
                 if(getVersions().size() == 0) // there's no version at all

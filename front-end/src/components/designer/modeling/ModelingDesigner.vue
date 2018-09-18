@@ -95,6 +95,8 @@
 
 
     </md-layout>
+
+    <modeler-image-generator ref="modeler-image-generator"></modeler-image-generator>
   </div>
 </template>
 
@@ -168,24 +170,17 @@
       });
 
     },
-    //컴포넌트가 Dom 에 등록되었을 떄(실제 렌더링 되기 위해 활성화 되었을 때.)
     mounted() {
     },
-
-    //watch : prop 나, data 요소의 값이 변경됨을 감지하는 녀석.
     watch: {
       value: {
         handler: function (after, before) {
 
           this.$nextTick(function () {
-
             this.reconnectRelations()
-
           })
 
-
           this.$emit('input', this.value);
-
           if (this.enableHistoryAdd) {
             this.enableHistoryAdd = false;
           }
@@ -526,6 +521,9 @@
             me.$root.$children[0].error('저장할 수 없습니다.');
           }
         );
+
+        //save image to localstorage
+        me.$refs['modeler-image-generator'].save(me.id, me.canvas);
       },
 
       changeLocale: function () {

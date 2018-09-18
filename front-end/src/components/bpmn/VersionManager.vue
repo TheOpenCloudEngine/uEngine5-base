@@ -84,7 +84,7 @@
     var me = this;
     me.loadVersions();
 
-    me.iam.getUser(localStorage['userId']).then(function(response){
+    me.iam.getUser(localStorage['userName']).then(function(response){
       me.user = response;
       console.log(me.user);
     })

@@ -8,6 +8,5 @@ import org.springframework.context.annotation.Profile;
  * Created by uengine on 2018. 1. 22..
  */
 @Configuration
-@Profile("msa")
 public class EventSourcingConfig extends Metaworks4EventSourcingConfig {
 }

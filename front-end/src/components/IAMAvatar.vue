@@ -2,7 +2,7 @@
   <div v-if="workItem != null">
     <md-avatar>
       <img
-        :src="iamHost + '/rest/v1/avatar?userName' + workItem.worklist.endpoint"
+        :src="iamHost + '/rest/v1/avatar?userName=' + workItem.worklist.endpoint"
         alt="People">
     </md-avatar>
   </div>

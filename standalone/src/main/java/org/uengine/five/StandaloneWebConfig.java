@@ -8,8 +8,11 @@ import org.metaworks.multitenancy.tenantawarefilter.TenantAwareFilter;
 import org.metaworks.rest.MetaworksRestService;
 import org.metaworks.springboot.configuration.CorsFilter;
 import org.metaworks.springboot.configuration.Metaworks4WebConfig;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.uengine.five.entity.ProcessInstanceEntity;
@@ -34,6 +37,10 @@ import java.util.Map;
 @EnableJpaRepositories(basePackageClasses = {MultitenantRepositoryImpl.class, ProcessInstanceRepository.class})
 @Profile("standalone")
 public class StandaloneWebConfig extends Metaworks4WebConfig{
+
+    public StandaloneWebConfig(ApplicationContext context, ObjectFactory<ConversionService> conversionService) {
+        super(context, conversionService);
+    }
 
     /**
      * Uncomment if this needs a CORS setting by itself

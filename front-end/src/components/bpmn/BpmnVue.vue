@@ -32,12 +32,6 @@
 
       <!--액티비티는 각 활동 요소-->
       <div v-for="activity in data.definition.childActivities[1]">
-        <!--component 로 지칭한 것은 뒤의 is 가 가르키는 컴포넌트 이름으로 뜸-->
-
-        <!--//TODO 여기의 status 를 http://localhost:8080/instance/1/variables 에서 얻어온 status 로 교체하여야 한다.-->
-        <!--ex) :status="???"-->
-        <!--그러기 위해서는 SvgGraph(데이터 불러오는 부분) 에서, definition 가져온 이후에, definition 안에 있는 childActivities 를 까서-->
-        <!--그 안에 tracingTag 가 동일한 것들에 대해 status 를 매핑시켜주어야 한다.-->
         <component v-if="activity != null" :is="getComponentByClassName(activity._type)"
                    :activity.sync="activity" :definition="data.definition"
                    :status="activity.status" :faultMessage="activity.faultMessage"
@@ -49,7 +43,8 @@
         <bpmn-relation v-if="relation != null" :relation.sync="relation" :definition="data.definition"></bpmn-relation>
       </div>
       <div v-for="relation in data.definition.messageFlows">
-        <bpmn-message-flow v-if="relation != null" :relation.sync="relation" :definition="data.definition"></bpmn-message-flow>
+        <bpmn-message-flow v-if="relation != null" :relation.sync="relation"
+                           :definition="data.definition"></bpmn-message-flow>
       </div>
     </opengraph>
     <bpmn-component-changer
@@ -88,8 +83,11 @@
             <label>Instance Name Pattern</label>
             <md-input v-model="data.definition.instanceNamePattern"></md-input>
           </md-input-container>
-          <md-switch v-model="data.definition.initiateByFirstWorkitem" id="my-test1" name="my-test1" class="md-primary">Initiate by event</md-switch>
-          <md-switch v-model="data.definition.volatile" id="my-test1" name="my-test1" class="md-primary">Volatile</md-switch>
+          <md-switch v-model="data.definition.initiateByFirstWorkitem" id="my-test1" name="my-test1" class="md-primary">
+            Initiate by event
+          </md-switch>
+          <md-switch v-model="data.definition.volatile" id="my-test1" name="my-test1" class="md-primary">Volatile
+          </md-switch>
 
         </form>
       </md-dialog-content>
@@ -112,7 +110,7 @@
       definition: Object,
       monitor: Boolean,
       backend: Object,
-      dragPageMovable:Boolean
+      dragPageMovable: Boolean
     },
 
     mounted: function () {
@@ -132,10 +130,10 @@
         shortDescription.text = "";
       }
 
-      if(!this.data.definition.initiateByFirstWorkitem)
+      if (!this.data.definition.initiateByFirstWorkitem)
         this.data.definition.initiateByFirstWorkitem = false;
 
-      if(!this.data.definition.volatile)
+      if (!this.data.definition.volatile)
         this.data.definition.volatile = false;
 
       // mount시 현재 locale 값으로 text 처리 - 프로세스 정의
@@ -174,7 +172,7 @@
         //timer end
         this.$refs.opengraph.printTimer(startTime, new Date().getTime());
 
-        this.$emit('update:loaded', this.loaded = true)
+        this.$emit('update:loaded', true)
       });
     },
 
@@ -428,7 +426,7 @@
 
         if (poolElement && me.canvas.getRenderer().isLane(poolElement)) {
           return poolElement.shape.label;
-        }else{
+        } else {
           return laneElement.shape.label;
         }
 
@@ -495,10 +493,9 @@
 
       addChild: function (child, parent, isRelation) {
         if (isRelation) {
-          if(child._type=="org.uengine.kernel.bpmn.MessageFlow"){
-              this.data.definition.messageFlows.push(child);
-          }else
-          if (parent) {
+          if (child._type == "org.uengine.kernel.bpmn.MessageFlow") {
+            this.data.definition.messageFlows.push(child);
+          } else if (parent) {
             console.log('parent.tracingTag', parent.tracingTag);
             if (!parent.sequenceFlows) {
               parent.sequenceFlows = []
@@ -508,7 +505,6 @@
             console.log('parent is root');
             this.data.definition.sequenceFlows.push(child);
           }
-
 
 
         } else {
@@ -777,7 +773,7 @@
         } else {
           console.log('** onUserAction fired.');
           this.enableHistoryAdd = true;
-          //TODO 데피니션 업데이트 watch 를 강제 활성화시키는 더 좋은 방법 찾아보기.
+
           this.data.trigger = JSON.parse(JSON.stringify(this.data.trigger));
         }
       }
@@ -817,7 +813,7 @@
 
           console.log({formRole: fromPool, toRole: toPool})
 
-          var relationComponentTag = (fromPool == toPool || toPool==null ? "bpmn-relation" : "bpmn-message-flow")
+          var relationComponentTag = (fromPool == toPool || toPool == null ? "bpmn-relation" : "bpmn-message-flow")
 
           var bpmnComponent = me.getComponentByName(relationComponentTag);
           additionalData = bpmnComponent.computed.createNew(
@@ -989,7 +985,7 @@
             recursiveCheck(definition);
           })
         }
-        if(additionalDefinition){
+        if (additionalDefinition) {
           recursiveCheck(additionalDefinition);
         }
         return maxTracingTag + 1 + '';

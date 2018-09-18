@@ -2,18 +2,8 @@ spring:
   application:
       name: definition
   profiles:
-    active: msa
+    active: local
 
 ---
 spring:
   profiles: local
-  cloud:
-    config:
-      uri: http://config.pas-mini.io
-
----
-spring:
-  profiles: dev,stg,prod
-  cloud:
-    config:
-      uri: http://marathon-lb-internal.marathon.mesos:10000

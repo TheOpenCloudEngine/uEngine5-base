@@ -14,6 +14,6 @@ spring:
 ---
 spring:
   profiles: dev,stg,prod
-  cloud:
-    config:
-      uri: http://marathon-lb-internal.marathon.mesos:10000
+#  cloud:
+#    config:
+#      uri: http://marathon-lb-internal.marathon.mesos:10000

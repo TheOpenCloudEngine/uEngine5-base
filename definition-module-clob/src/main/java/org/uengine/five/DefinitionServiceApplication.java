@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.metaworks.multitenancy.persistence.MultitenantRepositoryImpl;
 import org.metaworks.multitenancy.tenantawarefilter.TenantAwareFilter;
 import org.metaworks.springboot.configuration.Metaworks4BaseApplication;
 import org.springframework.beans.factory.ObjectProvider;
@@ -17,12 +16,10 @@ import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.autoconfigure.transaction.TransactionManagerCustomizers;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +34,6 @@ import javax.sql.DataSource;
 @EnableEurekaClient
 @RestController
 @EnableCircuitBreaker
-@EnableHystrixDashboard
 @SpringBootApplication
 //@EnableJpaRepositories(repositoryBaseClass = MultitenantRepositoryImpl.class)
 

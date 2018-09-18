@@ -1,6 +1,5 @@
 package org.uengine.five.framework;
 
-import org.uengine.five.framework.ProcessTransactionListener;
 import org.uengine.kernel.ActivityInstanceContext;
 import org.uengine.kernel.ProcessInstance;
 import org.uengine.util.ForLoop;
@@ -15,7 +14,7 @@ import java.util.Map;
  */
 public class ProcessTransactionContext {
 
-    static ThreadLocal<org.uengine.five.framework.ProcessTransactionContext> local = new ThreadLocal<org.uengine.five.framework.ProcessTransactionContext>();
+    static ThreadLocal<ProcessTransactionContext> local = new ThreadLocal<ProcessTransactionContext>();
     private boolean commitable;
 
     protected ProcessTransactionContext() {
@@ -36,11 +35,11 @@ public class ProcessTransactionContext {
         return tc;
     }
 
-    List<org.uengine.five.framework.ProcessTransactionListener> transactionListeners = new ArrayList<org.uengine.five.framework.ProcessTransactionListener>();
-    public void addTransactionListener(org.uengine.five.framework.ProcessTransactionListener tl) {
+    List<ProcessTransactionListener> transactionListeners = new ArrayList<ProcessTransactionListener>();
+    public void addTransactionListener(ProcessTransactionListener tl) {
         transactionListeners.add(tl);
     }
-    public List<org.uengine.five.framework.ProcessTransactionListener> getTransactionListeners() {
+    public List<ProcessTransactionListener> getTransactionListeners() {
         return transactionListeners;
     }
 
@@ -85,7 +84,7 @@ public class ProcessTransactionContext {
     protected void beforeCommit() throws Exception {
         ForLoop beforeCommitLoop = new ForLoop() {
             public void logic(Object target) {
-                org.uengine.five.framework.ProcessTransactionListener tl = (ProcessTransactionListener) target;
+                ProcessTransactionListener tl = (ProcessTransactionListener) target;
                 try {
                     tl.beforeCommit(org.uengine.five.framework.ProcessTransactionContext.this);
                 } catch (Exception e) {

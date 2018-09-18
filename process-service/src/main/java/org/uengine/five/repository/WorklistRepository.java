@@ -14,7 +14,7 @@ import java.util.List;
 @RepositoryRestResource(collectionResourceRel = "worklist", path = "worklist")
 public interface WorklistRepository extends MultitenantRepository<WorklistEntity, Long> {
 
-    @Query("select wl from WorklistEntity wl where (wl.endpoint = ?#{loggedUserId} or wl.endpoint in ?#{loggedUserScopes}) and (wl.status = 'NEW' or wl.status = 'DRAFT')")
+    @Query("select wl from WorklistEntity wl where wl.endpoint = ?#{loggedUserId} and (wl.status = 'NEW' or wl.status = 'DRAFT')")
     public List<WorklistEntity> findToDo();
 }
 

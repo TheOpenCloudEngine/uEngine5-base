@@ -1,54 +1,73 @@
-version: "3"
+version: '3.3'
+
 services:
-
-#  process-api:
-#    image: uengine-five-process:latest
-#    deploy:
-#      replicas: 1
-#      restart_policy:
-#        condition: on-failure
-#    ports:
-#      - "8089:8080"
-#    networks:
-#      - webnet
-
-  definition-api:
-    image: uengine-five-definition:latest
-    deploy:
-      replicas: 2
-      restart_policy:
-        condition: on-failure
-    volumes:
-      - /tmp:/tmp
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka-reactive-processor
     ports:
-      - "8088:8080"
-    networks:
-      - webnet
-#    depends-on:
-#      - registry
-#      - webnet
+      - "9092:9092"
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - KAFKA_ADVERTISED_PORT=9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+    depends_on:
+      - zookeeper
 
-  proxy:
-    image: uengine-proxy-server:latest
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
+  zookeeper:
+    image: wurstmeister/zookeeper
     ports:
-      - "8080:8080"
-    networks:
-      - webnet
+      - "2181:2181"
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=zookeeper
 
-  registry:
-    image: uengine-registry-server:latest
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
+  eureka:
+   build: ./uengine5-eureka/
+   restart: always
+   ports:
+     - "8761:8761"
+   environment:
+     SPRING_PROFILES_ACTIVE: compose
+
+  zuul:
+   depends_on:
+     - uengine5-eureka
+   build: ./uengine5-zuul/
+   ports:
+     - "8080:8080"
+   restart: always
+   environment:
+     SPRING_PROFILES_ACTIVE: compose
+     EUREKA_HOST: uengine5-eureka
+
+  definition-service:
+    depends_on:
+      - uengine5-eureka
+      - kafka
+    build: ./definition-service/
     ports:
-      - "8761:8761"
-    networks:
-      - webnet
+      - "9010:8080"
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: compose
+      EUREKA_HOST: uengine5-eureka
+      KAFKA_HOST: kafka
+      DB_HOST: jdbc:mysql://bpm-dev.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com
+      DB_USER: root
+      DB_PASS: 18925ung
 
-networks:
-  webnet:
+  process-service:
+    depends_on:
+      - uengine5-eureka
+      - kafka
+    build: ./process-service/
+    ports:
+      - "9020:8080"
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: compose
+      EUREKA_HOST: uengine5-eureka
+      KAFKA_HOST: kafka
+      DB_HOST: jdbc:mysql://bpm-dev.cxp0klyrcjfk.ap-northeast-2.rds.amazonaws.com
+      DB_USER: root
+      DB_PASS: 18925ung
+

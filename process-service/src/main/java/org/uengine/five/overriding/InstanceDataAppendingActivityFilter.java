@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class InstanceDataAppendingActivityFilter implements ActivityFilter, Serializable{
 
-	private static final long serialVersionUID = org.uengine.kernel.GlobalContext.SERIALIZATION_UID;
+	private static final long serialVersionUID = GlobalContext.SERIALIZATION_UID;
 	
 	public void afterExecute(Activity activity, final ProcessInstance instance)
 		throws Exception {

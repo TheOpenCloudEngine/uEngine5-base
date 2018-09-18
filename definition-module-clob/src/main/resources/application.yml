@@ -4,17 +4,22 @@ spring:
 
 server:
   port: 8080
-  servletPath: /
+  servlet:
+    context-path: /
 
 eureka:
   client:
+    registry-fetch-interval-seconds: 5
+    register-with-eureka: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
     healthcheck:
       enabled: true
   instance:
-    statusPageUrlPath: ${server.servletPath}info
-    healthCheckUrlPath: ${server.servletPath}health
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    statusPageUrlPath: ${server.servlet.context-path}info
+    healthCheckUrlPath: ${server.servlet.context-path}health
     metadataMap:
         deployment: local
         profile: local
@@ -24,27 +29,23 @@ spring:
 
 server:
   port: 8080
-  servletPath: /
+  servlet:
+    context-path: /
 
 eureka:
   client:
+    registry-fetch-interval-seconds: 5
+    register-with-eureka: true
     serviceUrl:
-      defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
+      defaultZone: http://${EUREKA_HOST}:8761/eureka/
     healthcheck:
       enabled: true
   instance:
-    hostname: ${HOST}
-    nonSecurePort: ${PORT}
-    preferIpAddress: false
-    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
-    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
-    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
-    instanceId: ${HOST}:${spring.application.name}:${PORT}
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    statusPageUrlPath: ${server.servlet.context-path}info
+    healthCheckUrlPath: ${server.servlet.context-path}health
     metadataMap:
-        project: ${CI_PROJECT_NAME}
-        commitSha: ${CI_COMMIT_SHA}
-        image: ${MARATHON_APP_DOCKER_IMAGE}
-        deployment: ${DEPLOYMENT}
-        profile: ${PROFILE}
-        appname: ${APP_NAME}
+        deployment: local
+        profile: local
 
