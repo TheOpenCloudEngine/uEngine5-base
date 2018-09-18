@@ -426,20 +426,19 @@
               }
             }
           }
-        }
-
-        for (var z = 0; z < me.definition.sequenceFlows.length; z++) {
-          if (me.definition.sequenceFlows[z] != null) {
-            if (me.definition.sequenceFlows[z].selected == true) {
-              me.definition.sequenceFlows[z] = null;
+          for (var z = 0; z < me.definition.sequenceFlows.length; z++) {
+            if (me.definition.sequenceFlows[z] != null) {
+              if (me.definition.sequenceFlows[z].selected == true) {
+                me.definition.sequenceFlows[z] = null;
+              }
             }
           }
-        }
 
-        for (var x = 0; x < me.definition.messageFlows.length; x++) {
-          if (me.definition.messageFlows[x] != null) {
-            if (me.definition.messageFlows[x].selected == true) {
-              me.definition.messageFlows[x] = null;
+          for (var x = 0; x < me.definition.messageFlows.length; x++) {
+            if (me.definition.messageFlows[x] != null) {
+              if (me.definition.messageFlows[x].selected == true) {
+                me.definition.messageFlows[x] = null;
+              }
             }
           }
         }
