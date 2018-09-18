@@ -33,6 +33,9 @@ go to localhost:8081
 To run uEngine5 in MSA, you need to launch all the micro-services one by one:
 
 ```
+# run local kafka
+docker-compose -f docker-compose-kafka.yml up -d
+
 cd uengine5-eureka
 mvn spring-boot:run
 
@@ -56,7 +59,7 @@ npm run dev
 Or, you can use the docker-compose.yml file:
 
 ```
-docker stack deploy -c docker-compose.yml uengine5
+docker-compose -f docker-compose.yml up -d
 
 ```
 
