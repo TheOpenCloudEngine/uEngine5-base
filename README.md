@@ -33,7 +33,7 @@ go to localhost:8081
 To run uEngine5 in MSA, you need to launch all the micro-services one by one:
 
 ```
-cd service-registry
+cd uengine5-eureka
 mvn spring-boot:run
 
 cd ../definition-service
@@ -44,7 +44,7 @@ cd ../process-service
 mvn package -B -U
 javar -jar target/uengine-five-process-*-exec.jar --server.port=9092 --spring.profiles.active=msa
 
-cd ../proxy
+cd uengine5-zuul
 mvn spring-boot:run
 
 cd ../front-end
