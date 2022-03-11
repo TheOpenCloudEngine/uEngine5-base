@@ -1,9 +1,0 @@
-spring:
-  application:
-      name: uengine5-zuul
-  profiles:
-    active: "local"
-
----
-spring:
-  profiles: local
