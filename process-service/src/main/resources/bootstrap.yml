@@ -1,9 +1,0 @@
-spring:
-  application:
-      name: bpm
-  profiles:
-    active: "local"
-
----
-spring:
-  profiles: local
