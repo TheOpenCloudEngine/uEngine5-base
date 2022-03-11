@@ -1,9 +1,0 @@
-spring:
-  application:
-      name: definition
-  profiles:
-    active: local
-
----
-spring:
-  profiles: local
